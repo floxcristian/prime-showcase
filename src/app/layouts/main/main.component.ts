@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterModule } from '@angular/router';
 import { DrawerModule } from 'primeng/drawer';
 import { ButtonModule } from 'primeng/button';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 import { SIDEBAR_NAV_ITEMS } from '../side-menu/constants/sidebar-nav-items';
 import { SidebarNavItem } from '../side-menu/models/sidebar-nav-item.interface';
 
-const NG_MODULES = [CommonModule, RouterOutlet];
+const NG_MODULES = [CommonModule, RouterOutlet, RouterModule];
 const PRIME_MODULES = [DrawerModule, ButtonModule];
 const COMPONENTS = [SideMenuComponent];
 
