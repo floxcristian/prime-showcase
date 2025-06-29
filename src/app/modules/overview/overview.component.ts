@@ -13,6 +13,7 @@ import { RouterModule } from '@angular/router';
 // PrimeNG
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
+import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -45,6 +46,7 @@ const PRIME_MODULES = [
   MeterGroupModule,
   OverlayBadgeModule,
   DatePickerModule,
+  CardModule
 ];
 
 @Component({
