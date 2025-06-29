@@ -1,7 +1,7 @@
 <div
   [ngClass]="{
-    'w-auto': isSlimMenu && !isMobile,
-    'w-72': !isSlimMenu || isMobile,
+    'w-auto': isSlimMenu() && !isMobile,
+    'w-72': !isSlimMenu() || isMobile,
     'h-full': !isMobile,
     'h-auto': isMobile
   }"
@@ -9,8 +9,8 @@
 >
   <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu && !isMobile,
-      'w-auto': !isSlimMenu || isMobile
+      'w-12 flex flex-col items-center': isSlimMenu() && !isMobile,
+      'w-auto': !isSlimMenu() || isMobile
     }"
   >
     <!-- Logo - Only show on desktop when not mobile -->
@@ -71,8 +71,8 @@
       </div>
       <div
         [ngClass]="{
-          hidden: isSlimMenu && !isMobile,
-          block: !isSlimMenu || isMobile
+          hidden: isSlimMenu() && !isMobile,
+          block: !isSlimMenu() || isMobile
         }"
         class="text-surface-950 dark:text-surface-0 font-medium text-3xl"
       >
@@ -84,7 +84,7 @@
     <div class="mt-10 flex flex-col gap-2">
       @for (navItem of sampleAppsSidebarNavs; track navItem) {
         <div
-          [pTooltip]="(isSlimMenu && !isMobile) ? navItem.title : ''"
+          [pTooltip]="(isSlimMenu() && !isMobile) ? navItem.title : ''"
           [routerLink]="navItem.url"
           (click)="onMenuItemClick()"
           class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
@@ -93,15 +93,15 @@
           #rla="routerLinkActive"
           [ngClass]="{
             'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
-            'w-12 justify-center py-4': isSlimMenu && !isMobile,
-            'w-full': !isSlimMenu || isMobile
+            'w-12 justify-center py-4': isSlimMenu() && !isMobile,
+            'w-full': !isSlimMenu() || isMobile
           }"
         >
           <i [class]="navItem.icon" class="text-lg"></i>
           <span
             [ngClass]="{
-              hidden: isSlimMenu && !isMobile,
-              'font-medium leading-none': !isSlimMenu || isMobile
+              hidden: isSlimMenu() && !isMobile,
+              'font-medium leading-none': !isSlimMenu() || isMobile
             }"
           >{{ navItem.title }}</span>
         </div>
@@ -112,29 +112,29 @@
   <!-- Bottom Section -->
   <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu && !isMobile,
-      'w-auto': !isSlimMenu || isMobile
+      'w-12 flex flex-col items-center': isSlimMenu() && !isMobile,
+      'w-auto': !isSlimMenu() || isMobile
     }"
   >
     <!-- Toggle Button for Desktop -->
     <div class="mt-6 flex flex-col gap-2" [class.hidden]="isMobile">
       <div
-        [pTooltip]="(isSlimMenu && !isMobile) ? (isSlimMenu ? 'Expand Menu' : 'Collapse Menu') : ''"
+        [pTooltip]="(isSlimMenu() && !isMobile) ? (isSlimMenu() ? 'Expand Menu' : 'Collapse Menu') : ''"
         (click)="toggleSlimMode()"
         class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
         [ngClass]="{
-          'w-12 justify-center py-4': isSlimMenu && !isMobile,
-          'w-full': !isSlimMenu || isMobile
+          'w-12 justify-center py-4': isSlimMenu() && !isMobile,
+          'w-full': !isSlimMenu() || isMobile
         }"
       >
         <i
           [class]="
-            isSlimMenu ? 'pi pi-window-maximize' : 'pi pi-window-minimize'
+            isSlimMenu() ? 'pi pi-window-maximize' : 'pi pi-window-minimize'
           "
           class="text-lg"
         ></i>
-        <span [class]="(isSlimMenu && !isMobile) ? 'hidden' : 'font-medium leading-none'">
-          {{ isSlimMenu ? 'Expand' : 'Collapse' }}
+        <span [class]="(isSlimMenu() && !isMobile) ? 'hidden' : 'font-medium leading-none'">
+          {{ isSlimMenu() ? 'Expand' : 'Collapse' }}
         </span>
       </div>
     </div>
@@ -143,16 +143,16 @@
     <div class="mt-4 flex flex-col gap-2">
       @for (navItem of sampleAppsSidebarNavsMore; track navItem) {
         <div
-          [pTooltip]="(isSlimMenu && !isMobile) ? navItem.title : ''"
+          [pTooltip]="(isSlimMenu() && !isMobile) ? navItem.title : ''"
           (click)="onSettingsClick(navItem.title)"
           class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
           [ngClass]="{
-            'w-12 justify-center py-4': isSlimMenu && !isMobile,
-            'w-full': !isSlimMenu || isMobile
+            'w-12 justify-center py-4': isSlimMenu() && !isMobile,
+            'w-full': !isSlimMenu() || isMobile
           }"
         >
           <i [class]="navItem.icon" class="text-lg"></i>
-          <span [class]="(isSlimMenu && !isMobile) ? 'hidden' : 'font-medium leading-none'">{{
+          <span [class]="(isSlimMenu() && !isMobile) ? 'hidden' : 'font-medium leading-none'">{{
             navItem.title
           }}</span>
         </div>
@@ -163,7 +163,7 @@
 
     <!-- User Profile -->
     <div
-      [class]="(isSlimMenu && !isMobile) ? 'justify-center' : 'gap-3'"
+      [class]="(isSlimMenu() && !isMobile) ? 'justify-center' : 'gap-3'"
       class="flex items-center"
     >
       <p-avatar
@@ -172,7 +172,7 @@
         shape="circle"
         class="shrink-0 cursor-pointer hover:scale-105 transition-transform"
       />
-      <div [class.hidden]="isSlimMenu && !isMobile">
+      <div [class.hidden]="isSlimMenu() && !isMobile">
         <div class="text-base font-medium text-color leading-5">
           Robin Jonas
         </div>

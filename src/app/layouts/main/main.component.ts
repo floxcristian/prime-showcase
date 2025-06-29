@@ -11,7 +11,7 @@ const COMPONENTS = [SideMenuComponent];
 
 @Component({
   selector: 'app-main',
-  imports: [NG_MODULES, PRIME_MODULES, COMPONENTS],
+  imports: [...NG_MODULES, ...PRIME_MODULES, ...COMPONENTS],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
