@@ -9,7 +9,7 @@
           icon="pi pi-bars" 
           text 
           size="small"
-          (click)="chatListVisible = true"
+          (click)="chatListVisible.set(true)"
         />
       </div>
     </div>
@@ -192,7 +192,7 @@
           text 
           size="small"
           class="lg:hidden"
-          (click)="chatListVisible = true"
+          (click)="chatListVisible.set(true)"
         />
         <p-avatar
           image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png"
