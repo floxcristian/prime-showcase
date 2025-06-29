@@ -1,5 +1,5 @@
 // Angular
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -63,6 +63,8 @@ export class CustomersComponent {
 
   selectedRows: any = [];
 
+  isBrowser: boolean;
+
   tableTokens = {
     header: {
       background: 'transparent',
@@ -78,7 +80,9 @@ export class CustomersComponent {
   constructor(
     @Inject(PLATFORM_ID) private platformId: any,
     private sanitizer: DomSanitizer
-  ) {}
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit() {
     this.tableData = [

@@ -1,6 +1,6 @@
 // Angular
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Inject, PLATFORM_ID, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -52,6 +52,7 @@ export class InboxComponent {
   inboxNavs: any;
   tableData: any;
   selectedRows: any = [];
+  isBrowser: boolean;
   tableTokens = {
     header: {
       background: 'transparent',
@@ -63,6 +64,10 @@ export class InboxComponent {
       background: 'transparent',
     },
   };
+
+  constructor(@Inject(PLATFORM_ID) private platformId: any) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit() {
     this.inboxNavs = [

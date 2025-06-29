@@ -25,52 +25,65 @@
           </div>
         </ng-template>
 
-        <p-fileupload
-          mode="advanced"
-          [multiple]="true"
-          accept="image/*"
-          [maxFileSize]="1000000"
-          (onSelect)="onSelectedFiles($event)"
-          (onUpload)="onTemplatedUpload($event)"
-          [customUpload]="true"
-          (uploadHandler)="uploadEvent($event)"
-          styleClass="w-full"
-        >
-          <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
-            <div class="border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg p-8 text-center">
-              @if (files.length === 0) {
-                <div class="space-y-4">
-                  <i class="pi pi-cloud-upload text-4xl text-muted-color"></i>
-                  <div>
-                    <p class="text-color font-medium">Drop files here or click to browse</p>
-                    <p class="text-muted-color text-sm">PNG, JPG up to 1MB</p>
-                  </div>
-                </div>
-              } @else {
-                <div class="space-y-4">
-                  @for (file of files; track file; let i = $index) {
-                    <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800 rounded-lg">
-                      <div class="flex items-center gap-3">
-                        <i class="pi pi-file text-primary"></i>
-                        <div class="text-left">
-                          <p class="text-color font-medium text-sm">{{ file.name }}</p>
-                          <p class="text-muted-color text-xs">{{ formatSize(file.size) }}</p>
-                        </div>
-                      </div>
-                      <p-button
-                        icon="pi pi-times"
-                        severity="danger"
-                        text
-                        size="small"
-                        (click)="onRemoveTemplatingFile(file, removeFileCallback, i)"
-                      />
+        @if (isBrowser) {
+          <p-fileupload
+            mode="advanced"
+            [multiple]="true"
+            accept="image/*"
+            [maxFileSize]="1000000"
+            (onSelect)="onSelectedFiles($event)"
+            (onUpload)="onTemplatedUpload($event)"
+            [customUpload]="true"
+            (uploadHandler)="uploadEvent($event)"
+            styleClass="w-full"
+          >
+            <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
+              <div class="border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg p-8 text-center">
+                @if (files.length === 0) {
+                  <div class="space-y-4">
+                    <i class="pi pi-cloud-upload text-4xl text-muted-color"></i>
+                    <div>
+                      <p class="text-color font-medium">Drop files here or click to browse</p>
+                      <p class="text-muted-color text-sm">PNG, JPG up to 1MB</p>
                     </div>
-                  }
-                </div>
-              }
+                  </div>
+                } @else {
+                  <div class="space-y-4">
+                    @for (file of files; track file; let i = $index) {
+                      <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800 rounded-lg">
+                        <div class="flex items-center gap-3">
+                          <i class="pi pi-file text-primary"></i>
+                          <div class="text-left">
+                            <p class="text-color font-medium text-sm">{{ file.name }}</p>
+                            <p class="text-muted-color text-xs">{{ formatSize(file.size) }}</p>
+                          </div>
+                        </div>
+                        <p-button
+                          icon="pi pi-times"
+                          severity="danger"
+                          text
+                          size="small"
+                          (click)="onRemoveTemplatingFile(file, removeFileCallback, i)"
+                        />
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </ng-template>
+          </p-fileupload>
+        } @else {
+          <!-- Fallback for SSR -->
+          <div class="border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg p-8 text-center">
+            <div class="space-y-4">
+              <i class="pi pi-cloud-upload text-4xl text-muted-color"></i>
+              <div>
+                <p class="text-color font-medium">Drop files here or click to browse</p>
+                <p class="text-muted-color text-sm">PNG, JPG up to 1MB</p>
+              </div>
             </div>
-          </ng-template>
-        </p-fileupload>
+          </div>
+        }
       </p-card>
 
       <!-- Form Controls Card -->

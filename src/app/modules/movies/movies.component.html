@@ -53,59 +53,108 @@
       </div>
     </div>
 
-    <p-carousel
-      [value]="carouselData"
-      [page]="page"
-      [numVisible]="5"
-      [numScroll]="1"
-      [responsiveOptions]="responsiveOptions"
-      [showIndicators]="false"
-      [showNavigators]="false"
-    >
-      <ng-template #item let-item>
-        <div class="p-2">
-          <div class="rounded-xl hover:bg-emphasis transition-colors cursor-pointer p-2">
-            <div class="relative w-full aspect-[16/9] rounded-lg overflow-hidden">
-              <img
-                [src]="item.image"
-                class="w-full h-full object-cover"
-                alt="Carousel Movie Image"
-              />
-              <div class="absolute top-2 right-2 px-2 py-1 text-xs font-medium bg-surface-0 dark:bg-surface-950 border border-surface rounded-md">
-                {{ item.point }}
-              </div>
-              <div class="absolute bottom-2 inset-x-2">
-                <p-progressbar
-                  [value]="item.watchedPercent"
-                  [showValue]="false"
-                  styleClass="!h-1 !bg-surface-950/50 dark:!bg-surface-50/50 !rounded-full"
-                  valueStyleClass="!bg-surface-0 dark:!bg-surface-950 !rounded-full"
+    @if (isBrowser) {
+      <p-carousel
+        [value]="carouselData"
+        [page]="page"
+        [numVisible]="5"
+        [numScroll]="1"
+        [responsiveOptions]="responsiveOptions"
+        [showIndicators]="false"
+        [showNavigators]="false"
+      >
+        <ng-template #item let-item>
+          <div class="p-2">
+            <div class="rounded-xl hover:bg-emphasis transition-colors cursor-pointer p-2">
+              <div class="relative w-full aspect-[16/9] rounded-lg overflow-hidden">
+                <img
+                  [src]="item.image"
+                  class="w-full h-full object-cover"
+                  alt="Carousel Movie Image"
                 />
-              </div>
-            </div>
-            <div class="mt-3 flex items-start justify-between gap-2">
-              <div class="flex-1 min-w-0">
-                <div class="font-medium text-color text-sm leading-tight line-clamp-1">
-                  {{ item.name }}
+                <div class="absolute top-2 right-2 px-2 py-1 text-xs font-medium bg-surface-0 dark:bg-surface-950 border border-surface rounded-md">
+                  {{ item.point }}
                 </div>
-                <div class="mt-1 text-muted-color text-xs">
-                  {{ item.categories.join(", ") }}
+                <div class="absolute bottom-2 inset-x-2">
+                  <p-progressbar
+                    [value]="item.watchedPercent"
+                    [showValue]="false"
+                    styleClass="!h-1 !bg-surface-950/50 dark:!bg-surface-50/50 !rounded-full"
+                    valueStyleClass="!bg-surface-0 dark:!bg-surface-950 !rounded-full"
+                  />
                 </div>
               </div>
-              @if (item.bookmarked) {
-                <p-button
-                  icon="pi pi-bookmark-fill"
-                  severity="contrast"
-                  text
-                  size="small"
-                  class="shrink-0"
-                />
-              }
+              <div class="mt-3 flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-color text-sm leading-tight line-clamp-1">
+                    {{ item.name }}
+                  </div>
+                  <div class="mt-1 text-muted-color text-xs">
+                    {{ item.categories.join(", ") }}
+                  </div>
+                </div>
+                @if (item.bookmarked) {
+                  <p-button
+                    icon="pi pi-bookmark-fill"
+                    severity="contrast"
+                    text
+                    size="small"
+                    class="shrink-0"
+                  />
+                }
+              </div>
             </div>
           </div>
-        </div>
-      </ng-template>
-    </p-carousel>
+        </ng-template>
+      </p-carousel>
+    } @else {
+      <!-- Fallback for SSR -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        @for (item of carouselData.slice(0, 5); track item) {
+          <div class="p-2">
+            <div class="rounded-xl hover:bg-emphasis transition-colors cursor-pointer p-2">
+              <div class="relative w-full aspect-[16/9] rounded-lg overflow-hidden">
+                <img
+                  [src]="item.image"
+                  class="w-full h-full object-cover"
+                  alt="Carousel Movie Image"
+                />
+                <div class="absolute top-2 right-2 px-2 py-1 text-xs font-medium bg-surface-0 dark:bg-surface-950 border border-surface rounded-md">
+                  {{ item.point }}
+                </div>
+                <div class="absolute bottom-2 inset-x-2">
+                  <p-progressbar
+                    [value]="item.watchedPercent"
+                    [showValue]="false"
+                    styleClass="!h-1 !bg-surface-950/50 dark:!bg-surface-50/50 !rounded-full"
+                    valueStyleClass="!bg-surface-0 dark:!bg-surface-950 !rounded-full"
+                  />
+                </div>
+              </div>
+              <div class="mt-3 flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-color text-sm leading-tight line-clamp-1">
+                    {{ item.name }}
+                  </div>
+                  <div class="mt-1 text-muted-color text-xs">
+                    {{ item.categories.join(", ") }}
+                  </div>
+                </div>
+                @if (item.bookmarked) {
+                  <p-button
+                    icon="pi pi-bookmark-fill"
+                    severity="contrast"
+                    text
+                    size="small"
+                    class="shrink-0"
+                  />
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 
   <!-- Popular Movies Section -->

@@ -1,6 +1,6 @@
 // Angular
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -108,11 +108,15 @@ export class CardsComponent {
   selectedPermission: string = 'Everyone';
   permissions: Permission[] = [];
   items: any;
+  isBrowser: boolean;
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: any,
     private config: PrimeNG,
     private messageService: MessageService
-  ) {}
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit() {
     this.priceRangePopularSpecs = [

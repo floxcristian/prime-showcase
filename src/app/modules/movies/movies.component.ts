@@ -1,8 +1,10 @@
 // Angular
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  Inject,
+  PLATFORM_ID,
   ViewEncapsulation,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -65,6 +67,12 @@ export class MoviesComponent {
   carouselData: any;
 
   popularMovies: any;
+
+  isBrowser: boolean;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: any) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit() {
     this.responsiveOptions = [

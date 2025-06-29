@@ -35,112 +35,161 @@
 
   <!-- Table Container -->
   <div class="flex-1 overflow-auto">
-    <p-table
-      [value]="tableData"
-      [(selection)]="selectedRows"
-      dataKey="id"
-      [rows]="10"
-      [dt]="tableTokens"
-      [scrollable]="true"
-      scrollHeight="flex"
-      [tableStyle]="{ 'min-width': '800px' }"
-    >
-      <ng-template #header>
-        <tr>
-          <th style="width: 3rem">
-            <p-tableHeaderCheckbox />
-          </th>
-          <th class="min-w-[200px]">Name</th>
-          <th class="min-w-[120px]">Title</th>
-          <th class="min-w-[160px]">Company Name</th>
-          <th class="min-w-[200px]">Email Address</th>
-          <th class="min-w-[120px]">Lead Source</th>
-          <th class="min-w-[100px]">Status</th>
-          <th style="width: 4rem">More</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-data>
-        <tr>
-          <td>
-            <p-tableCheckbox [value]="data" />
-          </td>
-          <td>
-            <div class="flex items-center gap-3">
-              <p-overlayBadge
+    @if (isBrowser) {
+      <p-table
+        [value]="tableData"
+        [(selection)]="selectedRows"
+        dataKey="id"
+        [rows]="10"
+        [dt]="tableTokens"
+        [scrollable]="true"
+        scrollHeight="flex"
+        [tableStyle]="{ 'min-width': '800px' }"
+      >
+        <ng-template #header>
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox />
+            </th>
+            <th class="min-w-[200px]">Name</th>
+            <th class="min-w-[120px]">Title</th>
+            <th class="min-w-[160px]">Company Name</th>
+            <th class="min-w-[200px]">Email Address</th>
+            <th class="min-w-[120px]">Lead Source</th>
+            <th class="min-w-[100px]">Status</th>
+            <th style="width: 4rem">More</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-data>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="data" />
+            </td>
+            <td>
+              <div class="flex items-center gap-3">
+                <p-overlayBadge
+                  [severity]="
+                    data.active === undefined
+                      ? 'contrast'
+                      : data.active
+                      ? 'success'
+                      : 'danger'
+                  "
+                  styleClass="w-fit"
+                >
+                  <p-avatar
+                    [image]="data.image"
+                    [label]="!data.image ? data.capName : ''"
+                    [ngClass]="{
+                      'bg-violet-100 text-violet-950 text-xs font-medium':
+                        !data.image
+                    }"
+                    styleClass="rounded-md overflow-hidden"
+                  />
+                </p-overlayBadge>
+                <div class="font-medium text-color text-sm">
+                  {{ data.name }}
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="text-muted-color text-sm">{{ data.title }}</div>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div
+                  class="flex items-center justify-center w-6 h-6"
+                  [innerHTML]="companyLogos[data.company.logo]"
+                ></div>
+                <div class="text-surface-600 dark:text-surface-400 text-sm">
+                  {{ data.company.name }}
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="text-muted-color text-sm truncate max-w-[200px]">
+                {{ data.email }}
+              </div>
+            </td>
+            <td>
+              <div class="text-muted-color text-sm">{{ data.lead }}</div>
+            </td>
+            <td>
+              <p-tag
                 [severity]="
-                  data.active === undefined
-                    ? 'contrast'
-                    : data.active
+                  data.status === 'Active'
                     ? 'success'
-                    : 'danger'
+                    : data.status === 'Inactive'
+                    ? 'danger'
+                    : 'info'
                 "
-                styleClass="w-fit"
-              >
-                <p-avatar
-                  [image]="data.image"
-                  [label]="!data.image ? data.capName : ''"
-                  [ngClass]="{
-                    'bg-violet-100 text-violet-950 text-xs font-medium':
-                      !data.image
-                  }"
-                  styleClass="rounded-md overflow-hidden"
+                [value]="data.status"
+                styleClass="font-medium text-xs"
+              />
+            </td>
+            <td>
+              <div class="flex justify-center">
+                <p-button
+                  (onClick)="displayPopover($event, op)"
+                  icon="pi pi-search"
+                  rounded
+                  outlined
+                  severity="secondary"
+                  size="small"
                 />
-              </p-overlayBadge>
-              <div class="font-medium text-color text-sm">
-                {{ data.name }}
               </div>
-            </div>
-          </td>
-          <td>
-            <div class="text-muted-color text-sm">{{ data.title }}</div>
-          </td>
-          <td>
-            <div class="flex items-center gap-2">
-              <div
-                class="flex items-center justify-center w-6 h-6"
-                [innerHTML]="companyLogos[data.company.logo]"
-              ></div>
-              <div class="text-surface-600 dark:text-surface-400 text-sm">
-                {{ data.company.name }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    } @else {
+      <!-- Fallback for SSR -->
+      <div class="p-6">
+        <div class="space-y-4">
+          @for (data of tableData; track data.id) {
+            <div class="flex items-center gap-4 p-4 border border-surface rounded-lg">
+              <div class="flex items-center gap-3 flex-1">
+                <p-overlayBadge
+                  [severity]="
+                    data.active === undefined
+                      ? 'contrast'
+                      : data.active
+                      ? 'success'
+                      : 'danger'
+                  "
+                  styleClass="w-fit"
+                >
+                  <p-avatar
+                    [image]="data.image"
+                    [label]="!data.image ? data.capName : ''"
+                    [ngClass]="{
+                      'bg-violet-100 text-violet-950 text-xs font-medium':
+                        !data.image
+                    }"
+                    styleClass="rounded-md overflow-hidden"
+                  />
+                </p-overlayBadge>
+                <div>
+                  <div class="font-medium text-color text-sm">{{ data.name }}</div>
+                  <div class="text-muted-color text-xs">{{ data.title }} at {{ data.company.name }}</div>
+                </div>
               </div>
-            </div>
-          </td>
-          <td>
-            <div class="text-muted-color text-sm truncate max-w-[200px]">
-              {{ data.email }}
-            </div>
-          </td>
-          <td>
-            <div class="text-muted-color text-sm">{{ data.lead }}</div>
-          </td>
-          <td>
-            <p-tag
-              [severity]="
-                data.status === 'Active'
-                  ? 'success'
-                  : data.status === 'Inactive'
-                  ? 'danger'
-                  : 'info'
-              "
-              [value]="data.status"
-              styleClass="font-medium text-xs"
-            />
-          </td>
-          <td>
-            <div class="flex justify-center">
-              <p-button
-                (onClick)="displayPopover($event, op)"
-                icon="pi pi-search"
-                rounded
-                outlined
-                severity="secondary"
-                size="small"
+              <p-tag
+                [severity]="
+                  data.status === 'Active'
+                    ? 'success'
+                    : data.status === 'Inactive'
+                    ? 'danger'
+                    : 'info'
+                "
+                [value]="data.status"
+                styleClass="font-medium text-xs"
               />
             </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+          }
+        </div>
+      </div>
+    }
   </div>
 
   <!-- Popover -->
