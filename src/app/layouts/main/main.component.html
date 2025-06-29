@@ -137,11 +137,62 @@
       </div>
     </ng-template>
     
-    <app-side-menu [isMobile]="true" (menuItemClick)="closeMobileMenu()" />
+    <!-- Mobile menu tradicional -->
+    <div class="flex flex-col gap-1 w-full">
+      @for (navItem of sampleAppsSidebarNavs; track navItem) {
+        <div class="relative">
+          <!-- Main Item -->
+          <div
+            [routerLink]="navItem.selectable ? navItem.url : null"
+            (click)="onNavItemClick(navItem)"
+            class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98] relative"
+            [routerLinkActive]="navItem.selectable ? 'text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md' : ''"
+            [routerLinkActiveOptions]="{ exact: true }"
+            #rla="routerLinkActive"
+            [ngClass]="{
+              'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive && navItem.selectable,
+              'text-color hover:bg-emphasis bg-transparent': !navItem.selectable
+            }"
+          >
+            <i [class]="navItem.icon" class="text-lg"></i>
+            <span class="font-medium leading-none flex-1">{{ navItem.title }}</span>
+            
+            @if (navItem.children) {
+              <i 
+                [class]="navItem.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                class="text-sm text-muted-color transition-transform duration-200"
+              ></i>
+            }
+          </div>
+
+          <!-- Sub Items -->
+          @if (navItem.children && navItem.expanded) {
+            <div class="ml-4 mt-1 space-y-1 transition-all duration-300">
+              @for (subItem of navItem.children; track subItem) {
+                <div
+                  [routerLink]="subItem.url"
+                  (click)="closeMobileMenu()"
+                  class="px-4 py-2 flex items-center gap-3 cursor-pointer text-sm rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
+                  routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  #subRla="routerLinkActive"
+                  [ngClass]="{
+                    'text-muted-color hover:bg-emphasis bg-transparent': !subRla.isActive
+                  }"
+                >
+                  <i [class]="subItem.icon" class="text-base"></i>
+                  <span class="font-medium leading-none">{{ subItem.title }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
   </p-drawer>
 
   <!-- Desktop Sidebar -->
-  <app-side-menu class="hidden lg:block" [isMobile]="false" />
+  <app-side-menu class="hidden lg:block" [isMobile]="false" (menuItemClick)="closeMobileMenu()" />
   
   <!-- Main Content -->
   <div class="flex-1 w-full h-full">

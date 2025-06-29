@@ -1,23 +1,9 @@
-<div
-  [ngClass]="{
-    'w-16': !isExpanded() && !isMobile,
-    'w-72': isExpanded() || isMobile,
-    'h-full': !isMobile,
-    'h-auto': isMobile
-  }"
-  class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 flex flex-col justify-between transition-all duration-300"
-  (mouseenter)="onMouseEnter()"
-  (mouseleave)="onMouseLeave()"
->
-  <div
-    [ngClass]="{
-      'w-6 flex flex-col items-center': !isExpanded() && !isMobile,
-      'w-auto': isExpanded() || isMobile
-    }"
-  >
-    <!-- Logo - Only show on desktop when not mobile -->
-    <div class="flex items-center gap-3" [class.hidden]="isMobile">
-      <div class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center">
+<div class="flex h-full">
+  <!-- Nivel 1: Siempre contraído, solo iconos -->
+  <div class="w-16 rounded-2xl p-3 bg-surface-50 dark:bg-surface-900 flex flex-col justify-between">
+    <div class="flex flex-col items-center">
+      <!-- Logo -->
+      <div class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center mb-8">
         <svg
           width="20"
           height="24"
@@ -71,168 +57,88 @@
           />
         </svg>
       </div>
-      <div
-        [ngClass]="{
-          hidden: !isExpanded() && !isMobile,
-          block: isExpanded() || isMobile
-        }"
-        class="text-surface-950 dark:text-surface-0 font-medium text-3xl transition-all duration-300"
-      >
-        Prime
+
+      <!-- Navigation Items Nivel 1 -->
+      <div class="flex flex-col gap-2 w-full">
+        @for (navItem of sampleAppsSidebarNavs; track navItem) {
+          <div class="relative">
+            <div
+              [pTooltip]="navItem.title"
+              tooltipPosition="right"
+              (click)="onLevel1Click(navItem)"
+              class="w-10 h-10 flex items-center justify-center cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98] relative"
+              [ngClass]="{
+                'text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md': isActiveLevel1(navItem),
+                'text-muted-color hover:bg-emphasis bg-transparent': !isActiveLevel1(navItem)
+              }"
+            >
+              <i [class]="navItem.icon" class="text-lg"></i>
+              
+              <!-- Indicador para elementos con subelementos -->
+              @if (navItem.children) {
+                <div class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></div>
+              }
+            </div>
+          </div>
+        }
       </div>
     </div>
 
-    <!-- Navigation Items -->
-    <div class="mt-10 flex flex-col gap-1 w-full">
-      @for (navItem of sampleAppsSidebarNavs; track navItem) {
-        <div class="relative">
-          <!-- Main Item -->
-          <div
-            [pTooltip]="(!isExpanded() && !isMobile) ? navItem.title : ''"
-            [routerLink]="navItem.selectable ? navItem.url : null"
-            (click)="onNavItemClick(navItem)"
-            class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98] relative"
-            [routerLinkActive]="navItem.selectable ? 'text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md' : ''"
-            [routerLinkActiveOptions]="{ exact: true }"
-            #rla="routerLinkActive"
-            [ngClass]="{
-              'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive && navItem.selectable,
-              'text-color hover:bg-emphasis bg-transparent': !navItem.selectable,
-              'w-12 justify-center py-4': !isExpanded() && !isMobile,
-              'w-full': isExpanded() || isMobile
-            }"
-          >
-            <i [class]="navItem.icon" class="text-lg"></i>
-            <span
-              [ngClass]="{
-                hidden: !isExpanded() && !isMobile,
-                'font-medium leading-none flex-1': isExpanded() || isMobile
-              }"
-              class="transition-all duration-300"
-            >{{ navItem.title }}</span>
-            
-            <!-- Expand/Collapse Icon for items with children -->
-            @if (navItem.children && (isExpanded() || isMobile)) {
-              <i 
-                [class]="navItem.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                class="text-sm text-muted-color transition-transform duration-200"
-              ></i>
-            }
-
-            <!-- Indicator for items with children when collapsed -->
-            @if (navItem.children && !isExpanded() && !isMobile) {
-              <div class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></div>
-            }
-          </div>
-
-          <!-- Sub Items -->
-          @if (navItem.children && navItem.expanded && (isExpanded() || isMobile)) {
-            <div class="ml-4 mt-1 space-y-1 transition-all duration-300">
-              @for (subItem of navItem.children; track subItem) {
-                <div
-                  [pTooltip]="(!isExpanded() && !isMobile) ? subItem.title : ''"
-                  [routerLink]="subItem.url"
-                  (click)="onMenuItemClick()"
-                  class="px-4 py-2 flex items-center gap-3 cursor-pointer text-sm rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
-                  routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  #subRla="routerLinkActive"
-                  [ngClass]="{
-                    'text-muted-color hover:bg-emphasis bg-transparent': !subRla.isActive,
-                    'w-full': true
-                  }"
-                >
-                  <i [class]="subItem.icon" class="text-base"></i>
-                  <span class="font-medium leading-none">{{ subItem.title }}</span>
-                </div>
-              }
-            </div>
-          }
-
-          <!-- Hover Submenu for collapsed state -->
-          @if (navItem.children && !isExpanded() && !isMobile && hoveredItem === navItem.title) {
-            <div class="absolute left-full top-0 ml-2 bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg shadow-lg p-2 min-w-48 z-50">
-              <div class="text-sm font-medium text-color mb-2 px-2">{{ navItem.title }}</div>
-              @for (subItem of navItem.children; track subItem) {
-                <div
-                  [routerLink]="subItem.url"
-                  (click)="onMenuItemClick()"
-                  class="px-3 py-2 flex items-center gap-3 cursor-pointer text-sm rounded-lg transition-all select-none hover:bg-emphasis"
-                  routerLinkActive="text-primary-contrast bg-primary"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                >
-                  <i [class]="subItem.icon" class="text-base"></i>
-                  <span class="font-medium">{{ subItem.title }}</span>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- Bottom Section -->
-  <div
-    [ngClass]="{
-      'w-6 flex flex-col items-center': !isExpanded() && !isMobile,
-      'w-auto': isExpanded() || isMobile
-    }"
-  >
-    <!-- Settings -->
-    <div class="mt-4 flex flex-col gap-2">
+    <!-- Bottom Section Nivel 1 -->
+    <div class="flex flex-col items-center gap-2">
       @for (navItem of sampleAppsSidebarNavsMore; track navItem) {
         <div
-          [pTooltip]="(!isExpanded() && !isMobile) ? navItem.title : ''"
+          [pTooltip]="navItem.title"
+          tooltipPosition="right"
           (click)="onSettingsClick(navItem.title)"
-          class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
-          [ngClass]="{
-            'w-12 justify-center py-4': !isExpanded() && !isMobile,
-            'w-full': isExpanded() || isMobile
-          }"
+          class="w-10 h-10 flex items-center justify-center cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
         >
           <i [class]="navItem.icon" class="text-lg"></i>
-          <span 
-            [ngClass]="{
-              hidden: !isExpanded() && !isMobile,
-              'font-medium leading-none': isExpanded() || isMobile
-            }"
-            class="transition-all duration-300"
-          >{{ navItem.title }}</span>
         </div>
       }
-    </div>
 
-    <p-divider />
+      <p-divider />
 
-    <!-- User Profile -->
-    <div
-      [ngClass]="{
-        'justify-center': !isExpanded() && !isMobile,
-        'gap-3': isExpanded() || isMobile
-      }"
-      class="flex items-center transition-all duration-300"
-    >
+      <!-- User Profile -->
       <p-avatar
         image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
         size="large"
         shape="circle"
-        class="shrink-0 cursor-pointer hover:scale-105 transition-transform"
+        class="cursor-pointer hover:scale-105 transition-transform"
       />
-      <div 
-        [ngClass]="{
-          hidden: !isExpanded() && !isMobile,
-          block: isExpanded() || isMobile
-        }"
-        class="transition-all duration-300"
-      >
-        <div class="text-base font-medium text-color leading-5">
-          Robin Jonas
-        </div>
-        <div class="text-sm text-muted-color mt-1">
-          hi&#64;robin.xyz
-        </div>
-      </div>
     </div>
   </div>
+
+  <!-- Nivel 2: Solo se muestra cuando hay un elemento seleccionado con subelementos -->
+  @if (selectedLevel1Item && selectedLevel1Item.children) {
+    <div class="w-64 ml-4 rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 flex flex-col">
+      <!-- Header del Nivel 2 -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-4">
+          <i [class]="selectedLevel1Item.icon" class="text-lg text-primary"></i>
+          <div class="text-color font-medium text-lg">{{ selectedLevel1Item.title }}</div>
+        </div>
+      </div>
+
+      <!-- Subelementos -->
+      <div class="flex flex-col gap-1">
+        @for (subItem of selectedLevel1Item.children; track subItem) {
+          <div
+            [routerLink]="subItem.url"
+            (click)="onMenuItemClick()"
+            class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
+            routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md"
+            [routerLinkActiveOptions]="{ exact: true }"
+            #subRla="routerLinkActive"
+            [ngClass]="{
+              'text-muted-color hover:bg-emphasis bg-transparent': !subRla.isActive
+            }"
+          >
+            <i [class]="subItem.icon" class="text-lg"></i>
+            <span class="font-medium leading-none">{{ subItem.title }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </div>

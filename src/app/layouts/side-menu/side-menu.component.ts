@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { DividerModule } from 'primeng/divider';
 import { AvatarModule } from 'primeng/avatar';
@@ -18,46 +18,43 @@ export class SideMenuComponent {
   @Input() isMobile = false;
   @Output() menuItemClick = new EventEmitter<void>();
 
-  isExpanded = signal(false);
-  hoveredItem: string | null = null;
   sampleAppsSidebarNavs = SIDEBAR_NAV_ITEMS;
   sampleAppsSidebarNavsMore = SIDEBAR_NAV_ITEMS_MORE;
+  selectedLevel1Item: SidebarNavItem | null = null;
 
-  onMouseEnter() {
-    if (!this.isMobile) {
-      this.isExpanded.set(true);
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    // Inicializar con el primer elemento que tenga subelementos
+    const firstItemWithChildren = this.sampleAppsSidebarNavs.find(item => item.children);
+    if (firstItemWithChildren) {
+      this.selectedLevel1Item = firstItemWithChildren;
     }
   }
 
-  onMouseLeave() {
-    if (!this.isMobile) {
-      this.isExpanded.set(false);
-      this.hoveredItem = null;
-      // Collapse all expanded items when leaving
-      this.collapseAllItems();
-    }
-  }
-
-  onNavItemClick(navItem: SidebarNavItem) {
-    // If item has children and is not selectable
-    if (navItem.children && !navItem.selectable) {
-      // In expanded mode or mobile, toggle expansion
-      if (this.isExpanded() || this.isMobile) {
-        navItem.expanded = !navItem.expanded;
-        // Collapse other expanded items (accordion behavior)
-        this.sampleAppsSidebarNavs.forEach(item => {
-          if (item !== navItem && item.children) {
-            item.expanded = false;
-          }
-        });
-      } else {
-        // In collapsed mode, show hover menu
-        this.hoveredItem = this.hoveredItem === navItem.title ? null : navItem.title;
-      }
-    } else if (navItem.selectable) {
-      // If item is selectable, emit menu item click
+  onLevel1Click(navItem: SidebarNavItem) {
+    if (navItem.children) {
+      // Si tiene subelementos, mostrar el nivel 2
+      this.selectedLevel1Item = navItem;
+    } else if (navItem.selectable && navItem.url !== undefined) {
+      // Si es seleccionable y no tiene subelementos, navegar directamente
+      this.router.navigate([navItem.url]);
+      this.selectedLevel1Item = null; // Ocultar nivel 2
       this.onMenuItemClick();
     }
+  }
+
+  isActiveLevel1(navItem: SidebarNavItem): boolean {
+    if (navItem.children) {
+      // Si tiene subelementos, está activo si algún subelemento está activo
+      return navItem.children.some(child => 
+        child.url !== undefined && this.router.url === `/${child.url}`
+      );
+    } else if (navItem.url !== undefined) {
+      // Si no tiene subelementos, verificar si la URL actual coincide
+      return this.router.url === `/${navItem.url}`;
+    }
+    return false;
   }
 
   onMenuItemClick() {
@@ -67,13 +64,5 @@ export class SideMenuComponent {
   onSettingsClick(title: string) {
     console.log('Settings clicked:', title);
     this.menuItemClick.emit();
-  }
-
-  private collapseAllItems() {
-    this.sampleAppsSidebarNavs.forEach(item => {
-      if (item.children) {
-        item.expanded = false;
-      }
-    });
   }
 }
