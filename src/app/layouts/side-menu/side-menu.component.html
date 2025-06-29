@@ -1,16 +1,18 @@
 <div
   [ngClass]="{
-    'w-auto': isSlimMenu() && !isMobile,
-    'w-72': !isSlimMenu() || isMobile,
+    'w-16': !isExpanded() && !isMobile,
+    'w-72': isExpanded() || isMobile,
     'h-full': !isMobile,
     'h-auto': isMobile
   }"
-  class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 flex flex-col justify-between"
+  class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 flex flex-col justify-between transition-all duration-300"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
 >
   <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu() && !isMobile,
-      'w-auto': !isSlimMenu() || isMobile
+      'w-6 flex flex-col items-center': !isExpanded() && !isMobile,
+      'w-auto': isExpanded() || isMobile
     }"
   >
     <!-- Logo - Only show on desktop when not mobile -->
@@ -71,58 +73,64 @@
       </div>
       <div
         [ngClass]="{
-          hidden: isSlimMenu() && !isMobile,
-          block: !isSlimMenu() || isMobile
+          hidden: !isExpanded() && !isMobile,
+          block: isExpanded() || isMobile
         }"
-        class="text-surface-950 dark:text-surface-0 font-medium text-3xl"
+        class="text-surface-950 dark:text-surface-0 font-medium text-3xl transition-all duration-300"
       >
         Prime
       </div>
     </div>
 
     <!-- Navigation Items -->
-    <div class="mt-10 flex flex-col gap-1">
+    <div class="mt-10 flex flex-col gap-1 w-full">
       @for (navItem of sampleAppsSidebarNavs; track navItem) {
-        <div>
+        <div class="relative">
           <!-- Main Item -->
           <div
-            [pTooltip]="(isSlimMenu() && !isMobile) ? navItem.title : ''"
+            [pTooltip]="(!isExpanded() && !isMobile) ? navItem.title : ''"
             [routerLink]="navItem.selectable ? navItem.url : null"
             (click)="onNavItemClick(navItem)"
-            class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
+            class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98] relative"
             [routerLinkActive]="navItem.selectable ? 'text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md' : ''"
             [routerLinkActiveOptions]="{ exact: true }"
             #rla="routerLinkActive"
             [ngClass]="{
               'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive && navItem.selectable,
               'text-color hover:bg-emphasis bg-transparent': !navItem.selectable,
-              'w-12 justify-center py-4': isSlimMenu() && !isMobile,
-              'w-full': !isSlimMenu() || isMobile
+              'w-12 justify-center py-4': !isExpanded() && !isMobile,
+              'w-full': isExpanded() || isMobile
             }"
           >
             <i [class]="navItem.icon" class="text-lg"></i>
             <span
               [ngClass]="{
-                hidden: isSlimMenu() && !isMobile,
-                'font-medium leading-none flex-1': !isSlimMenu() || isMobile
+                hidden: !isExpanded() && !isMobile,
+                'font-medium leading-none flex-1': isExpanded() || isMobile
               }"
+              class="transition-all duration-300"
             >{{ navItem.title }}</span>
             
             <!-- Expand/Collapse Icon for items with children -->
-            @if (navItem.children && (!isSlimMenu() || isMobile)) {
+            @if (navItem.children && (isExpanded() || isMobile)) {
               <i 
                 [class]="navItem.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                class="text-sm text-muted-color transition-transform"
+                class="text-sm text-muted-color transition-transform duration-200"
               ></i>
+            }
+
+            <!-- Indicator for items with children when collapsed -->
+            @if (navItem.children && !isExpanded() && !isMobile) {
+              <div class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></div>
             }
           </div>
 
           <!-- Sub Items -->
-          @if (navItem.children && navItem.expanded && (!isSlimMenu() || isMobile)) {
-            <div class="ml-4 mt-1 space-y-1">
+          @if (navItem.children && navItem.expanded && (isExpanded() || isMobile)) {
+            <div class="ml-4 mt-1 space-y-1 transition-all duration-300">
               @for (subItem of navItem.children; track subItem) {
                 <div
-                  [pTooltip]="(isSlimMenu() && !isMobile) ? subItem.title : ''"
+                  [pTooltip]="(!isExpanded() && !isMobile) ? subItem.title : ''"
                   [routerLink]="subItem.url"
                   (click)="onMenuItemClick()"
                   class="px-4 py-2 flex items-center gap-3 cursor-pointer text-sm rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
@@ -140,6 +148,25 @@
               }
             </div>
           }
+
+          <!-- Hover Submenu for collapsed state -->
+          @if (navItem.children && !isExpanded() && !isMobile && hoveredItem === navItem.title) {
+            <div class="absolute left-full top-0 ml-2 bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg shadow-lg p-2 min-w-48 z-50">
+              <div class="text-sm font-medium text-color mb-2 px-2">{{ navItem.title }}</div>
+              @for (subItem of navItem.children; track subItem) {
+                <div
+                  [routerLink]="subItem.url"
+                  (click)="onMenuItemClick()"
+                  class="px-3 py-2 flex items-center gap-3 cursor-pointer text-sm rounded-lg transition-all select-none hover:bg-emphasis"
+                  routerLinkActive="text-primary-contrast bg-primary"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                >
+                  <i [class]="subItem.icon" class="text-base"></i>
+                  <span class="font-medium">{{ subItem.title }}</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
     </div>
@@ -148,49 +175,30 @@
   <!-- Bottom Section -->
   <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu() && !isMobile,
-      'w-auto': !isSlimMenu() || isMobile
+      'w-6 flex flex-col items-center': !isExpanded() && !isMobile,
+      'w-auto': isExpanded() || isMobile
     }"
   >
-    <!-- Toggle Button for Desktop -->
-    <div class="mt-6 flex flex-col gap-2" [class.hidden]="isMobile">
-      <div
-        [pTooltip]="(isSlimMenu() && !isMobile) ? (isSlimMenu() ? 'Expand Menu' : 'Collapse Menu') : ''"
-        (click)="toggleSlimMode()"
-        class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
-        [ngClass]="{
-          'w-12 justify-center py-4': isSlimMenu() && !isMobile,
-          'w-full': !isSlimMenu() || isMobile
-        }"
-      >
-        <i
-          [class]="
-            isSlimMenu() ? 'pi pi-window-maximize' : 'pi pi-window-minimize'
-          "
-          class="text-lg"
-        ></i>
-        <span [class]="(isSlimMenu() && !isMobile) ? 'hidden' : 'font-medium leading-none'">
-          {{ isSlimMenu() ? 'Expand' : 'Collapse' }}
-        </span>
-      </div>
-    </div>
-
     <!-- Settings -->
     <div class="mt-4 flex flex-col gap-2">
       @for (navItem of sampleAppsSidebarNavsMore; track navItem) {
         <div
-          [pTooltip]="(isSlimMenu() && !isMobile) ? navItem.title : ''"
+          [pTooltip]="(!isExpanded() && !isMobile) ? navItem.title : ''"
           (click)="onSettingsClick(navItem.title)"
           class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
           [ngClass]="{
-            'w-12 justify-center py-4': isSlimMenu() && !isMobile,
-            'w-full': !isSlimMenu() || isMobile
+            'w-12 justify-center py-4': !isExpanded() && !isMobile,
+            'w-full': isExpanded() || isMobile
           }"
         >
           <i [class]="navItem.icon" class="text-lg"></i>
-          <span [class]="(isSlimMenu() && !isMobile) ? 'hidden' : 'font-medium leading-none'">{{
-            navItem.title
-          }}</span>
+          <span 
+            [ngClass]="{
+              hidden: !isExpanded() && !isMobile,
+              'font-medium leading-none': isExpanded() || isMobile
+            }"
+            class="transition-all duration-300"
+          >{{ navItem.title }}</span>
         </div>
       }
     </div>
@@ -199,8 +207,11 @@
 
     <!-- User Profile -->
     <div
-      [class]="(isSlimMenu() && !isMobile) ? 'justify-center' : 'gap-3'"
-      class="flex items-center"
+      [ngClass]="{
+        'justify-center': !isExpanded() && !isMobile,
+        'gap-3': isExpanded() || isMobile
+      }"
+      class="flex items-center transition-all duration-300"
     >
       <p-avatar
         image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
@@ -208,7 +219,13 @@
         shape="circle"
         class="shrink-0 cursor-pointer hover:scale-105 transition-transform"
       />
-      <div [class.hidden]="isSlimMenu() && !isMobile">
+      <div 
+        [ngClass]="{
+          hidden: !isExpanded() && !isMobile,
+          block: isExpanded() || isMobile
+        }"
+        class="transition-all duration-300"
+      >
         <div class="text-base font-medium text-color leading-5">
           Robin Jonas
         </div>

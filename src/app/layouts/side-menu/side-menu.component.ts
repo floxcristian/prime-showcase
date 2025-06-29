@@ -18,23 +18,31 @@ export class SideMenuComponent {
   @Input() isMobile = false;
   @Output() menuItemClick = new EventEmitter<void>();
 
-  isSlimMenu = signal(false);
+  isExpanded = signal(false);
+  hoveredItem: string | null = null;
   sampleAppsSidebarNavs = SIDEBAR_NAV_ITEMS;
   sampleAppsSidebarNavsMore = SIDEBAR_NAV_ITEMS_MORE;
 
-  toggleSlimMode() {
-    this.isSlimMenu.update(slim => !slim);
-    // Collapse all expanded items when switching to slim mode
-    if (this.isSlimMenu()) {
+  onMouseEnter() {
+    if (!this.isMobile) {
+      this.isExpanded.set(true);
+    }
+  }
+
+  onMouseLeave() {
+    if (!this.isMobile) {
+      this.isExpanded.set(false);
+      this.hoveredItem = null;
+      // Collapse all expanded items when leaving
       this.collapseAllItems();
     }
   }
 
   onNavItemClick(navItem: SidebarNavItem) {
-    // If item has children and is not selectable, toggle expansion
+    // If item has children and is not selectable
     if (navItem.children && !navItem.selectable) {
-      // Don't expand/collapse in slim mode on desktop
-      if (!this.isSlimMenu() || this.isMobile) {
+      // In expanded mode or mobile, toggle expansion
+      if (this.isExpanded() || this.isMobile) {
         navItem.expanded = !navItem.expanded;
         // Collapse other expanded items (accordion behavior)
         this.sampleAppsSidebarNavs.forEach(item => {
@@ -42,6 +50,9 @@ export class SideMenuComponent {
             item.expanded = false;
           }
         });
+      } else {
+        // In collapsed mode, show hover menu
+        this.hoveredItem = this.hoveredItem === navItem.title ? null : navItem.title;
       }
     } else if (navItem.selectable) {
       // If item is selectable, emit menu item click
