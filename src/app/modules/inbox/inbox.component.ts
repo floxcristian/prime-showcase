@@ -1,7 +1,7 @@
 // Angular
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
 import { AvatarModule } from 'primeng/avatar';
