@@ -1,225 +1,246 @@
 <div class="flex-1 h-full overflow-y-auto pb-0.5">
-  <div class="flex flex-wrap gap-4 items-start justify-between p-1">
-    <!-- Start::Header -->
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row gap-4 items-start justify-between p-1 mb-6">
     <div class="flex-1">
       <div class="text-muted-color font-medium leading-normal">Overview</div>
-      <div class="text-color text-3xl font-semibold leading-normal">
+      <div class="text-color text-2xl sm:text-3xl font-semibold leading-normal">
         Welcome to PrimeNG
       </div>
     </div>
-    <!-- End::Header -->
 
-    <div class="flex gap-2 whitespace-nowrap flex-nowrap">
-      <p-iconfield iconPosition="left">
+    <div class="flex gap-2 w-full sm:w-auto">
+      <p-iconfield iconPosition="left" class="flex-1 sm:flex-none">
         <p-inputicon class="pi pi-search"></p-inputicon>
-        <input type="text" pInputText placeholder="Search" />
+        <input type="text" pInputText placeholder="Search" class="w-full" />
       </p-iconfield>
-      <p-button severity="secondary" outlined>
+      <p-button severity="secondary" outlined class="shrink-0">
         <p-overlayBadge severity="danger" styleClass="!min-w-0 !w-2.5 !h-2.5">
           <i class="pi pi-bell"></i>
         </p-overlayBadge>
       </p-button>
     </div>
   </div>
-  <div class="mt-4 flex flex-wrap gap-6 items-center justify-between p-1">
+
+  <!-- Controls Section -->
+  <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between p-1 mb-6">
     <p-selectbutton
       [(ngModel)]="selectedTime"
       [options]="timeOptions"
       aria-labelledby="basic"
       [allowEmpty]="false"
       (onChange)="changeSelect()"
+      class="w-full lg:w-auto"
+    />
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
+      <p-button 
+        label="Download" 
+        icon="pi pi-download" 
+        iconPos="right" 
+        class="w-full sm:w-auto"
       />
-      <div class="flex items-center gap-2">
-        <p-button label="Download" icon="pi pi-download" iconPos="right" />
-        <p-datepicker
-          [(ngModel)]="dates"
-          appendTo="body"
-          dateFormat="dd.mm.yy"
-          selectionMode="range"
-          showIcon
-          iconDisplay="input"
-          placeholder="06/11/2024 - 06/22/2024"
-          />
-        </div>
-      </div>
-      <div class="flex flex-col gap-6 mt-6">
-        <!-- Start::Crypto Analytics -->
-        <div
-          class="w-full border border-surface rounded-2xl py-5 px-7 flex flex-col justify-between"
-          >
-          <div class="flex items-center gap-6 mb-6">
-            <div class="flex-1 text-color font-semibold leading-6">
-              Crypto Analytics
-            </div>
-            <div class="flex items-center gap-5">
-              @for (item of chartData?.datasets; track item) {
-                <div
-                  class="flex items-center gap-2"
-                  >
-                  <div
-                    class="w-3 h-3 rounded-full"
-                    [style.backgroundColor]="item.backgroundColor"
-                  ></div>
-                  <span class="font-medium text-color leading-6">{{
-                    item.label
-                  }}</span>
-                </div>
-              }
-            </div>
-          </div>
-          <p-chart
-            type="bar"
-            [data]="chartData"
-            [options]="chartOptions"
-            [height]="'20rem'"
-            />
-          </div>
+      <p-datepicker
+        [(ngModel)]="dates"
+        appendTo="body"
+        dateFormat="dd.mm.yy"
+        selectionMode="range"
+        showIcon
+        iconDisplay="input"
+        placeholder="06/11/2024 - 06/22/2024"
+        class="w-full sm:w-auto"
+      />
+    </div>
+  </div>
 
-          <div class="flex gap-6 xl:flex-row flex-col">
-            <!-- Start::Transactions -->
-            <div class="flex-1 border border-surface rounded-2xl py-5 px-7">
-              <div class="flex items-center gap-6 mb-4">
-                <div class="flex-1 text-color font-semibold leading-6">
-                  Transactions
-                </div>
-                <p-button
-                  type="button"
-                  icon="pi pi-ellipsis-h"
-                  severity="secondary"
-                  text
-                  (click)="menu.toggle($event)"
-                  aria-haspopup="true"
-                  aria-controls="overlay_menu"
-                  />
-                  <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" />
-                </div>
-                <p-table
-                  datakey="id"
-                  [value]="sampleAppsTableDatas"
-                  [paginator]="true"
-                  paginatorTemplate="PrevPageLink PageLinks NextPageLink  CurrentPageReport RowsPerPageDropdown"
-                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                  [showCurrentPageReport]="true"
-                  [rows]="5"
-                  [tableStyle]="{ 'min-width': '50rem' }"
-                  [showFirstLastIcon]="false"
-                  [dt]="tableTokens"
-                  paginatorStyleClass="!bg-transparent"
-                  >
-                  <ng-template #header>
-                    <tr>
-                      <th class="w-1/12">Id</th>
-                      <th class="w-1/4">Name</th>
-                      <th class="w-1/6">Coin</th>
-                      <th class="w-1/6">Date</th>
-                      <th class="w-1/6">Process</th>
-                      <th class="w-1/6">Amount</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template #body let-item>
-                    <tr>
-                      <td class="w-1/12">
-                        <div class="text-muted-color">{{ item.id }}</div>
-                      </td>
-                      <td class="w-1/4">
-                        <div class="flex items-center">
-                          <p-avatar
-                            [label]="item.name.label"
-                            class="mr-2 text-xs font-medium"
-                    [style]="{
-                      'background-color': '#ece9fc',
-                      color: '#2a1261'
-                    }"
-                            shape="circle"
-                            />
-                            <div class="leading-6 text-muted-color flex-1">
-                              {{ item.name.text }}
-                            </div>
-                          </div>
-                        </td>
-                        <td class="w-1/6">
-                          <div class="flex items-center">
-                            <i
-                              class="pi"
-                    [ngClass]="{
-                      'pi-bitcoin text-yellow-500 !text-3xl':
-                        item.coin !== 'btc',
-                      'pi-ethereum bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950 w-7 h-7 rounded-full !flex items-center justify-center':
-                        item.coin !== 'eth'
-                    }"
-                            ></i>
-                          </div>
-                        </td>
-                        <td class="w-1/6">
-                          <div class="text-muted-color">{{ item.date }}</div>
-                        </td>
-                        <td class="w-1/6">
-                          <p-tag
-                            [severity]="item.process.type"
-                            [value]="item.process.value"
-                            styleClass="font-medium"
-                          ></p-tag>
-                        </td>
-                        <td class="w-1/6">
-                          <div class="text-muted-color text-right">{{ item.amount }}</div>
-                        </td>
-                      </tr>
-                    </ng-template>
-                  </p-table>
-                </div>
-
-                <!-- Start::My Wallet -->
+  <!-- Content Grid -->
+  <div class="flex flex-col gap-6">
+    <!-- Crypto Analytics Chart -->
+    <p-card class="w-full">
+      <ng-template #header>
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 p-6 pb-0">
+          <div class="flex-1 text-color font-semibold text-lg">
+            Crypto Analytics
+          </div>
+          <div class="flex flex-wrap items-center gap-4">
+            @for (item of chartData?.datasets; track item) {
+              <div class="flex items-center gap-2">
                 <div
-                  class="xl:w-96 border border-surface rounded-2xl py-5 px-7 flex flex-col justify-between"
-                  >
-                  <div>
-                    <div class="flex items-center mb-6">
-                      <div class="flex-1 text-color font-semibold leading-6">
-                        My Wallet
-                      </div>
-                      <p-button
-                        type="button"
-                        icon="pi pi-ellipsis-h"
-                        severity="secondary"
-                        text
-                        (click)="menu.toggle($event)"
-                        aria-haspopup="true"
-                        aria-controls="overlay_menu"
-                        />
-                        <p-menu
-                          #menu
-                          id="overlay_menu"
-                          [model]="menuItems"
-                          [popup]="true"
-                          styleClass="ml-6"
-                          />
-                        </div>
-                        <p-metergroup [value]="metersData" labelPosition="end">
-                          <ng-template #label>
-                            <div class="flex flex-col gap-6 mt-4">
-                              @for (val of metersData; track val; let index = $index) {
-                                <div class="flex items-center gap-2">
-                                  <div
-                                    class="w-2 h-2 rounded-full"
-                                    [ngStyle]="{ backgroundColor: val.color }"
-                                  ></div>
-                                  <div
-                                    class="text-color uppercase font-medium leading-6 flex-1"
-                                    >
-                                    {{ val.label }}
-                                    <span class="text-muted-color">({{ val.value }}%)</span>
-                                  </div>
-                                  <div class="leading-6 font-medium text-color">
-                                    {{ val.text }}
-                                  </div>
-                                </div>
-                              }
-                            </div>
-                          </ng-template>
-                        </p-metergroup>
-                      </div>
-                      <p-button label="Show All" outlined styleClass="w-full" />
-                    </div>
-                  </div>
-                </div>
+                  class="w-3 h-3 rounded-full"
+                  [style.backgroundColor]="item.backgroundColor"
+                ></div>
+                <span class="font-medium text-color text-sm">{{
+                  item.label
+                }}</span>
               </div>
+            }
+          </div>
+        </div>
+      </ng-template>
+      
+      <p-chart
+        type="bar"
+        [data]="chartData"
+        [options]="chartOptions"
+        [height]="'20rem'"
+        class="w-full"
+      />
+    </p-card>
+
+    <!-- Bottom Section -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <!-- Transactions Table -->
+      <div class="xl:col-span-2">
+        <p-card class="h-full">
+          <ng-template #header>
+            <div class="flex items-center justify-between gap-4 p-6 pb-0">
+              <div class="text-color font-semibold text-lg">
+                Transactions
+              </div>
+              <p-button
+                type="button"
+                icon="pi pi-ellipsis-h"
+                severity="secondary"
+                text
+                (click)="menu.toggle($event)"
+                aria-haspopup="true"
+                aria-controls="overlay_menu"
+              />
+              <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" />
+            </div>
+          </ng-template>
+
+          <div class="overflow-x-auto">
+            <p-table
+              datakey="id"
+              [value]="sampleAppsTableDatas"
+              [paginator]="true"
+              paginatorTemplate="PrevPageLink PageLinks NextPageLink CurrentPageReport RowsPerPageDropdown"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              [showCurrentPageReport]="true"
+              [rows]="5"
+              [showFirstLastIcon]="false"
+              [dt]="tableTokens"
+              paginatorStyleClass="!bg-transparent"
+              [tableStyle]="{ 'min-width': '600px' }"
+            >
+              <ng-template #header>
+                <tr>
+                  <th class="w-16">Id</th>
+                  <th class="min-w-[200px]">Name</th>
+                  <th class="w-20">Coin</th>
+                  <th class="w-24">Date</th>
+                  <th class="w-24">Process</th>
+                  <th class="w-32 text-right">Amount</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-item>
+                <tr>
+                  <td>
+                    <div class="text-muted-color text-sm">{{ item.id }}</div>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <p-avatar
+                        [label]="item.name.label"
+                        class="text-xs font-medium shrink-0"
+                        [style]="{
+                          'background-color': '#ece9fc',
+                          color: '#2a1261'
+                        }"
+                        shape="circle"
+                        size="small"
+                      />
+                      <div class="text-color font-medium text-sm truncate">
+                        {{ item.name.text }}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="flex items-center justify-center">
+                      <i
+                        class="text-2xl"
+                        [ngClass]="{
+                          'pi-bitcoin text-yellow-500': item.coin === 'btc',
+                          'pi-ethereum bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950 w-6 h-6 rounded-full flex items-center justify-center text-sm': item.coin === 'eth'
+                        }"
+                      ></i>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="text-muted-color text-sm">{{ item.date }}</div>
+                  </td>
+                  <td>
+                    <p-tag
+                      [severity]="item.process.type"
+                      [value]="item.process.value"
+                      styleClass="font-medium text-xs"
+                    ></p-tag>
+                  </td>
+                  <td>
+                    <div class="text-muted-color text-right text-sm font-medium">{{ item.amount }}</div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </p-card>
+      </div>
+
+      <!-- My Wallet -->
+      <div class="xl:col-span-1">
+        <p-card class="h-full">
+          <ng-template #header>
+            <div class="flex items-center justify-between gap-4 p-6 pb-0">
+              <div class="text-color font-semibold text-lg">
+                My Wallet
+              </div>
+              <p-button
+                type="button"
+                icon="pi pi-ellipsis-h"
+                severity="secondary"
+                text
+                (click)="menu.toggle($event)"
+                aria-haspopup="true"
+                aria-controls="overlay_menu"
+              />
+              <p-menu
+                #menu
+                id="overlay_menu"
+                [model]="menuItems"
+                [popup]="true"
+              />
+            </div>
+          </ng-template>
+
+          <div class="flex flex-col h-full">
+            <div class="flex-1">
+              <p-metergroup [value]="metersData" labelPosition="end">
+                <ng-template #label>
+                  <div class="flex flex-col gap-4 mt-4">
+                    @for (val of metersData; track val; let index = $index) {
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="w-2 h-2 rounded-full shrink-0"
+                          [ngStyle]="{ backgroundColor: val.color }"
+                        ></div>
+                        <div class="text-color uppercase font-medium text-sm flex-1 min-w-0">
+                          {{ val.label }}
+                          <span class="text-muted-color">({{ val.value }}%)</span>
+                        </div>
+                        <div class="font-medium text-color text-sm shrink-0">
+                          {{ val.text }}
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </ng-template>
+              </p-metergroup>
+            </div>
+            <div class="mt-6">
+              <p-button label="Show All" outlined styleClass="w-full" />
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+  </div>
+</div>

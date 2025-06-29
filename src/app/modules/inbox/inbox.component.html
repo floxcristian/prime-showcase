@@ -1,182 +1,217 @@
-<div
-  class="w-64 h-full overflow-hidden border border-surface rounded-2xl flex flex-col"
+<div class="flex gap-4 h-full flex-1 w-full overflow-hidden">
+  <!-- Mobile Navigation Drawer -->
+  <p-drawer 
+    [(visible)]="mobileNavVisible" 
+    position="left" 
+    styleClass="!w-80 lg:!hidden"
+    [modal]="true"
   >
-  <div
-    class="flex items-center justify-between gap-2 p-4 border-b border-surface"
-    >
-    <div class="text-xl font-medium leading-7 text-color">Mails</div>
-    <p-button icon="pi pi-plus" styleClass="w-8 h-8" />
-  </div>
-  <div
-    class="flex-1 flex flex-col overflow-auto justify-between gap-4 pt-4 pb-4 px-4"
-    >
-    <div class="flex-1 overflow-auto flex flex-col gap-2">
-      @for (navData of inboxNavs; track navData) {
-        <div class="flex flex-col gap-2">
-          <div
-            class="text-sm font-medium leading-5 text-surface-400 dark:text-surface-500"
-            >
-            {{ navData.title }}
+    <ng-template #header>
+      <div class="text-xl font-medium text-color">Mails</div>
+    </ng-template>
+    
+    <div class="flex flex-col h-full">
+      <div class="flex-1 overflow-auto">
+        @for (navData of inboxNavs; track navData) {
+          <div class="mb-6">
+            <div class="text-sm font-medium text-surface-400 dark:text-surface-500 mb-3">
+              {{ navData.title }}
+            </div>
+            @for (nav of navData.navs; track nav) {
+              <button
+                (click)="selectNavItem(nav.name)"
+                [ngClass]="{
+                  'text-color bg-emphasis': activeInboxNav === nav.name,
+                  'text-muted-color bg-transparent': activeInboxNav !== nav.name
+                }"
+                class="w-full px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all mb-1"
+              >
+                <i [class]="nav.icon"></i>
+                <span class="font-medium">{{ nav.name }}</span>
+              </button>
+            }
           </div>
-          @for (nav of navData.navs; track nav) {
-            <button
-              (click)="activeInboxNav = nav.name"
-          [ngClass]="{
-            'text-color bg-emphasis': activeInboxNav === nav.name,
-            'text-muted-color bg-transparent': activeInboxNav !== nav.name
-          }"
-              class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all"
-              >
-              <i [class]="nav.icon"></i>
-              <span class="font-medium">{{ nav.name }}</span>
-            </button>
-          }
-        </div>
-      }
-    </div>
-    <div>
-      <div class="border border-surface rounded-border px-4 pb-4 pt-3 mb-4">
+        }
+      </div>
+      
+      <!-- Upgrade Card -->
+      <div class="border border-surface rounded-border p-4 mb-4">
         <div class="font-medium text-color mb-4">Free Version</div>
-        <p-progressbar [value]="75">
+        <p-progressbar [value]="75" class="mb-4">
           <ng-template #content let-value>
-            <span
-              class="w-full text-center text-sm font-normal text-primary-contrast leading-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              >4 days left</span
+            <span class="w-full text-center text-sm font-normal text-primary-contrast absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              4 days left
+            </span>
+          </ng-template>
+        </p-progressbar>
+        <p-button label="Upgrade to PRO 🚀" outlined styleClass="w-full" size="small" />
+      </div>
+    </div>
+  </p-drawer>
+
+  <!-- Desktop Sidebar -->
+  <div class="hidden lg:flex lg:w-64 h-full border border-surface rounded-2xl flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-surface">
+      <div class="text-xl font-medium text-color">Mails</div>
+      <p-button icon="pi pi-plus" styleClass="w-8 h-8" size="small" />
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex-1 flex flex-col justify-between p-4">
+      <div class="flex-1 overflow-auto">
+        @for (navData of inboxNavs; track navData) {
+          <div class="mb-6">
+            <div class="text-sm font-medium text-surface-400 dark:text-surface-500 mb-3">
+              {{ navData.title }}
+            </div>
+            @for (nav of navData.navs; track nav) {
+              <button
+                (click)="selectNavItem(nav.name)"
+                [ngClass]="{
+                  'text-color bg-emphasis': activeInboxNav === nav.name,
+                  'text-muted-color bg-transparent': activeInboxNav !== nav.name
+                }"
+                class="w-full px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all mb-1"
               >
-            </ng-template>
-          </p-progressbar>
-        </div>
-        <p-button label="Upgrade to PRO 🚀" outlined styleClass="w-full" />
+                <i [class]="nav.icon"></i>
+                <span class="font-medium">{{ nav.name }}</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Upgrade Card -->
+      <div class="border border-surface rounded-border p-4">
+        <div class="font-medium text-color mb-4">Free Version</div>
+        <p-progressbar [value]="75" class="mb-4">
+          <ng-template #content let-value>
+            <span class="w-full text-center text-sm font-normal text-primary-contrast absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              4 days left
+            </span>
+          </ng-template>
+        </p-progressbar>
+        <p-button label="Upgrade to PRO 🚀" outlined styleClass="w-full" size="small" />
       </div>
     </div>
   </div>
-  <div
-    class="flex-1 h-full overflow-hidden flex border border-surface rounded-2xl"
-    >
+
+  <!-- Main Content -->
+  <div class="flex-1 h-full border border-surface rounded-2xl flex flex-col">
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between p-4 border-b border-surface">
+      <div class="text-xl font-medium text-color">{{ activeInboxNav }}</div>
+      <p-button 
+        icon="pi pi-bars" 
+        text 
+        size="small"
+        (click)="mobileNavVisible = true"
+      />
+    </div>
+
+    <!-- Table -->
     <p-table
       [value]="tableData"
       [(selection)]="selectedRows"
       dataKey="id"
-      class="w-full"
+      class="flex-1"
       [dt]="tableTokens"
       [scrollable]="true"
       scrollHeight="flex"
-      >
+      [tableStyle]="{ 'min-width': '700px' }"
+    >
       <ng-template #caption>
-        <div
-          class="flex xl:items-center justify-between gap-2 flex-col xl:flex-row"
-          >
-          <div class="flex items-center gap-2">
-            <p-checkbox [binary]="true" class="mr-1" />
-            <p-button icon="pi pi-envelope" outlined severity="secondary" />
-            <p-button
-              icon="pi pi-exclamation-circle"
-              outlined
-              severity="secondary"
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-4">
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center gap-2">
+            <p-checkbox [binary]="true" class="mr-2" />
+            <p-button icon="pi pi-envelope" outlined severity="secondary" size="small" />
+            <p-button icon="pi pi-exclamation-circle" outlined severity="secondary" size="small" />
+            <p-button icon="pi pi-tag" outlined severity="secondary" size="small" />
+            <p-button icon="pi pi-inbox" label="Archive" outlined severity="secondary" size="small" />
+            <p-button icon="pi pi-trash" label="Trash" outlined severity="secondary" size="small" />
+          </div>
+
+          <!-- Search and Pagination -->
+          <div class="flex flex-wrap items-center gap-2">
+            <p-iconfield iconPosition="left" class="w-full sm:w-auto">
+              <p-inputicon class="pi pi-search"></p-inputicon>
+              <input
+                type="text"
+                pInputText
+                [(ngModel)]="search"
+                placeholder="Search"
+                class="w-full"
               />
-              <p-button icon="pi pi-tag" outlined severity="secondary" />
-              <p-button
-                icon="pi pi-inbox"
-                label="Archive"
-                outlined
-                severity="secondary"
+            </p-iconfield>
+            <p-button icon="pi pi-filter" outlined severity="secondary" size="small" />
+            <p-divider layout="vertical" styleClass="hidden sm:block m-0" />
+            <p-button icon="pi pi-refresh" outlined severity="secondary" size="small" />
+            <p-button label="1 of 15" outlined severity="secondary" size="small" />
+            <p-button icon="pi pi-chevron-left" outlined severity="secondary" size="small" />
+            <p-button icon="pi pi-chevron-right" outlined severity="secondary" size="small" />
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #body let-data>
+        <tr class="hover:bg-emphasis transition-colors">
+          <td style="width: 3rem">
+            <p-tableCheckbox [value]="data" />
+          </td>
+          <td style="width: 3rem">
+            <div
+              (click)="$event.stopPropagation(); data.bookmarked = !data.bookmarked"
+              class="cursor-pointer p-1"
+            >
+              <i
+                [ngClass]="
+                  data.bookmarked ? 'pi pi-bookmark-fill text-primary' : 'pi pi-bookmark text-muted-color'
+                "
+              ></i>
+            </div>
+          </td>
+          <td class="min-w-[200px]">
+            <div class="flex items-center gap-3">
+              <p-overlayBadge severity="danger" styleClass="w-fit">
+                <p-avatar
+                  [image]="data.image"
+                  [label]="!data.image ? data.capName : ''"
+                  [ngClass]="{
+                    'bg-violet-100 text-violet-950 text-xs font-medium': !data.image
+                  }"
+                  styleClass="rounded-md overflow-hidden"
+                  size="small"
                 />
-                <p-button
-                  icon="pi pi-trash"
-                  label="Trash"
-                  outlined
-                  severity="secondary"
-                  />
-                </div>
-                <div class="flex items-center gap-2">
-                  <p-iconfield iconPosition="left" class="w-6/12 xl:max-w-36">
-                    <p-inputicon class="pi pi-search"></p-inputicon>
-                    <input
-                      type="text"
-                      pInputText
-                      [(ngModel)]="search"
-                      placeholder="Search"
-                      class="w-full"
-                      />
-                    </p-iconfield>
-                    <p-button icon="pi pi-filter" outlined severity="secondary" />
-                    <p-divider layout="vertical" styleClass="m-0" />
-                    <p-button icon="pi pi-refresh" outlined severity="secondary" />
-                    <p-button
-                      label="1 of 15"
-                      class="!whitespace-nowrap"
-                      outlined
-                      severity="secondary"
-                      />
-                      <p-button icon="pi pi-chevron-left" outlined severity="secondary" />
-                      <p-button icon="pi pi-chevron-right" outlined severity="secondary" />
-                    </div>
-                  </div>
-                </ng-template>
-                <ng-template #body let-data>
-                  <tr>
-                    <td style="width: 1rem">
-                      <p-tableCheckbox [value]="data" />
-                    </td>
-
-                    <td style="width: 1rem; padding: 0.5rem">
-                      <div
-            (click)="
-              $event.stopPropagation(); data.bookmarked = !data.bookmarked
-            "
-                        >
-                        <i
-              [ngClass]="
-                data.bookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'
-              "
-                        ></i>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="flex items-center">
-                        <p-overlayBadge severity="danger" styleClass="w-fit">
-                          <p-avatar
-                            [image]="data.image"
-                            [label]="!data.image ? data.capName : ''"
-                [ngClass]="{
-                  'bg-violet-100 text-violet-950 text-xs font-medium':
-                    !data.image,
-                  'rounded-md overflow-hidden flex': true
-                }"
-                            />
-                          </p-overlayBadge>
-
-                          <div class="ml-4 leading-6 text-color font-medium">
-                            {{ data.name }}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td style="min-width: 14rem; max-width: 20rem">
-                        <div class="truncate">
-                          <span class="text-color leading-6 mr-2">{{ data.title }}</span>
-                          <span class="text-muted-color leading-5 text-sm">{{
-                            data.message
-                          }}</span>
-                        </div>
-                      </td>
-
-                      <td style="width: 4rem">
-                        @if (data.type) {
-                          <p-tag
-                            severity="secondary"
-                            [value]="data.type"
-                            class="font-medium"
-                          ></p-tag>
-                        }
-                      </td>
-
-                      <td style="width: 4rem">
-                        <div class="text-right text-sm leading-5 text-muted-color">
-                          {{ data.time }}
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-template>
-                </p-table>
+              </p-overlayBadge>
+              <div class="font-medium text-color text-sm">
+                {{ data.name }}
               </div>
+            </div>
+          </td>
+          <td class="min-w-[300px]">
+            <div class="truncate">
+              <span class="text-color font-medium text-sm mr-2">{{ data.title }}</span>
+              <span class="text-muted-color text-sm">{{ data.message }}</span>
+            </div>
+          </td>
+          <td style="width: 6rem">
+            @if (data.type) {
+              <p-tag
+                severity="secondary"
+                [value]="data.type"
+                styleClass="font-medium text-xs"
+              />
+            }
+          </td>
+          <td style="width: 5rem" class="text-right">
+            <div class="text-sm text-muted-color">
+              {{ data.time }}
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

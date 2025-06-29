@@ -1,197 +1,185 @@
 <div
   [ngClass]="{
-    'w-auto': isSlimMenu,
-    'w-72': !isSlimMenu
+    'w-auto': isSlimMenu && !isMobile,
+    'w-72': !isSlimMenu || isMobile,
+    'h-full': !isMobile,
+    'h-auto': isMobile
   }"
-  class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 h-full flex flex-col justify-between"
-  >
+  class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 flex flex-col justify-between"
+>
   <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu,
-      'w-auto': !isSlimMenu
+      'w-12 flex flex-col items-center': isSlimMenu && !isMobile,
+      'w-auto': !isSlimMenu || isMobile
     }"
-    >
-    <div class="flex items-center gap-3">
-      <div
-        class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center"
-        >
+  >
+    <!-- Logo - Only show on desktop when not mobile -->
+    <div class="flex items-center gap-3" [class.hidden]="isMobile">
+      <div class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center">
         <svg
           width="20"
           height="24"
           viewBox="0 0 20 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          >
+        >
           <path
             d="M14.65 11.0645L13.1283 10.7253L14.3119 12.4216V17.6803L18.3698 14.2876V8.52002L16.5099 9.19856L14.65 11.0645Z"
             fill="var(--p-primary-color)"
-            />
-            <path
-              d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
-              fill="var(--p-primary-color)"
-              />
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
-                fill="var(--p-primary-color)"
-                />
-                <path
-                  d="M14.311 20.9058L16.5091 18.7005V16.4952L14.311 18.3612V20.9058Z"
-                  fill="var(--p-primary-color)"
-                  />
-                  <path
-                    d="M5.51868 20.9058L3.32062 18.7005V16.4952L5.51868 18.3612V20.9058Z"
-                    fill="var(--p-primary-color)"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
-                      fill="var(--p-primary-color)"
-                      />
-                      <path
-                        d="M8.56283 10.5575L1.29232 7.84329L0.277832 3.60242L6.53385 4.11132L8.73191 10.5575H8.56283Z"
-                        fill="var(--p-primary-color)"
-                        />
-                        <path
-                          d="M11.4372 10.5575L18.7077 7.84329L19.7222 3.60242L13.2971 4.11132L11.2681 10.5575H11.4372Z"
-                          fill="var(--p-primary-color)"
-                          />
-                          <path
-                            d="M13.8041 3.60283L17.3548 3.26356L14.9876 0.888672H12.6205L13.8041 3.60283Z"
-                            fill="var(--p-primary-color)"
-                            />
-                            <path
-                              d="M6.02676 3.60283L2.47604 3.26356L4.84318 0.888672H7.21033L6.02676 3.60283Z"
-                              fill="var(--p-primary-color)"
-                              />
-                            </svg>
-                          </div>
-                          <div
+          />
+          <path
+            d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M14.311 20.9058L16.5091 18.7005V16.4952L14.311 18.3612V20.9058Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M5.51868 20.9058L3.32062 18.7005V16.4952L5.51868 18.3612V20.9058Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M8.56283 10.5575L1.29232 7.84329L0.277832 3.60242L6.53385 4.11132L8.73191 10.5575H8.56283Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M11.4372 10.5575L18.7077 7.84329L19.7222 3.60242L13.2971 4.11132L11.2681 10.5575H11.4372Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M13.8041 3.60283L17.3548 3.26356L14.9876 0.888672H12.6205L13.8041 3.60283Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M6.02676 3.60283L2.47604 3.26356L4.84318 0.888672H7.21033L6.02676 3.60283Z"
+            fill="var(--p-primary-color)"
+          />
+        </svg>
+      </div>
+      <div
         [ngClass]="{
-          hidden: isSlimMenu,
-          block: !isSlimMenu
+          hidden: isSlimMenu && !isMobile,
+          block: !isSlimMenu || isMobile
         }"
-                            class="text-surface-950 dark:text-surface-0 font-medium text-3xl"
-                            >
-                            Prime
-                          </div>
-                        </div>
-                        <div class="mt-10 flex flex-col gap-2">
-                          @for (navItem of sampleAppsSidebarNavs; track navItem) {
-                            <div
-                              [pTooltip]="isSlimMenu ? navItem.title : ''"
-                              [routerLink]="navItem.url"
-                              class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
-                              routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
-                              [routerLinkActiveOptions]="{ exact: true }"
-                              #rla="routerLinkActive"
-        [ngClass]="{
-          'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
-          'w-12 justify-center py-4': isSlimMenu,
-          'w-full': !isSlimMenu
-        }"
-                              >
-                              <i [class]="navItem.icon"></i>
-                              <span
+        class="text-surface-950 dark:text-surface-0 font-medium text-3xl"
+      >
+        Prime
+      </div>
+    </div>
+
+    <!-- Navigation Items -->
+    <div class="mt-10 flex flex-col gap-2">
+      @for (navItem of sampleAppsSidebarNavs; track navItem) {
+        <div
+          [pTooltip]="(isSlimMenu && !isMobile) ? navItem.title : ''"
+          [routerLink]="navItem.url"
+          (click)="onMenuItemClick()"
+          class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
+          routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md"
+          [routerLinkActiveOptions]="{ exact: true }"
+          #rla="routerLinkActive"
           [ngClass]="{
-            hidden: isSlimMenu,
-            'font-medium leading-8': !isSlimMenu
+            'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
+            'w-12 justify-center py-4': isSlimMenu && !isMobile,
+            'w-full': !isSlimMenu || isMobile
           }"
-                                >・</span
-                                >
-                                <span
-          [ngClass]="{
-            hidden: isSlimMenu,
-            'font-medium leading-none': !isSlimMenu
-          }"
-                                  >{{ navItem.title }}</span
-                                  >
-                                </div>
-                              }
-                            </div>
-                          </div>
-                          <div
+        >
+          <i [class]="navItem.icon" class="text-lg"></i>
+          <span
+            [ngClass]="{
+              hidden: isSlimMenu && !isMobile,
+              'font-medium leading-none': !isSlimMenu || isMobile
+            }"
+          >{{ navItem.title }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Bottom Section -->
+  <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu,
-      'w-auto': !isSlimMenu
+      'w-12 flex flex-col items-center': isSlimMenu && !isMobile,
+      'w-auto': !isSlimMenu || isMobile
     }"
-                            >
-                            <div class="mt-10 flex flex-col gap-2">
-                              @if (false) {
-                                <div
-                                  [pTooltip]="isSlimMenu ? 'Expanded Mode' : ''"
-                                  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis"
+  >
+    <!-- Toggle Button for Desktop -->
+    <div class="mt-6 flex flex-col gap-2" [class.hidden]="isMobile">
+      <div
+        [pTooltip]="(isSlimMenu && !isMobile) ? (isSlimMenu ? 'Expand Menu' : 'Collapse Menu') : ''"
+        (click)="toggleSlimMode()"
+        class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
         [ngClass]="{
-          'w-12 justify-center py-4': isSlimMenu,
-          'w-full': !isSlimMenu
+          'w-12 justify-center py-4': isSlimMenu && !isMobile,
+          'w-full': !isSlimMenu || isMobile
         }"
-                                  >
-                                  <a class="cursor-pointer block p-0 m-0 leading-none">
-                                    <a class="cursor-pointer block p-0 m-0 leading-none">
-                                      <i
-              [class]="
-                isSlimMenu ? 'pi pi-window-maximize' : 'pi pi-window-minimize'
-              "
-                                      ></i>
-                                      <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-8'"
-                                        >・</span
-                                        >
-                                        <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-none'">
-                                          Slim Mode</span
-                                          >
-                                        </a>
-                                      </a>
-                                    </div>
-                                  }
-                                  @for (navItem of sampleAppsSidebarNavsMore; track navItem) {
-                                    <div
-                                      [pTooltip]="isSlimMenu ? navItem.title : ''"
-                                      (click)="dashboardSidebarVisible = true"
-                                      class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
-        [ngClass]="{
-          'w-12 justify-center py-4': isSlimMenu,
-          'w-full': !isSlimMenu,
-          'text-muted-color hover:bg-emphasis bg-transparent':
-            selectedSampleAppsSidebarNav !== navItem.title,
-          'text-primary-contrast bg-primary hover:bg-primary-emphasis':
-            selectedSampleAppsSidebarNav === navItem.title
-        }"
-                                      >
-                                      <i [class]="navItem.icon"></i>
-                                      <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-8'"
-                                        >・</span
-                                        >
-                                        <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-none'">{{
-                                          navItem.title
-                                        }}</span>
-                                      </div>
-                                    }
-                                  </div>
-                                  <p-divider />
-                                  <div
-                                    [class]="isSlimMenu ? 'justify-center' : ' gap-3'"
-                                    class="flex items-center"
-                                    >
-                                    <p-avatar
-                                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
-                                      size="large"
-                                      shape="circle"
-                                      class="shrink-0"
-                                      />
-                                      <div>
-                                        <div
+      >
+        <i
           [class]="
-            isSlimMenu ? 'hidden' : 'text-base font-medium text-color leading-5'
+            isSlimMenu ? 'pi pi-window-maximize' : 'pi pi-window-minimize'
           "
-                                          >
-                                          Robin Jonas
-                                        </div>
-                                        <div [class]="isSlimMenu ? 'hidden' : 'text-sm text-muted-color mt-1'">
-                                          hi&#64;robin.xyz
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
+          class="text-lg"
+        ></i>
+        <span [class]="(isSlimMenu && !isMobile) ? 'hidden' : 'font-medium leading-none'">
+          {{ isSlimMenu ? 'Expand' : 'Collapse' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="mt-4 flex flex-col gap-2">
+      @for (navItem of sampleAppsSidebarNavsMore; track navItem) {
+        <div
+          [pTooltip]="(isSlimMenu && !isMobile) ? navItem.title : ''"
+          (click)="onSettingsClick(navItem.title)"
+          class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none text-muted-color hover:bg-emphasis hover:scale-[1.02] active:scale-[0.98]"
+          [ngClass]="{
+            'w-12 justify-center py-4': isSlimMenu && !isMobile,
+            'w-full': !isSlimMenu || isMobile
+          }"
+        >
+          <i [class]="navItem.icon" class="text-lg"></i>
+          <span [class]="(isSlimMenu && !isMobile) ? 'hidden' : 'font-medium leading-none'">{{
+            navItem.title
+          }}</span>
+        </div>
+      }
+    </div>
+
+    <p-divider />
+
+    <!-- User Profile -->
+    <div
+      [class]="(isSlimMenu && !isMobile) ? 'justify-center' : 'gap-3'"
+      class="flex items-center"
+    >
+      <p-avatar
+        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+        size="large"
+        shape="circle"
+        class="shrink-0 cursor-pointer hover:scale-105 transition-transform"
+      />
+      <div [class.hidden]="isSlimMenu && !isMobile">
+        <div class="text-base font-medium text-color leading-5">
+          Robin Jonas
+        </div>
+        <div class="text-sm text-muted-color mt-1">
+          hi&#64;robin.xyz
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

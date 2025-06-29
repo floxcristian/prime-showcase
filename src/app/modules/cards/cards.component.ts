@@ -14,6 +14,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 import { Checkbox } from 'primeng/checkbox';
 import { PrimeNG } from 'primeng/config';
 import { DividerModule } from 'primeng/divider';
@@ -43,6 +44,7 @@ const PRIME_MODULES = [
   AvatarGroupModule,
   BadgeModule,
   ButtonModule,
+  CardModule,
   Checkbox,
   DividerModule,
   FileUpload,
@@ -59,6 +61,7 @@ const PRIME_MODULES = [
   ToggleSwitchModule,
   TooltipModule,
 ];
+
 @Component({
   selector: 'app-cards',
   imports: [NG_MODULES, PRIME_MODULES],
@@ -67,8 +70,7 @@ const PRIME_MODULES = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService],
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-hidden',
   },
 })
 export class CardsComponent {
@@ -93,12 +95,12 @@ export class CardsComponent {
   ];
   userSelectButtonOptions: string[] = ['Joined', 'Hosted'];
   selectedUserSelectButtonOption: string = 'Joined';
+  selectedFrequency: string = 'weekly';
   darkMode: boolean = false;
   emailChips: any;
   memberSelectedTypes: string[] = ['O', 'E', 'V'];
   memberTypes: any;
-  copiedText: string =
-    "https://www.example.com/shared-files/user123/document-collection/file12345';";
+  copiedText: string = "https://www.example.com/shared-files/user123/document-collection/file12345";
   documentName: string = 'Aura Theme';
   filesTag: string[] = ['ui', 'redesign', 'dashboard'];
   selectedPermission: string = 'Everyone';
@@ -123,6 +125,7 @@ export class CardsComponent {
       { value: 'Central location', checked: false },
       { value: 'Sea view', checked: true },
     ];
+    
     this.memberTypes = [
       { name: 'Owner', code: 'O' },
       { name: 'Editor', code: 'E' },
@@ -144,12 +147,6 @@ export class CardsComponent {
     this.totalSize -= parseInt(this.formatSize(file.size));
     this.totalSizePercent = this.totalSize / 10;
   }
-
-  /*onClearTemplatingUpload(clear) {
-    clear();
-    this.totalSize = 0;
-    this.totalSizePercent = 0;
-  }*/
 
   onSelectedFiles(event: FileSelectEvent): void {
     this.files = event.files;
@@ -192,7 +189,6 @@ export class CardsComponent {
 
   search(event: AutoCompleteSelectEvent): void {
     this.items = [...Array(10).keys()].map((item) => '-' + item);
-    //this.items = [...Array(10).keys()].map((item) => event.query + '-' + item);
   }
 
   search2(event: AutoCompleteCompleteEvent): void {
@@ -201,5 +197,10 @@ export class CardsComponent {
 
   getObjectURL(file: File): string {
     return URL.createObjectURL(file);
+  }
+
+  getPermissionIcon(permissionName: string): string {
+    const permission = this.permissions.find(p => p.name === permissionName);
+    return permission ? permission.icon : 'pi pi-question';
   }
 }

@@ -1,6 +1,6 @@
 // Angular
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -16,6 +16,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { Textarea } from 'primeng/textarea';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { DrawerModule } from 'primeng/drawer';
 // Mocks
 import { CHATS } from './mocks/chats';
 import { CHAT_MESSAGES } from './mocks/chat-messages';
@@ -40,6 +41,7 @@ const PRIME_MODULES = [
   MenuModule,
   Textarea,
   ToggleSwitchModule,
+  DrawerModule,
 ];
 
 @Component({
@@ -49,8 +51,7 @@ const PRIME_MODULES = [
   styleUrl: './chat.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden flex border border-surface rounded-2xl',
+    class: 'flex-1 h-full overflow-hidden',
   },
 })
 export class ChatComponent {
@@ -59,6 +60,9 @@ export class ChatComponent {
   value: string = 'Chat';
   media: string = 'Media';
   search: string = '';
+
+  // Mobile state
+  chatListVisible = signal(false);
 
   // Profile
   activeChat: string = 'PrimeTek Team';
@@ -73,4 +77,9 @@ export class ChatComponent {
   chatMedia: string[] = CHAT_MEDIA;
 
   ngOnInit() {}
+
+  selectChat(chatName: string) {
+    this.activeChat = chatName;
+    this.chatListVisible.set(false);
+  }
 }

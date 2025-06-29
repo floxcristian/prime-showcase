@@ -1,6 +1,6 @@
 // Angular
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 // PrimeNG
 import { TooltipModule } from 'primeng/tooltip';
@@ -25,14 +25,32 @@ const PRIME_MODULES = [TooltipModule, DividerModule, AvatarModule];
   },
 })
 export class SideMenuComponent {
-  isSlimMenu: boolean = true;
+  @Input() isMobile: boolean = false;
+  @Output() menuItemClick = new EventEmitter<void>();
+
+  isSlimMenu = signal(false);
   sampleAppsSidebarNavs: SidebarNavItem[] = SIDEBAR_NAV_ITEMS;
   selectedSampleAppsSidebarNav: string = '';
   sampleAppsSidebarNavsMore: { icon: string; title: string }[] = [];
-  dashboardSidebarVisible: boolean = false;
 
   ngOnInit(): void {
     this.selectedSampleAppsSidebarNav = 'Overview';
-    this.sampleAppsSidebarNavsMore = [{ icon: 'pi pi-cog', title: 'Settings' }];
+    this.sampleAppsSidebarNavsMore = [
+      { icon: 'pi pi-cog', title: 'Settings' },
+      { icon: 'pi pi-question-circle', title: 'Help' }
+    ];
+  }
+
+  toggleSlimMode(): void {
+    this.isSlimMenu.update(slim => !slim);
+  }
+
+  onMenuItemClick(): void {
+    this.menuItemClick.emit();
+  }
+
+  onSettingsClick(title: string): void {
+    console.log(`${title} clicked`);
+    this.menuItemClick.emit();
   }
 }
