@@ -5,6 +5,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DividerModule } from 'primeng/divider';
 import { AvatarModule } from 'primeng/avatar';
 import { SIDEBAR_NAV_ITEMS, SIDEBAR_NAV_ITEMS_MORE } from './constants/sidebar-nav-items';
+import { SidebarNavItem } from './models/sidebar-nav-item.interface';
 
 @Component({
   selector: 'app-side-menu',
@@ -23,6 +24,29 @@ export class SideMenuComponent {
 
   toggleSlimMode() {
     this.isSlimMenu.update(slim => !slim);
+    // Collapse all expanded items when switching to slim mode
+    if (this.isSlimMenu()) {
+      this.collapseAllItems();
+    }
+  }
+
+  onNavItemClick(navItem: SidebarNavItem) {
+    // If item has children and is not selectable, toggle expansion
+    if (navItem.children && !navItem.selectable) {
+      // Don't expand/collapse in slim mode on desktop
+      if (!this.isSlimMenu() || this.isMobile) {
+        navItem.expanded = !navItem.expanded;
+        // Collapse other expanded items (accordion behavior)
+        this.sampleAppsSidebarNavs.forEach(item => {
+          if (item !== navItem && item.children) {
+            item.expanded = false;
+          }
+        });
+      }
+    } else if (navItem.selectable) {
+      // If item is selectable, emit menu item click
+      this.onMenuItemClick();
+    }
   }
 
   onMenuItemClick() {
@@ -31,5 +55,14 @@ export class SideMenuComponent {
 
   onSettingsClick(title: string) {
     console.log('Settings clicked:', title);
+    this.menuItemClick.emit();
+  }
+
+  private collapseAllItems() {
+    this.sampleAppsSidebarNavs.forEach(item => {
+      if (item.children) {
+        item.expanded = false;
+      }
+    });
   }
 }

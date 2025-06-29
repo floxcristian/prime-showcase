@@ -81,29 +81,65 @@
     </div>
 
     <!-- Navigation Items -->
-    <div class="mt-10 flex flex-col gap-2">
+    <div class="mt-10 flex flex-col gap-1">
       @for (navItem of sampleAppsSidebarNavs; track navItem) {
-        <div
-          [pTooltip]="(isSlimMenu() && !isMobile) ? navItem.title : ''"
-          [routerLink]="navItem.url"
-          (click)="onMenuItemClick()"
-          class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
-          routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md"
-          [routerLinkActiveOptions]="{ exact: true }"
-          #rla="routerLinkActive"
-          [ngClass]="{
-            'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
-            'w-12 justify-center py-4': isSlimMenu() && !isMobile,
-            'w-full': !isSlimMenu() || isMobile
-          }"
-        >
-          <i [class]="navItem.icon" class="text-lg"></i>
-          <span
+        <div>
+          <!-- Main Item -->
+          <div
+            [pTooltip]="(isSlimMenu() && !isMobile) ? navItem.title : ''"
+            [routerLink]="navItem.selectable ? navItem.url : null"
+            (click)="onNavItemClick(navItem)"
+            class="px-4 py-3 flex items-center gap-3 cursor-pointer text-base rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
+            [routerLinkActive]="navItem.selectable ? 'text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md' : ''"
+            [routerLinkActiveOptions]="{ exact: true }"
+            #rla="routerLinkActive"
             [ngClass]="{
-              hidden: isSlimMenu() && !isMobile,
-              'font-medium leading-none': !isSlimMenu() || isMobile
+              'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive && navItem.selectable,
+              'text-color hover:bg-emphasis bg-transparent': !navItem.selectable,
+              'w-12 justify-center py-4': isSlimMenu() && !isMobile,
+              'w-full': !isSlimMenu() || isMobile
             }"
-          >{{ navItem.title }}</span>
+          >
+            <i [class]="navItem.icon" class="text-lg"></i>
+            <span
+              [ngClass]="{
+                hidden: isSlimMenu() && !isMobile,
+                'font-medium leading-none flex-1': !isSlimMenu() || isMobile
+              }"
+            >{{ navItem.title }}</span>
+            
+            <!-- Expand/Collapse Icon for items with children -->
+            @if (navItem.children && (!isSlimMenu() || isMobile)) {
+              <i 
+                [class]="navItem.expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                class="text-sm text-muted-color transition-transform"
+              ></i>
+            }
+          </div>
+
+          <!-- Sub Items -->
+          @if (navItem.children && navItem.expanded && (!isSlimMenu() || isMobile)) {
+            <div class="ml-4 mt-1 space-y-1">
+              @for (subItem of navItem.children; track subItem) {
+                <div
+                  [pTooltip]="(isSlimMenu() && !isMobile) ? subItem.title : ''"
+                  [routerLink]="subItem.url"
+                  (click)="onMenuItemClick()"
+                  class="px-4 py-2 flex items-center gap-3 cursor-pointer text-sm rounded-lg transition-all select-none hover:scale-[1.02] active:scale-[0.98]"
+                  routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis shadow-md"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  #subRla="routerLinkActive"
+                  [ngClass]="{
+                    'text-muted-color hover:bg-emphasis bg-transparent': !subRla.isActive,
+                    'w-full': true
+                  }"
+                >
+                  <i [class]="subItem.icon" class="text-base"></i>
+                  <span class="font-medium leading-none">{{ subItem.title }}</span>
+                </div>
+              }
+            </div>
+          }
         </div>
       }
     </div>
