@@ -8,3 +8,12 @@ export const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
   { icon: 'pi pi-user', title: 'Customers', url: 'customers' },
   { icon: 'pi pi-video', title: 'Movies', url: 'movies' },
 ];
+
+export const SIDEBAR_NAV_ITEMS_MORE: SidebarNavItem[] = [
+  { icon: 'pi pi-cog', title: 'Settings', url: 'settings' },
+  { icon: 'pi pi-question-circle', title: 'Help', url: 'help' },
+];
+
+// Legacy exports for backward compatibility
+export const sampleAppsSidebarNavs = SIDEBAR_NAV_ITEMS;
+export const sampleAppsSidebarNavsMore = SIDEBAR_NAV_ITEMS_MORE;

@@ -170,13 +170,12 @@
           <!-- Multi-Select -->
           <div>
             <label class="block text-sm font-medium text-color mb-2">Member Types</label>
-            <p-select
+            <p-multiselect
               [(ngModel)]="memberSelectedTypes"
               [options]="memberTypes"
               optionLabel="name"
               optionValue="code"
               placeholder="Select types"
-              [multiple]="true"
               styleClass="w-full"
             />
           </div>

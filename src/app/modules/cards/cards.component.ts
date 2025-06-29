@@ -27,6 +27,7 @@ import { InputNumber } from 'primeng/inputnumber';
 import { InputOtp } from 'primeng/inputotp';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { RadioButton } from 'primeng/radiobutton';
 import { Select } from 'primeng/select';
@@ -52,6 +53,7 @@ const PRIME_MODULES = [
   InputOtp,
   InputTextModule,
   MenuModule,
+  MultiSelectModule,
   OverlayBadgeModule,
   RadioButton,
   Select,

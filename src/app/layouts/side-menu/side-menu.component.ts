@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { DividerModule } from 'primeng/divider';
 import { AvatarModule } from 'primeng/avatar';
-import { sampleAppsSidebarNavs, sampleAppsSidebarNavsMore } from './constants/sidebar-nav-items';
+import { SIDEBAR_NAV_ITEMS, SIDEBAR_NAV_ITEMS_MORE } from './constants/sidebar-nav-items';
 
 @Component({
   selector: 'app-side-menu',
@@ -18,8 +18,8 @@ export class SideMenuComponent {
   @Output() menuItemClick = new EventEmitter<void>();
 
   isSlimMenu = signal(false);
-  sampleAppsSidebarNavs = sampleAppsSidebarNavs;
-  sampleAppsSidebarNavsMore = sampleAppsSidebarNavsMore;
+  sampleAppsSidebarNavs = SIDEBAR_NAV_ITEMS;
+  sampleAppsSidebarNavsMore = SIDEBAR_NAV_ITEMS_MORE;
 
   toggleSlimMode() {
     this.isSlimMenu.update(slim => !slim);
