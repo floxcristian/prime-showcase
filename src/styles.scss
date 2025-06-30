@@ -182,37 +182,41 @@
 
 /* ===== MASONRY LAYOUT OPTIMIZADO ===== */
 
-/* Contenedor principal */
+/* Contenedor principal - FORZAR ANCHO COMPLETO */
 .masonry-container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  width: 100%;
-  max-width: 100%;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 100% !important;
 }
 
-/* Grid masonry con distribución perfecta */
+/* Grid masonry con distribución FORZADA a 3 columnas */
 .masonry-grid {
   /* Masonry nativo para navegadores compatibles */
-  display: grid;
-  /* FORZAR EXACTAMENTE 3 COLUMNAS con distribución uniforme */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: grid !important;
+  /* FORZAR EXACTAMENTE 3 COLUMNAS sin importar el ancho */
+  grid-template-columns: repeat(3, 1fr) !important;
   grid-template-rows: masonry;
-  gap: 1.5rem;
+  gap: 1.5rem !important;
   align-items: start;
-  width: 100%;
+  width: 100% !important;
+  max-width: none !important;
   justify-content: stretch;
+  grid-auto-flow: column;
 }
 
 /* Fallback para navegadores sin soporte masonry */
 @supports not (grid-template-rows: masonry) {
   .masonry-grid {
     /* Usar CSS columns como fallback */
-    display: block;
-    columns: 3;
-    column-gap: 1.5rem;
+    display: block !important;
+    columns: 3 !important;
+    column-gap: 1.5rem !important;
     column-fill: balance;
-    width: 100%;
+    width: 100% !important;
+    column-width: auto !important;
   }
   
   .masonry-item {
@@ -249,67 +253,54 @@
   }
 }
 
-/* ===== RESPONSIVE BREAKPOINTS OPTIMIZADOS ===== */
+/* ===== RESPONSIVE BREAKPOINTS ESPECÍFICOS ===== */
 
-/* Pantallas extra grandes - 4 columnas */
+/* FORZAR 3 COLUMNAS en resoluciones de escritorio */
+@media (min-width: 1024px) {
+  .masonry-grid {
+    /* FORZAR 3 COLUMNAS sin excepción */
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.75rem !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      columns: 3 !important;
+      column-gap: 1.75rem !important;
+      column-width: auto !important;
+    }
+  }
+}
+
+/* Pantallas extra grandes - MANTENER 3 columnas */
 @media (min-width: 1800px) {
   .masonry-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 2rem;
-  }
-  
-  @supports not (grid-template-rows: masonry) {
-    .masonry-grid {
-      columns: 4;
-      column-gap: 2rem;
-    }
-  }
-}
-
-/* Pantallas muy grandes - 3 columnas (tu resolución) */
-@media (min-width: 1200px) and (max-width: 1799px) {
-  .masonry-grid {
-    /* FORZAR EXACTAMENTE 3 COLUMNAS */
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 1.75rem;
-    justify-content: stretch;
+    /* MANTENER 3 COLUMNAS incluso en pantallas muy grandes */
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 2rem !important;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
       columns: 3 !important;
-      column-gap: 1.75rem;
+      column-gap: 2rem !important;
     }
   }
 }
 
-/* Pantallas medianas - 3 columnas también */
-@media (min-width: 1024px) and (max-width: 1199px) {
-  .masonry-grid {
-    /* FORZAR 3 COLUMNAS incluso en pantallas más pequeñas */
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 1.5rem;
-  }
-  
-  @supports not (grid-template-rows: masonry) {
-    .masonry-grid {
-      columns: 3 !important;
-      column-gap: 1.5rem;
-    }
-  }
-}
-
-/* Tablets grandes - 2 columnas */
+/* Tablets - 2 columnas */
 @media (min-width: 768px) and (max-width: 1023px) {
   .masonry-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
-      columns: 2;
-      column-gap: 1.5rem;
+      columns: 2 !important;
+      column-gap: 1.5rem !important;
     }
   }
 }
@@ -321,14 +312,14 @@
   }
   
   .masonry-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
-      columns: 1;
-      column-gap: 0;
+      columns: 1 !important;
+      column-gap: 0 !important;
     }
     
     .masonry-item {
@@ -428,20 +419,23 @@
   width: 100% !important;
 }
 
-/* FORZADO ESPECÍFICO PARA RESOLUCIONES COMUNES */
-@media (min-width: 1000px) and (max-width: 1920px) {
+/* FORZADO ESPECÍFICO PARA TU RESOLUCIÓN */
+@media (min-width: 1000px) {
   .masonry-grid {
     /* Forzar 3 columnas sin importar el ancho calculado */
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     /* Asegurar que las columnas se distribuyan uniformemente */
     justify-content: stretch;
     align-content: start;
+    width: 100% !important;
+    max-width: none !important;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
       columns: 3 !important;
       column-width: auto !important;
+      width: 100% !important;
     }
   }
 }
@@ -497,31 +491,89 @@
   }
 }
 
-/* Fallback adicional para mejor compatibilidad */
+/* OVERRIDE ESPECÍFICO PARA FORZAR 3 COLUMNAS */
+.masonry-grid {
+  /* Forzar 3 columnas usando !important */
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  display: grid !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Fallback mejorado para mejor compatibilidad */
 @supports not (grid-template-rows: masonry) {
   .masonry-grid {
-    display: block;
-    column-count: 3;
-    column-gap: 1.5rem;
-    column-fill: auto;
+    display: block !important;
+    column-count: 3 !important;
+    column-gap: 1.5rem !important;
+    column-fill: auto !important;
+    width: 100% !important;
+    column-width: auto !important;
   }
   
   @media (min-width: 1800px) {
     .masonry-grid {
-      column-count: 4;
-      column-gap: 2rem;
+      column-count: 3 !important;
+      column-gap: 2rem !important;
     }
   }
   
   @media (max-width: 1023px) {
     .masonry-grid {
-      column-count: 2;
+      column-count: 2 !important;
     }
   }
   
   @media (max-width: 767px) {
     .masonry-grid {
-      column-count: 1;
+      column-count: 1 !important;
     }
   }
+}
+
+/* FORZAR ANCHO COMPLETO EN EL CONTENEDOR PADRE */
+.flex-1.h-full.overflow-y-auto.border.border-surface.rounded-2xl {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.flex-1.h-full.overflow-y-auto.border.border-surface.rounded-2xl .p-6 {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Asegurar que el contenedor de cards use todo el ancho disponible */
+.space-y-8 {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* OVERRIDE FINAL PARA GARANTIZAR 3 COLUMNAS */
+@media (min-width: 1024px) {
+  .masonry-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    display: grid !important;
+    gap: 1.75rem !important;
+    width: 100% !important;
+    max-width: none !important;
+    justify-content: stretch !important;
+  }
+}
+
+/* Asegurar que el grid no se colapse */
+.masonry-grid {
+  min-height: 200px;
+  position: relative;
+}
+
+/* Debug temporal para verificar el ancho */
+.masonry-grid::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  z-index: -1;
 }
