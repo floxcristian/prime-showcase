@@ -20,10 +20,6 @@
             "outputPath": "dist/prime-showcase",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "server": "src/main.server.ts",
-            "ssr": {
-              "entry": "src/main.server.ts"
-            },
             "polyfills": [
               "zone.js"
             ],
@@ -38,8 +34,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [],
-            "outputMode": "server"
+            "scripts": []
           },
           "configurations": {
             "production": {
