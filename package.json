@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "NODE_OPTIONS=--max-old-space-size=8192 ng build",
+    "build": "NODE_OPTIONS=--max-old-space-size=16384 ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:prime-showcase": "node dist/prime-showcase/server/server.mjs"
