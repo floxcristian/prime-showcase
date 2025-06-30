@@ -35,9 +35,10 @@
               "src/styles.scss"
             ],
             "scripts": [],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
-            "ssr": true
+            "ssr": {
+              "entry": "src/main.server.ts"
+            },
+            "outputMode": "server"
           },
           "configurations": {
             "production": {
