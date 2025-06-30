@@ -180,112 +180,400 @@
   z-index: 2 !important;
 }
 
-/* ===== GRID LAYOUT MEJORADO ===== */
+/* ===== MASONRY LAYOUT OPTIMIZADO ===== */
 
-/* Grid responsivo con mejor distribución */
-.grid {
+/* Contenedor principal - FORZAR ANCHO COMPLETO */
+.masonry-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 100% !important;
+}
+
+/* Grid masonry con distribución FORZADA a 3 columnas */
+.masonry-grid {
+  /* Masonry nativo para navegadores compatibles */
   display: grid !important;
+  /* FORZAR EXACTAMENTE 3 COLUMNAS sin importar el ancho */
+  grid-template-columns: repeat(3, 1fr) !important;
+  grid-template-rows: masonry;
+  gap: 1.5rem !important;
+  align-items: start;
   width: 100% !important;
+  max-width: none !important;
+  justify-content: stretch;
+  grid-auto-flow: column;
 }
 
-/* Asegurar que los cards mantengan altura uniforme en filas */
-.grid > .col-span-1 {
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.grid > .col-span-1 .p-card {
-  flex: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.grid > .col-span-1 .p-card .p-card-body {
-  flex: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-/* Espaciado consistente */
-.space-y-6 > * + * {
-  margin-top: 1.5rem !important;
-}
-
-.space-y-8 > * + * {
-  margin-top: 2rem !important;
-}
-
-/* Asegurar que los inputs y selects tengan ancho completo */
-.p-card .w-full {
-  width: 100% !important;
-}
-
-/* Mejorar el espaciado interno de los cards */
-.p-card .space-y-6 > * + * {
-  margin-top: 1.5rem !important;
-}
-
-.p-card .space-y-3 > * + * {
-  margin-top: 0.75rem !important;
-}
-
-/* Asegurar que los elementos de formulario se vean bien */
-.p-card input,
-.p-card .p-select,
-.p-card .p-multiselect,
-.p-card .p-autocomplete {
-  width: 100% !important;
-}
-
-/* Mejorar la alineación de labels */
-.p-card label {
-  display: block !important;
-  margin-bottom: 0.5rem !important;
-}
-
-/* Asegurar que los tags se vean bien */
-.p-card .flex.flex-wrap.gap-2 {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 0.5rem !important;
-}
-
-/* Mejorar el espaciado de checkboxes y radio buttons */
-.p-card .flex.items-center.gap-2 {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-}
-
-/* Asegurar que el grid sea responsive */
-@media (max-width: 1023px) {
-  .xl\:grid-cols-3 {
-    grid-template-columns: repeat(2, 1fr) !important;
+/* Fallback para navegadores sin soporte masonry */
+@supports not (grid-template-rows: masonry) {
+  .masonry-grid {
+    /* Usar CSS columns como fallback */
+    display: block !important;
+    columns: 3 !important;
+    column-gap: 1.5rem !important;
+    column-fill: balance;
+    width: 100% !important;
+    column-width: auto !important;
   }
+  
+  .masonry-item {
+    /* Evitar que los items se rompan entre columnas */
+    break-inside: avoid;
+    page-break-inside: avoid;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    vertical-align: top;
+  }
+  
+  /* Item que ocupa todo el ancho en fallback */
+  .masonry-item-wide {
+    column-span: all;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Para navegadores con soporte masonry */
+@supports (grid-template-rows: masonry) {
+  .masonry-item {
+    position: static;
+    margin: 0;
+    align-self: start;
+    width: 100%;
+    justify-self: stretch;
+  }
+  
+  /* Item que ocupa todo el ancho */
+  .masonry-item-wide {
+    grid-column: 1 / -1;
+    margin-top: 1rem;
+  }
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ESPECÍFICOS ===== */
+
+/* FORZAR 3 COLUMNAS en resoluciones de escritorio */
+@media (min-width: 1024px) {
+  .masonry-grid {
+    /* FORZAR 3 COLUMNAS sin excepción */
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 1.75rem !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      columns: 3 !important;
+      column-gap: 1.75rem !important;
+      column-width: auto !important;
+    }
+  }
+}
+
+/* Pantallas extra grandes - MANTENER 3 columnas */
+@media (min-width: 1800px) {
+  .masonry-grid {
+    /* MANTENER 3 COLUMNAS incluso en pantallas muy grandes */
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 2rem !important;
+  }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      columns: 3 !important;
+      column-gap: 2rem !important;
+    }
+  }
+}
+
+/* Tablets - 2 columnas */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .masonry-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem !important;
+  }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      columns: 2 !important;
+      column-gap: 1.5rem !important;
+    }
+  }
+}
+
+/* Móviles - 1 columna */
+@media (max-width: 767px) {
+  .masonry-container {
+    gap: 1.5rem;
+  }
+  
+  .masonry-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      columns: 1 !important;
+      column-gap: 0 !important;
+    }
+    
+    .masonry-item {
+      margin-bottom: 1.5rem;
+    }
+    
+    .masonry-item-wide {
+      margin-bottom: 1.5rem;
+      margin-top: 0;
+    }
+  }
+}
+
+/* ===== OPTIMIZACIONES ESPECÍFICAS ===== */
+
+/* Asegurar que los cards mantengan su altura natural */
+.masonry-item .p-card {
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Eliminar transformaciones que puedan causar problemas */
+.masonry-item {
+  transform: none !important;
+  will-change: auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  isolation: isolate;
+  overflow: visible;
+  position: relative;
+}
+
+/* Transiciones suaves */
+.masonry-item {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Asegurar que el contenido del card se distribuya correctamente */
+.masonry-item .p-card .p-card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+}
+
+/* Optimizaciones adicionales para el masonry */
+.masonry-grid {
+  contain: layout style;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+/* Asegurar que los cards no tengan margin que interfiera */
+.masonry-item > * {
+  margin: 0 !important;
+}
+
+/* Prevenir problemas de z-index */
+.masonry-item {
+  z-index: auto;
+}
+
+/* Optimización para animaciones */
+.masonry-item .p-card {
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Forzar recálculo del layout cuando sea necesario */
+.masonry-grid::after {
+  content: '';
+  display: block;
+  clear: both;
+  height: 0;
+  visibility: hidden;
+}
+
+/* Asegurar distribución uniforme en navegadores con masonry */
+@supports (grid-template-rows: masonry) {
+  .masonry-grid {
+    justify-content: stretch;
+    align-content: start;
+    grid-auto-columns: 1fr;
+  }
+  
+  .masonry-item {
+    justify-self: stretch;
+    align-self: start;
+  }
+}
+
+/* Asegurar que el contenedor padre no limite el ancho */
+.masonry-container {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* FORZADO ESPECÍFICO PARA TU RESOLUCIÓN */
+@media (min-width: 1000px) {
+  .masonry-grid {
+    /* Forzar 3 columnas sin importar el ancho calculado */
+    grid-template-columns: repeat(3, 1fr) !important;
+    /* Asegurar que las columnas se distribuyan uniformemente */
+    justify-content: stretch;
+    align-content: start;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      columns: 3 !important;
+      column-width: auto !important;
+      width: 100% !important;
+    }
+  }
+}
+
+/* Asegurar que no haya overflow horizontal */
+.masonry-container,
+.masonry-grid {
+  overflow-x: visible;
+  max-width: 100%;
+}
+
+/* Forzar que las columnas tengan el mismo ancho */
+.masonry-grid {
+  grid-auto-columns: 1fr;
+}
+
+/* Asegurar que los items no se salgan de su columna */
+.masonry-item {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Espaciado mejorado para el item wide */
+.masonry-item-wide {
+  margin-top: 1rem !important;
 }
 
 @media (max-width: 767px) {
-  .lg\:grid-cols-2 {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .lg\:col-span-2 {
-    grid-column: span 1 !important;
-  }
-  
-  .xl\:col-span-3 {
-    grid-column: span 1 !important;
+  .masonry-item-wide {
+    margin-top: 0 !important;
   }
 }
 
-/* Asegurar que el último card (Profile Settings) se vea bien */
-.col-span-1.lg\:col-span-2.xl\:col-span-3 .p-card .grid {
-  gap: 1.5rem !important;
+/* Optimización final para evitar gaps irregulares */
+.masonry-grid {
+  align-items: stretch;
 }
 
-/* Mejorar la visualización del avatar */
-.p-card .flex.items-center.gap-4 {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1rem !important;
+.masonry-item {
+  align-self: start;
+}
+
+/* Asegurar que el último elemento tenga el espaciado correcto */
+.masonry-item-wide:last-child {
+  margin-bottom: 0;
+}
+
+/* Mejorar la distribución visual */
+@supports (grid-template-rows: masonry) {
+  .masonry-grid {
+    grid-template-rows: masonry;
+    grid-auto-flow: column;
+  }
+}
+
+/* OVERRIDE ESPECÍFICO PARA FORZAR 3 COLUMNAS */
+.masonry-grid {
+  /* Forzar 3 columnas usando !important */
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  display: grid !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Fallback mejorado para mejor compatibilidad */
+@supports not (grid-template-rows: masonry) {
+  .masonry-grid {
+    display: block !important;
+    column-count: 3 !important;
+    column-gap: 1.5rem !important;
+    column-fill: auto !important;
+    width: 100% !important;
+    column-width: auto !important;
+  }
+  
+  @media (min-width: 1800px) {
+    .masonry-grid {
+      column-count: 3 !important;
+      column-gap: 2rem !important;
+    }
+  }
+  
+  @media (max-width: 1023px) {
+    .masonry-grid {
+      column-count: 2 !important;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .masonry-grid {
+      column-count: 1 !important;
+    }
+  }
+}
+
+/* FORZAR ANCHO COMPLETO EN EL CONTENEDOR PADRE */
+.flex-1.h-full.overflow-y-auto.border.border-surface.rounded-2xl {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.flex-1.h-full.overflow-y-auto.border.border-surface.rounded-2xl .p-6 {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Asegurar que el contenedor de cards use todo el ancho disponible */
+.space-y-8 {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* OVERRIDE FINAL PARA GARANTIZAR 3 COLUMNAS */
+@media (min-width: 1024px) {
+  .masonry-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    display: grid !important;
+    gap: 1.75rem !important;
+    width: 100% !important;
+    max-width: none !important;
+    justify-content: stretch !important;
+  }
+}
+
+/* Asegurar que el grid no se colapse */
+.masonry-grid {
+  min-height: 200px;
+  position: relative;
+}
+
+/* Debug temporal para verificar el ancho */
+.masonry-grid::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  z-index: -1;
 }
