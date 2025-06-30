@@ -68,12 +68,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "prime-showcase:build:production",
-              "serverTarget": "prime-showcase:build:production"
+              "buildTarget": "prime-showcase:build:production"
             },
             "development": {
-              "buildTarget": "prime-showcase:build:development",
-              "serverTarget": "prime-showcase:build:development"
+              "buildTarget": "prime-showcase:build:development"
             }
           },
           "defaultConfiguration": "development"
