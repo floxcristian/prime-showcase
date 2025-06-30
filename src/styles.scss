@@ -26,6 +26,9 @@
   
   /* Posición relativa para el pseudo-elemento */
   position: relative !important;
+  
+  /* Asegurar que no haya margin que cause separaciones irregulares */
+  margin: 0 !important;
 }
 
 /* Pseudo-elemento para reforzar el borde superior */
@@ -142,11 +145,6 @@
   color: rgb(var(--p-surface-300)) !important;
 }
 
-/* Mejoras específicas para cards anidados o en grids */
-.p-card + .p-card {
-  margin-top: 1rem !important;
-}
-
 /* Responsive: ajustar padding en pantallas pequeñas */
 @media (max-width: 768px) {
   .p-card .p-card-body {
@@ -180,4 +178,44 @@
 .p-card > * {
   position: relative !important;
   z-index: 2 !important;
+}
+
+/* Corregir espaciado en grids para evitar separaciones irregulares */
+.grid .p-card,
+.flex .p-card {
+  /* Asegurar que los cards mantengan su altura natural */
+  align-self: stretch !important;
+  /* Eliminar cualquier margin que pueda causar desalineación */
+  margin: 0 !important;
+}
+
+/* Específicamente para el componente de cards que usa grid */
+.grid-cols-1 .p-card,
+.grid-cols-2 .p-card,
+.grid-cols-3 .p-card,
+.lg\\:grid-cols-2 .p-card,
+.xl\\:grid-cols-3 .p-card {
+  /* Asegurar altura consistente en el grid */
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Asegurar que el contenido del card se distribuya correctamente */
+.grid .p-card .p-card-body {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Corregir cualquier problema de alineación vertical */
+.grid > * {
+  align-self: stretch !important;
+}
+
+/* Asegurar que los gaps del grid se respeten */
+.gap-4 > .p-card,
+.gap-6 > .p-card,
+.gap-8 > .p-card {
+  margin: 0 !important;
 }
