@@ -180,46 +180,79 @@
   z-index: 2 !important;
 }
 
-/* ===== MASONRY LAYOUT SIMPLIFICADO ===== */
+/* ===== VERDADERO MASONRY LAYOUT ===== */
+
+/* Contenedor principal */
 .masonry-container {
-  /* Contenedor principal con flexbox para evitar solapamientos */
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
 }
 
-/* Grid responsivo que simula masonry sin solapamientos */
+/* Grid masonry moderno con fallback */
 .masonry-grid {
+  /* Masonry nativo para navegadores compatibles */
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-rows: masonry;
   gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   align-items: start;
 }
 
-/* Asegurar que cada item mantenga su posición */
-.masonry-item {
-  /* Posición estática para evitar solapamientos */
-  position: static !important;
-  /* Altura automática */
-  height: auto !important;
-  /* Sin margin para evitar espacios irregulares */
-  margin: 0 !important;
-  /* Alineación desde arriba */
-  align-self: start !important;
-  /* Evitar que se rompa el contenido */
-  break-inside: avoid;
-  page-break-inside: avoid;
+/* Fallback para navegadores sin soporte masonry */
+@supports not (grid-template-rows: masonry) {
+  .masonry-grid {
+    /* Usar CSS columns como fallback */
+    display: block;
+    columns: auto;
+    column-width: 350px;
+    column-gap: 2rem;
+    column-fill: balance;
+  }
+  
+  .masonry-item {
+    /* Evitar que los items se rompan entre columnas */
+    break-inside: avoid;
+    page-break-inside: avoid;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 2rem;
+    vertical-align: top;
+  }
+  
+  /* Item que ocupa todo el ancho en fallback */
+  .masonry-item-wide {
+    column-span: all;
+    margin-bottom: 2rem;
+  }
 }
 
-/* Item que ocupa todo el ancho */
-.masonry-item-wide {
-  grid-column: 1 / -1;
+/* Para navegadores con soporte masonry */
+@supports (grid-template-rows: masonry) {
+  .masonry-item {
+    /* Posición estática para evitar solapamientos */
+    position: static;
+    margin: 0;
+    align-self: start;
+  }
+  
+  /* Item que ocupa todo el ancho */
+  .masonry-item-wide {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Responsive para tablets */
 @media (max-width: 1024px) {
   .masonry-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      column-width: 300px;
+    }
   }
 }
 
@@ -233,19 +266,41 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
+  
+  @supports not (grid-template-rows: masonry) {
+    .masonry-grid {
+      columns: 1;
+      column-width: auto;
+      column-gap: 0;
+    }
+    
+    .masonry-item {
+      margin-bottom: 1.5rem;
+    }
+    
+    .masonry-item-wide {
+      margin-bottom: 1.5rem;
+    }
+  }
 }
 
-/* Asegurar que los cards en masonry mantengan su altura natural */
+/* Asegurar que los cards mantengan su altura natural */
 .masonry-item .p-card {
   height: auto !important;
   min-height: auto !important;
   max-height: none !important;
+  width: 100%;
 }
 
-/* Eliminar cualquier transformación que pueda causar solapamientos */
+/* Eliminar transformaciones que puedan causar problemas */
 .masonry-item {
   transform: none !important;
   will-change: auto !important;
+}
+
+/* Transiciones suaves */
+.masonry-item {
+  transition: opacity 0.3s ease-in-out;
 }
 
 /* Asegurar que el contenido del card se distribuya correctamente */
@@ -255,16 +310,44 @@
   height: auto !important;
 }
 
-/* Transiciones suaves sin afectar la posición */
+/* Optimizaciones adicionales para el masonry */
+.masonry-grid {
+  /* Mejorar el rendimiento */
+  contain: layout style;
+  /* Evitar cambios de layout inesperados */
+  overflow: visible;
+}
+
+/* Asegurar que los elementos no se superpongan */
 .masonry-item {
-  transition: opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  /* Contexto de apilamiento independiente */
+  isolation: isolate;
+  /* Evitar que el contenido se desborde */
+  overflow: visible;
 }
 
-/* Evitar cualquier posicionamiento absoluto o fixed que cause problemas */
-.masonry-grid * {
-  position: relative !important;
+/* Mejorar la estabilidad del layout */
+.masonry-grid::before {
+  content: '';
+  display: block;
+  height: 0;
+  width: 100%;
+  grid-column: 1 / -1;
 }
 
-.masonry-grid *:not(.p-card):not(.p-card *) {
-  position: static !important;
+/* Asegurar que los cards no tengan margin que interfiera */
+.masonry-item > * {
+  margin: 0 !important;
+}
+
+/* Prevenir problemas de z-index */
+.masonry-item {
+  z-index: auto;
+  position: relative;
+}
+
+/* Optimización para animaciones */
+.masonry-item .p-card {
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
