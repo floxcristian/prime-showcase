@@ -180,103 +180,91 @@
   z-index: 2 !important;
 }
 
-/* ===== MASONRY LAYOUT ===== */
-.masonry-grid {
-  /* Usar CSS Grid con masonry cuando esté disponible */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  grid-template-rows: masonry;
+/* ===== MASONRY LAYOUT SIMPLIFICADO ===== */
+.masonry-container {
+  /* Contenedor principal con flexbox para evitar solapamientos */
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
+}
+
+/* Grid responsivo que simula masonry sin solapamientos */
+.masonry-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   align-items: start;
 }
 
-/* Fallback para navegadores que no soportan masonry */
-@supports not (grid-template-rows: masonry) {
-  .masonry-grid {
-    /* Usar CSS Columns como fallback */
-    display: block;
-    columns: 2;
-    column-gap: 2rem;
-    column-fill: balance;
-  }
-  
-  .masonry-item {
-    /* Evitar que los elementos se rompan entre columnas */
-    break-inside: avoid;
-    page-break-inside: avoid;
-    margin-bottom: 2rem;
-    display: inline-block;
-    width: 100%;
-  }
-  
-  .masonry-item-wide {
-    /* Los elementos anchos ocupan todas las columnas */
-    column-span: all;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-  }
+/* Asegurar que cada item mantenga su posición */
+.masonry-item {
+  /* Posición estática para evitar solapamientos */
+  position: static !important;
+  /* Altura automática */
+  height: auto !important;
+  /* Sin margin para evitar espacios irregulares */
+  margin: 0 !important;
+  /* Alineación desde arriba */
+  align-self: start !important;
+  /* Evitar que se rompa el contenido */
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
-/* Responsive para masonry */
+/* Item que ocupa todo el ancho */
+.masonry-item-wide {
+  grid-column: 1 / -1;
+}
+
+/* Responsive para tablets */
 @media (max-width: 1024px) {
   .masonry-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
-  
-  @supports not (grid-template-rows: masonry) {
-    .masonry-grid {
-      columns: 2;
-    }
-  }
 }
 
+/* Responsive para móviles */
 @media (max-width: 768px) {
-  .masonry-grid {
-    grid-template-columns: 1fr;
+  .masonry-container {
     gap: 1.5rem;
   }
   
-  @supports not (grid-template-rows: masonry) {
-    .masonry-grid {
-      columns: 1;
-      column-gap: 0;
-    }
-    
-    .masonry-item {
-      margin-bottom: 1.5rem;
-    }
-    
-    .masonry-item-wide {
-      margin-top: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
+  .masonry-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }
 
 /* Asegurar que los cards en masonry mantengan su altura natural */
 .masonry-item .p-card {
   height: auto !important;
-  align-self: start !important;
+  min-height: auto !important;
+  max-height: none !important;
 }
 
-/* Corregir cualquier problema de alineación vertical en masonry */
-.masonry-grid .masonry-item {
-  align-self: start !important;
-}
-
-/* Asegurar que los gaps del masonry se respeten */
-.masonry-grid .masonry-item {
-  margin: 0 !important;
-}
-
-/* Mejorar la transición cuando se reorganizan los elementos */
+/* Eliminar cualquier transformación que pueda causar solapamientos */
 .masonry-item {
-  transition: all 0.3s ease-in-out;
+  transform: none !important;
+  will-change: auto !important;
 }
 
-/* Asegurar que el contenido del card se distribuya correctamente en masonry */
+/* Asegurar que el contenido del card se distribuya correctamente */
 .masonry-item .p-card .p-card-body {
-  flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
+  height: auto !important;
+}
+
+/* Transiciones suaves sin afectar la posición */
+.masonry-item {
+  transition: opacity 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Evitar cualquier posicionamiento absoluto o fixed que cause problemas */
+.masonry-grid * {
+  position: relative !important;
+}
+
+.masonry-grid *:not(.p-card):not(.p-card *) {
+  position: static !important;
 }

@@ -14,364 +14,377 @@
       />
     </div>
 
-    <!-- Form Components Masonry Grid -->
-    <div class="masonry-grid">
-      <!-- File Upload Card -->
-      <p-card class="masonry-item">
-        <ng-template #header>
-          <div class="p-6 pb-0">
-            <h3 class="text-lg font-semibold text-color">File Upload</h3>
-            <p class="text-muted-color text-sm mt-1">Drag and drop or browse files</p>
-          </div>
-        </ng-template>
+    <!-- Form Components Container -->
+    <div class="masonry-container">
+      <!-- Main Grid -->
+      <div class="masonry-grid">
+        <!-- File Upload Card -->
+        <div class="masonry-item">
+          <p-card>
+            <ng-template #header>
+              <div class="p-6 pb-0">
+                <h3 class="text-lg font-semibold text-color">File Upload</h3>
+                <p class="text-muted-color text-sm mt-1">Drag and drop or browse files</p>
+              </div>
+            </ng-template>
 
-        @if (isBrowser) {
-          <p-fileupload
-            mode="advanced"
-            [multiple]="true"
-            accept="image/*"
-            [maxFileSize]="1000000"
-            (onSelect)="onSelectedFiles($event)"
-            (onUpload)="onTemplatedUpload($event)"
-            [customUpload]="true"
-            (uploadHandler)="uploadEvent($event)"
-            styleClass="w-full"
-          >
-            <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
-              <div class="border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg p-8 text-center">
-                @if (files.length === 0) {
-                  <div class="space-y-4">
-                    <i class="pi pi-cloud-upload text-4xl text-muted-color"></i>
-                    <div>
-                      <p class="text-color font-medium">Drop files here or click to browse</p>
-                      <p class="text-muted-color text-sm">PNG, JPG up to 1MB</p>
-                    </div>
-                  </div>
-                } @else {
-                  <div class="space-y-4">
-                    @for (file of files; track file; let i = $index) {
-                      <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800 rounded-lg">
-                        <div class="flex items-center gap-3">
-                          <i class="pi pi-file text-primary"></i>
-                          <div class="text-left">
-                            <p class="text-color font-medium text-sm">{{ file.name }}</p>
-                            <p class="text-muted-color text-xs">{{ formatSize(file.size) }}</p>
-                          </div>
+            @if (isBrowser) {
+              <p-fileupload
+                mode="advanced"
+                [multiple]="true"
+                accept="image/*"
+                [maxFileSize]="1000000"
+                (onSelect)="onSelectedFiles($event)"
+                (onUpload)="onTemplatedUpload($event)"
+                [customUpload]="true"
+                (uploadHandler)="uploadEvent($event)"
+                styleClass="w-full"
+              >
+                <ng-template #content let-files let-uploadedFiles="uploadedFiles" let-removeFileCallback="removeFileCallback" let-removeUploadedFileCallback="removeUploadedFileCallback">
+                  <div class="border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg p-8 text-center">
+                    @if (files.length === 0) {
+                      <div class="space-y-4">
+                        <i class="pi pi-cloud-upload text-4xl text-muted-color"></i>
+                        <div>
+                          <p class="text-color font-medium">Drop files here or click to browse</p>
+                          <p class="text-muted-color text-sm">PNG, JPG up to 1MB</p>
                         </div>
-                        <p-button
-                          icon="pi pi-times"
-                          severity="danger"
-                          text
-                          size="small"
-                          (click)="onRemoveTemplatingFile(file, removeFileCallback, i)"
-                        />
+                      </div>
+                    } @else {
+                      <div class="space-y-4">
+                        @for (file of files; track file; let i = $index) {
+                          <div class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800 rounded-lg">
+                            <div class="flex items-center gap-3">
+                              <i class="pi pi-file text-primary"></i>
+                              <div class="text-left">
+                                <p class="text-color font-medium text-sm">{{ file.name }}</p>
+                                <p class="text-muted-color text-xs">{{ formatSize(file.size) }}</p>
+                              </div>
+                            </div>
+                            <p-button
+                              icon="pi pi-times"
+                              severity="danger"
+                              text
+                              size="small"
+                              (click)="onRemoveTemplatingFile(file, removeFileCallback, i)"
+                            />
+                          </div>
+                        }
                       </div>
                     }
                   </div>
-                }
+                </ng-template>
+              </p-fileupload>
+            } @else {
+              <!-- Fallback for SSR -->
+              <div class="border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg p-8 text-center">
+                <div class="space-y-4">
+                  <i class="pi pi-cloud-upload text-4xl text-muted-color"></i>
+                  <div>
+                    <p class="text-color font-medium">Drop files here or click to browse</p>
+                    <p class="text-muted-color text-sm">PNG, JPG up to 1MB</p>
+                  </div>
+                </div>
+              </div>
+            }
+          </p-card>
+        </div>
+
+        <!-- Form Controls Card -->
+        <div class="masonry-item">
+          <p-card>
+            <ng-template #header>
+              <div class="p-6 pb-0">
+                <h3 class="text-lg font-semibold text-color">Form Controls</h3>
+                <p class="text-muted-color text-sm mt-1">Various input components</p>
               </div>
             </ng-template>
-          </p-fileupload>
-        } @else {
-          <!-- Fallback for SSR -->
-          <div class="border-2 border-dashed border-surface-300 dark:border-surface-600 rounded-lg p-8 text-center">
-            <div class="space-y-4">
-              <i class="pi pi-cloud-upload text-4xl text-muted-color"></i>
+
+            <div class="space-y-6">
+              <!-- AutoComplete -->
               <div>
-                <p class="text-color font-medium">Drop files here or click to browse</p>
-                <p class="text-muted-color text-sm">PNG, JPG up to 1MB</p>
+                <label class="block text-sm font-medium text-color mb-2">Search Users</label>
+                <p-autocomplete
+                  [(ngModel)]="emailChips"
+                  [suggestions]="items"
+                  (completeMethod)="search2($event)"
+                  placeholder="Type to search..."
+                  styleClass="w-full"
+                />
+              </div>
+
+              <!-- Number Input -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">Amount</label>
+                <p-inputnumber
+                  [(ngModel)]="priceMinVal"
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                  styleClass="w-full"
+                />
+              </div>
+
+              <!-- OTP Input -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">Verification Code</label>
+                <p-inputotp [(ngModel)]="forgotPasswordOTP" [length]="4" />
+              </div>
+
+              <!-- Toggle Switch -->
+              <div class="flex items-center justify-between">
+                <label class="text-sm font-medium text-color">Dark Mode</label>
+                <p-toggleswitch [(ngModel)]="darkMode" />
               </div>
             </div>
-          </div>
-        }
-      </p-card>
-
-      <!-- Form Controls Card -->
-      <p-card class="masonry-item">
-        <ng-template #header>
-          <div class="p-6 pb-0">
-            <h3 class="text-lg font-semibold text-color">Form Controls</h3>
-            <p class="text-muted-color text-sm mt-1">Various input components</p>
-          </div>
-        </ng-template>
-
-        <div class="space-y-6">
-          <!-- AutoComplete -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Search Users</label>
-            <p-autocomplete
-              [(ngModel)]="emailChips"
-              [suggestions]="items"
-              (completeMethod)="search2($event)"
-              placeholder="Type to search..."
-              styleClass="w-full"
-            />
-          </div>
-
-          <!-- Number Input -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Amount</label>
-            <p-inputnumber
-              [(ngModel)]="priceMinVal"
-              mode="currency"
-              currency="USD"
-              locale="en-US"
-              styleClass="w-full"
-            />
-          </div>
-
-          <!-- OTP Input -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Verification Code</label>
-            <p-inputotp [(ngModel)]="forgotPasswordOTP" [length]="4" />
-          </div>
-
-          <!-- Toggle Switch -->
-          <div class="flex items-center justify-between">
-            <label class="text-sm font-medium text-color">Dark Mode</label>
-            <p-toggleswitch [(ngModel)]="darkMode" />
-          </div>
+          </p-card>
         </div>
-      </p-card>
 
-      <!-- Selection Components Card -->
-      <p-card class="masonry-item">
-        <ng-template #header>
-          <div class="p-6 pb-0">
-            <h3 class="text-lg font-semibold text-color">Selection Components</h3>
-            <p class="text-muted-color text-sm mt-1">Dropdowns, buttons, and checkboxes</p>
-          </div>
-        </ng-template>
-
-        <div class="space-y-6">
-          <!-- Select Button -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">User Status</label>
-            <p-selectbutton
-              [(ngModel)]="selectedUserSelectButtonOption"
-              [options]="userSelectButtonOptions"
-              styleClass="w-full"
-            />
-          </div>
-
-          <!-- Dropdown -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Permission Level</label>
-            <p-select
-              [(ngModel)]="selectedPermission"
-              [options]="permissions"
-              optionLabel="name"
-              optionValue="name"
-              placeholder="Select permission"
-              styleClass="w-full"
-            >
-              <ng-template #selectedItem let-selectedOption>
-                <div class="flex items-center gap-2" *ngIf="selectedOption">
-                  <i [class]="getPermissionIcon(selectedOption)"></i>
-                  <span>{{ selectedOption }}</span>
-                </div>
-              </ng-template>
-              <ng-template #item let-option>
-                <div class="flex items-center gap-2">
-                  <i [class]="option.icon"></i>
-                  <span>{{ option.name }}</span>
-                </div>
-              </ng-template>
-            </p-select>
-          </div>
-
-          <!-- Multi-Select -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Member Types</label>
-            <p-multiselect
-              [(ngModel)]="memberSelectedTypes"
-              [options]="memberTypes"
-              optionLabel="name"
-              optionValue="code"
-              placeholder="Select types"
-              styleClass="w-full"
-            />
-          </div>
-
-          <!-- Checkboxes -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-3">Preferences</label>
-            <div class="space-y-3">
-              <div class="flex items-center gap-2">
-                <p-checkbox
-                  [(ngModel)]="jobApplication"
-                  [binary]="true"
-                  inputId="job-app"
-                />
-                <label for="job-app" class="text-sm text-color">Job Application Notifications</label>
+        <!-- Selection Components Card -->
+        <div class="masonry-item">
+          <p-card>
+            <ng-template #header>
+              <div class="p-6 pb-0">
+                <h3 class="text-lg font-semibold text-color">Selection Components</h3>
+                <p class="text-muted-color text-sm mt-1">Dropdowns, buttons, and checkboxes</p>
               </div>
-              @for (spec of priceRangePopularSpecs; track spec; let i = $index) {
-                <div class="flex items-center gap-2">
-                  <p-checkbox
-                    [(ngModel)]="spec.checked"
-                    [binary]="true"
-                    [inputId]="'spec-' + i"
+            </ng-template>
+
+            <div class="space-y-6">
+              <!-- Select Button -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">User Status</label>
+                <p-selectbutton
+                  [(ngModel)]="selectedUserSelectButtonOption"
+                  [options]="userSelectButtonOptions"
+                  styleClass="w-full"
+                />
+              </div>
+
+              <!-- Dropdown -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">Permission Level</label>
+                <p-select
+                  [(ngModel)]="selectedPermission"
+                  [options]="permissions"
+                  optionLabel="name"
+                  optionValue="name"
+                  placeholder="Select permission"
+                  styleClass="w-full"
+                >
+                  <ng-template #selectedItem let-selectedOption>
+                    <div class="flex items-center gap-2" *ngIf="selectedOption">
+                      <i [class]="getPermissionIcon(selectedOption)"></i>
+                      <span>{{ selectedOption }}</span>
+                    </div>
+                  </ng-template>
+                  <ng-template #item let-option>
+                    <div class="flex items-center gap-2">
+                      <i [class]="option.icon"></i>
+                      <span>{{ option.name }}</span>
+                    </div>
+                  </ng-template>
+                </p-select>
+              </div>
+
+              <!-- Multi-Select -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">Member Types</label>
+                <p-multiselect
+                  [(ngModel)]="memberSelectedTypes"
+                  [options]="memberTypes"
+                  optionLabel="name"
+                  optionValue="code"
+                  placeholder="Select types"
+                  styleClass="w-full"
+                />
+              </div>
+
+              <!-- Checkboxes -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-3">Preferences</label>
+                <div class="space-y-3">
+                  <div class="flex items-center gap-2">
+                    <p-checkbox
+                      [(ngModel)]="jobApplication"
+                      [binary]="true"
+                      inputId="job-app"
+                    />
+                    <label for="job-app" class="text-sm text-color">Job Application Notifications</label>
+                  </div>
+                  @for (spec of priceRangePopularSpecs; track spec; let i = $index) {
+                    <div class="flex items-center gap-2">
+                      <p-checkbox
+                        [(ngModel)]="spec.checked"
+                        [binary]="true"
+                        [inputId]="'spec-' + i"
+                      />
+                      <label [for]="'spec-' + i" class="text-sm text-color">{{ spec.value }}</label>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Range and Tags Card -->
+        <div class="masonry-item">
+          <p-card>
+            <ng-template #header>
+              <div class="p-6 pb-0">
+                <h3 class="text-lg font-semibold text-color">Range & Tags</h3>
+                <p class="text-muted-color text-sm mt-1">Sliders and tag components</p>
+              </div>
+            </ng-template>
+
+            <div class="space-y-6">
+              <!-- Price Range Slider -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">
+                  Price Range: ${{ priceRange[0] }} - ${{ priceRange[1] }}
+                </label>
+                <p-slider
+                  [(ngModel)]="priceRange"
+                  [range]="true"
+                  [min]="priceMinVal"
+                  [max]="priceMaxVal"
+                  styleClass="w-full"
+                />
+              </div>
+
+              <!-- Document Name Input -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">Document Name</label>
+                <div class="relative">
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="documentName"
+                    class="w-full pr-10"
+                    placeholder="Enter document name"
                   />
-                  <label [for]="'spec-' + i" class="text-sm text-color">{{ spec.value }}</label>
+                  <p-button
+                    icon="pi pi-copy"
+                    text
+                    size="small"
+                    class="absolute right-2 top-1/2 -translate-y-1/2"
+                    [pTooltip]="'Copy to clipboard'"
+                  />
                 </div>
-              }
-            </div>
-          </div>
-        </div>
-      </p-card>
-
-      <!-- Range and Tags Card -->
-      <p-card class="masonry-item">
-        <ng-template #header>
-          <div class="p-6 pb-0">
-            <h3 class="text-lg font-semibold text-color">Range & Tags</h3>
-            <p class="text-muted-color text-sm mt-1">Sliders and tag components</p>
-          </div>
-        </ng-template>
-
-        <div class="space-y-6">
-          <!-- Price Range Slider -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">
-              Price Range: ${{ priceRange[0] }} - ${{ priceRange[1] }}
-            </label>
-            <p-slider
-              [(ngModel)]="priceRange"
-              [range]="true"
-              [min]="priceMinVal"
-              [max]="priceMaxVal"
-              styleClass="w-full"
-            />
-          </div>
-
-          <!-- Document Name Input -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Document Name</label>
-            <div class="relative">
-              <input
-                type="text"
-                pInputText
-                [(ngModel)]="documentName"
-                class="w-full pr-10"
-                placeholder="Enter document name"
-              />
-              <p-button
-                icon="pi pi-copy"
-                text
-                size="small"
-                class="absolute right-2 top-1/2 -translate-y-1/2"
-                [pTooltip]="'Copy to clipboard'"
-              />
-            </div>
-          </div>
-
-          <!-- Tags -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Tags</label>
-            <div class="flex flex-wrap gap-2">
-              @for (tag of filesTag; track tag) {
-                <p-tag [value]="tag" severity="secondary" />
-              }
-            </div>
-          </div>
-
-          <!-- Copy Link -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Share Link</label>
-            <div class="flex gap-2">
-              <input
-                type="text"
-                pInputText
-                [value]="copiedText"
-                readonly
-                class="flex-1 text-sm"
-              />
-              <p-button
-                icon="pi pi-copy"
-                outlined
-                size="small"
-                [pTooltip]="'Copy link'"
-              />
-            </div>
-          </div>
-        </div>
-      </p-card>
-
-      <!-- Profile Settings Card -->
-      <p-card class="masonry-item masonry-item-wide">
-        <ng-template #header>
-          <div class="p-6 pb-0">
-            <h3 class="text-lg font-semibold text-color">Profile Settings</h3>
-            <p class="text-muted-color text-sm mt-1">User preferences and status</p>
-          </div>
-        </ng-template>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- User Profile Status -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Status</label>
-            <p-select
-              [(ngModel)]="userProfiles"
-              [options]="userProfilesOptions"
-              placeholder="Select status"
-              styleClass="w-full"
-            />
-          </div>
-
-          <!-- Radio Buttons -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-3">Notification Frequency</label>
-            <div class="space-y-2">
-              <div class="flex items-center gap-2">
-                <p-radiobutton
-                  name="frequency"
-                  value="daily"
-                  [(ngModel)]="selectedFrequency"
-                  inputId="daily"
-                />
-                <label for="daily" class="text-sm text-color">Daily</label>
               </div>
-              <div class="flex items-center gap-2">
-                <p-radiobutton
-                  name="frequency"
-                  value="weekly"
-                  [(ngModel)]="selectedFrequency"
-                  inputId="weekly"
-                />
-                <label for="weekly" class="text-sm text-color">Weekly</label>
-              </div>
-              <div class="flex items-center gap-2">
-                <p-radiobutton
-                  name="frequency"
-                  value="monthly"
-                  [(ngModel)]="selectedFrequency"
-                  inputId="monthly"
-                />
-                <label for="monthly" class="text-sm text-color">Monthly</label>
-              </div>
-            </div>
-          </div>
 
-          <!-- Avatar with Badge -->
-          <div>
-            <label class="block text-sm font-medium text-color mb-2">Profile Picture</label>
-            <div class="flex items-center gap-4">
-              <p-overlaybadge severity="success">
-                <p-avatar
-                  image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
-                  size="xlarge"
-                  shape="circle"
-                />
-              </p-overlaybadge>
+              <!-- Tags -->
               <div>
-                <p class="text-color font-medium">Robin Jonas</p>
-                <p class="text-muted-color text-sm">Online</p>
-                <p-button label="Change" text size="small" class="mt-1" />
+                <label class="block text-sm font-medium text-color mb-2">Tags</label>
+                <div class="flex flex-wrap gap-2">
+                  @for (tag of filesTag; track tag) {
+                    <p-tag [value]="tag" severity="secondary" />
+                  }
+                </div>
+              </div>
+
+              <!-- Copy Link -->
+              <div>
+                <label class="block text-sm font-medium text-color mb-2">Share Link</label>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    pInputText
+                    [value]="copiedText"
+                    readonly
+                    class="flex-1 text-sm"
+                  />
+                  <p-button
+                    icon="pi pi-copy"
+                    outlined
+                    size="small"
+                    [pTooltip]="'Copy link'"
+                  />
+                </div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <!-- Profile Settings Card - Separado para evitar problemas de layout -->
+      <div class="masonry-item-wide">
+        <p-card>
+          <ng-template #header>
+            <div class="p-6 pb-0">
+              <h3 class="text-lg font-semibold text-color">Profile Settings</h3>
+              <p class="text-muted-color text-sm mt-1">User preferences and status</p>
+            </div>
+          </ng-template>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- User Profile Status -->
+            <div>
+              <label class="block text-sm font-medium text-color mb-2">Status</label>
+              <p-select
+                [(ngModel)]="userProfiles"
+                [options]="userProfilesOptions"
+                placeholder="Select status"
+                styleClass="w-full"
+              />
+            </div>
+
+            <!-- Radio Buttons -->
+            <div>
+              <label class="block text-sm font-medium text-color mb-3">Notification Frequency</label>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                  <p-radiobutton
+                    name="frequency"
+                    value="daily"
+                    [(ngModel)]="selectedFrequency"
+                    inputId="daily"
+                  />
+                  <label for="daily" class="text-sm text-color">Daily</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-radiobutton
+                    name="frequency"
+                    value="weekly"
+                    [(ngModel)]="selectedFrequency"
+                    inputId="weekly"
+                  />
+                  <label for="weekly" class="text-sm text-color">Weekly</label>
+                </div>
+                <div class="flex items-center gap-2">
+                  <p-radiobutton
+                    name="frequency"
+                    value="monthly"
+                    [(ngModel)]="selectedFrequency"
+                    inputId="monthly"
+                  />
+                  <label for="monthly" class="text-sm text-color">Monthly</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Avatar with Badge -->
+            <div>
+              <label class="block text-sm font-medium text-color mb-2">Profile Picture</label>
+              <div class="flex items-center gap-4">
+                <p-overlaybadge severity="success">
+                  <p-avatar
+                    image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+                    size="xlarge"
+                    shape="circle"
+                  />
+                </p-overlaybadge>
+                <div>
+                  <p class="text-color font-medium">Robin Jonas</p>
+                  <p class="text-muted-color text-sm">Online</p>
+                  <p-button label="Change" text size="small" class="mt-1" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </p-card>
+        </p-card>
+      </div>
     </div>
   </div>
 </div>
