@@ -5,62 +5,111 @@
 
 /* Mejoras para los cards de PrimeNG */
 .p-card {
-  /* Borde más visible y consistente */
-  border: 1px solid rgb(var(--p-surface-200)) !important;
+  /* Borde más visible y uniforme en todos los lados */
+  border: 1px solid rgb(var(--p-surface-300)) !important;
   
-  /* Sombra sutil para dar profundidad */
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+  /* Sombra más definida para separar del fondo */
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.12), 
+    0 1px 2px 0 rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.05) !important;
   
   /* Transición suave para hover */
   transition: all 0.2s ease-in-out !important;
   
   /* Fondo con contraste sutil */
   background: rgb(var(--p-surface-0)) !important;
+  
+  /* Asegurar que los bordes redondeados se mantengan */
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+  
+  /* Posición relativa para el pseudo-elemento */
+  position: relative !important;
+}
+
+/* Pseudo-elemento para reforzar el borde superior */
+.p-card::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 1px !important;
+  background: rgb(var(--p-surface-400)) !important;
+  z-index: 1 !important;
 }
 
 /* Modo oscuro */
 .p-card:where(.dark, [data-pc-theme="dark"]) {
-  border: 1px solid rgb(var(--p-surface-700)) !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgb(var(--p-surface-600)) !important;
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.3), 
+    0 1px 2px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   background: rgb(var(--p-surface-900)) !important;
+}
+
+.p-card:where(.dark, [data-pc-theme="dark"])::before {
+  background: rgb(var(--p-surface-500)) !important;
 }
 
 /* Efecto hover para mejor interactividad */
 .p-card:hover {
-  border-color: rgb(var(--p-surface-300)) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border-color: rgb(var(--p-surface-400)) !important;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.15), 
+    0 2px 4px -1px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.08) !important;
   transform: translateY(-1px) !important;
 }
 
+.p-card:hover::before {
+  background: rgb(var(--p-surface-500)) !important;
+}
+
 .p-card:hover:where(.dark, [data-pc-theme="dark"]) {
-  border-color: rgb(var(--p-surface-600)) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+  border-color: rgb(var(--p-surface-500)) !important;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.4), 
+    0 2px 4px -1px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+.p-card:hover:where(.dark, [data-pc-theme="dark"])::before {
+  background: rgb(var(--p-surface-400)) !important;
 }
 
 /* Header del card con borde inferior más definido */
 .p-card .p-card-header {
-  border-bottom: 1px solid rgb(var(--p-surface-200)) !important;
+  border-bottom: 1px solid rgb(var(--p-surface-300)) !important;
   background: rgb(var(--p-surface-50)) !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 .p-card .p-card-header:where(.dark, [data-pc-theme="dark"]) {
-  border-bottom-color: rgb(var(--p-surface-700)) !important;
+  border-bottom-color: rgb(var(--p-surface-600)) !important;
   background: rgb(var(--p-surface-800)) !important;
 }
 
 /* Body del card con padding consistente */
 .p-card .p-card-body {
   padding: 1.5rem !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 /* Footer del card con borde superior */
 .p-card .p-card-footer {
-  border-top: 1px solid rgb(var(--p-surface-200)) !important;
+  border-top: 1px solid rgb(var(--p-surface-300)) !important;
   background: rgb(var(--p-surface-50)) !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 .p-card .p-card-footer:where(.dark, [data-pc-theme="dark"]) {
-  border-top-color: rgb(var(--p-surface-700)) !important;
+  border-top-color: rgb(var(--p-surface-600)) !important;
   background: rgb(var(--p-surface-800)) !important;
 }
 
@@ -105,20 +154,30 @@
   }
 }
 
-/* Asegurar que los bordes redondeados se mantengan */
-.p-card {
-  border-radius: 0.75rem !important;
-  overflow: hidden !important;
-}
-
 /* Mejorar la visibilidad en contenedores con fondo claro */
 .bg-surface-0 .p-card,
 .bg-white .p-card {
-  border-color: rgb(var(--p-surface-300)) !important;
+  border-color: rgb(var(--p-surface-400)) !important;
+}
+
+.bg-surface-0 .p-card::before,
+.bg-white .p-card::before {
+  background: rgb(var(--p-surface-500)) !important;
 }
 
 /* Mejorar la visibilidad en contenedores con fondo oscuro */
 .bg-surface-900 .p-card,
 .bg-surface-950 .p-card {
-  border-color: rgb(var(--p-surface-600)) !important;
+  border-color: rgb(var(--p-surface-500)) !important;
+}
+
+.bg-surface-900 .p-card::before,
+.bg-surface-950 .p-card::before {
+  background: rgb(var(--p-surface-400)) !important;
+}
+
+/* Asegurar que el contenido no se superponga con el pseudo-elemento */
+.p-card > * {
+  position: relative !important;
+  z-index: 2 !important;
 }
