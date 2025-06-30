@@ -180,7 +180,7 @@
   z-index: 2 !important;
 }
 
-/* ===== MASONRY LAYOUT FORZADO A 3 COLUMNAS ===== */
+/* ===== MASONRY LAYOUT OPTIMIZADO ===== */
 
 /* Contenedor principal */
 .masonry-container {
@@ -188,18 +188,20 @@
   flex-direction: column;
   gap: 2rem;
   width: 100%;
+  max-width: 100%;
 }
 
-/* Grid masonry con forzado de 3 columnas */
+/* Grid masonry con distribución perfecta */
 .masonry-grid {
   /* Masonry nativo para navegadores compatibles */
   display: grid;
-  /* FORZAR EXACTAMENTE 3 COLUMNAS en pantallas medianas-grandes */
-  grid-template-columns: repeat(3, 1fr);
+  /* FORZAR EXACTAMENTE 3 COLUMNAS con distribución uniforme */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: masonry;
   gap: 1.5rem;
   align-items: start;
   width: 100%;
+  justify-content: stretch;
 }
 
 /* Fallback para navegadores sin soporte masonry */
@@ -226,7 +228,7 @@
   /* Item que ocupa todo el ancho en fallback */
   .masonry-item-wide {
     column-span: all;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
 }
 
@@ -237,39 +239,46 @@
     margin: 0;
     align-self: start;
     width: 100%;
+    justify-self: stretch;
   }
   
   /* Item que ocupa todo el ancho */
   .masonry-item-wide {
     grid-column: 1 / -1;
+    margin-top: 1rem;
   }
 }
 
-/* Responsive específico */
+/* ===== RESPONSIVE BREAKPOINTS OPTIMIZADOS ===== */
 
 /* Pantallas extra grandes - 4 columnas */
 @media (min-width: 1800px) {
   .masonry-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
       columns: 4;
+      column-gap: 2rem;
     }
   }
 }
 
-/* Pantallas muy grandes - 3 columnas */
+/* Pantallas muy grandes - 3 columnas (tu resolución) */
 @media (min-width: 1200px) and (max-width: 1799px) {
   .masonry-grid {
     /* FORZAR EXACTAMENTE 3 COLUMNAS */
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 1.75rem;
+    justify-content: stretch;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
       columns: 3 !important;
+      column-gap: 1.75rem;
     }
   }
 }
@@ -278,12 +287,14 @@
 @media (min-width: 1024px) and (max-width: 1199px) {
   .masonry-grid {
     /* FORZAR 3 COLUMNAS incluso en pantallas más pequeñas */
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 1.5rem;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
       columns: 3 !important;
+      column-gap: 1.5rem;
     }
   }
 }
@@ -291,12 +302,14 @@
 /* Tablets grandes - 2 columnas */
 @media (min-width: 768px) and (max-width: 1023px) {
   .masonry-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
   }
   
   @supports not (grid-template-rows: masonry) {
     .masonry-grid {
       columns: 2;
+      column-gap: 1.5rem;
     }
   }
 }
@@ -324,9 +337,12 @@
     
     .masonry-item-wide {
       margin-bottom: 1.5rem;
+      margin-top: 0;
     }
   }
 }
+
+/* ===== OPTIMIZACIONES ESPECÍFICAS ===== */
 
 /* Asegurar que los cards mantengan su altura natural */
 .masonry-item .p-card {
@@ -343,6 +359,9 @@
   will-change: auto !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  isolation: isolate;
+  overflow: visible;
+  position: relative;
 }
 
 /* Transiciones suaves */
@@ -362,13 +381,6 @@
   contain: layout style;
   overflow: visible;
   box-sizing: border-box;
-}
-
-/* Asegurar que los elementos no se superpongan */
-.masonry-item {
-  isolation: isolate;
-  overflow: visible;
-  position: relative;
 }
 
 /* Asegurar que los cards no tengan margin que interfiera */
@@ -401,6 +413,7 @@
   .masonry-grid {
     justify-content: stretch;
     align-content: start;
+    grid-auto-columns: 1fr;
   }
   
   .masonry-item {
@@ -415,13 +428,14 @@
   width: 100% !important;
 }
 
-/* FORZADO ESPECÍFICO PARA TU RESOLUCIÓN */
-@media (min-width: 1000px) {
+/* FORZADO ESPECÍFICO PARA RESOLUCIONES COMUNES */
+@media (min-width: 1000px) and (max-width: 1920px) {
   .masonry-grid {
     /* Forzar 3 columnas sin importar el ancho calculado */
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     /* Asegurar que las columnas se distribuyan uniformemente */
-    justify-content: space-between;
+    justify-content: stretch;
+    align-content: start;
   }
   
   @supports not (grid-template-rows: masonry) {
@@ -430,17 +444,6 @@
       column-width: auto !important;
     }
   }
-}
-
-/* Debugging temporal - puedes comentar esto después */
-.masonry-grid {
-  /* border: 2px solid red; */
-  /* background: rgba(255, 0, 0, 0.1); */
-}
-
-.masonry-item {
-  /* border: 1px solid blue; */
-  /* background: rgba(0, 0, 255, 0.05); */
 }
 
 /* Asegurar que no haya overflow horizontal */
@@ -461,31 +464,64 @@
   overflow: hidden;
 }
 
-/* Optimización específica para pantallas de laptop comunes */
-@media (min-width: 1280px) and (max-width: 1920px) {
-  .masonry-grid {
-    /* En pantallas de laptop/desktop, forzar 3 columnas */
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 2rem; /* Más espacio entre columnas */
-  }
-  
-  @supports not (grid-template-rows: masonry) {
-    .masonry-grid {
-      columns: 3 !important;
-      column-gap: 2rem;
-    }
+/* Espaciado mejorado para el item wide */
+.masonry-item-wide {
+  margin-top: 1rem !important;
+}
+
+@media (max-width: 767px) {
+  .masonry-item-wide {
+    margin-top: 0 !important;
   }
 }
 
-/* Para pantallas muy anchas, permitir 4 columnas */
-@media (min-width: 1921px) {
+/* Optimización final para evitar gaps irregulares */
+.masonry-grid {
+  align-items: stretch;
+}
+
+.masonry-item {
+  align-self: start;
+}
+
+/* Asegurar que el último elemento tenga el espaciado correcto */
+.masonry-item-wide:last-child {
+  margin-bottom: 0;
+}
+
+/* Mejorar la distribución visual */
+@supports (grid-template-rows: masonry) {
   .masonry-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: masonry;
+    grid-auto-flow: column;
+  }
+}
+
+/* Fallback adicional para mejor compatibilidad */
+@supports not (grid-template-rows: masonry) {
+  .masonry-grid {
+    display: block;
+    column-count: 3;
+    column-gap: 1.5rem;
+    column-fill: auto;
   }
   
-  @supports not (grid-template-rows: masonry) {
+  @media (min-width: 1800px) {
     .masonry-grid {
-      columns: 4;
+      column-count: 4;
+      column-gap: 2rem;
+    }
+  }
+  
+  @media (max-width: 1023px) {
+    .masonry-grid {
+      column-count: 2;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .masonry-grid {
+      column-count: 1;
     }
   }
 }
