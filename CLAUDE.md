@@ -103,9 +103,20 @@ host: { class: 'flex-1 h-full overflow-y-auto pb-0.5' }
   </div>
 }
 
+<!-- @for con $index -->
+@for (file of files; track file; let i = $index) {
+  <div>{{ i }}: {{ file.name }}</div>
+}
+
 @if (isVisible) {
   <p-dialog header="Title" [(visible)]="isVisible">...</p-dialog>
 }
+
+<!-- Array join en template -->
+{{ item.categories.join(", ") }}
+
+<!-- stopPropagation en click -->
+(click)="$event.stopPropagation(); data.bookmarked = !data.bookmarked"
 ```
 
 ---
@@ -537,7 +548,7 @@ Patrones estándar para estados de UI. Usar exactamente estas recetas:
 ### Botones — variantes y cuándo usarlas
 
 ```html
-<!-- Botón con ícono only (77% de los botones del proyecto) -->
+<!-- Botón con ícono only — para acciones secundarias en headers/toolbars -->
 <p-button icon="pi pi-ellipsis-h" text rounded />
 
 <!-- Botón secundario outlined (acciones secundarias) -->
@@ -662,6 +673,58 @@ menuItems: MenuItem[] = [
 ];
 ```
 
+### Navegación con routerLink
+
+```html
+<!-- Nav item con routerLinkActive -->
+<div
+  [routerLink]="navItem.url"
+  routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
+  [routerLinkActiveOptions]="{ exact: true }"
+  #rla="routerLinkActive"
+  [pTooltip]="isSlimMenu ? navItem.title : ''"
+  [ngClass]="{
+    'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
+    'w-12 justify-center py-4': isSlimMenu,
+    'w-full': !isSlimMenu
+  }"
+  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+>
+  <i [class]="navItem.icon"></i>
+  <span>{{ navItem.title }}</span>
+</div>
+```
+
+Reglas:
+- `routerLinkActive` aplica clases de estado activo: `text-primary-contrast bg-primary`.
+- `[routerLinkActiveOptions]="{ exact: true }"` para evitar falsos positivos.
+- `#rla="routerLinkActive"` permite usar `rla.isActive` en `[ngClass]` para clases complementarias.
+- `pTooltip` condicional: solo en modo slim (cuando el label está oculto).
+
+### Popover
+
+```html
+<!-- Trigger -->
+<p-button (onClick)="displayPopover($event, op)"
+  icon="pi pi-search" rounded outlined severity="secondary" />
+
+<!-- Contenido -->
+<p-popover #op>
+  <ng-template pTemplate="content">
+    <div class="flex gap-2">
+      <p-button label="Details" size="small" outlined (onClick)="op.hide()" />
+      <p-button label="Delete" severity="danger" size="small" outlined (onClick)="op.hide()" />
+    </div>
+  </ng-template>
+</p-popover>
+
+<!-- En el .ts -->
+displayPopover(e: MouseEvent, op: Popover) {
+  op.hide();
+  setTimeout(() => { op.show(e); }, 150);
+}
+```
+
 ### Campos de formulario
 
 ```html
@@ -767,6 +830,20 @@ themeEffect = effect(() => {
 - `AppConfigService` para acceso al tema/dark mode.
 - No usar librerías de state management externas.
 
+### SSR guard
+
+El proyecto tiene `@angular/ssr`. Usar `isPlatformBrowser` antes de acceder a APIs del browser:
+
+```typescript
+platformId = inject(PLATFORM_ID);
+
+ngOnInit() {
+  if (isPlatformBrowser(this.platformId)) {
+    // localStorage, document, getComputedStyle, ViewTransition API
+  }
+}
+```
+
 ## PrimeNG imports: Module vs Standalone
 
 PrimeNG 19 tiene componentes en dos formatos. Ambos van juntos en `PRIME_MODULES`:
@@ -864,6 +941,8 @@ Reglas de charts:
 - No usar `<button>` sin `pButton` o `<p-button>`.
 - No usar tablas HTML. Siempre `<p-table>`.
 - No usar `*ngIf`, `*ngFor` u otras directivas estructurales legacy. Usar `@if`, `@for`.
+- No usar `@else` — preferir bloques `@if` separados (patrón del proyecto).
+- No usar pipes (`| date`, `| number`, etc.) — formatear datos en el componente.
 
 ### Arquitectura
 - No crear NgModules. Todo standalone.
