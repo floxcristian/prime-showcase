@@ -9,6 +9,15 @@
 - SCSS para estilos de componente
 - TypeScript strict mode
 
+## MCP: PrimeNG (`@primeng/mcp`)
+
+Este proyecto tiene configurado el MCP oficial de PrimeNG (`.mcp.json`). **Usarlo siempre** antes de implementar o recomendar un componente PrimeNG para:
+- Verificar que el componente existe y su API actual (props, eventos, slots).
+- Consultar ejemplos de uso y opciones de theming.
+- Buscar el componente correcto por funcionalidad si no se conoce el nombre exacto.
+
+No asumir la API de componentes PrimeNG de memoria. Consultar el MCP para obtener la API real y actualizada.
+
 ## Regla principal: Consistencia con lo existente
 
 Antes de implementar cualquier feature, revisar los componentes existentes en `src/app/modules/` para replicar sus patrones exactos. No inventar nuevos patrones.
