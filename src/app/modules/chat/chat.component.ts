@@ -1,12 +1,11 @@
 // Angular
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
 import { MenuItem } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
-import { ChartModule } from 'primeng/chart';
 import { SelectButton } from 'primeng/selectbutton';
 import { AvatarModule } from 'primeng/avatar';
 import { IconField } from 'primeng/iconfield';
@@ -27,10 +26,9 @@ import { ChatItem } from './models/chat-item.interface';
 import { ChatMessage } from './models/chat-message.interface';
 import { ChatMember } from './models/chat-member.interface';
 
-const NG_MODULES = [CommonModule, FormsModule, RouterModule];
+const NG_MODULES = [FormsModule, RouterModule, NgClass];
 const PRIME_MODULES = [
   BadgeModule,
-  ChartModule,
   SelectButton,
   AvatarModule,
   IconField,
@@ -54,14 +52,14 @@ const PRIME_MODULES = [
   },
 })
 export class ChatComponent {
-  options: string[] = ['Chat', 'Call'];
-  mediaOptions: string[] = ['Media', 'Link', 'Docs'];
+  options: string[] = ['Chat', 'Llamada'];
+  mediaOptions: string[] = ['Multimedia', 'Enlace', 'Documentos'];
   value: string = 'Chat';
-  media: string = 'Media';
+  media: string = 'Multimedia';
   search: string = '';
 
   // Profile
-  activeChat: string = 'PrimeTek Team';
+  activeChat: string = 'Equipo PrimeTek';
   notification: boolean = true;
   sound: boolean = false;
   download: boolean = false;
@@ -72,5 +70,4 @@ export class ChatComponent {
   members: ChatMember[] = CHAT_MEMBERS;
   chatMedia: string[] = CHAT_MEDIA;
 
-  ngOnInit() {}
 }

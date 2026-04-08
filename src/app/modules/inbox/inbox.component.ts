@@ -1,10 +1,10 @@
 // Angular
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ViewEncapsulation,
+  OnInit,
 } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -20,8 +20,9 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ProgressBar } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
+import { InboxNavGroup, InboxMessage } from './models/inbox.interface';
 
-const NG_MODULES = [CommonModule, FormsModule, RouterModule];
+const NG_MODULES = [FormsModule, RouterModule, NgClass];
 const PRIME_MODULES = [
   AvatarModule,
   ButtonModule,
@@ -46,16 +47,16 @@ const PRIME_MODULES = [
     class: 'flex gap-4 h-full flex-1 w-full overflow-auto',
   },
 })
-export class InboxComponent {
+export class InboxComponent implements OnInit {
   search: string | undefined;
 
-  activeInboxNav: string = 'Inbox';
+  activeInboxNav: string = 'Bandeja';
 
-  inboxNavs: any;
+  inboxNavs: InboxNavGroup[] = [];
 
-  tableData: any;
+  tableData: InboxMessage[] = [];
 
-  selectedRows: any = [];
+  selectedRows: InboxMessage[] = [];
 
   tableTokens = {
     header: {
@@ -72,25 +73,25 @@ export class InboxComponent {
   ngOnInit() {
     this.inboxNavs = [
       {
-        title: 'Navigation',
+        title: 'Navegación',
         navs: [
-          { name: 'Inbox', icon: 'pi pi-inbox' },
-          { name: 'Starry', icon: 'pi pi-star' },
-          { name: 'Drafts', icon: 'pi pi-file-o' },
-          { name: 'Important', icon: 'pi pi-file-import' },
-          { name: 'Sent', icon: 'pi pi-send' },
-          { name: 'Archive', icon: 'pi pi-inbox' },
+          { name: 'Bandeja', icon: 'pi pi-inbox' },
+          { name: 'Destacados', icon: 'pi pi-star' },
+          { name: 'Borradores', icon: 'pi pi-file-o' },
+          { name: 'Importantes', icon: 'pi pi-file-import' },
+          { name: 'Enviados', icon: 'pi pi-send' },
+          { name: 'Archivo', icon: 'pi pi-inbox' },
           { name: 'Spam', icon: 'pi pi-info-circle' },
-          { name: 'Trash', icon: 'pi pi-trash' },
+          { name: 'Papelera', icon: 'pi pi-trash' },
         ],
       },
       {
-        title: 'Other',
+        title: 'Otros',
         navs: [
-          { name: 'Security', icon: 'pi pi-tag' },
-          { name: 'Update', icon: 'pi pi-tag' },
+          { name: 'Seguridad', icon: 'pi pi-tag' },
+          { name: 'Actualización', icon: 'pi pi-tag' },
           { name: 'Marketing', icon: 'pi pi-tag' },
-          { name: 'HR', icon: 'pi pi-tag' },
+          { name: 'RRHH', icon: 'pi pi-tag' },
         ],
       },
     ];
@@ -102,11 +103,11 @@ export class InboxComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
         active: false,
         name: 'Brook Simmons',
-        type: 'Security',
+        type: 'Seguridad',
         time: '3:24 PM',
-        title: 'Important Account Update',
+        title: 'Actualización importante de cuenta',
         message:
-          "Dear customer, we've made updates to enhance your account security. Please log in to review and complete the necessary steps. Thank you for choosing ABC Corporation.",
+          'Estimado cliente, hemos realizado actualizaciones para mejorar la seguridad de su cuenta. Inicie sesión para revisar y completar los pasos necesarios. Gracias por elegir ABC Corporation.',
       },
       {
         id: 2,
@@ -115,11 +116,11 @@ export class InboxComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
         active: false,
         name: 'Dianne Russell',
-        type: 'Update',
+        type: 'Actualización',
         time: '11:24 AM',
-        title: 'Weekly Project Update',
+        title: 'Actualización semanal del proyecto',
         message:
-          'Hi team, attached is the weekly project update. Kindly review the progress and come prepared for our discussion in the upcoming meeting on [Date and Time].',
+          'Hola equipo, adjunto la actualización semanal del proyecto. Revisen el progreso y vengan preparados para nuestra discusión en la próxima reunión.',
       },
       {
         id: 3,
@@ -128,11 +129,11 @@ export class InboxComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
         active: false,
         name: 'Amy Elsner',
-        type: 'Security',
+        type: 'Seguridad',
         time: '9:24 AM',
-        title: 'Urgent: Security Alert - Account Compromise',
+        title: 'Urgente: Alerta de seguridad - Cuenta comprometida',
         message:
-          'Dear user, we detected unauthorized access to your account. Take immediate action to secure your account. Follow the provided link to reset your password. Thank you.',
+          'Estimado usuario, detectamos acceso no autorizado a su cuenta. Tome acción inmediata para asegurarla. Siga el enlace proporcionado para restablecer su contraseña.',
       },
       {
         id: 4,
@@ -142,10 +143,10 @@ export class InboxComponent {
         active: false,
         name: 'Jacob Jones',
         type: 'Marketing',
-        time: 'Jan 21',
-        title: 'Exclusive Offer Inside - Limited Time Only',
+        time: '21 Ene',
+        title: 'Oferta exclusiva - Solo por tiempo limitado',
         message:
-          "Greetings, check out our exclusive offer! Don't miss this limited-time deal. Details enclosed in the attached flyer. Act fast; the offer expires on [Date].",
+          'Saludos, ¡consulte nuestra oferta exclusiva! No se pierda esta promoción por tiempo limitado. Detalles en el folleto adjunto.',
       },
       {
         id: 5,
@@ -154,11 +155,11 @@ export class InboxComponent {
         active: false,
         name: 'Cameron Watson',
         capName: 'CW',
-        type: 'HR',
-        time: 'Jan 15',
-        title: 'Employee Appreciation Event - Save the Date',
+        type: 'RRHH',
+        time: '15 Ene',
+        title: 'Evento de reconocimiento al empleado - Reserva la fecha',
         message:
-          'Hello team, mark your calendars for our upcoming Employee Appreciation Event on [Date]. Stay tuned for more details and get ready for a day of celebration!',
+          'Hola equipo, marquen sus calendarios para nuestro próximo Evento de Reconocimiento al Empleado. ¡Estén atentos para más detalles y prepárense para un día de celebración!',
       },
       {
         id: 6,
@@ -167,11 +168,11 @@ export class InboxComponent {
         active: false,
         name: 'Wade Warren',
         capName: 'WW',
-        type: 'Invoice',
-        time: 'Jan 12',
-        title: 'Your Recent Purchase - Order Confirmation',
+        type: 'Factura',
+        time: '12 Ene',
+        title: 'Su compra reciente - Confirmación de pedido',
         message:
-          'Hi Wade Warren, secure your spot at the XYZ Conference 2024 with early bird registration. Enjoy discounted rates until [Date].',
+          'Hola Wade Warren, asegure su lugar en la Conferencia XYZ 2024 con registro anticipado. Disfrute de tarifas con descuento.',
       },
       {
         id: 7,
@@ -180,11 +181,11 @@ export class InboxComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
         active: false,
         name: 'Guy Hawkins',
-        type: 'Events',
-        time: 'Jan 11',
-        title: 'Early Bird Registration Open - XYZ Conference 2024',
+        type: 'Eventos',
+        time: '11 Ene',
+        title: 'Registro anticipado abierto - Conferencia XYZ 2024',
         message:
-          ' Attention users, we have scheduled system maintenance on Jan 17. Expect minimal service disruption during this period. Thank you for your understanding.',
+          'Atención usuarios, hemos programado mantenimiento del sistema el 17 de enero. Esperen mínima interrupción del servicio. Gracias por su comprensión.',
       },
       {
         id: 8,
@@ -194,10 +195,10 @@ export class InboxComponent {
         active: false,
         name: 'Annette Black',
         type: '',
-        time: 'Jan 8',
-        title: 'Upcoming System Maintenance Notice',
+        time: '8 Ene',
+        title: 'Aviso de mantenimiento programado del sistema',
         message:
-          "Dear valued customer, as a token of appreciation, we're offering exclusive discounts for VIP customers. Explore the savings in the attached catalog. Expires [Date].",
+          'Estimado cliente, como muestra de agradecimiento, ofrecemos descuentos exclusivos para clientes VIP. Explore los ahorros en el catálogo adjunto.',
       },
       {
         id: 9,
@@ -206,11 +207,11 @@ export class InboxComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg',
         active: false,
         name: 'Darrell Steward',
-        type: 'Discount',
-        time: 'Jan 4',
-        title: 'Special Discounts for VIP Customers',
+        type: 'Descuento',
+        time: '4 Ene',
+        title: 'Descuentos especiales para clientes VIP',
         message:
-          'Hello Darrell Steward, stay updated with our latest news and highlights in the January edition of our newsletter. Enjoy the read!',
+          'Hola Darrell Steward, manténgase al día con nuestras últimas noticias y destacados en la edición de enero de nuestro boletín. ¡Disfrute la lectura!',
       },
       {
         id: 10,
@@ -219,11 +220,11 @@ export class InboxComponent {
         active: false,
         name: 'Jerome Bell',
         capName: 'JB',
-        type: 'Newsletter',
-        time: 'Jan 2',
-        title: 'Monthly Newsletter - January Edition',
+        type: 'Boletín',
+        time: '2 Ene',
+        title: 'Boletín mensual - Edición de enero',
         message:
-          "Dear user, we've updated our Terms of Service. Please review the changes to ensure compliance. Your continued use of our services implies acceptance. Thank you.",
+          'Estimado usuario, hemos actualizado nuestros Términos de Servicio. Revise los cambios para asegurar el cumplimiento. El uso continuo de nuestros servicios implica aceptación. Gracias.',
       },
       {
         id: 11,
@@ -233,10 +234,10 @@ export class InboxComponent {
         active: false,
         name: 'Onyama Limba',
         type: '',
-        time: 'Jan 2',
-        title: 'Exclusive Travel Packages for You',
+        time: '2 Ene',
+        title: 'Paquetes de viaje exclusivos para usted',
         message:
-          'Greetings traveler, explore our exclusive travel packages tailored just for you. Plan your next adventure with XYZ Travel. Offers valid until [Date].',
+          'Saludos viajero, explore nuestros paquetes de viaje exclusivos diseñados para usted. Planifique su próxima aventura con XYZ Travel.',
       },
       {
         id: 12,
@@ -245,11 +246,11 @@ export class InboxComponent {
         active: false,
         name: 'Robert Fox',
         capName: 'RF',
-        type: 'Invitation',
+        type: 'Invitación',
         time: '12.12.2023',
-        title: 'Invitation to Amsterdam',
+        title: 'Invitación a Ámsterdam',
         message:
-          "Hello Robert Fox, you're invited to our upcoming webinar on Amsterdam. Join us on [Date and Time] for an insightful session. Reserve your spot now!",
+          'Hola Robert Fox, está invitado a nuestro próximo webinar sobre Ámsterdam. Únase a nosotros para una sesión reveladora. ¡Reserve su lugar ahora!',
       },
       {
         id: 13,
@@ -260,9 +261,9 @@ export class InboxComponent {
         capName: 'CH',
         type: '',
         time: '12.09.2023',
-        title: 'New Arrivals - Check Out the Latest Books',
+        title: 'Novedades - Descubre los últimos libros',
         message:
-          'Book enthusiasts, discover our latest arrivals! Explore the attached catalog and dive into the world of new releases. Available for purchase starting [Date].',
+          'Amantes de los libros, ¡descubran nuestras últimas novedades! Exploren el catálogo adjunto y sumérjanse en el mundo de los nuevos lanzamientos.',
       },
       {
         id: 14,
@@ -273,8 +274,8 @@ export class InboxComponent {
         name: 'Arlene McCoy',
         type: '',
         time: '12.04.2023',
-        title: 'New Product Demo',
-        message: 'Exclusive demo of our latest product on Thursday.',
+        title: 'Demo de nuevo producto',
+        message: 'Demo exclusiva de nuestro último producto el jueves.',
       },
       {
         id: 15,
@@ -283,11 +284,11 @@ export class InboxComponent {
         active: false,
         name: 'Jerome Bell',
         capName: 'JB',
-        type: 'Newsletter',
+        type: 'Boletín',
         time: '10.01.2023',
-        title: 'Monthly Newsletter - January Edition',
+        title: 'Boletín mensual - Edición de enero',
         message:
-          "Dear user, we've updated our Terms of Service. Please review the changes to ensure compliance. Your continued use of our services implies acceptance. Thank you.",
+          'Estimado usuario, hemos actualizado nuestros Términos de Servicio. Revise los cambios para asegurar el cumplimiento. El uso continuo de nuestros servicios implica aceptación. Gracias.',
       },
     ];
   }

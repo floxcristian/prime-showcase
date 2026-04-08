@@ -1,15 +1,13 @@
 // Angular
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ViewEncapsulation,
+  OnInit,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
 import { SelectButton } from 'primeng/selectbutton';
-//import { Slider } from 'primeng/slider';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { IconField } from 'primeng/iconfield';
@@ -19,11 +17,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ProgressBar } from 'primeng/progressbar';
 import { Carousel } from 'primeng/carousel';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { Movie, CarouselMovie, CarouselResponsiveOption } from './models/movie.interface';
 
-const NG_MODULES = [CommonModule, FormsModule, RouterModule];
+const NG_MODULES = [FormsModule, RouterModule];
 const PRIME_MODULES = [
   SelectButton,
-  //Slider,
   AvatarModule,
   TooltipModule,
   IconField,
@@ -45,26 +43,26 @@ const PRIME_MODULES = [
       'flex-1 flex flex-col gap-6 p-6 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl',
   },
 })
-export class MoviesComponent {
+export class MoviesComponent implements OnInit {
   search: string | undefined;
 
   page: number = 0;
 
-  value: string = 'Home';
+  value: string = 'Inicio';
 
   options: string[] = [
-    'Home',
-    'Movies',
-    'TV Shows',
-    'Recently Added',
-    'My List',
+    'Inicio',
+    'Películas',
+    'Series',
+    'Recientes',
+    'Mi Lista',
   ];
 
-  responsiveOptions: any;
+  responsiveOptions: CarouselResponsiveOption[] = [];
 
-  carouselData: any;
+  carouselData: CarouselMovie[] = [];
 
-  popularMovies: any;
+  popularMovies: Movie[] = [];
 
   ngOnInit() {
     this.responsiveOptions = [
@@ -94,7 +92,7 @@ export class MoviesComponent {
         bookmarked: true,
         point: '4.7',
         watchedPercent: 80,
-        categories: ['Action', 'Crime', 'Drama'],
+        categories: ['Acción', 'Crimen', 'Drama'],
       },
       {
         image:
@@ -103,7 +101,7 @@ export class MoviesComponent {
         bookmarked: false,
         point: '4.8',
         watchedPercent: 45,
-        categories: ['Action', 'Crime', 'Drama'],
+        categories: ['Acción', 'Crimen', 'Drama'],
       },
       {
         image:
@@ -112,7 +110,7 @@ export class MoviesComponent {
         bookmarked: false,
         point: '4.3',
         watchedPercent: 10,
-        categories: ['Action', 'Crime', 'Drama'],
+        categories: ['Acción', 'Crimen', 'Drama'],
       },
       {
         image:
@@ -121,7 +119,7 @@ export class MoviesComponent {
         bookmarked: false,
         point: '4.9',
         watchedPercent: 50,
-        categories: ['Action', 'Sci-Fi'],
+        categories: ['Acción', 'Ciencia ficción'],
       },
       {
         image:
@@ -139,7 +137,7 @@ export class MoviesComponent {
         bookmarked: false,
         point: '4.7',
         watchedPercent: 40,
-        categories: ['Comedy', 'Drama'],
+        categories: ['Comedia', 'Drama'],
       },
       {
         image:
@@ -157,7 +155,7 @@ export class MoviesComponent {
         bookmarked: true,
         point: '4.7',
         watchedPercent: 80,
-        categories: ['Drama', 'War'],
+        categories: ['Drama', 'Bélica'],
       },
       {
         image:
@@ -166,7 +164,7 @@ export class MoviesComponent {
         bookmarked: false,
         point: '4.7',
         watchedPercent: 20,
-        categories: ['Crime', 'Drama', 'Mystery'],
+        categories: ['Crimen', 'Drama', 'Misterio'],
       },
       {
         image:
@@ -175,7 +173,7 @@ export class MoviesComponent {
         bookmarked: false,
         point: '4.7',
         watchedPercent: 70,
-        categories: ['Mystery', 'Thriller'],
+        categories: ['Misterio', 'Suspenso'],
       },
     ];
 
@@ -194,7 +192,7 @@ export class MoviesComponent {
         name: 'Saving Private Ryan',
         bookmarked: true,
         point: '4.4',
-        categories: ['Drama', 'War'],
+        categories: ['Drama', 'Bélica'],
       },
       {
         image:
@@ -202,7 +200,7 @@ export class MoviesComponent {
         name: 'Seven',
         bookmarked: false,
         point: '4.3',
-        categories: ['Crime', 'Drama', 'Mystery'],
+        categories: ['Crimen', 'Drama', 'Misterio'],
       },
       {
         image:
@@ -210,7 +208,7 @@ export class MoviesComponent {
         name: 'Shutter Island',
         bookmarked: false,
         point: '4.7',
-        categories: ['Mystery', 'Thriller'],
+        categories: ['Misterio', 'Suspenso'],
       },
       {
         image:
@@ -218,7 +216,7 @@ export class MoviesComponent {
         name: 'Basic Instinct',
         bookmarked: true,
         point: '4.3',
-        categories: ['Drama', 'Mystery', 'Thriller'],
+        categories: ['Drama', 'Misterio', 'Suspenso'],
       },
       {
         image:
@@ -226,7 +224,7 @@ export class MoviesComponent {
         name: 'Big Hero 6',
         bookmarked: false,
         point: '4.7',
-        categories: ['Animation', 'Action', 'Adventure'],
+        categories: ['Animación', 'Acción', 'Aventura'],
       },
       {
         image:
@@ -234,7 +232,7 @@ export class MoviesComponent {
         name: 'The Lord Of The Rings: Fellowship of the ring',
         bookmarked: true,
         point: '4.9',
-        categories: ['Action', 'Adventure', 'Drama'],
+        categories: ['Acción', 'Aventura', 'Drama'],
       },
       {
         image:
@@ -242,16 +240,16 @@ export class MoviesComponent {
         name: 'Kill Bill',
         bookmarked: true,
         point: '4.5',
-        categories: ['Action', 'Crime', 'Thriller'],
+        categories: ['Acción', 'Crimen', 'Suspenso'],
       },
     ];
   }
 
-  previousPage() {
+  previousPage(): void {
     this.page -= 1;
   }
 
-  nextPage() {
+  nextPage(): void {
     this.page += 1;
   }
 }

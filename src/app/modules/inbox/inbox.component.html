@@ -4,21 +4,21 @@
   <div
     class="flex items-center justify-between gap-2 p-4 border-b border-surface"
     >
-    <div class="text-xl font-medium leading-7 text-color">Mails</div>
-    <p-button icon="pi pi-plus" styleClass="w-8 h-8" />
+    <div class="text-xl font-medium leading-7 text-color">Correos</div>
+    <p-button icon="pi pi-plus" styleClass="w-8 h-8" aria-label="Nuevo correo" />
   </div>
   <div
     class="flex-1 flex flex-col overflow-auto justify-between gap-4 pt-4 pb-4 px-4"
     >
     <div class="flex-1 overflow-auto flex flex-col gap-2">
-      @for (navData of inboxNavs; track navData) {
+      @for (navData of inboxNavs; track navData.title) {
         <div class="flex flex-col gap-2">
           <div
             class="text-sm font-medium leading-5 text-surface-400 dark:text-surface-500"
             >
             {{ navData.title }}
           </div>
-          @for (nav of navData.navs; track nav) {
+          @for (nav of navData.navs; track nav.name) {
             <button
               (click)="activeInboxNav = nav.name"
           [ngClass]="{
@@ -36,17 +36,17 @@
     </div>
     <div>
       <div class="border border-surface rounded-border px-4 pb-4 pt-3 mb-4">
-        <div class="font-medium text-color mb-4">Free Version</div>
+        <div class="font-medium text-color mb-4">Versión gratuita</div>
         <p-progressbar [value]="75">
           <ng-template #content let-value>
             <span
               class="w-full text-center text-sm font-normal text-primary-contrast leading-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              >4 days left</span
+              >4 días restantes</span
               >
             </ng-template>
           </p-progressbar>
         </div>
-        <p-button label="Upgrade to PRO 🚀" outlined styleClass="w-full" />
+        <p-button label="Actualizar a PRO 🚀" outlined styleClass="w-full" />
       </div>
     </div>
   </div>
@@ -68,22 +68,23 @@
           >
           <div class="flex items-center gap-2">
             <p-checkbox [binary]="true" class="mr-1" />
-            <p-button icon="pi pi-envelope" outlined severity="secondary" />
+            <p-button icon="pi pi-envelope" outlined severity="secondary" aria-label="Marcar como leído" />
             <p-button
               icon="pi pi-exclamation-circle"
               outlined
               severity="secondary"
+              aria-label="Marcar como importante"
               />
-              <p-button icon="pi pi-tag" outlined severity="secondary" />
+              <p-button icon="pi pi-tag" outlined severity="secondary" aria-label="Etiquetar" />
               <p-button
                 icon="pi pi-inbox"
-                label="Archive"
+                label="Archivar"
                 outlined
                 severity="secondary"
                 />
                 <p-button
                   icon="pi pi-trash"
-                  label="Trash"
+                  label="Papelera"
                   outlined
                   severity="secondary"
                   />
@@ -95,31 +96,31 @@
                       type="text"
                       pInputText
                       [(ngModel)]="search"
-                      placeholder="Search"
+                      placeholder="Buscar"
                       class="w-full"
                       />
                     </p-iconfield>
-                    <p-button icon="pi pi-filter" outlined severity="secondary" />
+                    <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
                     <p-divider layout="vertical" styleClass="m-0" />
-                    <p-button icon="pi pi-refresh" outlined severity="secondary" />
+                    <p-button icon="pi pi-refresh" outlined severity="secondary" aria-label="Actualizar" />
                     <p-button
-                      label="1 of 15"
+                      label="1 de 15"
                       class="!whitespace-nowrap"
                       outlined
                       severity="secondary"
                       />
-                      <p-button icon="pi pi-chevron-left" outlined severity="secondary" />
-                      <p-button icon="pi pi-chevron-right" outlined severity="secondary" />
+                      <p-button icon="pi pi-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
+                      <p-button icon="pi pi-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
                     </div>
                   </div>
                 </ng-template>
                 <ng-template #body let-data>
                   <tr>
-                    <td style="width: 1rem">
+                    <td class="w-4">
                       <p-tableCheckbox [value]="data" />
                     </td>
 
-                    <td style="width: 1rem; padding: 0.5rem">
+                    <td class="w-4 p-2">
                       <div
             (click)="
               $event.stopPropagation(); data.bookmarked = !data.bookmarked
@@ -152,7 +153,7 @@
                         </div>
                       </td>
 
-                      <td style="min-width: 14rem; max-width: 20rem">
+                      <td class="min-w-56 max-w-80">
                         <div class="truncate">
                           <span class="text-color leading-6 mr-2">{{ data.title }}</span>
                           <span class="text-muted-color leading-5 text-sm">{{
@@ -161,7 +162,7 @@
                         </div>
                       </td>
 
-                      <td style="width: 4rem">
+                      <td class="w-16">
                         @if (data.type) {
                           <p-tag
                             severity="secondary"
@@ -171,7 +172,7 @@
                         }
                       </td>
 
-                      <td style="width: 4rem">
+                      <td class="w-16">
                         <div class="text-right text-sm leading-5 text-muted-color">
                           {{ data.time }}
                         </div>

@@ -2,11 +2,11 @@ import { MenuItem } from 'primeng/api';
 
 export const CHAT_MENU_ITEMS: MenuItem[] = [
   {
-    label: 'Group Info',
+    label: 'Info del grupo',
     icon: 'pi pi-info-circle',
   },
   {
-    label: 'Leave group',
+    label: 'Salir del grupo',
     icon: 'pi pi-sign-out',
   },
 ];

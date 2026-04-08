@@ -1,6 +1,6 @@
 // Angular
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -35,8 +35,9 @@ import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 import { Permission } from './models/permission.interface';
+import { FileWithPreview, MemberType, PriceRangeSpec } from './models/member-type.interface';
 
-const NG_MODULES = [CommonModule, FormsModule, RouterModule];
+const NG_MODULES = [FormsModule, RouterModule, NgClass];
 const PRIME_MODULES = [
   AutoComplete,
   AvatarModule,
@@ -71,85 +72,75 @@ const PRIME_MODULES = [
       'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
-export class CardsComponent {
-  files: File[] = [];
-  uploadedFiles: File[] = [];
+export class CardsComponent implements OnInit {
+  files: FileWithPreview[] = [];
+  uploadedFiles: FileWithPreview[] = [];
   totalSize: number = 0;
   totalSizePercent: number = 0;
   jobApplication: boolean = false;
-  userProfiles: string = 'Chilling';
-  userProfilesOptions: string[] = ['Chilling', 'Do Not Disturb'];
+  userProfiles: string = 'Relajado';
+  userProfilesOptions: string[] = ['Relajado', 'No molestar'];
   userProfilesValues: boolean[] = [true, true, false, false, true, false];
   forgotPasswordOTP: string = '023';
   priceRange: number[] = [0, 10000];
-  priceMinVal: number = 0;
-  priceMaxVal: number = 100000;
-  priceRangePopularSpecs: any;
+  priceRangePopularSpecs: PriceRangeSpec[] = [];
   priceRangePopularSpecsChecked: string[] = [
-    'Furnished',
-    'Detached',
-    'Balcony',
-    'Sea view',
+    'Amueblado',
+    'Independiente',
+    'Balcón',
+    'Vista al mar',
   ];
-  userSelectButtonOptions: string[] = ['Joined', 'Hosted'];
-  selectedUserSelectButtonOption: string = 'Joined';
+  userSelectButtonOptions: string[] = ['Inscritos', 'Organizados'];
+  selectedUserSelectButtonOption: string = 'Inscritos';
   darkMode: boolean = false;
-  emailChips: any;
+  emailChips: string[] = [];
   memberSelectedTypes: string[] = ['O', 'E', 'V'];
-  memberTypes: any;
+  memberTypes: MemberType[] = [];
   copiedText: string =
     "https://www.example.com/shared-files/user123/document-collection/file12345';";
-  documentName: string = 'Aura Theme';
-  filesTag: string[] = ['ui', 'redesign', 'dashboard'];
-  selectedPermission: string = 'Everyone';
+  documentName: string = 'Tema Aura';
+  filesTag: string[] = ['ui', 'rediseño', 'panel'];
+  selectedPermission: string = 'Todos';
   permissions: Permission[] = [];
-  items: any;
+  items: string[] = [];
 
-  constructor(
-    private config: PrimeNG,
-    private messageService: MessageService
-  ) {}
+  private config = inject(PrimeNG);
+  private messageService = inject(MessageService);
 
   ngOnInit() {
     this.priceRangePopularSpecs = [
-      { value: 'Furnished', checked: true },
-      { value: 'Unfurnished', checked: false },
-      { value: 'Detached', checked: true },
-      { value: 'Underfloor heating', checked: false },
-      { value: 'Balcony', checked: true },
-      { value: 'Duplex', checked: false },
-      { value: 'Triplex', checked: false },
-      { value: 'Garden', checked: false },
-      { value: 'Central location', checked: false },
-      { value: 'Sea view', checked: true },
+      { value: 'Amueblado', checked: true },
+      { value: 'Sin amueblar', checked: false },
+      { value: 'Independiente', checked: true },
+      { value: 'Calefacción por suelo', checked: false },
+      { value: 'Balcón', checked: true },
+      { value: 'Dúplex', checked: false },
+      { value: 'Tríplex', checked: false },
+      { value: 'Jardín', checked: false },
+      { value: 'Ubicación céntrica', checked: false },
+      { value: 'Vista al mar', checked: true },
     ];
     this.memberTypes = [
-      { name: 'Owner', code: 'O' },
+      { name: 'Propietario', code: 'O' },
       { name: 'Editor', code: 'E' },
-      { name: 'Viewer', code: 'V' },
+      { name: 'Lector', code: 'V' },
     ];
 
     this.permissions = [
-      { name: 'Everyone', icon: 'pi pi-globe', key: 'E' },
-      { name: 'Admins only', icon: 'pi pi-users', key: 'A' },
+      { name: 'Todos', icon: 'pi pi-globe', key: 'E' },
+      { name: 'Solo admins', icon: 'pi pi-users', key: 'A' },
     ];
   }
 
   onRemoveTemplatingFile(
-    file: File,
-    removeFileCallback: any,
+    file: FileWithPreview,
+    removeFileCallback: (index: number) => void,
     index: number
   ): void {
     removeFileCallback(index);
     this.totalSize -= parseInt(this.formatSize(file.size));
     this.totalSizePercent = this.totalSize / 10;
   }
-
-  /*onClearTemplatingUpload(clear) {
-    clear();
-    this.totalSize = 0;
-    this.totalSizePercent = 0;
-  }*/
 
   onSelectedFiles(event: FileSelectEvent): void {
     this.files = event.files;
@@ -158,7 +149,7 @@ export class CardsComponent {
     });
   }
 
-  uploadEvent(callback: any): void {
+  uploadEvent(callback: () => void): void {
     this.totalSizePercent = this.totalSize / 10;
     callback();
   }
@@ -169,8 +160,8 @@ export class CardsComponent {
     }
     this.messageService.add({
       severity: 'info',
-      summary: 'Success',
-      detail: 'File Uploaded',
+      summary: 'Éxito',
+      detail: 'Archivo subido',
       life: 3000,
     });
   }
@@ -192,14 +183,10 @@ export class CardsComponent {
 
   search(event: AutoCompleteSelectEvent): void {
     this.items = [...Array(10).keys()].map((item) => '-' + item);
-    //this.items = [...Array(10).keys()].map((item) => event.query + '-' + item);
   }
 
   search2(event: AutoCompleteCompleteEvent): void {
     this.items = [...Array(10).keys()].map((item) => event.query + '-' + item);
   }
 
-  getObjectURL(file: File): string {
-    return URL.createObjectURL(file);
-  }
 }

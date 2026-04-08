@@ -1,37 +1,35 @@
 // Angular
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  Inject,
-  PLATFORM_ID,
+  inject,
+  OnInit,
 } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { Customer, CompanyLogos } from './models/customer.interface';
 // PrimeNG
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { ChartModule } from 'primeng/chart';
 import { DividerModule } from 'primeng/divider';
-import { DrawerModule } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { Popover, PopoverModule } from 'primeng/popover';
+import type { Popover } from 'primeng/popover';
+import { PopoverModule } from 'primeng/popover';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 
-const NG_MODULES = [CommonModule, FormsModule, RouterModule];
+const NG_MODULES = [FormsModule, RouterModule, NgClass];
 const PRIME_MODULES = [
   AvatarModule,
   ButtonModule,
-  ChartModule,
   DividerModule,
-  DrawerModule,
   IconField,
   InputIcon,
   InputTextModule,
@@ -54,14 +52,14 @@ const PRIME_MODULES = [
       'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
-export class CustomersComponent {
+export class CustomersComponent implements OnInit {
   search: string = '';
 
-  tableData: any = [];
+  tableData: Customer[] = [];
 
-  companyLogos: any;
+  companyLogos = {} as CompanyLogos;
 
-  selectedRows: any = [];
+  selectedRows: Customer[] = [];
 
   tableTokens = {
     header: {
@@ -75,10 +73,7 @@ export class CustomersComponent {
     },
   };
 
-  constructor(
-    @Inject(PLATFORM_ID) private platformId: any,
-    private sanitizer: DomSanitizer
-  ) {}
+  private sanitizer = inject(DomSanitizer);
 
   ngOnInit() {
     this.tableData = [
@@ -88,11 +83,11 @@ export class CustomersComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
         active: true,
         name: 'Brook Simmons',
-        title: 'Sales Executive ',
+        title: 'Ejecutivo de ventas',
         company: { name: 'Mistranet', logo: 'mistranet' },
         email: 'hi@brooksmmns.co',
         lead: 'Linkedin',
-        status: 'Active',
+        status: 'Activo',
       },
       {
         id: 2,
@@ -103,8 +98,8 @@ export class CustomersComponent {
         title: 'CEO',
         company: { name: 'BriteMank', logo: 'britemank' },
         email: 'hi@diannerussell.com',
-        lead: 'Website',
-        status: 'Inactive',
+        lead: 'Sitio web',
+        status: 'Inactivo',
       },
       {
         id: 3,
@@ -112,11 +107,11 @@ export class CustomersComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
         active: undefined,
         name: 'Amy Elsner',
-        title: 'Product Manager',
+        title: 'Gerente de producto',
         company: { name: 'ZenTrailMs', logo: 'zentrailms' },
         email: 'hi@amyelsner.com',
-        lead: 'Cold Call',
-        status: 'Prospect',
+        lead: 'Llamada en frío',
+        status: 'Prospecto',
       },
       {
         id: 4,
@@ -124,11 +119,11 @@ export class CustomersComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
         active: true,
         name: 'Jacob Jones',
-        title: 'Manager',
+        title: 'Gerente',
         company: { name: 'Streamlinz', logo: 'streamlinz' },
         email: 'jacobjones@gmail.com',
-        lead: 'Partner',
-        status: 'Prospect',
+        lead: 'Socio',
+        status: 'Prospecto',
       },
       {
         id: 5,
@@ -136,11 +131,11 @@ export class CustomersComponent {
         active: false,
         name: 'Cameron Watson',
         capName: 'CW',
-        title: 'Product Manager',
+        title: 'Gerente de producto',
         company: { name: 'BriteMank', logo: 'britemank' },
         email: 'hi@cameronwilliamson',
-        lead: 'Social Media',
-        status: 'Active',
+        lead: 'Redes sociales',
+        status: 'Activo',
       },
       {
         id: 6,
@@ -151,8 +146,8 @@ export class CustomersComponent {
         title: 'Director',
         company: { name: 'Streamlinz', logo: 'streamlinz' },
         email: 'hi@annetteblack.com',
-        lead: 'Cold Call',
-        status: 'Inactive',
+        lead: 'Llamada en frío',
+        status: 'Inactivo',
       },
       {
         id: 7,
@@ -164,7 +159,7 @@ export class CustomersComponent {
         company: { name: 'Wavelength', logo: 'wavelength' },
         email: 'hi@darrellsteward.com',
         lead: 'Linkedin',
-        status: 'Active',
+        status: 'Activo',
       },
       {
         id: 8,
@@ -172,11 +167,11 @@ export class CustomersComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
         active: true,
         name: 'Annette Black',
-        title: 'Manager',
+        title: 'Gerente',
         company: { name: 'Wavelength', logo: 'wavelength' },
         email: 'jeromebell@gmail.com',
-        lead: 'Website',
-        status: 'Inactive',
+        lead: 'Sitio web',
+        status: 'Inactivo',
       },
       {
         id: 9,
@@ -184,11 +179,11 @@ export class CustomersComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg',
         active: undefined,
         name: 'Darrell Steward',
-        title: 'Product Manager',
+        title: 'Gerente de producto',
         company: { name: 'ZenTrailMs', logo: 'zentrailms' },
         email: 'hi@onyamalimba.co',
-        lead: 'Website',
-        status: 'Active',
+        lead: 'Sitio web',
+        status: 'Activo',
       },
       {
         id: 10,
@@ -196,11 +191,11 @@ export class CustomersComponent {
         active: true,
         name: 'Jerome Bell',
         capName: 'JB',
-        title: 'Marketing Manager',
+        title: 'Gerente de marketing',
         company: { name: 'Mistranet', logo: 'mistranet' },
         email: 'hi@courtneyhenryo',
-        lead: 'Social Media',
-        status: 'Active',
+        lead: 'Redes sociales',
+        status: 'Activo',
       },
       {
         id: 11,
@@ -208,11 +203,11 @@ export class CustomersComponent {
           'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
         active: undefined,
         name: 'Onyama Limba',
-        title: 'Sales Executive ',
+        title: 'Ejecutivo de ventas',
         company: { name: 'BriteMank', logo: 'britemank' },
         email: 'hi@arlenemccoy.com',
-        lead: 'Social Media',
-        status: 'Active',
+        lead: 'Redes sociales',
+        status: 'Activo',
       },
     ];
 
@@ -257,7 +252,7 @@ export class CustomersComponent {
     };
   }
 
-  displayPopover(e: MouseEvent, op: Popover) {
+  displayPopover(e: MouseEvent, op: Popover): void {
     op.hide();
     setTimeout(() => {
       op.show(e);

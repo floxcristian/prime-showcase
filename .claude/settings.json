@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm view:*)",
+      "Bash(curl -sL --max-time 15 \"https://update.angular.dev/\")",
+      "Bash(curl -s -L \"https://primeng.org/guides/migration\" -o /tmp/migration_main.html)",
+      "Read(//tmp/**)",
+      "Bash(curl -sL --max-time 15 \"https://angular.dev/update-guide\")",
+      "Bash(curl -s https://expressjs.com/en/guide/migrating-5.html)",
+      "Bash(curl -sL --max-time 15 \"https://blog.angular.dev/\")",
+      "Bash(curl -s -L \"https://primeng.org/guides/migration/v20\" -o /tmp/migration_v20.html)",
+      "Bash(curl -s -L \"https://primeng.org/guides/migration/v21\" -o /tmp/migration_v21.html)",
+      "WebSearch"
+    ]
+  }
+}

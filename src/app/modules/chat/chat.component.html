@@ -4,7 +4,7 @@
     >
     <div class="flex items-center justify-between gap-6 text-color">
       <div class="text-2xl font-medium lead">Chats</div>
-      <p-button icon="pi pi-plus" text />
+      <p-button icon="pi pi-plus" text aria-label="Nuevo chat" />
     </div>
   </div>
   <div class="px-5">
@@ -14,7 +14,7 @@
         type="text"
         pInputText
         [(ngModel)]="search"
-        placeholder="Search"
+        placeholder="Buscar"
         class="w-full"
         />
       </p-iconField>
@@ -29,7 +29,7 @@
         />
       </div>
       <div class="flex-1 flex flex-col">
-        @for (chat of chats; track chat) {
+        @for (chat of chats; track chat.name) {
           <div
             class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
       [ngClass]="{
@@ -97,12 +97,13 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <p-button icon="pi pi-phone" text />
-              <p-button icon="pi pi-search" text />
+              <p-button icon="pi pi-phone" text aria-label="Llamar" />
+              <p-button icon="pi pi-search" text aria-label="Buscar" />
               <p-button
                 type="button"
                 icon="pi pi-ellipsis-h"
                 text
+                aria-label="Más opciones"
                 (click)="menu.toggle($event)"
                 aria-haspopup="true"
                 aria-controls="overlay_menu"
@@ -111,7 +112,7 @@
               </div>
             </div>
             <div class="flex-1 overflow-y-auto flex flex-col gap-8 py-8 px-6">
-              @for (message of chatMessages; track message) {
+              @for (message of chatMessages; track message.id) {
                 <div
                   class="flex items-start min-w-64 w-fit max-w-[60%]"
                   [ngClass]="{ 'ml-auto mr-0 flex-row-reverse': message.type === 'sent' }"
@@ -169,13 +170,13 @@
                         </p>
                         @if (message.attachment) {
                           <div
-                            :class="message.type === 'received' ? 'bg-surface-200 dark:bg-surface-700' : 'bg-primary-emphasis'"
                             class="mt-2 w-full rounded-lg mb-0.5 hover:opacity-75 transition-all"
+                            [ngClass]="message.type === 'received' ? 'bg-surface-200 dark:bg-surface-700' : 'bg-primary-emphasis'"
                             >
                             <img
                               class="w-full h-auto block cursor-pointer"
                               [src]="message.attachment"
-                              alt="Message Image"
+                              alt="Imagen del mensaje"
                               />
                             </div>
                           }
@@ -185,17 +186,17 @@
                   </div>
                   <div class="p-4 border-t border-surface flex items-end justify-between gap-2">
                     <div class="flex items-end gap-1 flex-1">
-                      <p-button icon="pi pi-face-smile" text />
-                      <p-button icon="pi pi-paperclip" text />
+                      <p-button icon="pi pi-face-smile" text aria-label="Emojis" />
+                      <p-button icon="pi pi-paperclip" text aria-label="Adjuntar archivo" />
                       <textarea
                         pTextarea
                         class="ml-1 flex-1 border-0 shadow-none max-h-32 min-h-9 bg-emphasis overflow-auto"
                         autoResize
                         rows="1"
-                        placeholder="Write your message..."
+                        placeholder="Escribe tu mensaje..."
                       ></textarea>
                     </div>
-                    <p-button icon="pi pi-send" />
+                    <p-button icon="pi pi-send" aria-label="Enviar mensaje" />
                   </div>
                 </div>
                 <div class="w-3/12 xl:block hidden min-w-40 py-6 px-3 overflow-auto">
@@ -213,60 +214,63 @@
                         &#64;primetek
                       </div>
                       <div class="flex items-center justify-center flex-wrap gap-1 mt-4">
-                        <p-button icon="pi pi-phone text-muted-color" severity="secondary" text />
-                        <p-button icon="pi pi-video text-muted-color" severity="secondary" text />
+                        <p-button icon="pi pi-phone text-muted-color" severity="secondary" text aria-label="Llamar" />
+                        <p-button icon="pi pi-video text-muted-color" severity="secondary" text aria-label="Videollamada" />
                         <p-button
                           icon="pi pi-sign-in text-muted-color"
                           severity="secondary"
                           text
+                          aria-label="Compartir pantalla"
                           />
                           <p-button
                             icon="pi pi-info-circle text-muted-color"
                             severity="secondary"
                             text
+                            aria-label="Información"
                             />
                             <p-button
                               type="button"
                               icon="pi pi-ellipsis-v text-muted-color"
                               severity="secondary"
                               text
-                              (click)="menu.toggle($event)"
+                              aria-label="Más opciones"
+                              (click)="profileMenu.toggle($event)"
                               aria-haspopup="true"
-                              aria-controls="overlay_menu"
+                              aria-controls="overlay_menu_profile"
                               />
-                              <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" />
+                              <p-menu #profileMenu id="overlay_menu_profile" [model]="menuItems" [popup]="true" />
                             </div>
                           </div>
                           <div class="flex flex-col gap-4 mt-4">
                             <div class="flex items-center gap-2">
                               <i class="pi pi-bell text-color"></i>
-                              <div class="leading-6 font-medium text-color flex-1">Notification</div>
+                              <div class="leading-6 font-medium text-color flex-1">Notificaciones</div>
                               <p-toggleswitch [(ngModel)]="notification" />
                             </div>
                             <div class="flex items-center gap-2">
                               <i class="pi pi-volume-down text-color"></i>
-                              <div class="leading-6 font-medium text-color flex-1">Sound</div>
+                              <div class="leading-6 font-medium text-color flex-1">Sonido</div>
                               <p-toggleswitch [(ngModel)]="sound" />
                             </div>
                             <div class="flex items-center gap-2">
                               <i class="pi pi-download text-color"></i>
                               <div class="leading-6 font-medium text-color flex-1">
-                                Save to downloads
+                                Guardar en descargas
                               </div>
                               <p-toggleswitch [(ngModel)]="download" />
                             </div>
                           </div>
                           <div class="mt-6">
                             <div class="flex items-center gap-2">
-                              <div class="flex-1 text-color leading-6 font-medium">Members</div>
+                              <div class="flex-1 text-color leading-6 font-medium">Miembros</div>
                               <p-button
-                                label="See All"
+                                label="Ver todo"
                                 styleClass="text-sm py-0.5 px-2 text-muted-color"
                                 text
                                 />
                               </div>
                               <div class="mt-4 flex flex-col gap-2">
-                                @for (member of members; track member) {
+                                @for (member of members; track member.name) {
                                   <div
                                     class="flex items-center gap-2 cursor-pointer"
                                     >
@@ -298,14 +302,14 @@
                                   />
 
                                   <div class="mt-3 mb-5 grid grid-cols-3 gap-2">
-                                    @for (media of chatMedia; track media) {
+                                    @for (media of chatMedia; track $index) {
                                       <div
                                         class="bg-emphasis hover:opacity-70 transition-all flex-1 aspect-square rounded-lg border border-surface cursor-pointer"
                                         >
                                         <img
                                           class="w-full h-full object-cover block"
                                           [src]="media"
-                                          alt="Media Image"
+                                          alt="Imagen multimedia"
                                           />
                                         </div>
                                       }
@@ -316,7 +320,7 @@
                                       </div>
                                     </div>
                                     <p-button
-                                      label="Show more"
+                                      label="Mostrar más"
                                       icon="pi pi-arrow-right"
                                       iconPos="right"
                                       outlined

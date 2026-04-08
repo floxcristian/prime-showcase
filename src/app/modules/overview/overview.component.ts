@@ -1,11 +1,12 @@
 //Angular
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, NgClass, NgStyle } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   effect,
   inject,
+  OnInit,
   PLATFORM_ID,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -26,9 +27,11 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import type { CanvasFontSpec, Chart, TooltipModel, TooltipItem } from 'chart.js';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
+import { Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
 
-const NG_MODULES = [CommonModule, RouterModule, FormsModule];
+const NG_MODULES = [RouterModule, FormsModule, NgClass, NgStyle];
 const PRIME_MODULES = [
   ChartModule,
   SelectButtonModule,
@@ -42,7 +45,6 @@ const PRIME_MODULES = [
   InputTextModule,
   MenuModule,
   TagModule,
-  MeterGroupModule,
   OverlayBadgeModule,
   DatePickerModule,
 ];
@@ -57,15 +59,15 @@ const PRIME_MODULES = [
     class: 'flex-1 h-full overflow-y-auto pb-0.5',
   },
 })
-export class OverviewComponent {
-  chartData: any;
-  chartOptions: any;
+export class OverviewComponent implements OnInit {
+  chartData: OverviewChartData | undefined;
+  chartOptions: Record<string, unknown> | undefined;
   dates: Date[] | undefined = [];
-  selectedTime: string = 'Monthly';
-  timeOptions: string[] = ['Weekly', 'Monthly', 'Yearly'];
+  selectedTime: string = 'Mensual';
+  timeOptions: string[] = ['Semanal', 'Mensual', 'Anual'];
   menuItems: MenuItem[] | undefined;
-  sampleAppsTableDatas: any;
-  metersData: any;
+  sampleAppsTableDatas: Transaction[] = [];
+  metersData: MeterItem[] = [];
   tableTokens = {
     header: {
       background: 'transparent',
@@ -79,30 +81,24 @@ export class OverviewComponent {
   };
 
   // Dependencies
-  platformId = inject(PLATFORM_ID);
-
-  configService = inject(AppConfigService);
-  appState = this.configService.appState();
-  //designerService = inject(DesignerService);
-
-  constructor(private cd: ChangeDetectorRef) {}
+  private platformId = inject(PLATFORM_ID);
+  private cd = inject(ChangeDetectorRef);
+  private configService = inject(AppConfigService);
 
   themeEffect = effect(() => {
     if (this.configService.transitionComplete()) {
-      //if (this.designerService.preset()) {
       this.initChart();
-      //}
     }
   });
 
   ngOnInit() {
     this.menuItems = [
       {
-        label: 'Refresh',
+        label: 'Actualizar',
         icon: 'pi pi-refresh',
       },
       {
-        label: 'Export',
+        label: 'Exportar',
         icon: 'pi pi-upload',
       },
     ];
@@ -112,80 +108,80 @@ export class OverviewComponent {
         id: '#1254',
         name: { text: 'Amy Yelsner', label: 'AY', color: 'blue' },
         coin: 'btc',
-        date: 'May 5th',
-        process: { type: 'success', value: 'Buy' },
+        date: '5 May',
+        process: { type: 'success', value: 'Compra' },
         amount: '3.005 BTC',
       },
       {
         id: '#2355',
         name: { text: 'Anna Fali', label: 'AF', color: '#ECFCCB' },
         coin: 'eth',
-        date: 'Mar 17th',
-        process: { type: 'success', value: 'Buy' },
+        date: '17 Mar',
+        process: { type: 'success', value: 'Compra' },
         amount: '0.050 ETH',
       },
       {
         id: '#1235',
         name: { text: 'Stepen Shaw', label: 'SS', color: '#ECFCCB' },
         coin: 'btc',
-        date: 'May 24th',
-        process: { type: 'danger', value: 'Sell' },
+        date: '24 May',
+        process: { type: 'danger', value: 'Venta' },
         amount: '3.050 BTC',
       },
       {
         id: '#2355',
         name: { text: 'Anna Fali', label: 'AF', color: '#ECFCCB' },
         coin: 'eth',
-        date: 'Mar 17th',
-        process: { type: 'danger', value: 'Sell' },
+        date: '17 Mar',
+        process: { type: 'danger', value: 'Venta' },
         amount: '0.050 ETH',
       },
       {
         id: '#2355',
         name: { text: 'Anna Fali', label: 'AF', color: '#ECFCCB' },
         coin: 'eth',
-        date: 'Mar 17th',
-        process: { type: 'danger', value: 'Sell' },
+        date: '17 Mar',
+        process: { type: 'danger', value: 'Venta' },
         amount: '0.050 ETH',
       },
       {
         id: '#7896',
         name: { text: 'John Doe', label: 'JD', color: 'green' },
         coin: 'btc',
-        date: 'Jun 12th',
-        process: { type: 'success', value: 'Buy' },
+        date: '12 Jun',
+        process: { type: 'success', value: 'Compra' },
         amount: '2.500 BTC',
       },
       {
         id: '#5648',
         name: { text: 'Jane Smith', label: 'JS', color: '#FFDDC1' },
         coin: 'eth',
-        date: 'Feb 23rd',
-        process: { type: 'success', value: 'Buy' },
+        date: '23 Feb',
+        process: { type: 'success', value: 'Compra' },
         amount: '1.200 ETH',
       },
       {
         id: '#3265',
         name: { text: 'Michael Johnson', label: 'MJ', color: '#FFD700' },
         coin: 'btc',
-        date: 'Apr 30th',
-        process: { type: 'danger', value: 'Sell' },
+        date: '30 Abr',
+        process: { type: 'danger', value: 'Venta' },
         amount: '4.000 BTC',
       },
       {
         id: '#1423',
         name: { text: 'Emily Davis', label: 'ED', color: '#FFCCCB' },
         coin: 'btc',
-        date: 'Jan 15th',
-        process: { type: 'danger', value: 'Sell' },
+        date: '15 Ene',
+        process: { type: 'danger', value: 'Venta' },
         amount: '5.050 LTC',
       },
       {
         id: '#6854',
         name: { text: 'Robert Brown', label: 'RB', color: '#C0C0C0' },
         coin: 'eth',
-        date: 'Dec 2nd',
-        process: { type: 'success', value: 'Buy' },
+        date: '2 Dic',
+        process: { type: 'success', value: 'Compra' },
         amount: '0.300 ETH',
       },
     ];
@@ -202,7 +198,7 @@ export class OverviewComponent {
     this.initChart();
   }
 
-  initChart() {
+  initChart(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.chartData = this.setChartData(this.selectedTime);
       this.chartOptions = this.setChartOptions();
@@ -210,7 +206,7 @@ export class OverviewComponent {
     }
   }
 
-  setChartData(timeUnit: string) {
+  setChartData(timeUnit: string): OverviewChartData {
     const datasets = this.createDatasets(timeUnit);
     const documentStyle = getComputedStyle(document.documentElement);
     const primary200 = documentStyle.getPropertyValue('--p-primary-200');
@@ -223,7 +219,7 @@ export class OverviewComponent {
       datasets: [
         {
           type: 'bar',
-          label: 'Personal Wallet',
+          label: 'Billetera Personal',
           backgroundColor: primary400,
           hoverBackgroundColor: primary600,
           data: (datasets.data ?? [])[0] ?? [],
@@ -231,7 +227,7 @@ export class OverviewComponent {
         },
         {
           type: 'bar',
-          label: 'Corporate Wallet',
+          label: 'Billetera Corporativa',
           backgroundColor: primary300,
           hoverBackgroundColor: primary500,
           data: (datasets.data ?? [])[1] ?? [],
@@ -239,7 +235,7 @@ export class OverviewComponent {
         },
         {
           type: 'bar',
-          label: 'Investment Wallet',
+          label: 'Billetera de Inversión',
           backgroundColor: primary200,
           hoverBackgroundColor: primary400,
           data: (datasets.data ?? [])[2] ?? [],
@@ -254,7 +250,7 @@ export class OverviewComponent {
     };
   }
 
-  setChartOptions() {
+  setChartOptions(): Record<string, unknown> {
     const { darkTheme } = this.configService.appState();
     const documentStyle = getComputedStyle(document.documentElement);
     const surface100 = documentStyle.getPropertyValue('--p-surface-100');
@@ -269,9 +265,10 @@ export class OverviewComponent {
         tooltip: {
           enabled: false,
           position: 'nearest',
-          external: function (context: any) {
+          external: function (context: { chart: Chart; tooltip: TooltipModel<'bar'> }) {
             const { chart, tooltip } = context;
-            let tooltipEl = chart.canvas.parentNode.querySelector(
+            const parentNode = chart.canvas.parentNode as HTMLElement;
+            let tooltipEl = parentNode.querySelector<HTMLDivElement>(
               'div.chartjs-tooltip'
             );
 
@@ -291,17 +288,17 @@ export class OverviewComponent {
                 'pointer-events-none',
                 'shadow-[0px_25px_20px_-5px_rgba(0,0,0,0.10),0px_10px_8px_-6px_rgba(0,0,0,0.10)]'
               );
-              chart.canvas.parentNode.appendChild(tooltipEl);
+              parentNode.appendChild(tooltipEl);
             }
 
             if (tooltip.opacity === 0) {
-              tooltipEl.style.opacity = 0;
+              tooltipEl.style.opacity = '0';
 
               return;
             }
 
             const datasetPointsX = tooltip.dataPoints.map(
-              (dp: any) => dp.element.x
+              (dp: TooltipItem<'bar'>) => dp.element.x
             );
             const avgX =
               datasetPointsX.reduce((a: number, b: number) => a + b, 0) /
@@ -320,18 +317,18 @@ export class OverviewComponent {
                 'py-3',
                 'min-w-[18rem]'
               );
-              tooltip.dataPoints.reverse().forEach((body: any, i: number) => {
+              tooltip.dataPoints.reverse().forEach((item: TooltipItem<'bar'>) => {
                 const row = document.createElement('div');
 
                 row.classList.add('flex', 'items-center', 'gap-2', 'w-full');
                 const point = document.createElement('div');
 
                 point.classList.add('w-2.5', 'h-2.5', 'rounded-full');
-                point.style.backgroundColor = body.dataset.backgroundColor;
+                point.style.backgroundColor = item.dataset.backgroundColor as string;
                 row.appendChild(point);
                 const label = document.createElement('span');
 
-                label.appendChild(document.createTextNode(body.dataset.label));
+                label.appendChild(document.createTextNode(item.dataset.label as string));
                 label.classList.add(
                   'text-base',
                   'font-medium',
@@ -343,7 +340,7 @@ export class OverviewComponent {
                 row.appendChild(label);
                 const value = document.createElement('span');
 
-                value.appendChild(document.createTextNode(body.formattedValue));
+                value.appendChild(document.createTextNode(item.formattedValue));
                 value.classList.add(
                   'text-base',
                   'font-medium',
@@ -356,12 +353,11 @@ export class OverviewComponent {
               tooltipEl.appendChild(tooltipBody);
             }
 
-            const { offsetLeft: positionX, offsetTop: positionY } =
-              chart.canvas;
+            const { offsetLeft: positionX } = chart.canvas;
 
-            tooltipEl.style.opacity = 1;
-            tooltipEl.style.font = tooltip.options.bodyFont.string;
-            tooltipEl.style.padding = 0;
+            tooltipEl.style.opacity = '1';
+            tooltipEl.style.font = (tooltip.options.bodyFont as CanvasFontSpec).string;
+            tooltipEl.style.padding = '0';
             const chartWidth = chart.width;
             const tooltipWidth = tooltipEl.offsetWidth;
             const chartHeight = chart.height;
@@ -421,23 +417,24 @@ export class OverviewComponent {
     };
   }
 
-  createDatasets(val: string) {
-    let data, labels;
+  createDatasets(val: string): ChartDatasetResult {
+    let data: number[][] | undefined;
+    let labels: string[] | undefined;
 
-    if (val === 'Weekly') {
+    if (val === 'Semanal') {
       labels = [
         '6 May',
         '13 May',
         '20 May',
         '27 May',
-        '3 June',
-        '10 June',
-        '17 June',
-        '24 June',
-        '1 July',
-        '8 July',
-        '15 July',
-        '22 July',
+        '3 Jun',
+        '10 Jun',
+        '17 Jun',
+        '24 Jun',
+        '1 Jul',
+        '8 Jul',
+        '15 Jul',
+        '22 Jul',
       ];
       data = [
         [
@@ -453,20 +450,20 @@ export class OverviewComponent {
           3700,
         ],
       ];
-    } else if (val === 'Monthly') {
+    } else if (val === 'Mensual') {
       labels = [
-        'Jan',
+        'Ene',
         'Feb',
         'Mar',
-        'Apr',
+        'Abr',
         'May',
         'Jun',
         'Jul',
-        'Aug',
+        'Ago',
         'Sep',
         'Oct',
         'Nov',
-        'Dec',
+        'Dic',
       ];
       data = [
         [
@@ -482,7 +479,7 @@ export class OverviewComponent {
           4200,
         ],
       ];
-    } else if (val === 'Yearly') {
+    } else if (val === 'Anual') {
       labels = ['2019', '2020', '2021', '2022', '2023', '2024'];
       data = [
         [

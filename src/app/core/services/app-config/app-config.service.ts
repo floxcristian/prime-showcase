@@ -1,12 +1,11 @@
-//import { AppState } from '@/domain/appstate';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import {
-  computed,
   effect,
   inject,
   Injectable,
   PLATFORM_ID,
   signal,
+  DOCUMENT
 } from '@angular/core';
 import { AppState } from './models/app-state.interface';
 
@@ -17,14 +16,11 @@ export class AppConfigService {
   private readonly STORAGE_KEY = 'appConfigState';
 
   appState = signal<AppState>({} as AppState);
-  designerActive = signal(false);
-  newsActive = signal(false);
   transitionComplete = signal<boolean>(false);
-  theme = computed(() => (this.appState()?.darkTheme ? 'dark' : 'light'));
 
   // Dependencies
-  document = inject(DOCUMENT);
-  platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
+  private platformId = inject(PLATFORM_ID);
 
   private initialized = false;
 
@@ -45,7 +41,7 @@ export class AppConfigService {
 
   private handleDarkModeTransition(state: AppState): void {
     if (isPlatformBrowser(this.platformId)) {
-      if ((document as any).startViewTransition) {
+      if (typeof this.document.startViewTransition === 'function') {
         this.startViewTransition(state);
       } else {
         this.toggleDarkMode(state);
@@ -55,7 +51,7 @@ export class AppConfigService {
   }
 
   private startViewTransition(state: AppState): void {
-    const transition = (document as any).startViewTransition(() => {
+    const transition = this.document.startViewTransition(() => {
       this.toggleDarkMode(state);
     });
 
@@ -77,37 +73,7 @@ export class AppConfigService {
     });
   }
 
-  hideMenu() {
-    this.appState.update((state) => ({
-      ...state,
-      menuActive: false,
-    }));
-  }
-
-  showMenu() {
-    this.appState.update((state) => ({
-      ...state,
-      menuActive: true,
-    }));
-  }
-
-  hideNews() {
-    this.newsActive.set(false);
-  }
-
-  showNews() {
-    this.newsActive.set(true);
-  }
-
-  showDesigner() {
-    this.designerActive.set(true);
-  }
-
-  hideDesigner() {
-    this.designerActive.set(false);
-  }
-
-  private loadAppState(): any {
+  private loadAppState(): AppState {
     if (isPlatformBrowser(this.platformId)) {
       const storedState = localStorage.getItem(this.STORAGE_KEY);
       if (storedState) {
@@ -119,13 +85,10 @@ export class AppConfigService {
       primary: 'noir',
       surface: null,
       darkTheme: false,
-      menuActive: false,
-      designerKey: 'primeng-designer-theme',
-      RTL: false,
     };
   }
 
-  private saveAppState(state: any): void {
+  private saveAppState(state: AppState): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
     }

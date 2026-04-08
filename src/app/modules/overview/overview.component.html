@@ -2,9 +2,9 @@
   <div class="flex flex-wrap gap-4 items-start justify-between p-1">
     <!-- Start::Header -->
     <div class="flex-1">
-      <div class="text-muted-color font-medium leading-normal">Overview</div>
+      <div class="text-muted-color font-medium leading-normal">Resumen</div>
       <div class="text-color text-3xl font-semibold leading-normal">
-        Welcome to PrimeNG
+        Bienvenido a PrimeNG
       </div>
     </div>
     <!-- End::Header -->
@@ -12,7 +12,7 @@
     <div class="flex gap-2 whitespace-nowrap flex-nowrap">
       <p-iconfield iconPosition="left">
         <p-inputicon class="pi pi-search"></p-inputicon>
-        <input type="text" pInputText placeholder="Search" />
+        <input type="text" pInputText placeholder="Buscar" />
       </p-iconfield>
       <p-button severity="secondary" outlined>
         <p-overlayBadge severity="danger" styleClass="!min-w-0 !w-2.5 !h-2.5">
@@ -30,8 +30,9 @@
       (onChange)="changeSelect()"
       />
       <div class="flex items-center gap-2">
-        <p-button label="Download" icon="pi pi-download" iconPos="right" />
+        <p-button label="Descargar" icon="pi pi-download" iconPos="right" />
         <p-datepicker
+          ngSkipHydration
           [(ngModel)]="dates"
           appendTo="body"
           dateFormat="dd.mm.yy"
@@ -49,10 +50,10 @@
           >
           <div class="flex items-center gap-6 mb-6">
             <div class="flex-1 text-color font-semibold leading-6">
-              Crypto Analytics
+              Análisis Cripto
             </div>
             <div class="flex items-center gap-5">
-              @for (item of chartData?.datasets; track item) {
+              @for (item of chartData?.datasets; track item.label) {
                 <div
                   class="flex items-center gap-2"
                   >
@@ -80,25 +81,26 @@
             <div class="flex-1 border border-surface rounded-2xl py-5 px-7">
               <div class="flex items-center gap-6 mb-4">
                 <div class="flex-1 text-color font-semibold leading-6">
-                  Transactions
+                  Transacciones
                 </div>
                 <p-button
                   type="button"
                   icon="pi pi-ellipsis-h"
                   severity="secondary"
                   text
-                  (click)="menu.toggle($event)"
+                  aria-label="Más opciones"
+                  (click)="transactionsMenu.toggle($event)"
                   aria-haspopup="true"
-                  aria-controls="overlay_menu"
+                  aria-controls="overlay_menu_transactions"
                   />
-                  <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" />
+                  <p-menu #transactionsMenu id="overlay_menu_transactions" [model]="menuItems" [popup]="true" />
                 </div>
                 <p-table
                   datakey="id"
                   [value]="sampleAppsTableDatas"
                   [paginator]="true"
                   paginatorTemplate="PrevPageLink PageLinks NextPageLink  CurrentPageReport RowsPerPageDropdown"
-                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                  currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
                   [showCurrentPageReport]="true"
                   [rows]="5"
                   [tableStyle]="{ 'min-width': '50rem' }"
@@ -109,11 +111,11 @@
                   <ng-template #header>
                     <tr>
                       <th class="w-1/12">Id</th>
-                      <th class="w-1/4">Name</th>
-                      <th class="w-1/6">Coin</th>
-                      <th class="w-1/6">Date</th>
-                      <th class="w-1/6">Process</th>
-                      <th class="w-1/6">Amount</th>
+                      <th class="w-1/4">Nombre</th>
+                      <th class="w-1/6">Moneda</th>
+                      <th class="w-1/6">Fecha</th>
+                      <th class="w-1/6">Operación</th>
+                      <th class="w-1/6">Monto</th>
                     </tr>
                   </ng-template>
                   <ng-template #body let-item>
@@ -125,11 +127,7 @@
                         <div class="flex items-center">
                           <p-avatar
                             [label]="item.name.label"
-                            class="mr-2 text-xs font-medium"
-                    [style]="{
-                      'background-color': '#ece9fc',
-                      color: '#2a1261'
-                    }"
+                            class="mr-2 text-xs font-medium bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-300"
                             shape="circle"
                             />
                             <div class="leading-6 text-muted-color flex-1">
@@ -143,9 +141,9 @@
                               class="pi"
                     [ngClass]="{
                       'pi-bitcoin text-yellow-500 !text-3xl':
-                        item.coin !== 'btc',
+                        item.coin === 'btc',
                       'pi-ethereum bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950 w-7 h-7 rounded-full !flex items-center justify-center':
-                        item.coin !== 'eth'
+                        item.coin === 'eth'
                     }"
                             ></i>
                           </div>
@@ -175,7 +173,7 @@
                   <div>
                     <div class="flex items-center mb-6">
                       <div class="flex-1 text-color font-semibold leading-6">
-                        My Wallet
+                        Mi Billetera
                       </div>
                       <p-button
                         type="button"
@@ -197,7 +195,7 @@
                         <p-metergroup [value]="metersData" labelPosition="end">
                           <ng-template #label>
                             <div class="flex flex-col gap-6 mt-4">
-                              @for (val of metersData; track val; let index = $index) {
+                              @for (val of metersData; track val.label; let index = $index) {
                                 <div class="flex items-center gap-2">
                                   <div
                                     class="w-2 h-2 rounded-full"
@@ -218,7 +216,7 @@
                           </ng-template>
                         </p-metergroup>
                       </div>
-                      <p-button label="Show All" outlined styleClass="w-full" />
+                      <p-button label="Mostrar todo" outlined styleClass="w-full" />
                     </div>
                   </div>
                 </div>

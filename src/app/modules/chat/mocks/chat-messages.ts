@@ -8,7 +8,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     image: '',
     capName: 'OS',
     type: 'received',
-    message: "Awesome! What's the standout feature?",
+    message: '¡Genial! ¿Cuál es la función destacada?',
   },
   {
     id: 2,
@@ -18,7 +18,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
     capName: 'A',
     type: 'received',
-    message: 'PrimeNG rocks! Simplifies UI dev with versatile components.',
+    message: '¡PrimeNG es increíble! Simplifica el desarrollo de UI con componentes versátiles.',
   },
   {
     id: 3,
@@ -28,7 +28,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
     capName: 'A',
     type: 'received',
-    message: 'Intriguing! Tell us more about its impact.',
+    message: '¡Interesante! Cuéntanos más sobre su impacto.',
   },
   {
     id: 4,
@@ -40,7 +40,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'A',
     type: 'received',
     message:
-      "It's design-neutral and compatible with Tailwind. Features accessible, high-grade components!",
+      'Es neutro en diseño y compatible con Tailwind. ¡Tiene componentes accesibles y de alta calidad!',
   },
   {
     id: 5,
@@ -50,7 +50,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
     capName: 'A',
     type: 'sent',
-    message: 'Customizable themes, responsive design – UI excellence!',
+    message: 'Temas personalizables, diseño responsivo – ¡excelencia en UI!',
   },
   {
     id: 6,
@@ -60,7 +60,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
     capName: 'A',
     type: 'received',
-    message: 'Love it! Fast-tracking our development is key.',
+    message: '¡Me encanta! Acelerar nuestro desarrollo es clave.',
   },
   {
     id: 7,
@@ -70,7 +70,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
     capName: 'A',
     type: 'received',
-    message: 'Documentation rocks too – smooth integration for all.',
+    message: 'La documentación también es excelente – integración fluida para todos.',
   },
   {
     id: 8,
@@ -81,7 +81,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'B',
     type: 'sent',
     message:
-      'The flexibility and ease of use are truly impressive. Have you explored the new components?',
+      'La flexibilidad y facilidad de uso son realmente impresionantes. ¿Han explorado los nuevos componentes?',
   },
   {
     id: 9,
@@ -92,7 +92,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'C',
     type: 'received',
     message:
-      'Absolutely, the new calendar component has saved us a ton of development time!',
+      '¡Sin duda! El nuevo componente de calendario nos ha ahorrado muchísimo tiempo de desarrollo.',
   },
   {
     id: 10,
@@ -103,7 +103,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'D',
     type: 'received',
     message:
-      "And the accessibility features are top-notch. It's great to see a library focusing on inclusivity.",
+      'Y las funciones de accesibilidad son de primer nivel. Es genial ver una librería enfocada en la inclusión.',
   },
   {
     id: 11,
@@ -115,7 +115,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'E',
     type: 'sent',
     message:
-      "I couldn't agree more. Plus, the documentation is incredibly thorough, which makes onboarding new team members a breeze.",
+      'Totalmente de acuerdo. Además, la documentación es increíblemente completa, lo que facilita la incorporación de nuevos miembros al equipo.',
   },
   {
     id: 12,
@@ -126,7 +126,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'F',
     type: 'received',
     message:
-      'Do you have any tips for optimizing performance when using multiple complex components?',
+      '¿Tienen consejos para optimizar el rendimiento al usar múltiples componentes complejos?',
   },
   {
     id: 13,
@@ -137,7 +137,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'G',
     type: 'received',
     message:
-      'Yes! Lazy loading and code splitting can make a huge difference, especially in larger applications.',
+      '¡Sí! La carga diferida y la división de código pueden hacer una gran diferencia, especialmente en aplicaciones grandes.',
   },
   {
     id: 14,
@@ -147,7 +147,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'HS',
     type: 'received',
     message:
-      "I've also found that leveraging the component's internal state management capabilities can help streamline data flow and improve performance.",
+      'También descubrí que aprovechar las capacidades internas de gestión de estado de los componentes ayuda a optimizar el flujo de datos y mejorar el rendimiento.',
   },
   {
     id: 15,
@@ -158,6 +158,6 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     capName: 'H',
     type: 'sent',
     message:
-      "That's great advice. It's amazing how much detail and thought has gone into making PrimeNG such a powerful tool for developers.",
+      'Gran consejo. Es impresionante cuánto detalle y esfuerzo se ha invertido en hacer de PrimeNG una herramienta tan poderosa para desarrolladores.',
   },
 ];

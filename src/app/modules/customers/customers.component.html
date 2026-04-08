@@ -1,13 +1,13 @@
 <div class="flex items-start gap-2 justify-between">
   <div>
-    <div class="text-2xl leading-8 text-color font-medium">Customers</div>
+    <div class="text-2xl leading-8 text-color font-medium">Clientes</div>
     <div class="mt-1 leading-6 text-muted-color">
-      The analysis list here shows all users
+      La lista de análisis muestra todos los usuarios
     </div>
   </div>
   <p-button
     icon="pi pi-circle-fill text-green-500"
-    label="950 Active User"
+    label="950 Usuarios activos"
     outlined
     severity="secondary"
   />
@@ -15,15 +15,15 @@
 <div class="mt-10 mb-4 flex items-center justify-between">
   <p-iconfield iconPosition="left">
     <p-inputicon class="pi pi-search"> </p-inputicon>
-    <input pInputText type="text" [(ngModel)]="search" placeholder="Search" />
+    <input pInputText type="text" [(ngModel)]="search" placeholder="Buscar" />
   </p-iconfield>
   <div class="flex items-center gap-3">
-    <p-button icon="pi pi-filter" outlined severity="secondary" />
+    <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
     <p-divider layout="vertical" class="m-0 p-0" />
-    <p-button icon="pi pi-refresh" outlined severity="secondary" />
-    <p-button label="1 of 15" outlined severity="secondary" />
-    <p-button icon="pi pi-chevron-left" outlined severity="secondary" />
-    <p-button icon="pi pi-chevron-right" outlined severity="secondary" />
+    <p-button icon="pi pi-refresh" outlined severity="secondary" aria-label="Actualizar" />
+    <p-button label="1 de 15" outlined severity="secondary" />
+    <p-button icon="pi pi-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
+    <p-button icon="pi pi-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
   </div>
 </div>
 <div
@@ -38,21 +38,21 @@
   >
     <ng-template #header>
       <tr>
-        <th style="width: 1rem">
+        <th class="w-4">
           <p-tableHeaderCheckbox />
         </th>
-        <th>Name</th>
-        <th>Title</th>
-        <th>Company Name</th>
-        <th>Email Address</th>
-        <th>Lead Source</th>
-        <th>Status</th>
-        <th>More</th>
+        <th>Nombre</th>
+        <th>Cargo</th>
+        <th>Empresa</th>
+        <th>Correo electrónico</th>
+        <th>Origen</th>
+        <th>Estado</th>
+        <th>Más</th>
       </tr>
     </ng-template>
     <ng-template #body let-data>
       <tr>
-        <td style="width: 1rem">
+        <td class="w-4">
           <p-tableCheckbox [value]="data" />
         </td>
         <td>
@@ -109,9 +109,9 @@
         <td>
           <p-tag
             [severity]="
-              data.status === 'Active'
+              data.status === 'Activo'
                 ? 'success'
-                : data.status === 'Inactive'
+                : data.status === 'Inactivo'
                 ? 'danger'
                 : 'info'
             "
@@ -137,13 +137,13 @@
     <ng-template pTemplate="content">
       <div class="flex gap-2">
         <p-button
-          label="Details"
+          label="Detalles"
           size="small"
           outlined
           (onClick)="op.hide()"
         ></p-button>
         <p-button
-          label="Delete"
+          label="Eliminar"
           severity="danger"
           size="small"
           outlined

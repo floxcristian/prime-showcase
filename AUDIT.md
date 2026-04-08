@@ -20,11 +20,11 @@ El proyecto es un showcase funcional con buena base visual, pero presenta **defi
 | Testing                     | Deficiente| 2/10       |
 | Seguridad                   | Riesgoso  | 4/10       |
 | Accesibilidad (a11y)        | Deficiente| 2/10       |
-| Performance                 | Aceptable | 6/10       |
+| Rendimiento                 | Aceptable | 6/10       |
 | Infraestructura CI/CD       | Ausente   | 1/10       |
-| Linting / Formatting        | Ausente   | 0/10       |
+| Linting / Formateo          | Ausente   | 0/10       |
 | Manejo de errores           | Ausente   | 1/10       |
-| i18n                        | Ausente   | 0/10       |
+| Internacionalización (i18n) | Ausente   | 0/10       |
 | Estado y reactividad        | Aceptable | 6/10       |
 | SSR / Hidratación           | Bueno     | 7/10       |
 
@@ -32,44 +32,57 @@ El proyecto es un showcase funcional con buena base visual, pero presenta **defi
 
 ---
 
+## Hallazgo adicional: Textos de interfaz en inglés
+
+La interfaz está dirigida a usuarios hispanohablantes, pero **todos los textos visibles al usuario están en inglés**. Esto incluye:
+
+- Etiquetas de navegación: "Overview", "Chat", "Inbox", "Cards", "Customers", "Movies".
+- Encabezados, botones y placeholders de formularios.
+- Datos mock (nombres, fechas, descripciones).
+- Mensajes de estado y etiquetas de tabla.
+
+**Recomendación:** Traducir toda la interfaz al español como parte de la Fase 1, o implementar un sistema i18n si se planea soporte multilingüe a futuro.
+
+---
+
 ## 1. Arquitectura de Componentes
 
 ### 1.1 Hallazgos positivos
-- Standalone components (sin NgModules) — patrón moderno Angular 19.
+- Componentes standalone (sin NgModules) — patrón moderno Angular 19.
 - `ChangeDetectionStrategy.OnPush` en todos los componentes.
-- Lazy loading de rutas con `loadComponent`.
-- Uso de control flow moderno (`@if`, `@for`, `@empty`).
+- Carga diferida (lazy loading) de rutas con `loadComponent`.
+- Uso de flujo de control moderno (`@if`, `@for`, `@empty`).
 
 ### 1.2 Problemas críticos
 
-#### God Components
-Los componentes concentran lógica de presentación, datos mock, configuración de charts y estado de UI en un solo archivo. Esto viola Single Responsibility Principle.
+#### Componentes monolíticos (God Components)
+Los componentes concentran lógica de presentación, datos mock, configuración de gráficos y estado de UI en un solo archivo. Esto viola el principio de responsabilidad única.
 
 | Componente | Líneas | Responsabilidades mezcladas |
 |------------|--------|-----------------------------|
-| `overview.component.ts` | ~400 | Chart config, tooltip DOM, datos mock, tabla, meters |
-| `cards.component.ts` | ~180 | Form data, autocomplete, file upload, permissions |
-| `chat.component.ts` | ~90 | Menu items, mensajes, miembros, media |
-| `customers.component.ts` | ~270 | SVG inline, tabla, popover, drawer |
-| `movies.component.ts` | ~100 | Carousel data, grid data, bookmarks |
+| `overview.component.ts` | ~400 | Configuración de gráficos, tooltip DOM, datos mock, tabla, medidores |
+| `cards.component.ts` | ~180 | Datos de formulario, autocompletado, carga de archivos, permisos |
+| `chat.component.ts` | ~90 | Elementos de menú, mensajes, miembros, multimedia |
+| `customers.component.ts` | ~270 | SVG en línea, tabla, popover, drawer |
+| `movies.component.ts` | ~100 | Datos de carrusel, datos de grilla, marcadores |
 
-#### Ausencia de Smart/Presentational pattern
-No existe separación entre componentes "contenedores" (smart) que manejan estado y componentes "presentacionales" (dumb) que solo reciben `@Input()` y emiten `@Output()`. En una implementación enterprise, cada tabla, card, chart tooltip y sidebar sería un componente reutilizable independiente.
+#### Ausencia del patrón Smart/Presentational
+No existe separación entre componentes "contenedores" (smart) que manejan estado y componentes "presentacionales" (dumb) que solo reciben `@Input()` y emiten `@Output()`. En una implementación enterprise, cada tabla, tarjeta, tooltip de gráfico y barra lateral sería un componente reutilizable independiente.
 
 #### Datos mock acoplados a componentes
-Los datos mock están hardcodeados directamente en `ngOnInit()` de cada componente en lugar de ser inyectados via servicios. Esto impide:
-- Reuso de datos entre componentes.
+Los datos mock están escritos directamente en `ngOnInit()` de cada componente en lugar de ser inyectados vía servicios. Esto impide:
+- Reutilización de datos entre componentes.
 - Sustitución transparente por llamadas HTTP reales.
-- Testing con datos controlados.
+- Pruebas con datos controlados.
 
 ### 1.3 Recomendación enterprise
 
 ```
 src/app/
 ├── core/
-│   ├── interceptors/        # HTTP interceptors
-│   ├── guards/              # Route guards
-│   ├── services/            # Singleton services
+│   ├── interceptors/        # Interceptores HTTP
+│   ├── guards/              # Guardias de rutas
+│   ├── services/            # Servicios singleton
 │   └── models/              # Interfaces globales
 ├── shared/
 │   ├── components/          # Componentes presentacionales reutilizables
@@ -81,7 +94,7 @@ src/app/
 │   │   ├── components/      # Sub-componentes presentacionales
 │   │   ├── services/        # Servicios del feature
 │   │   ├── models/          # Interfaces del feature
-│   │   └── overview.component.ts  # Smart component (container)
+│   │   └── overview.component.ts  # Smart component (contenedor)
 │   ├── chat/
 │   ├── inbox/
 │   └── ...
@@ -94,7 +107,7 @@ src/app/
 
 ### 2.1 Uso excesivo de `any`
 
-Se encontraron **25+ usos de `any`** en el codebase. Esto anula las garantías de type-safety que ofrece TypeScript con `strict: true` en `tsconfig.json`.
+Se encontraron **25+ usos de `any`** en el código. Esto anula las garantías de seguridad de tipos que ofrece TypeScript con `strict: true` en `tsconfig.json`.
 
 | Archivo | Líneas | Variables con `any` |
 |---------|--------|---------------------|
@@ -150,7 +163,7 @@ export interface Customer {
 tooltipEl.innerHTML = '';
 ```
 
-Manipulación directa del DOM con `innerHTML` bypasea la sanitización de Angular. Debe usarse `Renderer2` o el `DomSanitizer` con control explícito.
+Manipulación directa del DOM con `innerHTML` evade la sanitización de Angular. Debe usarse `Renderer2` o `DomSanitizer` con control explícito.
 
 ### 3.2 bypassSecurityTrustHtml
 
@@ -159,9 +172,9 @@ Manipulación directa del DOM con `innerHTML` bypasea la sanitización de Angula
 this.sanitizer.bypassSecurityTrustHtml(svgContent)
 ```
 
-Se usa en 5 instancias para logos SVG inline. Aunque el contenido es estático y controlado, este patrón:
+Se usa en 5 instancias para logos SVG en línea. Aunque el contenido es estático y controlado, este patrón:
 - Deshabilita la protección XSS de Angular para esos fragmentos.
-- Escala mal: si mañana los SVGs vienen de una API, se convierte en una vulnerabilidad real.
+- Escala mal: si en el futuro los SVGs provienen de una API, se convierte en una vulnerabilidad real.
 
 **Alternativa enterprise:** Usar componentes SVG o `<img>` con archivos SVG en `/assets/`.
 
@@ -172,16 +185,16 @@ Se usa en 5 instancias para logos SVG inline. Aunque el contenido es estático y
 JSON.parse(localStorage.getItem('appConfigState')!)
 ```
 
-No hay validación del esquema del dato leído de localStorage. Un valor corrupto o manipulado causaría un crash silencioso.
+No hay validación del esquema del dato leído de localStorage. Un valor corrupto o manipulado causaría un fallo silencioso.
 
-### 3.4 Sin interceptors HTTP
+### 3.4 Sin interceptores HTTP
 
-No existen interceptors para:
-- Autenticación (token injection).
-- Retry logic.
-- Error handling global.
-- Request/response transformation.
-- CSRF protection.
+No existen interceptores para:
+- Autenticación (inyección de token).
+- Lógica de reintento.
+- Manejo de errores global.
+- Transformación de peticiones/respuestas.
+- Protección CSRF.
 
 ---
 
@@ -191,23 +204,23 @@ No existen interceptors para:
 
 | Problema | Impacto | Ubicación |
 |----------|---------|-----------|
-| Imágenes sin `alt` | Lectores de pantalla ignoran contenido visual | Múltiples templates |
-| Sin HTML semántico | No hay `<nav>`, `<main>`, `<article>`, `<section>` | Todos los templates |
-| Sin roles ARIA | Elementos interactivos custom sin `role` | `side-menu`, `chat`, `cards` |
-| Sin soporte keyboard | Click handlers sin `keydown`/`keypress` equivalente | `side-menu.component.html` |
-| Indicadores solo por color | Status activo/inactivo, Buy/Sell solo usan color | `customers`, `overview` |
-| Sin skip-to-content | No hay enlace para saltar navegación | `main.component.html` |
-| Sin focus management | Transiciones de vista sin gestión de foco | Todo el app |
+| Imágenes sin `alt` | Lectores de pantalla ignoran contenido visual | Múltiples plantillas |
+| Sin HTML semántico | No hay `<nav>`, `<main>`, `<article>`, `<section>` | Todas las plantillas |
+| Sin roles ARIA | Elementos interactivos personalizados sin `role` | `side-menu`, `chat`, `cards` |
+| Sin soporte de teclado | Manejadores de clic sin equivalente `keydown`/`keypress` | `side-menu.component.html` |
+| Indicadores solo por color | Estado activo/inactivo, Compra/Venta solo usan color | `customers`, `overview` |
+| Sin enlace "saltar al contenido" | No hay forma de saltar la navegación | `main.component.html` |
+| Sin gestión de foco | Transiciones de vista sin manejo de foco | Toda la aplicación |
 
 ### 4.2 Recomendación
 
 Implementar WCAG 2.1 AA como mínimo:
 - Todas las imágenes con `alt` descriptivo.
 - Estructura semántica: `<nav>`, `<main>`, `<section>`, `<article>`.
-- `role` y `aria-label` en componentes custom interactivos.
-- Focus trap en modales y drawers.
-- Skip-to-content link.
-- Contraste de color verificado (ratio 4.5:1 mínimo).
+- `role` y `aria-label` en componentes interactivos personalizados.
+- Trampa de foco (focus trap) en modales y drawers.
+- Enlace de saltar al contenido (skip-to-content).
+- Contraste de color verificado (proporción 4.5:1 mínimo).
 
 ---
 
@@ -216,10 +229,10 @@ Implementar WCAG 2.1 AA como mínimo:
 ### 5.1 Estado actual
 
 - **Framework:** Karma + Jasmine 5.6
-- **Spec files:** 11 archivos
+- **Archivos spec:** 11
 - **Cobertura real:** ~0% de lógica de negocio
 
-Todos los tests son boilerplate auto-generado por Angular CLI:
+Todos los tests son plantillas autogeneradas por Angular CLI:
 
 ```typescript
 it('should create', () => {
@@ -243,9 +256,9 @@ it('should render title', () => {
 });
 ```
 
-El componente `AppComponent` no tiene propiedad `title` ni elemento `<h1>`. Este test **falla o es dead code**.
+El componente `AppComponent` no tiene propiedad `title` ni elemento `<h1>`. Este test **falla o es código muerto**.
 
-### 5.3 Sin E2E tests
+### 5.3 Sin pruebas E2E
 
 No hay configuración de Playwright, Cypress ni Protractor.
 
@@ -253,22 +266,22 @@ No hay configuración de Playwright, Cypress ni Protractor.
 
 | Tipo | Herramienta | Cobertura objetivo |
 |------|-------------|-------------------|
-| Unit tests | Jest (reemplazar Karma) | 80%+ servicios y lógica |
-| Component tests | Testing Library + Jest | Componentes críticos |
-| Integration tests | Cypress Component Testing | Flujos de features |
-| E2E tests | Playwright | Happy paths críticos |
-| Visual regression | Chromatic / Percy | UI screenshots |
+| Pruebas unitarias | Jest (reemplazar Karma) | 80%+ servicios y lógica |
+| Pruebas de componente | Testing Library + Jest | Componentes críticos |
+| Pruebas de integración | Cypress Component Testing | Flujos de features |
+| Pruebas E2E | Playwright | Caminos felices (happy paths) críticos |
+| Regresión visual | Chromatic / Percy | Capturas de pantalla de UI |
 
 ---
 
-## 6. Performance
+## 6. Rendimiento
 
 ### 6.1 Prácticas correctas
 - `OnPush` en todos los componentes.
-- Lazy loading de rutas.
-- SSR con prerendering habilitado.
-- Client hydration con event replay.
-- Budget estricto: 500kB warning / 1MB error.
+- Carga diferida de rutas.
+- SSR con pre-renderización habilitado.
+- Hidratación del cliente con reproducción de eventos.
+- Presupuesto estricto: 500kB advertencia / 1MB error.
 
 ### 6.2 Problemas
 
@@ -277,11 +290,11 @@ No hay configuración de Playwright, Cypress ni Protractor.
 <!-- overview.component.html:55 -->
 @for (item of chartData?.datasets; track item)
 ```
-Usa referencia de objeto en lugar de un identificador único. Cada cambio en la referencia causa re-render completo del loop.
+Usa referencia de objeto en lugar de un identificador único. Cada cambio en la referencia causa re-renderizado completo del bucle.
 
-**Fix:** `track item.label` o `track $index` si el orden es estable.
+**Corrección:** `track item.label` o `track $index` si el orden es estable.
 
-#### setTimeout sin cleanup
+#### setTimeout sin limpieza
 ```typescript
 // app-config.service.ts:75
 setTimeout(() => { this.transitionComplete.set(false); });
@@ -290,17 +303,17 @@ setTimeout(() => { this.transitionComplete.set(false); });
 setTimeout(() => { op.show(e); }, 150);
 ```
 
-Sin `clearTimeout` en `ngOnDestroy`. Memory leak potencial si el componente se destruye antes del timeout.
+Sin `clearTimeout` en `ngOnDestroy`. Fuga de memoria potencial si el componente se destruye antes de que el timeout se ejecute.
 
 #### Manipulación DOM directa en OverviewComponent
 ```typescript
 // overview.component.ts:274-385
-// ~110 líneas de manipulación DOM para tooltip del chart
+// ~110 líneas de manipulación DOM para tooltip del gráfico
 const tooltipEl = document.getElementById('chartjs-tooltip');
 tooltipEl.innerHTML = '';
 ```
 
-Bypasea el change detection de Angular y puede causar inconsistencias con SSR.
+Evade la detección de cambios de Angular y puede causar inconsistencias con SSR.
 
 #### ChangeDetectorRef manual
 ```typescript
@@ -318,18 +331,18 @@ Indica que el flujo de datos no está correctamente gestionado con signals/obser
 
 | Elemento | Estado | Impacto |
 |----------|--------|---------|
-| ESLint | Ausente | Sin enforcement de calidad de código |
+| ESLint | Ausente | Sin aplicación de calidad de código |
 | Prettier | Ausente | Sin formato consistente |
 | CI/CD (GitHub Actions) | Ausente | Sin validación automatizada |
-| Dockerfile | Ausente | Sin containerización (a pesar de tener SSR con Express) |
+| Dockerfile | Ausente | Sin contenedorización (a pesar de tener SSR con Express) |
 | `.env` / environments | Ausente | Sin gestión de configuración por entorno |
-| Husky + lint-staged | Ausente | Sin pre-commit hooks |
-| Dependabot / Renovate | Ausente | Sin actualizaciones automáticas de deps |
-| CODEOWNERS | Ausente | Sin ownership de código |
+| Husky + lint-staged | Ausente | Sin hooks de pre-commit |
+| Dependabot / Renovate | Ausente | Sin actualizaciones automáticas de dependencias |
+| CODEOWNERS | Ausente | Sin asignación de responsabilidad de código |
 
 ### 7.2 Paquetes desactualizados
 
-26 dependencias tienen actualizaciones disponibles (patch/minor). Destacan:
+26 dependencias tienen actualizaciones disponibles (parche/menor). Destacan:
 - Angular 19.2.14 → 19.2.20
 - PrimeNG 19.1.3 → 19.1.4
 - TailwindCSS 4.1.11 → 4.2.2
@@ -368,7 +381,7 @@ Indica que el flujo de datos no está correctamente gestionado con signals/obser
 `AppConfigService` usa correctamente:
 - `signal()` para estado reactivo.
 - `computed()` para valores derivados.
-- `effect()` para side effects (persistencia en localStorage).
+- `effect()` para efectos secundarios (persistencia en localStorage).
 
 ### 8.2 Adopción incompleta
 
@@ -387,97 +400,101 @@ chartData = signal<ChartData>(INITIAL_CHART_DATA);
 
 ### 8.3 Sin input()/output() modernos
 
-Angular 19 ofrece `input()` y `output()` como funciones signal-based. El proyecto no usa ninguno porque los componentes no aceptan inputs.
+Angular 19 ofrece `input()` y `output()` como funciones basadas en signals. El proyecto no usa ninguno porque los componentes no aceptan entradas.
 
 ---
 
-## 9. Código Muerto y Smells
+## 9. Código Muerto y Malos Olores (Code Smells)
 
 | Hallazgo | Ubicación | Tipo |
 |----------|-----------|------|
-| Bloque `@if (false)` | `side-menu.component.html:122-147` | Dead code |
+| Bloque `@if (false)` | `side-menu.component.html:122-147` | Código muerto |
 | `DesignerService` vacío | `designer.service.ts` | Servicio stub sin uso |
-| Import comentado de `environment` | `designer.service.ts` | Dead code |
-| Imports no usados (`HttpClient`, `MessageService`) | `designer.service.ts` | Unused imports |
-| Sintaxis inválida `:class` | `chat.component.html:172` | Bug potencial |
+| Import comentado de `environment` | `designer.service.ts` | Código muerto |
+| Imports no usados (`HttpClient`, `MessageService`) | `designer.service.ts` | Imports sin uso |
+| Sintaxis inválida `:class` | `chat.component.html:172` | Error potencial |
 | Test que referencia `title` inexistente | `app.component.spec.ts` | Test roto |
 
 ---
 
-## 10. i18n (Internacionalización)
+## 10. Internacionalización (i18n)
 
 ### Estado: No implementado
 
-- Todos los textos hardcodeados en inglés.
+- Todos los textos de interfaz escritos directamente en inglés.
 - Formatos de fecha en inglés: `'May 5th'`, `'Mar 17th'`.
-- Símbolos de moneda hardcodeados: `$`, `€`, `£`.
+- Símbolos de moneda escritos directamente: `$`, `€`, `£`.
 - Sin configuración de Angular i18n ni `@ngx-translate`.
 - Sin archivos de traducción.
-- Propiedad `RTL` existe en `AppState` pero no se usa.
+- La propiedad `RTL` existe en `AppState` pero no se usa.
+
+**Nota:** Para este proyecto se requiere que **toda la interfaz visible al usuario esté en español**. Si no se planea soporte multilingüe, se pueden traducir los textos directamente. Si se planea soporte multilingüe, implementar `@angular/localize` o `ngx-translate`.
 
 ---
 
 ## 11. Plan de Acción Priorizado
 
-### Fase 1 — Foundations (Semana 1-2)
+### Fase 1 — Cimientos (Semana 1-2)
 
 | # | Tarea | Impacto | Esfuerzo |
 |---|-------|---------|----------|
-| 1 | Configurar ESLint + Prettier + Husky | Calidad | Bajo |
-| 2 | Eliminar todos los `any` — crear interfaces | Type Safety | Medio |
-| 3 | Eliminar código muerto (`DesignerService`, `@if(false)`, tests rotos) | Limpieza | Bajo |
-| 4 | Configurar GitHub Actions (lint + test + build) | Automatización | Bajo |
-| 5 | Actualizar dependencias (patch/minor) | Seguridad | Bajo |
+| 1 | Traducir toda la interfaz al español | Requisito de negocio | Medio |
+| 2 | Configurar ESLint + Prettier + Husky | Calidad | Bajo |
+| 3 | Eliminar todos los `any` — crear interfaces | Seguridad de tipos | Medio |
+| 4 | Eliminar código muerto (`DesignerService`, `@if(false)`, tests rotos) | Limpieza | Bajo |
+| 5 | Configurar GitHub Actions (lint + test + build) | Automatización | Bajo |
+| 6 | Actualizar dependencias (parche/menor) | Seguridad | Bajo |
 
-### Fase 2 — Architecture (Semana 3-4)
-
-| # | Tarea | Impacto | Esfuerzo |
-|---|-------|---------|----------|
-| 6 | Extraer datos mock a servicios inyectables | Desacoplamiento | Medio |
-| 7 | Descomponer God Components en Smart/Presentational | Mantenibilidad | Alto |
-| 8 | Migrar estado de componentes a signals | Reactividad | Medio |
-| 9 | Implementar HTTP interceptors (error, auth, retry) | Resiliencia | Medio |
-| 10 | Crear `environments/` con configs por entorno | Operabilidad | Bajo |
-
-### Fase 3 — Quality & Security (Semana 5-6)
+### Fase 2 — Arquitectura (Semana 3-4)
 
 | # | Tarea | Impacto | Esfuerzo |
 |---|-------|---------|----------|
-| 11 | Eliminar `innerHTML` y `bypassSecurityTrustHtml` | Seguridad | Medio |
-| 12 | Mover SVGs inline a archivos en `/assets/` | Seguridad + Performance | Bajo |
-| 13 | Validar datos de localStorage con schema | Seguridad | Bajo |
-| 14 | Implementar a11y: semántica, ARIA, keyboard, alt text | Accesibilidad | Alto |
-| 15 | Escribir tests reales (servicios + componentes críticos) | Confiabilidad | Alto |
+| 7 | Extraer datos mock a servicios inyectables | Desacoplamiento | Medio |
+| 8 | Descomponer componentes monolíticos en Smart/Presentational | Mantenibilidad | Alto |
+| 9 | Migrar estado de componentes a signals | Reactividad | Medio |
+| 10 | Implementar interceptores HTTP (errores, auth, reintentos) | Resiliencia | Medio |
+| 11 | Crear `environments/` con configuraciones por entorno | Operabilidad | Bajo |
 
-### Fase 4 — Polish & DevOps (Semana 7-8)
+### Fase 3 — Calidad y Seguridad (Semana 5-6)
 
 | # | Tarea | Impacto | Esfuerzo |
 |---|-------|---------|----------|
-| 16 | Agregar E2E tests con Playwright | Confiabilidad | Alto |
-| 17 | Crear Dockerfile + docker-compose | Deployment | Bajo |
-| 18 | Configurar Dependabot/Renovate | Mantenimiento | Bajo |
-| 19 | Implementar i18n con Angular i18n | Escalabilidad | Alto |
-| 20 | Bundle analysis + optimización | Performance | Medio |
+| 12 | Eliminar `innerHTML` y `bypassSecurityTrustHtml` | Seguridad | Medio |
+| 13 | Mover SVGs en línea a archivos en `/assets/` | Seguridad + Rendimiento | Bajo |
+| 14 | Validar datos de localStorage con esquema | Seguridad | Bajo |
+| 15 | Implementar a11y: semántica, ARIA, teclado, texto alternativo | Accesibilidad | Alto |
+| 16 | Escribir pruebas reales (servicios + componentes críticos) | Confiabilidad | Alto |
+
+### Fase 4 — Pulido y DevOps (Semana 7-8)
+
+| # | Tarea | Impacto | Esfuerzo |
+|---|-------|---------|----------|
+| 17 | Agregar pruebas E2E con Playwright | Confiabilidad | Alto |
+| 18 | Crear Dockerfile + docker-compose | Despliegue | Bajo |
+| 19 | Configurar Dependabot/Renovate | Mantenimiento | Bajo |
+| 20 | Implementar i18n con Angular i18n (si se requiere multilingüe) | Escalabilidad | Alto |
+| 21 | Análisis de bundle + optimización | Rendimiento | Medio |
 
 ---
 
 ## 12. Comparativa: Estado Actual vs Enterprise-Grade
 
-| Práctica Big Tech | Estado actual | Target |
-|-------------------|---------------|--------|
-| Strict typing (zero `any`) | 25+ `any` | 0 `any` |
-| Test coverage > 80% | ~0% real | 80%+ |
-| Automated CI/CD | Inexistente | Lint → Test → Build → Deploy |
-| Accessibility WCAG 2.1 AA | No cumple | Cumplimiento total |
-| Error boundaries | Inexistente | Global + per-feature |
-| Observability (logging) | Inexistente | Structured logging |
+| Práctica Big Tech | Estado actual | Objetivo |
+|-------------------|---------------|----------|
+| Tipado estricto (cero `any`) | 25+ `any` | 0 `any` |
+| Cobertura de pruebas > 80% | ~0% real | 80%+ |
+| CI/CD automatizado | Inexistente | Lint → Test → Build → Deploy |
+| Accesibilidad WCAG 2.1 AA | No cumple | Cumplimiento total |
+| Fronteras de error (error boundaries) | Inexistente | Global + por feature |
+| Observabilidad (logging) | Inexistente | Logging estructurado |
 | Feature flags | Inexistente | LaunchDarkly / GrowthBook |
-| Code ownership (CODEOWNERS) | Inexistente | Por feature/dominio |
-| Architectural Decision Records | Inexistente | ADR por decisión clave |
-| Security headers (CSP, HSTS) | No configurado | Helmet.js en Express |
-| Rate limiting | No configurado | express-rate-limit |
-| Health checks | No configurado | `/health` endpoint |
+| Asignación de código (CODEOWNERS) | Inexistente | Por feature/dominio |
+| Registros de decisión arquitectónica (ADR) | Inexistente | ADR por decisión clave |
+| Cabeceras de seguridad (CSP, HSTS) | No configurado | Helmet.js en Express |
+| Limitación de tasa (rate limiting) | No configurado | express-rate-limit |
+| Verificación de salud (health checks) | No configurado | Endpoint `/health` |
+| Interfaz en español | No — todo en inglés | Español completo |
 
 ---
 
-*Auditoría realizada con análisis estático del código fuente. No incluye análisis dinámico (runtime profiling, penetration testing, load testing).*
+*Auditoría realizada con análisis estático del código fuente. No incluye análisis dinámico (perfilado en tiempo de ejecución, pruebas de penetración, pruebas de carga).*

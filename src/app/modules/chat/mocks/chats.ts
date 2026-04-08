@@ -10,17 +10,16 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 8,
     time: '12.30',
     lastMessage:
-      "Hey there! I've heard about PrimeVue. Any cool tips for getting started?",
+      '¡Hola! He oído hablar de PrimeVue. ¿Algún consejo para empezar?',
   },
   {
     image:
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png',
-    name: 'PrimeTek Team',
+    name: 'Equipo PrimeTek',
     capName: 'PT',
-    active: false,
     unreadMessageCount: 0,
     time: '11.15',
-    lastMessage: "Let's implement PrimeNG. Elevating our UI game! 🚀",
+    lastMessage: '¡Implementemos PrimeNG! Elevando nuestra interfaz. 🚀',
   },
   {
     image:
@@ -31,7 +30,7 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 4,
     time: '11.15',
     lastMessage:
-      "Absolutely! PrimeNG's documentation is gold—simplifies our UI work.",
+      '¡Sin duda! La documentación de PrimeNG es oro puro, simplifica nuestro trabajo.',
   },
   {
     image:
@@ -42,7 +41,7 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 0,
     time: '11.15',
     lastMessage:
-      "Interesting! PrimeNG sounds amazing. What's your favorite feature?",
+      '¡Interesante! PrimeNG suena increíble. ¿Cuál es tu función favorita?',
   },
   {
     image:
@@ -53,7 +52,7 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 9,
     time: '11.15',
     lastMessage:
-      'Quick one, team! Anyone using PrimeNG for mobile app development?',
+      '¡Pregunta rápida, equipo! ¿Alguien usa PrimeNG para apps móviles?',
   },
   {
     image:
@@ -64,7 +63,7 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 0,
     time: '11.15',
     lastMessage:
-      "Just explored PrimeNG's themes. Can we talk about those stunning designs? 😍",
+      'Acabo de explorar los temas de PrimeNG. ¿Hablamos de esos diseños increíbles? 😍',
   },
   {
     image:
@@ -75,7 +74,7 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 0,
     time: '11.15',
     lastMessage:
-      'PrimeNG is a game-changer, right? What are your thoughts, folks?',
+      'PrimeNG es revolucionario, ¿no? ¿Qué opinan ustedes?',
   },
   {
     image: '',
@@ -85,7 +84,7 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 0,
     time: '11.15',
     lastMessage:
-      "Jumping in! PrimeNG's community forum is buzzing. Any engaging discussions?",
+      '¡Me sumo! El foro de PrimeNG está muy activo. ¿Alguna discusión interesante?',
   },
   {
     image: '',
@@ -95,7 +94,7 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 0,
     time: '11.15',
     lastMessage:
-      'Sharing a quick win-PrimeNG tutorials are leveling up my UI skills. 👩‍💻',
+      'Comparto un logro: los tutoriales de PrimeNG están mejorando mis habilidades de UI. 👩‍💻',
   },
   {
     image:
@@ -106,6 +105,6 @@ export const CHATS: ChatItem[] = [
     unreadMessageCount: 0,
     time: '11.15',
     lastMessage:
-      "Reflecting on PrimeNG's impact on our workflow. What's your take?",
+      'Reflexionando sobre el impacto de PrimeNG en nuestro flujo de trabajo. ¿Qué opinan?',
   },
 ];
