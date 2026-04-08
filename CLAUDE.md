@@ -198,33 +198,12 @@ Para CSS variables en JS (charts): `getComputedStyle(document.documentElement).g
 ### Escala de spacing — valores permitidos
 
 ```
-GAP (entre elementos flex/grid):
-  gap-1  (4px)   → Elementos muy compactos
-  gap-2  (8px)   → Separación estándar entre elementos inline ← MÁS USADO
-  gap-3  (12px)  → Separación media
-  gap-4  (16px)  → Grupos de elementos
-  gap-5  (20px)  → Entre secciones menores
-  gap-6  (24px)  → Entre secciones/cards ← SEGUNDO MÁS USADO
-  gap-8  (32px)  → Solo separaciones muy grandes
+GAP:     gap-1 | gap-2 ← DEFAULT | gap-3 | gap-4 | gap-5 | gap-6 ← CARDS/SECCIONES | gap-8
+PADDING: p-1 | p-2 ← DEFAULT | p-3 | p-4 | p-6 ← CARDS | px-4 py-1 (botones) | px-7 py-5 (cabecera)
+MARGIN:  mt-1 (sutil) | mt-2/mb-2 | mt-4/mb-4 (secciones) | mt-6/mb-6 (grandes) | mb-0 (reset)
+FLEX:    grow (expandir) | shrink-0 (nunca encoger, ej: avatares en flex) | flex-1 (crecer+encoger)
 
-PADDING (dentro de contenedores):
-  p-1            → Padding mínimo
-  p-2            → Padding compacto ← MÁS USADO (default general)
-  p-3            → Padding small-medium
-  p-4            → Padding medio
-  p-6            → Padding de contenido de card ← ESTÁNDAR PARA CARDS
-  px-4 py-1      → Padding de botones
-  px-7 py-5      → Padding expandido (cards con cabecera)
-
-MARGIN (separación entre bloques):
-  mt-1           → Espacio sutil entre líneas de texto
-  mt-2 / mb-2    → Espacio pequeño entre bloques
-  mt-4 / mb-4    → Espacio entre secciones
-  mt-6 / mb-6    → Espacio grande entre secciones principales
-  mb-0           → Reset de margin default
-
-NO USAR: gap-7, gap-9, gap-10, gap-12, p-5, p-7, p-8, m-3, m-5
-ni spacing arbitrario como gap-[13px]. Elegir el valor más cercano de la escala.
+NO USAR: gap-7,9,10,12 | p-5,7,8 | m-3,5 | valores arbitrarios como gap-[13px]
 ```
 
 ### Escala de border-radius
@@ -244,28 +223,13 @@ NO USAR: rounded, rounded-sm, rounded-md, rounded-none ni rounded-[value].
 Combinaciones fijas — usar exactamente estas, no mezclar libremente:
 
 ```
-TÍTULOS DE PÁGINA
-  class="text-2xl font-medium text-color leading-8"     → Título de sección
-  class="text-3xl font-semibold text-color leading-normal" → Título principal
+TÍTULOS:    text-2xl font-medium leading-8 (sección) | text-3xl font-semibold leading-normal (principal)
+SUBTÍTULOS: text-muted-color font-medium leading-normal (página) | text-color font-semibold leading-6 (card)
+BODY:       text-color leading-6 (base) | + font-medium (énfasis) | text-sm leading-5 (compacto)
+SECUNDARIO: text-muted-color leading-6 (metadata) | text-sm text-muted-color leading-5 (labels)
+PEQUEÑO:    text-xs font-medium (badges, contadores)
 
-SUBTÍTULOS
-  class="text-muted-color font-medium leading-normal"   → Subtítulo de página
-  class="text-color font-semibold leading-6"             → Título de card/sección
-
-TEXTO BODY
-  class="text-color leading-6"                           → Texto principal
-  class="text-color font-medium leading-6"               → Texto con énfasis
-  class="text-sm text-color leading-5"                   → Texto compacto
-
-TEXTO SECUNDARIO
-  class="text-muted-color leading-6"                     → Metadata, descripciones
-  class="text-sm text-muted-color leading-5"             → Labels, texto auxiliar
-
-TEXTO PEQUEÑO
-  class="text-xs font-medium"                            → Badges, contadores
-
-REGLA DE PESO: font-medium es el default (90% de los textos).
-font-semibold solo para títulos de card/sección. font-normal casi nunca.
+PESO: font-medium = default (90%) | font-semibold = solo títulos card/sección | font-normal = casi nunca
 ```
 
 ### Sombras
@@ -490,44 +454,24 @@ Reglas multi-panel:
 ### Formularios dentro de cards
 
 ```html
-<!-- Card con formulario -->
 <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
-  <!-- Campo: label encima del input -->
   <div>
-    <label class="text-color font-medium leading-6" for="field-id">Label</label>
-    <input pInputText id="field-id" class="mt-2 w-full" />
+    <label class="text-color font-medium leading-6" for="id">Label</label>
+    <input pInputText id="id" class="mt-2 w-full" />
   </div>
-
-  <!-- Toggle row (icon + label + switch) -->
   <div class="flex items-center gap-3">
     <i class="pi pi-bell text-color text-xl"></i>
     <div class="leading-6 text-color flex-1">Label</div>
     <p-toggleswitch [(ngModel)]="value" />
   </div>
-
-  <!-- Botones de acción al fondo -->
   <div class="flex items-center gap-2">
     <button pButton label="Cancel" outlined class="flex-1"></button>
     <button pButton label="Submit" class="flex-1"></button>
   </div>
 </div>
-
-<!-- Cards se envuelven con flex-wrap -->
-<div class="flex flex-wrap items-start gap-6">
-  <div class="flex-1 flex flex-col gap-6">
-    <!-- Columna de cards -->
-  </div>
-  <div class="flex-1 flex flex-col gap-6">
-    <!-- Otra columna de cards -->
-  </div>
-</div>
 ```
 
-Reglas de formularios:
-- Label encima del input con `mt-2` de separación.
-- Cards de formulario usan `rounded-3xl` (más grande que cards de datos que usan `rounded-2xl`).
-- `p-divider` para separar secciones dentro de una card.
-- Botones de acción siempre al final, `flex-1` para ancho igual.
+Reglas: `rounded-3xl` para form cards (vs `rounded-2xl` para data cards) | Label encima con `mt-2` | `p-divider` entre secciones | Botones `flex-1` al final | Multi-columna: `flex flex-wrap items-start gap-6` con `flex-1` por columna
 
 ---
 
@@ -756,16 +700,36 @@ displayPopover(e: MouseEvent, op: Popover) {
 </p-iconfield>
 ```
 
-### styleClass — patrones permitidos
+### Eventos PrimeNG vs Angular
 
-Usar `styleClass` en componentes PrimeNG para ajustes de layout, no para colores custom:
+```html
+<!-- PrimeNG: camelCase -->
+<p-selectbutton (onChange)="onSelect()" />
+<p-button (onClick)="action($event)" />
+<p-fileupload (onUpload)="handle($event)" (onSelect)="onFiles($event)" />
+
+<!-- HTML nativo: minúsculas -->
+<div (click)="action()">...</div>
+<button (click)="action()">...</button>
+```
+
+Consultar MCP para el nombre exacto del evento de cada componente.
+
+### styleClass y selectores avanzados
+
+`styleClass` para ajustes de layout en componentes PrimeNG (usar `!` para override):
 ```
 styleClass="w-full"                          → Full width
-styleClass="w-fit"                           → Fit content
-styleClass="font-medium"                     → Peso de fuente
-styleClass="!min-w-0 !w-2.5 !h-2.5"         → Override con ! (badges pequeños)
+styleClass="!min-w-0 !w-2.5 !h-2.5"         → Override badges
 styleClass="!bg-transparent"                 → Fondo transparente (paginador)
-styleClass="flex-1 w-full"                   → Textarea expandible
+valueStyleClass="!bg-surface-0 !rounded-full" → Relleno de p-progressbar
+```
+
+Selectores avanzados permitidos para contenedores con hijos repetidos:
+```html
+<div class="flex [&>*]:-mr-2">...</div>           <!-- Avatares solapados -->
+<div class="[&>*]:flex-1 [&>*]:min-h-14">...</div> <!-- Hijos igual tamaño -->
+<div class="last:[&>td]:border-0">...</div>        <!-- Último sin borde -->
 ```
 
 ---
@@ -839,28 +803,17 @@ src/app/modules/feature-name/
 ### Inicialización de datos en componentes
 
 ```typescript
-// Datos simples y de constantes → field initializers
-search: string = '';
-activeChat: string = 'PrimeTek Team';
-chats: ChatItem[] = CHATS;
-options: string[] = ['Weekly', 'Monthly', 'Yearly'];
-tableTokens = { header: { background: 'transparent' }, ... };
+// Simple/constantes → field initializers
+search: string = '';  chats: ChatItem[] = CHATS;  options: string[] = ['Weekly', 'Monthly', 'Yearly'];
 
-// Datos complejos o computados → ngOnInit()
-ngOnInit() {
-  this.menuItems = [{ label: 'Refresh', icon: 'pi pi-refresh' }];
-  this.tableData = [ /* objetos complejos */ ];
-}
+// Datos complejos → ngOnInit()
+ngOnInit() { this.menuItems = [{ label: 'Refresh', icon: 'pi pi-refresh' }]; }
 
-// Reacción a cambios de tema → effect() como field
-themeEffect = effect(() => {
-  if (this.configService.transitionComplete()) {
-    this.initChart();
-  }
-});
+// Tema → effect() como field
+themeEffect = effect(() => { if (this.configService.transitionComplete()) this.initChart(); });
 ```
 
-**Nunca** inicializar datos complejos en el constructor. Constructor solo para DI legacy (preferir `inject()`).
+**Nunca** inicializar datos complejos en el constructor. Preferir `inject()` sobre constructor DI.
 
 ## Servicios y estado
 
@@ -907,58 +860,23 @@ Regla: consultar el MCP de PrimeNG para saber si un componente se importa como M
 ## Charts (Chart.js via PrimeNG)
 
 ```typescript
-// 1. Leer colores del tema (SIEMPRE desde CSS variables, nunca hardcoded)
+// Leer colores del tema (NUNCA hardcodear hex)
 const documentStyle = getComputedStyle(document.documentElement);
 const primary400 = documentStyle.getPropertyValue('--p-primary-400');
-const surface100 = documentStyle.getPropertyValue('--p-surface-100');
-const surface900 = documentStyle.getPropertyValue('--p-surface-900');
 
-// 2. Chart data — barras apiladas con colores del tema
-chartData = {
-  labels: [...],
-  datasets: [{
-    type: 'bar',
-    label: 'Dataset 1',
-    backgroundColor: primary400,
-    hoverBackgroundColor: primary600,
-    data: [...],
-    barThickness: 32,
-    borderRadius: { topLeft: 8, topRight: 8 }, // solo último dataset
-    borderSkipped: false,                       // solo último dataset
-  }]
-};
+// Dataset con colores del tema
+{ type: 'bar', backgroundColor: primary400, hoverBackgroundColor: primary600,
+  barThickness: 32, borderRadius: { topLeft: 8, topRight: 8 }, borderSkipped: false }
 
-// 3. Chart options — legend off, grid solo en Y, stacked
-chartOptions = {
-  maintainAspectRatio: false,
-  plugins: {
-    tooltip: { enabled: false, external: customTooltipFn },
-    legend: { display: false },
-  },
-  scales: {
-    x: { stacked: true, grid: { display: false }, border: { display: false } },
-    y: {
-      stacked: true, beginAtZero: true,
-      grid: { color: darkTheme ? surface900 : surface100 },
-      border: { display: false },
-    },
-  },
-};
+// Options: legend off, grid solo Y, stacked
+{ maintainAspectRatio: false, plugins: { tooltip: { enabled: false, external: fn }, legend: { display: false } },
+  scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: darkTheme ? surface900 : surface100 } } } }
 
-// 4. Reaccionar a cambios de tema
-themeEffect = effect(() => {
-  if (this.configService.transitionComplete()) {
-    this.initChart(); // re-leer CSS vars y reconstruir data/options
-  }
-});
+// Reaccionar a cambios de tema
+themeEffect = effect(() => { if (this.configService.transitionComplete()) this.initChart(); });
 ```
 
-Reglas de charts:
-- **Nunca** colores hex en datasets. Siempre `getPropertyValue('--p-primary-*')`.
-- Legend custom con HTML, no la built-in de Chart.js.
-- Tooltip custom con `external` callback usando clases Tailwind.
-- Grid solo en eje Y, color condicional por dark mode.
-- `barThickness: 32` consistente. `borderRadius` solo en el último dataset del stack.
+Reglas: colores siempre con `getPropertyValue()` | Legend custom HTML, no Chart.js built-in | Tooltip con `external` callback | Grid solo eje Y, color condicional dark mode | `barThickness: 32` | `borderRadius` solo en último dataset del stack
 
 ## Lo que NO hacer
 
@@ -970,7 +888,7 @@ Reglas de charts:
 - No usar `rounded-sm`, `rounded-md`, `rounded-none` ni valores arbitrarios de border-radius.
 - No escribir CSS/SCSS en archivos de componente. Todo con Tailwind en el template.
 - No usar `::ng-deep`. Si PrimeNG no expone la API de estilo, usar `styleClass` o design tokens.
-- No usar `style=""` inline excepto para valores dinámicos que vienen de datos.
+- No usar `style=""` inline. Para valores dinámicos de datos usar `[style.backgroundColor]="item.color"` o `[ngStyle]="{ backgroundColor: val.color }"`.
 - No inventar combinaciones de tipografía fuera de las recetas definidas.
 - No usar `bg-surface-*` sin su par `dark:bg-surface-*`.
 
