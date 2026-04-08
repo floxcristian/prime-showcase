@@ -292,6 +292,175 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
 
 ---
 
+## Patrones estructurales de página
+
+### Header de página
+
+```html
+<div class="flex flex-wrap gap-4 items-start justify-between p-1">
+  <!-- Título -->
+  <div class="flex-1">
+    <div class="text-muted-color font-medium leading-normal">Subtítulo</div>
+    <div class="text-color text-3xl font-semibold leading-normal">Título</div>
+  </div>
+  <!-- Acciones -->
+  <div class="flex gap-2 whitespace-nowrap flex-nowrap">
+    <p-iconfield iconPosition="left">
+      <p-inputicon class="pi pi-search"></p-inputicon>
+      <input type="text" pInputText placeholder="Search" />
+    </p-iconfield>
+    <p-button severity="secondary" outlined>
+      <i class="pi pi-bell"></i>
+    </p-button>
+  </div>
+</div>
+```
+
+### Header de card
+
+```html
+<!-- Con título + leyenda/acciones -->
+<div class="flex items-center gap-6 mb-6">
+  <div class="flex-1 text-color font-semibold leading-6">Título</div>
+  <div class="flex items-center gap-5">
+    <!-- Leyenda o botones -->
+  </div>
+</div>
+
+<!-- Con avatar + info -->
+<div class="flex items-center gap-3">
+  <p-overlayBadge severity="danger" styleClass="w-fit">
+    <p-avatar image="url" class="rounded-lg overflow-hidden flex" />
+  </p-overlayBadge>
+  <div>
+    <div class="font-medium text-color leading-6">Nombre</div>
+    <div class="mt-1 text-muted-color leading-5">Detalle</div>
+  </div>
+</div>
+```
+
+### Item de lista (nav, chat, inbox)
+
+```html
+<!-- Patrón base de list item -->
+<div class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all">
+  <p-avatar ... />
+  <div class="flex-1">
+    <div class="flex items-start gap-1 justify-between">
+      <div class="text-color font-medium leading-6">Nombre</div>
+      <div class="text-sm text-muted-color leading-5">Hora</div>
+    </div>
+    <div class="text-muted-color text-sm leading-5 line-clamp-1 mt-1">Preview...</div>
+  </div>
+</div>
+
+<!-- Patrón de nav item -->
+<div class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all">
+  <i class="pi pi-inbox"></i>
+  <span class="font-medium">Label</span>
+</div>
+
+<!-- Patrón de settings row (icon + label + toggle) -->
+<div class="flex items-center gap-2">
+  <i class="pi pi-bell text-color"></i>
+  <div class="leading-6 font-medium text-color flex-1">Notification</div>
+  <p-toggleswitch [(ngModel)]="value" />
+</div>
+```
+
+### Scroll y sticky headers
+
+```html
+<!-- Contenedor scrollable estándar -->
+<div class="flex-1 overflow-y-auto flex flex-col gap-6">
+  <!-- Sticky header dentro del scroll -->
+  <div class="sticky top-0 z-10 bg-surface-0 dark:bg-surface-950">
+    Header que se queda fijo
+  </div>
+  <!-- Contenido que scrollea -->
+</div>
+
+<!-- Tabla con scroll flex (llena el espacio disponible) -->
+<p-table [scrollable]="true" scrollHeight="flex">...</p-table>
+```
+
+Reglas: sticky headers siempre necesitan `bg-surface-0 dark:bg-surface-950` y `z-10` para cubrir el contenido.
+
+### Text overflow
+
+```html
+<!-- Una línea con ellipsis -->
+<div class="line-clamp-1">Texto largo...</div>
+<div class="truncate">Texto largo...</div>
+
+<!-- Múltiples líneas -->
+<div class="line-clamp-4">Descripción larga...</div>
+
+<!-- Prevenir wrap en botones/labels -->
+<div class="whitespace-nowrap">No wrap</div>
+
+<!-- Nombre de archivo con ellipsis -->
+<span class="text-ellipsis whitespace-nowrap overflow-hidden">archivo.pdf</span>
+```
+
+### Imágenes y medios
+
+```html
+<!-- Imagen en contenedor con aspect ratio -->
+<div class="relative aspect-[195/118.5] rounded-lg overflow-hidden">
+  <img [src]="url" class="w-full h-full object-cover" />
+</div>
+
+<!-- Imagen cuadrada (media grid) -->
+<div class="aspect-square rounded-lg overflow-hidden">
+  <img [src]="url" class="w-full h-full object-cover block" />
+</div>
+
+<!-- Overlay sobre imagen (badge, progreso) -->
+<div class="relative ...">
+  <img ... />
+  <div class="absolute z-10 top-2 right-2">Badge</div>
+  <div class="absolute z-10 bottom-2 inset-x-2">Progress</div>
+</div>
+```
+
+Regla: siempre `object-cover` para imágenes en contenedores. Siempre `rounded-lg overflow-hidden` en el contenedor.
+
+---
+
+## Recetas de estado dinámico (ngClass)
+
+Patrones estándar para estados de UI. Usar exactamente estas recetas:
+
+```html
+<!-- Selección activa (nav, tabs, chat list) -->
+[ngClass]="{
+  'text-color bg-emphasis': isActive,
+  'text-muted-color bg-transparent': !isActive
+}"
+
+<!-- Avatar fallback (sin imagen → iniciales) -->
+[ngClass]="{
+  '!bg-primary-100 !text-primary-950': !item.image
+}"
+<!-- Variantes de color: bg-violet-100/text-violet-950, bg-orange-100/text-orange-950 -->
+
+<!-- Mensaje enviado vs recibido (chat) -->
+[ngClass]="{
+  'ml-auto flex-row-reverse': message.type === 'sent'
+}"
+<!-- Bubble: bg-primary para enviados, bg-surface-100 dark:bg-surface-800 para recibidos -->
+<!-- Texto: text-primary-contrast para enviados, text-color para recibidos -->
+
+<!-- Toggle de ícono (bookmark, dark mode) -->
+[ngClass]="value ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+
+<!-- Visibilidad condicional (slim menu) -->
+[class]="isHidden ? 'hidden' : 'font-medium leading-none'"
+```
+
+---
+
 ## Patrones de componentes PrimeNG
 
 ### Botones — variantes y cuándo usarlas
@@ -374,6 +543,79 @@ tableTokens = {
 </p-overlayBadge>
 ```
 
+### Tablas — templates y estructura
+
+```html
+<p-table
+  [value]="data"
+  [dt]="tableTokens"
+  [scrollable]="true"
+  scrollHeight="flex"
+  [tableStyle]="{ 'min-width': '50rem' }"
+  [paginator]="true"
+  [rows]="5"
+  paginatorStyleClass="!bg-transparent"
+>
+  <ng-template #header>
+    <tr>
+      <th class="w-1/12">Id</th>
+      <th class="w-1/4">Name</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-item>
+    <tr>
+      <td class="w-1/12">
+        <div class="text-muted-color">{{ item.id }}</div>
+      </td>
+      <td class="w-1/4">
+        <div class="flex items-center">
+          <p-avatar [label]="item.initials" shape="circle" />
+          <div class="leading-6 text-muted-color flex-1">{{ item.name }}</div>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Tabla con selección -->
+<p-table [(selection)]="selectedRows" dataKey="id">
+  <ng-template #header>
+    <tr>
+      <th style="width: 1rem"><p-tableHeaderCheckbox /></th>
+      <!-- columnas -->
+    </tr>
+  </ng-template>
+  <ng-template #body let-data>
+    <tr>
+      <td style="width: 1rem"><p-tableCheckbox [value]="data" /></td>
+      <!-- celdas -->
+    </tr>
+  </ng-template>
+</p-table>
+
+<!-- Tabla con caption (barra de acciones) -->
+<ng-template #caption>
+  <div class="flex xl:items-center justify-between gap-2 flex-col xl:flex-row">
+    <!-- Acciones bulk + búsqueda + paginación -->
+  </div>
+</ng-template>
+```
+
+### Menú popup
+
+```html
+<!-- Trigger con botón -->
+<p-button icon="pi pi-ellipsis-h" severity="secondary" text
+  (click)="menu.toggle($event)" />
+<p-menu #menu [model]="menuItems" [popup]="true" />
+
+<!-- En el .ts -->
+menuItems: MenuItem[] = [
+  { label: 'Refresh', icon: 'pi pi-refresh' },
+  { label: 'Export', icon: 'pi pi-upload' },
+];
+```
+
 ### Campos de formulario
 
 ```html
@@ -405,6 +647,17 @@ styleClass="flex-1 w-full"                   → Textarea expandible
 - Consultar el MCP de PrimeNG o https://primeng.org/icons para íconos disponibles.
 - **No** agregar Font Awesome, Heroicons, ni otras librerías de íconos.
 
+### Íconos con contenedor circular
+
+```html
+<!-- Ícono con fondo (ej: crypto, indicadores) -->
+<i class="pi pi-ethereum bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950 w-7 h-7 rounded-full !flex items-center justify-center"></i>
+```
+
+### SVG inline
+
+Cuando se necesite un SVG custom (ej: logo), usar `fill="var(--p-primary-color)"` para que respete el tema.
+
 ## Routing
 
 ```typescript
@@ -429,9 +682,36 @@ src/app/modules/feature-name/
   models/                          ← interfaces y tipos
 ```
 
-- Interfaces en archivos `.interface.ts`.
-- Constantes en UPPER_SNAKE_CASE en archivos separados.
-- Mocks en archivos separados, importados como const.
+- Interfaces en archivos `.interface.ts`. PascalCase, propiedades camelCase.
+- Constantes en UPPER_SNAKE_CASE, tipadas con su interfaz: `export const ITEMS: ItemType[] = [...]`.
+- Mocks en archivos separados, tipados con interfaces, datos realistas (10-15 items).
+- Un export por archivo de constante/mock.
+
+### Inicialización de datos en componentes
+
+```typescript
+// Datos simples y de constantes → field initializers
+search: string = '';
+activeChat: string = 'PrimeTek Team';
+chats: ChatItem[] = CHATS;
+options: string[] = ['Weekly', 'Monthly', 'Yearly'];
+tableTokens = { header: { background: 'transparent' }, ... };
+
+// Datos complejos o computados → ngOnInit()
+ngOnInit() {
+  this.menuItems = [{ label: 'Refresh', icon: 'pi pi-refresh' }];
+  this.tableData = [ /* objetos complejos */ ];
+}
+
+// Reacción a cambios de tema → effect() como field
+themeEffect = effect(() => {
+  if (this.configService.transitionComplete()) {
+    this.initChart();
+  }
+});
+```
+
+**Nunca** inicializar datos complejos en el constructor. Constructor solo para DI legacy (preferir `inject()`).
 
 ## Servicios y estado
 
