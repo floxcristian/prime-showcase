@@ -426,6 +426,77 @@ Reglas: sticky headers siempre necesitan `bg-surface-0 dark:bg-surface-950` y `z
 
 Regla: siempre `object-cover` para imágenes en contenedores. Siempre `rounded-lg overflow-hidden` en el contenedor.
 
+### Layouts multi-panel
+
+```html
+<!-- 3 paneles (ej: chat) — host: flex border border-surface rounded-2xl -->
+<div class="w-4/12 xl:w-3/12 min-w-40 overflow-auto flex flex-col">
+  <!-- Panel izquierdo: lista -->
+</div>
+<div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
+  <!-- Panel central: contenido principal -->
+</div>
+<div class="w-3/12 xl:block hidden min-w-40 overflow-auto">
+  <!-- Panel derecho: info (oculto bajo xl) -->
+</div>
+
+<!-- 2 paneles (ej: inbox) — host: flex gap-4 -->
+<div class="w-64 h-full border border-surface rounded-2xl flex flex-col">
+  <!-- Sidebar fijo -->
+</div>
+<div class="flex-1 h-full border border-surface rounded-2xl">
+  <!-- Contenido principal -->
+</div>
+```
+
+Reglas multi-panel:
+- Paneles se separan con `border-x border-surface` (adyacentes) o `gap-4` + bordes propios (separados).
+- Paneles ocultos en mobile usan `xl:block hidden`.
+- Cada panel scrollea independientemente con `overflow-auto`.
+- Anchos con fracciones: `w-4/12`, `w-8/12`, `w-3/12`. Fijos: `w-64`, `w-72`.
+
+### Formularios dentro de cards
+
+```html
+<!-- Card con formulario -->
+<div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
+  <!-- Campo: label encima del input -->
+  <div>
+    <label class="text-color font-medium leading-6" for="field-id">Label</label>
+    <input pInputText id="field-id" class="mt-2 w-full" />
+  </div>
+
+  <!-- Toggle row (icon + label + switch) -->
+  <div class="flex items-center gap-3">
+    <i class="pi pi-bell text-color text-xl"></i>
+    <div class="leading-6 text-color flex-1">Label</div>
+    <p-toggleswitch [(ngModel)]="value" />
+  </div>
+
+  <!-- Botones de acción al fondo -->
+  <div class="flex items-center gap-2">
+    <button pButton label="Cancel" outlined class="flex-1"></button>
+    <button pButton label="Submit" class="flex-1"></button>
+  </div>
+</div>
+
+<!-- Cards se envuelven con flex-wrap -->
+<div class="flex flex-wrap items-start gap-6">
+  <div class="flex-1 flex flex-col gap-6">
+    <!-- Columna de cards -->
+  </div>
+  <div class="flex-1 flex flex-col gap-6">
+    <!-- Otra columna de cards -->
+  </div>
+</div>
+```
+
+Reglas de formularios:
+- Label encima del input con `mt-2` de separación.
+- Cards de formulario usan `rounded-3xl` (más grande que cards de datos que usan `rounded-2xl`).
+- `p-divider` para separar secciones dentro de una card.
+- Botones de acción siempre al final, `flex-1` para ancho igual.
+
 ---
 
 ## Recetas de estado dinámico (ngClass)
@@ -485,31 +556,6 @@ Reglas de severity:
 - `severity="danger"` → acciones destructivas
 - `severity="contrast"` → alto contraste visual
 - `severity="success"` / `"warn"` → rara vez, solo donde el significado semántico lo requiere
-
-### Tablas
-
-```typescript
-// Tokens de tabla — fondo transparente siempre
-tableTokens = {
-  header: { background: 'transparent' },
-  headerCell: { background: 'transparent' },
-  row: { background: 'transparent' },
-};
-```
-
-```html
-<p-table
-  [value]="data"
-  [dt]="tableTokens"
-  [scrollable]="true"
-  scrollHeight="flex"
-  [tableStyle]="{ 'min-width': '50rem' }"
->
-  <!-- Anchos de columna con fracciones -->
-  <th class="w-1/6">Columna</th>
-  <th class="w-1/4">Otra</th>
-</p-table>
-```
 
 ### Tags y Badges
 
@@ -721,27 +767,113 @@ themeEffect = effect(() => {
 - `AppConfigService` para acceso al tema/dark mode.
 - No usar librerías de state management externas.
 
+## PrimeNG imports: Module vs Standalone
+
+PrimeNG 19 tiene componentes en dos formatos. Ambos van juntos en `PRIME_MODULES`:
+
+```typescript
+const PRIME_MODULES = [
+  // Modules (sufijo Module) — componentes más antiguos
+  ButtonModule, AvatarModule, TableModule, InputTextModule,
+  MenuModule, TooltipModule, OverlayBadgeModule, DividerModule,
+  BadgeModule, ChartModule, ToggleSwitchModule, MeterGroupModule,
+
+  // Standalone (sin sufijo) — componentes más nuevos
+  SelectButton, Tag, Checkbox, IconField, InputIcon,
+  Textarea, Carousel, ProgressBar, FileUpload, Select,
+  AutoComplete, RadioButton, InputNumber, InputOtp, Slider,
+];
+```
+
+Regla: consultar el MCP de PrimeNG para saber si un componente se importa como Module o Standalone. No mezclar — si existe `Tag` standalone, usar `Tag`, no buscar `TagModule`.
+
 ## Charts (Chart.js via PrimeNG)
 
-- Colores siempre desde CSS variables: `getComputedStyle(document.documentElement).getPropertyValue('--p-primary-400')`.
-- Reaccionar a cambios de tema con `effect()` para reinicializar charts.
-- Tooltips custom: usar `external` callback con clases Tailwind + tokens (ver overview.component.ts).
-- Fondos de chart transparentes, grids con `--p-surface-100` / `--p-surface-900`.
+```typescript
+// 1. Leer colores del tema (SIEMPRE desde CSS variables, nunca hardcoded)
+const documentStyle = getComputedStyle(document.documentElement);
+const primary400 = documentStyle.getPropertyValue('--p-primary-400');
+const surface100 = documentStyle.getPropertyValue('--p-surface-100');
+const surface900 = documentStyle.getPropertyValue('--p-surface-900');
+
+// 2. Chart data — barras apiladas con colores del tema
+chartData = {
+  labels: [...],
+  datasets: [{
+    type: 'bar',
+    label: 'Dataset 1',
+    backgroundColor: primary400,
+    hoverBackgroundColor: primary600,
+    data: [...],
+    barThickness: 32,
+    borderRadius: { topLeft: 8, topRight: 8 }, // solo último dataset
+    borderSkipped: false,                       // solo último dataset
+  }]
+};
+
+// 3. Chart options — legend off, grid solo en Y, stacked
+chartOptions = {
+  maintainAspectRatio: false,
+  plugins: {
+    tooltip: { enabled: false, external: customTooltipFn },
+    legend: { display: false },
+  },
+  scales: {
+    x: { stacked: true, grid: { display: false }, border: { display: false } },
+    y: {
+      stacked: true, beginAtZero: true,
+      grid: { color: darkTheme ? surface900 : surface100 },
+      border: { display: false },
+    },
+  },
+};
+
+// 4. Reaccionar a cambios de tema
+themeEffect = effect(() => {
+  if (this.configService.transitionComplete()) {
+    this.initChart(); // re-leer CSS vars y reconstruir data/options
+  }
+});
+```
+
+Reglas de charts:
+- **Nunca** colores hex en datasets. Siempre `getPropertyValue('--p-primary-*')`.
+- Legend custom con HTML, no la built-in de Chart.js.
+- Tooltip custom con `external` callback usando clases Tailwind.
+- Grid solo en eje Y, color condicional por dark mode.
+- `barThickness: 32` consistente. `borderRadius` solo en el último dataset del stack.
 
 ## Lo que NO hacer
 
-- No crear componentes custom si PrimeNG ya tiene uno equivalente.
+### Estilos
 - No usar colores de Tailwind genéricos (`text-gray-*`, `bg-blue-*`, `text-slate-*`). Usar design tokens.
 - No usar valores hex/rgb hardcodeados (`#fff`, `rgb(0,0,0)`) excepto datos con significado fijo (colores de gráficos de datos).
-- No usar `*ngIf`, `*ngFor` u otras directivas estructurales legacy.
-- No crear NgModules.
-- No usar `Default` change detection.
-- No agregar dependencias nuevas sin justificación (no Material, Bootstrap, Heroicons, etc).
-- No usar `style=""` inline excepto para valores dinámicos que vienen de datos.
-- No crear abstracciones prematuras o wrappers innecesarios sobre componentes PrimeNG.
-- No escribir CSS/SCSS en archivos de componente. Todo con Tailwind en el template.
 - No usar `shadow-*`. Usar `border border-surface` para elevación.
 - No usar valores de spacing fuera de la escala definida.
 - No usar `rounded-sm`, `rounded-md`, `rounded-none` ni valores arbitrarios de border-radius.
-- No crear archivos de estilos globales adicionales. Todo pasa por `styles.scss` + Tailwind.
+- No escribir CSS/SCSS en archivos de componente. Todo con Tailwind en el template.
 - No usar `::ng-deep`. Si PrimeNG no expone la API de estilo, usar `styleClass` o design tokens.
+- No usar `style=""` inline excepto para valores dinámicos que vienen de datos.
+- No crear archivos de estilos globales adicionales. Todo pasa por `styles.scss` + Tailwind.
+- No inventar combinaciones de tipografía fuera de las recetas definidas.
+- No usar `bg-surface-*` sin su par `dark:bg-surface-*`.
+
+### Componentes
+- No crear componentes custom si PrimeNG ya tiene uno equivalente.
+- No crear abstracciones prematuras o wrappers innecesarios sobre componentes PrimeNG.
+- No usar `<button>` sin `pButton` o `<p-button>`.
+- No usar tablas HTML. Siempre `<p-table>`.
+- No usar `*ngIf`, `*ngFor` u otras directivas estructurales legacy. Usar `@if`, `@for`.
+
+### Arquitectura
+- No crear NgModules. Todo standalone.
+- No usar `Default` change detection. Siempre `OnPush`.
+- No agregar dependencias nuevas sin justificación (no Material, Bootstrap, Heroicons, etc).
+- No inicializar datos complejos en el constructor. Usar `ngOnInit()` o field initializers.
+- No usar constructor para DI. Preferir `inject()`.
+- No crear servicios con estado que deberían ser signals en el componente.
+- No usar RxJS para estado de UI local. Preferir signals.
+
+### Charts
+- No usar colores hex en datasets de charts. Siempre CSS variables del tema.
+- No usar la legend built-in de Chart.js. Crear legend custom con HTML.
