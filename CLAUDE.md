@@ -27,11 +27,11 @@ Este proyecto tiene configurado el MCP oficial de PrimeNG (`.mcp.json`). **Usarl
 - Consultar ejemplos de uso y opciones de theming.
 - Buscar el componente correcto por funcionalidad si no se conoce el nombre exacto.
 
-No asumir la API de componentes PrimeNG de memoria. Consultar el MCP para obtener la API real y actualizada.
+**Siempre** consultar el MCP antes de implementar cualquier componente PrimeNG. No asumir la API de memoria.
 
 ## Regla principal: Consistencia con lo existente
 
-Antes de implementar cualquier feature, revisar los componentes existentes en `src/app/modules/` para replicar sus patrones exactos. No inventar nuevos patrones. Si hay duda entre dos formas de hacer algo, elegir la que ya existe en el código.
+**Antes de implementar cualquier feature**, revisar los componentes existentes en `src/app/modules/` y replicar sus patrones exactos. **Nunca** inventar nuevos patrones. Si hay duda entre dos formas de hacer algo, elegir la que ya existe en el código.
 
 ## Componentes: Siempre PrimeNG primero
 
@@ -90,14 +90,19 @@ Reglas:
 
 ### Patrones de host class por tipo de página
 
+Elegir según el tipo de contenido:
+
 ```typescript
-// Página estándar con scroll y borde
+// 1. Página con contenido simple (cards, customers, movies) → borde + padding + scroll
 host: { class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6' }
 
-// Página con layout flex interno (ej: chat, inbox con paneles)
+// 2. Página con paneles lado a lado (chat) → flex sin padding (cada panel maneja su propio padding)
 host: { class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden flex border border-surface rounded-2xl' }
 
-// Página sin borde propio (ej: overview que maneja su propio scroll)
+// 3. Página con paneles separados (inbox) → gap entre paneles, sin borde externo
+host: { class: 'flex gap-4 h-full flex-1 w-full overflow-auto' }
+
+// 4. Página wrapper (overview) → sin borde, el contenido interno define sus propias cards
 host: { class: 'flex-1 h-full overflow-y-auto pb-0.5' }
 ```
 
@@ -164,6 +169,11 @@ BORDES
   border-surface                      → Borde estándar (cards, divisores)
   border-primary                      → Borde de acento (raro, solo énfasis)
   border-black/10 dark:border-white/20 → Solo layout principal (main.component)
+
+SURFACE INTERMEDIOS (solo para detalles finos, no para layout principal)
+  text-surface-400 / text-surface-500   → Ticks de charts, texto muy sutil
+  text-surface-600 dark:text-surface-400 → Texto de empresas/logos
+  fill-surface-600 dark:fill-surface-400 → Fill de SVGs inline
 
 EXCEPCIONES PERMITIDAS
   Colores con nombre solo para indicadores semánticos con significado fijo:
@@ -767,6 +777,23 @@ styleClass="flex-1 w-full"                   → Textarea expandible
 - Consultar el MCP de PrimeNG o https://primeng.org/icons para íconos disponibles.
 - **No** agregar Font Awesome, Heroicons, ni otras librerías de íconos.
 
+### Otros componentes PrimeNG usados en el proyecto
+
+Estos componentes se usan pero no tienen recetas detalladas aquí. **Consultar el MCP de PrimeNG** para su API y revisar los componentes existentes que los usan:
+
+| Componente | Archivo de referencia | Notas |
+|---|---|---|
+| `p-datepicker` | overview.component | `selectionMode="range"`, `showIcon`, `appendTo="body"` |
+| `p-carousel` | movies.component | Custom nav (`showNavigators=false`, `[page]` binding) |
+| `p-fileupload` | cards.component | Templates `#header` y `#content` con callbacks |
+| `p-metergroup` | overview.component | Template `#label` custom, `labelPosition="end"` |
+| `p-autocomplete` | cards.component | `multiple`, `(completeMethod)`, `[typeahead]="false"` |
+| `p-slider` | cards.component | `range`, `[min]`, `[max]` |
+| `p-inputotp` | cards.component | `[length]="6"`, `[integerOnly]="true"` |
+| `p-select` | cards.component | Borderless: `class="!border-0 !shadow-none"` |
+| `p-radiobutton` | cards.component | `variant="filled"`, `[(ngModel)]` |
+| `p-checkbox` | inbox.component | `[binary]="true"` |
+
 ### Íconos con contenedor circular
 
 ```html
@@ -779,6 +806,8 @@ styleClass="flex-1 w-full"                   → Textarea expandible
 Cuando se necesite un SVG custom (ej: logo), usar `fill="var(--p-primary-color)"` para que respete el tema.
 
 ## Routing
+
+Agregar nuevas rutas como children en `src/app/app.routes.ts`:
 
 ```typescript
 {
@@ -952,7 +981,6 @@ Reglas de charts:
 - No usar tablas HTML. Siempre `<p-table>`.
 - No usar `*ngIf`, `*ngFor` u otras directivas estructurales legacy. Usar `@if`, `@for`.
 - No usar `@else` — preferir bloques `@if` separados (patrón del proyecto).
-- No usar pipes (`| date`, `| number`, etc.) — formatear datos en el componente.
 
 ### Arquitectura
 - No crear NgModules. Todo standalone.
@@ -962,6 +990,7 @@ Reglas de charts:
 - No usar constructor para DI. Preferir `inject()`.
 - No crear servicios con estado que deberían ser signals en el componente.
 - No usar RxJS para estado de UI local. Preferir signals.
+- No usar pipes en templates (`| date`, `| number`). Formatear datos en el componente (.ts).
 
 ### Charts
 - No usar colores hex en datasets de charts. Siempre CSS variables del tema.
