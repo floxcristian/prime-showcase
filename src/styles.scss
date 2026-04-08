@@ -2,3 +2,31 @@
 @use "primeicons/primeicons.css";
 @use "tailwindcss";
 @plugin 'tailwindcss-primeui';
+
+/*
+ * PrimeNG line-height normalization.
+ *
+ * Several PrimeNG components use inline-flex + align-items:center for text
+ * centering but omit an explicit line-height in their base styles
+ * (@primeuix/styles) and expose no design token (dt()) for it.
+ *
+ * When these components sit inside containers with Tailwind typography classes
+ * (leading-5, leading-6, etc.), the inherited line-height creates a text box
+ * taller than the font-size, shifting text downward despite flexbox centering.
+ *
+ * The fix: line-height:1 constrains each component's text box to its
+ * font-size so inline-flex centering works as intended.
+ *
+ * Reviewed against: PrimeNG 21 / @primeuix/styles v21 / @primeuix/themes aura
+ * Affected components verified to have no line-height token or base style:
+ *   - badge:        inline-flex, no dt('badge.line.height')
+ *   - tag:          inline-flex, no dt('tag.line.height')
+ *   - avatar:       inline-flex, no dt('avatar.line.height') — affects [label] text only
+ *   - togglebutton: inline-flex (inside p-selectbutton), no dt('togglebutton.line.height')
+ */
+.p-badge,
+.p-tag,
+.p-avatar,
+.p-togglebutton-content {
+  line-height: 1;
+}
