@@ -2,8 +2,8 @@
 
 ## Stack
 
-- Angular 19 (standalone components, signals, new control flow)
-- PrimeNG 19 con tema Aura (`@primeng/themes`)
+- Angular 21 (standalone components, signals, new control flow)
+- PrimeNG 21 con tema Aura (`@primeng/themes`)
 - Tailwind CSS 4 con plugin `tailwindcss-primeui`
 - PrimeIcons 7
 - SCSS (archivos presentes por convención pero vacíos — todo el estilizado se hace con Tailwind)
@@ -29,7 +29,7 @@ Este proyecto tiene configurado el MCP oficial de PrimeNG (`.mcp.json`). **Usarl
 
 **Siempre** consultar el MCP antes de implementar cualquier componente PrimeNG. No asumir la API de memoria.
 
-> **Build budgets:** Initial bundle < 500kB (warn) / 1MB (error). Component styles < 4kB (warn) / 8kB (error).
+> **Build budgets:** Initial bundle < 750kB (warn) / 1MB (error). Component styles < 4kB (warn) / 8kB (error).
 
 ## Regla principal: Consistencia con lo existente
 
@@ -841,7 +841,7 @@ ngOnInit() {
 
 ## PrimeNG imports: Module vs Standalone
 
-PrimeNG 19 tiene componentes en dos formatos. Ambos van juntos en `PRIME_MODULES`:
+PrimeNG 21 tiene componentes en dos formatos. Ambos van juntos en `PRIME_MODULES`:
 
 ```typescript
 const PRIME_MODULES = [
