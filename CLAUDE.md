@@ -9,6 +9,17 @@
 - SCSS (archivos presentes por convención pero vacíos — todo el estilizado se hace con Tailwind)
 - TypeScript strict mode
 
+## Resumen de reglas críticas
+
+Leer SIEMPRE antes de generar código:
+
+1. **PrimeNG primero** — Usar componentes nativos de PrimeNG. No crear custom components si PrimeNG ya tiene uno.
+2. **Solo design tokens** — Nunca `text-gray-500`, `bg-blue-100`, `#fff`. Solo `text-color`, `bg-surface-*`, `bg-primary`, etc.
+3. **OnPush + standalone** — Todos los componentes. Sin excepciones.
+4. **Tailwind en template, SCSS vacío** — Cero CSS en archivos `.scss`. Todo con clases Tailwind en el HTML.
+5. **Consultar MCP de PrimeNG** — Antes de implementar cualquier componente PrimeNG, verificar su API actual via MCP.
+6. **Consistencia** — Revisar componentes existentes en `src/app/modules/` y replicar sus patrones exactos.
+
 ## MCP: PrimeNG (`@primeng/mcp`)
 
 Este proyecto tiene configurado el MCP oficial de PrimeNG (`.mcp.json`). **Usarlo siempre** antes de implementar o recomendar un componente PrimeNG para:
@@ -926,12 +937,11 @@ Reglas de charts:
 - No usar colores de Tailwind genéricos (`text-gray-*`, `bg-blue-*`, `text-slate-*`). Usar design tokens.
 - No usar valores hex/rgb hardcodeados (`#fff`, `rgb(0,0,0)`) excepto datos con significado fijo (colores de gráficos de datos).
 - No usar `shadow-*`. Usar `border border-surface` para elevación.
-- No usar valores de spacing fuera de la escala definida.
+- No usar valores de spacing fuera de la escala definida arriba.
 - No usar `rounded-sm`, `rounded-md`, `rounded-none` ni valores arbitrarios de border-radius.
 - No escribir CSS/SCSS en archivos de componente. Todo con Tailwind en el template.
 - No usar `::ng-deep`. Si PrimeNG no expone la API de estilo, usar `styleClass` o design tokens.
 - No usar `style=""` inline excepto para valores dinámicos que vienen de datos.
-- No crear archivos de estilos globales adicionales. Todo pasa por `styles.scss` + Tailwind.
 - No inventar combinaciones de tipografía fuera de las recetas definidas.
 - No usar `bg-surface-*` sin su par `dark:bg-surface-*`.
 
