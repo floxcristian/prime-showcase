@@ -7,7 +7,7 @@
 - Tailwind CSS 4 con plugin `tailwindcss-primeui`
 - PrimeIcons 7
 - SCSS (archivos presentes por convención pero vacíos — todo el estilizado se hace con Tailwind)
-- TypeScript strict mode
+- TypeScript strict mode (`strictTemplates`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`)
 
 ## Resumen de reglas críticas
 
@@ -28,6 +28,8 @@ Este proyecto tiene configurado el MCP oficial de PrimeNG (`.mcp.json`). **Usarl
 - Buscar el componente correcto por funcionalidad si no se conoce el nombre exacto.
 
 **Siempre** consultar el MCP antes de implementar cualquier componente PrimeNG. No asumir la API de memoria.
+
+> **Build budgets:** Initial bundle < 500kB (warn) / 1MB (error). Component styles < 4kB (warn) / 8kB (error).
 
 ## Regla principal: Consistencia con lo existente
 
@@ -224,7 +226,7 @@ Combinaciones fijas — usar exactamente estas, no mezclar libremente:
 
 ```
 TÍTULOS:    text-2xl font-medium leading-8 (sección) | text-3xl font-semibold leading-normal (principal)
-SUBTÍTULOS: text-muted-color font-medium leading-normal (página) | text-color font-semibold leading-6 (card)
+SUBTÍTULOS: text-muted-color font-medium leading-normal ← SUBTÍTULO DE PÁGINA | text-color font-semibold leading-6 ← TÍTULO DE CARD
 BODY:       text-color leading-6 (base) | + font-medium (énfasis) | text-sm leading-5 (compacto)
 SECUNDARIO: text-muted-color leading-6 (metadata) | text-sm text-muted-color leading-5 (labels)
 PEQUEÑO:    text-xs font-medium (badges, contadores)
