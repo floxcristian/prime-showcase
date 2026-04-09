@@ -28,8 +28,9 @@ export interface MeterItem {
 export interface ChartDataset {
   type: 'bar';
   label: string;
-  backgroundColor: string;
+  backgroundColor: string | CanvasPattern;
   hoverBackgroundColor: string;
+  legendColor: string;
   data: number[];
   barThickness: number;
   borderRadius?: { topLeft: number; topRight: number };
