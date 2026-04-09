@@ -178,7 +178,7 @@
                             <div class="font-medium leading-normal flex-1 text-left">
                               Cambiar a {{ darkMode() ? "Claro" : "Oscuro" }}
                             </div>
-                            <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="darkMode.set($event)" />
+                            <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="darkMode.set($event)" aria-label="Modo oscuro" />
                           </div>
                         </div>
                         <div class="border border-surface rounded-3xl">
@@ -201,19 +201,19 @@
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-users text-xl"></i>
+                                  <i class="pi pi-users text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">Senior</div>
                                 </div>
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-stopwatch text-xl"></i>
+                                  <i class="pi pi-stopwatch text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">Tiempo completo</div>
                                 </div>
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-money-bill text-xl"></i>
+                                  <i class="pi pi-money-bill text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">$80,000</div>
                                 </div>
                               </div>
@@ -255,7 +255,7 @@
                                           </div>
                                           <div class="flex items-center gap-2">
                                             <div class="font-medium leading-6">12 Postulantes</div>
-                                            <i class="pi pi-arrow-right"></i>
+                                            <i class="pi pi-arrow-right" aria-hidden="true"></i>
                                           </div>
                                         </button>
                                       </div>
@@ -264,7 +264,7 @@
                                   <div class="flex-1 flex flex-col gap-6">
                                     <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
                                       <div class="flex items-center gap-2 text-color">
-                                        <i class="pi pi-cloud-upload text-xl"></i>
+                                        <i class="pi pi-cloud-upload text-xl" aria-hidden="true"></i>
                                         <div class="flex-1 font-medium leading-6">Subir archivos</div>
                                         <p-button icon="pi pi-times" text rounded aria-label="Cerrar" />
                                       </div>
@@ -309,6 +309,7 @@
                                                       rounded
                                                       outlined
                                                       severity="secondary"
+                                                      aria-label="Seleccionar archivos"
                                                     ></p-button>
                                                     <p-button
                                                       (click)="uploadEvent(uploadCallback)"
@@ -317,6 +318,7 @@
                                                       outlined
                                                       severity="success"
                                                       [disabled]="!files || files().length === 0"
+                                                      aria-label="Subir archivos"
                                                     ></p-button>
                                                     <p-button
                                                       (click)="clearCallback()"
@@ -325,6 +327,7 @@
                                                       outlined
                                                       severity="danger"
                                                       [disabled]="!files || files().length === 0"
+                                                      aria-label="Limpiar archivos"
                                                     ></p-button>
                                                   </div>
                                                 </div>
@@ -334,7 +337,7 @@
                                                   class="flex flex-col items-center justify-center p-6 cursor-pointer"
                                                   (click)="chooseCallback()"
                                                   >
-                                                  <i class="pi pi-cloud-upload text-4xl text-color"></i>
+                                                  <i class="pi pi-cloud-upload text-4xl text-color" aria-hidden="true"></i>
                                                   <div class="text-sm text-color font-medium mt-2">
                                                     Haz clic para subir
                                                     <span class="text-muted-color">o arrastra y suelta</span>
@@ -462,7 +465,7 @@
                                                               [for]="permission.key"
                                                               class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-border border border-surface hover:bg-emphasis transition-all select-none"
                                                               >
-                                                              <i class="text-color" [ngClass]="permission.icon"></i>
+                                                              <i class="text-color" [ngClass]="permission.icon" aria-hidden="true"></i>
                                                               <div class="flex-1 text-sm leading-5 text-color">
                                                                 {{ permission.name }}
                                                               </div>
@@ -669,34 +672,34 @@
                                                                                                 />
                                                                                                 <div class="flex flex-col gap-4 mt-6">
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-volume-down text-color text-xl"></i>
+                                                                                                    <i class="pi pi-volume-down text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Sonido</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[0]" (ngModelChange)="updateUserProfilesValue(0, $event)" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[0]" (ngModelChange)="updateUserProfilesValue(0, $event)" aria-label="Sonido" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-wifi text-color text-xl"></i>
+                                                                                                    <i class="pi pi-wifi text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Wi-Fi</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[1]" (ngModelChange)="updateUserProfilesValue(1, $event)" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[1]" (ngModelChange)="updateUserProfilesValue(1, $event)" aria-label="Wi-Fi" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-moon text-color text-xl"></i>
+                                                                                                    <i class="pi pi-moon text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Modo oscuro</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[2]" (ngModelChange)="updateUserProfilesValue(2, $event)" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[2]" (ngModelChange)="updateUserProfilesValue(2, $event)" aria-label="Modo oscuro" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-map-marker text-color text-xl"></i>
+                                                                                                    <i class="pi pi-map-marker text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Servicios de ubicación</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[3]" (ngModelChange)="updateUserProfilesValue(3, $event)" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[3]" (ngModelChange)="updateUserProfilesValue(3, $event)" aria-label="Servicios de ubicación" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-shield text-color text-xl"></i>
+                                                                                                    <i class="pi pi-shield text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Privacidad</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[4]" (ngModelChange)="updateUserProfilesValue(4, $event)" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[4]" (ngModelChange)="updateUserProfilesValue(4, $event)" aria-label="Privacidad" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-sync text-color text-xl"></i>
+                                                                                                    <i class="pi pi-sync text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Actualización automática</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[5]" (ngModelChange)="updateUserProfilesValue(5, $event)" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[5]" (ngModelChange)="updateUserProfilesValue(5, $event)" aria-label="Actualización automática" />
                                                                                                   </div>
                                                                                                 </div>
                                                                                               </div>
