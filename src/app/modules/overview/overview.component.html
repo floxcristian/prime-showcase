@@ -139,6 +139,8 @@
                           <div class="flex items-center">
                             <i
                               class="pi"
+                              role="img"
+                              [attr.aria-label]="item.coin === 'btc' ? 'Bitcoin' : 'Ethereum'"
                     [ngClass]="{
                       'pi-bitcoin text-yellow-500 !text-3xl':
                         item.coin === 'btc',

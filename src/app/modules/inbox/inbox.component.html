@@ -29,7 +29,7 @@
           }"
               class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all"
               >
-              <i [class]="nav.icon"></i>
+              <i [class]="nav.icon" aria-hidden="true"></i>
               <span class="font-medium">{{ nav.name }}</span>
             </button>
           }
@@ -128,11 +128,14 @@
                     <td class="w-4 p-2">
                       <div
             (click)="$event.stopPropagation(); toggleBookmark(data)"
+                        role="button"
+                        [attr.aria-label]="data.bookmarked ? 'Quitar marcador' : 'Agregar marcador'"
                         >
                         <i
               [ngClass]="
                 data.bookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'
               "
+                          aria-hidden="true"
                         ></i>
                       </div>
                     </td>
