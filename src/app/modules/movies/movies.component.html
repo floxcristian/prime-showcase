@@ -51,7 +51,7 @@
       <p-carousel
                 [value]="carouselData()"
                 [page]="page()"
-                [numVisible]="5"
+                [numVisible]="numVisible()"
                 [numScroll]="1"
                 [responsiveOptions]="responsiveOptions"
                 [showIndicators]="false"
@@ -99,7 +99,7 @@
                               text
                               aria-label="Quitar de favoritos"
                               rounded
-                              (onClick)="$event.stopPropagation(); toggleCarouselBookmark(item)"
+                              (click)="$event.stopPropagation(); toggleCarouselBookmark(item)"
                               />
                           }
                         </div>
@@ -147,7 +147,7 @@
                                 severity="contrast"
                                 text
                                 rounded
-                                (onClick)="$event.stopPropagation(); togglePopularBookmark(movie)"
+                                (click)="$event.stopPropagation(); togglePopularBookmark(movie)"
                                 />
                             }
                           </div>
