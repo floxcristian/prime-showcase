@@ -76,7 +76,11 @@ export class AppConfigService {
     if (isPlatformBrowser(this.platformId)) {
       const storedState = localStorage.getItem(this.STORAGE_KEY);
       if (storedState) {
-        return JSON.parse(storedState);
+        try {
+          return JSON.parse(storedState) as AppState;
+        } catch {
+          return { preset: 'Aura', primary: 'noir', surface: null, darkTheme: false };
+        }
       }
     }
     return {

@@ -9,7 +9,6 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 // PrimeNG
 import { SelectButton } from 'primeng/selectbutton';
 import { AvatarModule } from 'primeng/avatar';
@@ -30,7 +29,7 @@ import {
   POPULAR_MOVIES,
 } from './constants/movies-data';
 
-const NG_MODULES = [FormsModule, RouterModule];
+const NG_MODULES = [FormsModule];
 const PRIME_MODULES = [
   SelectButton,
   AvatarModule,
@@ -57,9 +56,9 @@ const PRIME_MODULES = [
 export class MoviesComponent {
   private destroyRef = inject(DestroyRef);
 
-  search: string | undefined;
+  search = signal<string | undefined>(undefined);
   page = signal(0);
-  value: string = 'Inicio';
+  value = signal('Inicio');
   options: string[] = [
     'Inicio',
     'Películas',
@@ -68,13 +67,13 @@ export class MoviesComponent {
     'Mi Lista',
   ];
   responsiveOptions: CarouselResponsiveOption[] = CAROUSEL_RESPONSIVE_OPTIONS;
-  carouselData: CarouselMovie[] = CAROUSEL_MOVIES;
-  popularMovies: Movie[] = POPULAR_MOVIES;
+  carouselData = signal<CarouselMovie[]>(CAROUSEL_MOVIES);
+  popularMovies = signal<Movie[]>(POPULAR_MOVIES);
 
   numVisible = signal(CAROUSEL_NUM_VISIBLE);
 
   maxPage = computed(() =>
-    Math.max(0, Math.ceil((this.carouselData.length - this.numVisible()) / CAROUSEL_NUM_SCROLL))
+    Math.max(0, Math.ceil((this.carouselData().length - this.numVisible()) / CAROUSEL_NUM_SCROLL))
   );
 
   constructor() {
@@ -87,6 +86,18 @@ export class MoviesComponent {
 
   nextPage(): void {
     this.page.update(p => Math.min(this.maxPage(), p + 1));
+  }
+
+  toggleCarouselBookmark(movie: CarouselMovie): void {
+    this.carouselData.update(data =>
+      data.map(d => d === movie ? { ...d, bookmarked: !d.bookmarked } : d)
+    );
+  }
+
+  togglePopularBookmark(movie: Movie): void {
+    this.popularMovies.update(data =>
+      data.map(d => d === movie ? { ...d, bookmarked: !d.bookmarked } : d)
+    );
   }
 
   private initBreakpointListeners(): void {

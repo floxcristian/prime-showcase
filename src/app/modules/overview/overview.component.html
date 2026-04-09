@@ -23,7 +23,7 @@
   </div>
   <div class="mt-4 flex flex-wrap gap-6 items-center justify-between p-1">
     <p-selectbutton
-      [(ngModel)]="selectedTime"
+      [ngModel]="selectedTime()" (ngModelChange)="selectedTime.set($event)"
       [options]="timeOptions"
       aria-labelledby="basic"
       [allowEmpty]="false"
@@ -33,7 +33,7 @@
         <p-button label="Descargar" icon="pi pi-download" iconPos="right" />
         <p-datepicker
           ngSkipHydration
-          [(ngModel)]="dates"
+          [ngModel]="dates()" (ngModelChange)="dates.set($event)"
           appendTo="body"
           dateFormat="dd.mm.yy"
           selectionMode="range"

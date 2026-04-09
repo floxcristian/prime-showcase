@@ -20,10 +20,11 @@
           </div>
           @for (nav of navData.navs; track nav.name) {
             <button
-              (click)="activeInboxNav = nav.name"
+              pButton
+              (click)="activeInboxNav.set(nav.name)"
           [ngClass]="{
-            'text-color bg-emphasis': activeInboxNav === nav.name,
-            'text-muted-color bg-transparent': activeInboxNav !== nav.name
+            'text-color bg-emphasis': activeInboxNav() === nav.name,
+            'text-muted-color bg-transparent': activeInboxNav() !== nav.name
           }"
               class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all"
               >
@@ -54,8 +55,9 @@
     class="flex-1 h-full overflow-hidden flex border border-surface rounded-2xl"
     >
     <p-table
-      [value]="tableData"
-      [(selection)]="selectedRows"
+      [value]="tableData()"
+      [selection]="selectedRows()"
+      (selectionChange)="selectedRows.set($event)"
       dataKey="id"
       class="w-full"
       [dt]="tableTokens"
@@ -95,7 +97,8 @@
                     <input
                       type="text"
                       pInputText
-                      [(ngModel)]="search"
+                      [ngModel]="search()"
+                      (ngModelChange)="search.set($event)"
                       placeholder="Buscar"
                       class="w-full"
                       />
@@ -122,9 +125,7 @@
 
                     <td class="w-4 p-2">
                       <div
-            (click)="
-              $event.stopPropagation(); data.bookmarked = !data.bookmarked
-            "
+            (click)="$event.stopPropagation(); toggleBookmark(data)"
                         >
                         <i
               [ngClass]="

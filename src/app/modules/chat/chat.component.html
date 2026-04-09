@@ -13,7 +13,7 @@
       <input
         type="text"
         pInputText
-        [(ngModel)]="search"
+        [ngModel]="search()" (ngModelChange)="search.set($event)"
         placeholder="Buscar"
         class="w-full"
         />
@@ -21,7 +21,7 @@
     </div>
     <div class="w-full px-5">
       <p-selectButton
-        [(ngModel)]="value"
+        [ngModel]="value()" (ngModelChange)="value.set($event)"
         [options]="options"
         aria-labelledby="basic"
         class="w-full"
@@ -33,7 +33,7 @@
           <div
             class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
       [ngClass]="{
-        'bg-emphasis': chat.name === activeChat
+        'bg-emphasis': chat.name === activeChat()
       }"
             >
             <div class="relative">
@@ -245,19 +245,19 @@
                             <div class="flex items-center gap-2">
                               <i class="pi pi-bell text-color"></i>
                               <div class="leading-6 font-medium text-color flex-1">Notificaciones</div>
-                              <p-toggleswitch [(ngModel)]="notification" />
+                              <p-toggleswitch [ngModel]="notification()" (ngModelChange)="notification.set($event)" />
                             </div>
                             <div class="flex items-center gap-2">
                               <i class="pi pi-volume-down text-color"></i>
                               <div class="leading-6 font-medium text-color flex-1">Sonido</div>
-                              <p-toggleswitch [(ngModel)]="sound" />
+                              <p-toggleswitch [ngModel]="sound()" (ngModelChange)="sound.set($event)" />
                             </div>
                             <div class="flex items-center gap-2">
                               <i class="pi pi-download text-color"></i>
                               <div class="leading-6 font-medium text-color flex-1">
                                 Guardar en descargas
                               </div>
-                              <p-toggleswitch [(ngModel)]="download" />
+                              <p-toggleswitch [ngModel]="download()" (ngModelChange)="download.set($event)" />
                             </div>
                           </div>
                           <div class="mt-6">
@@ -295,7 +295,7 @@
                               </div>
                               <div class="mt-5">
                                 <p-selectbutton
-                                  [(ngModel)]="media"
+                                  [ngModel]="media()" (ngModelChange)="media.set($event)"
                                   [options]="mediaOptions"
                                   class="w-full"
                                   styleClass="flex-1 w-full"

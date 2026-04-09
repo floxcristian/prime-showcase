@@ -2,10 +2,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  signal,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 // PrimeNG
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
@@ -25,7 +25,7 @@ import {
   INBOX_MESSAGES,
 } from './constants/inbox-data';
 
-const NG_MODULES = [FormsModule, RouterModule, NgClass];
+const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
   AvatarModule,
   ButtonModule,
@@ -51,15 +51,21 @@ const PRIME_MODULES = [
   },
 })
 export class InboxComponent {
-  search: string | undefined;
+  search = signal<string | undefined>(undefined);
 
-  activeInboxNav: string = 'Bandeja';
+  activeInboxNav = signal('Bandeja');
 
   inboxNavs: InboxNavGroup[] = INBOX_NAV_GROUPS;
 
-  tableData: InboxMessage[] = INBOX_MESSAGES;
+  tableData = signal<InboxMessage[]>(INBOX_MESSAGES);
 
-  selectedRows: InboxMessage[] = [];
+  selectedRows = signal<InboxMessage[]>([]);
+
+  toggleBookmark(message: InboxMessage): void {
+    this.tableData.update(data =>
+      data.map(d => d === message ? { ...d, bookmarked: !d.bookmarked } : d)
+    );
+  }
 
   tableTokens = {
     header: {

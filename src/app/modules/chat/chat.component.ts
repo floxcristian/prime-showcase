@@ -1,8 +1,7 @@
 // Angular
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 // PrimeNG
 import { MenuItem } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
@@ -26,7 +25,7 @@ import { ChatItem } from './models/chat-item.interface';
 import { ChatMessage } from './models/chat-message.interface';
 import { ChatMember } from './models/chat-member.interface';
 
-const NG_MODULES = [FormsModule, RouterModule, NgClass];
+const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
   BadgeModule,
   SelectButton,
@@ -54,15 +53,15 @@ const PRIME_MODULES = [
 export class ChatComponent {
   options: string[] = ['Chat', 'Llamada'];
   mediaOptions: string[] = ['Multimedia', 'Enlace', 'Documentos'];
-  value: string = 'Chat';
-  media: string = 'Multimedia';
-  search: string = '';
+  value = signal('Chat');
+  media = signal('Multimedia');
+  search = signal('');
 
   // Profile
-  activeChat: string = 'Equipo PrimeTek';
-  notification: boolean = true;
-  sound: boolean = false;
-  download: boolean = false;
+  activeChat = signal('Equipo PrimeTek');
+  notification = signal(true);
+  sound = signal(false);
+  download = signal(false);
 
   chats: ChatItem[] = CHATS;
   menuItems: MenuItem[] = CHAT_MENU_ITEMS;

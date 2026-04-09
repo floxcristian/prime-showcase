@@ -1,13 +1,14 @@
 <div class="flex flex-wrap gap-4 items-center justify-between">
   <p-selectbutton
-    [(ngModel)]="value"
+    [ngModel]="value()"
+    (ngModelChange)="value.set($event)"
     [options]="options"
     aria-labelledby="basic"
     />
     <div class="flex gap-2.5 items-center">
       <p-iconfield iconPosition="left">
         <p-inputicon class="pi pi-search"></p-inputicon>
-        <input type="text" pInputText [(ngModel)]="search" placeholder="Buscar" />
+        <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" />
       </p-iconfield>
       <p-button severity="secondary" outlined>
         <p-overlayBadge
@@ -48,7 +49,7 @@
         </div>
       </div>
       <p-carousel
-                [value]="carouselData"
+                [value]="carouselData()"
                 [page]="page()"
                 [numVisible]="5"
                 [numScroll]="1"
@@ -98,6 +99,7 @@
                               text
                               aria-label="Quitar de favoritos"
                               rounded
+                              (onClick)="$event.stopPropagation(); toggleCarouselBookmark(item)"
                               />
                           }
                         </div>
@@ -116,7 +118,7 @@
                     <p-button label="Mostrar todo" severity="secondary" outlined />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-6">
-                    @for (movie of popularMovies; track movie.name) {
+                    @for (movie of popularMovies(); track movie.name) {
                       <div class="cursor-pointer">
                         <div class="relative aspect-[259/174.5] rounded-lg overflow-hidden">
                           <img
@@ -145,6 +147,7 @@
                                 severity="contrast"
                                 text
                                 rounded
+                                (onClick)="$event.stopPropagation(); togglePopularBookmark(movie)"
                                 />
                             }
                           </div>

@@ -15,7 +15,7 @@
 <div class="mt-10 mb-4 flex items-center justify-between">
   <p-iconfield iconPosition="left">
     <p-inputicon class="pi pi-search"> </p-inputicon>
-    <input pInputText type="text" [(ngModel)]="search" placeholder="Buscar" />
+    <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" />
   </p-iconfield>
   <div class="flex items-center gap-3">
     <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
@@ -31,7 +31,7 @@
 >
   <p-table
     [value]="tableData"
-    [(selection)]="selectedRows"
+    [selection]="selectedRows()" (selectionChange)="selectedRows.set($event)"
     dataKey="id"
     [rows]="10"
     [dt]="tableTokens"
@@ -122,7 +122,7 @@
         <td>
           <div class="flex justify-end w-full">
             <p-button
-              (onClick)="displayPopover($event, op)"
+              (click)="displayPopover($event, op)"
               icon="pi pi-search"
               rounded
               outlined
@@ -140,14 +140,14 @@
           label="Detalles"
           size="small"
           outlined
-          (onClick)="op.hide()"
+          (click)="op.hide()"
         ></p-button>
         <p-button
           label="Eliminar"
           severity="danger"
           size="small"
           outlined
-          (onClick)="op.hide()"
+          (click)="op.hide()"
         ></p-button>
       </div>
     </ng-template>
