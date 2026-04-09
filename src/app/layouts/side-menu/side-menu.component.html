@@ -93,7 +93,7 @@
           'w-full': !isSlimMenu()
         }"
                               >
-                              <i [class]="navItem.icon"></i>
+                              <i [class]="navItem.icon" aria-hidden="true"></i>
                               <span
           [ngClass]="{
             hidden: isSlimMenu(),
@@ -137,7 +137,7 @@
             selectedSampleAppsSidebarNav() === navItem.title
         }"
                                       >
-                                      <i [class]="navItem.icon"></i>
+                                      <i [class]="navItem.icon" aria-hidden="true"></i>
                                       <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-8'"
                                         >・</span
                                         >
@@ -342,9 +342,9 @@
               >
                 @for (pref of data.prefs; track pref.title) {
                   <div class="flex items-center gap-2">
-                    <i class="text-lg text-color" [class]="pref.icon"></i>
+                    <i class="text-lg text-color" [class]="pref.icon" aria-hidden="true"></i>
                     <div class="font-medium text-color flex-1">{{ pref.title }}</div>
-                    <p-toggleswitch [ngModel]="pref.checked" (ngModelChange)="togglePreference(pref)" />
+                    <p-toggleswitch [ngModel]="pref.checked" (ngModelChange)="togglePreference(pref)" [attr.aria-label]="pref.title" />
                   </div>
                 }
               </div>
