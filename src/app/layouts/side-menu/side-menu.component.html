@@ -123,6 +123,10 @@
                                     <div
                                       [pTooltip]="isSlimMenu() ? navItem.title : ''"
                                       (click)="dashboardSidebarVisible.set(true)"
+                                      role="button"
+                                      tabindex="0"
+                                      (keydown.enter)="dashboardSidebarVisible.set(true)"
+                                      (keydown.space)="$event.preventDefault(); dashboardSidebarVisible.set(true)"
                                       class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
         [ngClass]="{
           'w-12 justify-center py-4': isSlimMenu(),
@@ -360,7 +364,7 @@
                   />
                 </a>
               </div>
-              <img class="w-full rounded-lg mt-2 block" [src]="data.image" [alt]="data.title" />
+              <img class="w-full rounded-lg mt-2 block" [src]="data.image" [alt]="data.title" loading="lazy" />
               <div class="flex-1 mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 text-xs text-color">
                 {{ data.text }}
               </div>

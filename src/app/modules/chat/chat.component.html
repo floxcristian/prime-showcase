@@ -3,7 +3,7 @@
     class="flex flex-col gap-6 pt-3 pb-2 -mb-2 px-5 sticky top-0 bg-surface-0 dark:bg-surface-950 z-10"
     >
     <div class="flex items-center justify-between gap-6 text-color">
-      <div class="text-2xl font-medium lead">Chats</div>
+      <h1 class="text-2xl font-medium lead">Chats</h1>
       <p-button icon="pi pi-plus" text aria-label="Nuevo chat" />
     </div>
   </div>
@@ -15,6 +15,7 @@
         pInputText
         [ngModel]="search()" (ngModelChange)="search.set($event)"
         placeholder="Buscar"
+        aria-label="Buscar"
         class="w-full"
         />
       </p-iconField>
@@ -32,6 +33,7 @@
         @for (chat of chats; track chat.name) {
           <div
             class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
+            [attr.aria-current]="chat.name === activeChat() ? 'true' : null"
       [ngClass]="{
         'bg-emphasis': chat.name === activeChat()
       }"
@@ -177,6 +179,7 @@
                               class="w-full h-auto block cursor-pointer"
                               [src]="message.attachment"
                               alt="Imagen del mensaje"
+                              loading="lazy"
                               />
                             </div>
                           }
@@ -243,21 +246,21 @@
                           </div>
                           <div class="flex flex-col gap-4 mt-4">
                             <div class="flex items-center gap-2">
-                              <i class="pi pi-bell text-color"></i>
+                              <i class="pi pi-bell text-color" aria-hidden="true"></i>
                               <div class="leading-6 font-medium text-color flex-1">Notificaciones</div>
-                              <p-toggleswitch [ngModel]="notification()" (ngModelChange)="notification.set($event)" />
+                              <p-toggleswitch [ngModel]="notification()" (ngModelChange)="notification.set($event)" aria-label="Notificaciones" />
                             </div>
                             <div class="flex items-center gap-2">
-                              <i class="pi pi-volume-down text-color"></i>
+                              <i class="pi pi-volume-down text-color" aria-hidden="true"></i>
                               <div class="leading-6 font-medium text-color flex-1">Sonido</div>
-                              <p-toggleswitch [ngModel]="sound()" (ngModelChange)="sound.set($event)" />
+                              <p-toggleswitch [ngModel]="sound()" (ngModelChange)="sound.set($event)" aria-label="Sonido" />
                             </div>
                             <div class="flex items-center gap-2">
-                              <i class="pi pi-download text-color"></i>
+                              <i class="pi pi-download text-color" aria-hidden="true"></i>
                               <div class="leading-6 font-medium text-color flex-1">
                                 Guardar en descargas
                               </div>
-                              <p-toggleswitch [ngModel]="download()" (ngModelChange)="download.set($event)" />
+                              <p-toggleswitch [ngModel]="download()" (ngModelChange)="download.set($event)" aria-label="Guardar en descargas" />
                             </div>
                           </div>
                           <div class="mt-6">
@@ -288,7 +291,7 @@
                                         >
                                         {{ member.name }}
                                       </div>
-                                      <i class="pi pi-chevron-right text-xs text-muted-color"></i>
+                                      <i class="pi pi-chevron-right text-xs text-muted-color" aria-hidden="true"></i>
                                     </div>
                                   }
                                 </div>
@@ -302,7 +305,7 @@
                                   />
 
                                   <div class="mt-3 mb-5 grid grid-cols-3 gap-2">
-                                    @for (media of chatMedia; track $index) {
+                                    @for (media of chatMedia; track media) {
                                       <div
                                         class="bg-emphasis hover:opacity-70 transition-all flex-1 aspect-square rounded-lg border border-surface cursor-pointer"
                                         >
@@ -310,6 +313,7 @@
                                           class="w-full h-full object-cover block"
                                           [src]="media"
                                           alt="Imagen multimedia"
+                                          loading="lazy"
                                           />
                                         </div>
                                       }

@@ -4,7 +4,9 @@ import {
   isMainModule,
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
+import compression from 'compression';
 import express from 'express';
+import helmet from 'helmet';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -13,6 +15,28 @@ const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+/**
+ * Compression and security middleware
+ */
+app.use(compression());
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        fontSrc: ["'self'", "data:"],
+        connectSrc: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -36,6 +60,17 @@ app.use(
     redirect: false,
   }),
 );
+
+/**
+ * Cache-control for HTML documents (non-static routes).
+ * Static assets already get 1-year cache from express.static above.
+ */
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.includes('.')) {
+    res.set('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+  }
+  next();
+});
 
 /**
  * Handle all other requests by rendering the Angular application.

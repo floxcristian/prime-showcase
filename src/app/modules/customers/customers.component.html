@@ -1,6 +1,6 @@
 <div class="flex items-start gap-2 justify-between">
   <div>
-    <div class="text-2xl leading-8 text-color font-medium">Clientes</div>
+    <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
     <div class="mt-1 leading-6 text-muted-color">
       La lista de análisis muestra todos los usuarios
     </div>
@@ -15,7 +15,7 @@
 <div class="mt-10 mb-4 flex items-center justify-between">
   <p-iconfield iconPosition="left">
     <p-inputicon class="pi pi-search"> </p-inputicon>
-    <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" />
+    <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
   </p-iconfield>
   <div class="flex items-center gap-3">
     <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
@@ -127,6 +127,7 @@
               rounded
               outlined
               severity="secondary"
+              aria-label="Ver detalles"
             />
           </div>
         </td>

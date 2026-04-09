@@ -1,6 +1,6 @@
 // Angular
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 // PrimeNG
 import { MessageService } from 'primeng/api';
@@ -75,7 +75,7 @@ export class CardsComponent {
   files = signal<FileWithPreview[]>([]);
   uploadedFiles = signal<FileWithPreview[]>([]);
   totalSize = signal(0);
-  totalSizePercent = signal(0);
+  totalSizePercent = computed(() => this.totalSize() / 10);
   jobApplication = signal(false);
   userProfiles = signal('Relajado');
   userProfilesOptions: string[] = ['Relajado', 'No molestar'];
@@ -132,7 +132,6 @@ export class CardsComponent {
   ): void {
     removeFileCallback(index);
     this.totalSize.update(n => n - parseInt(this.formatSize(file.size)));
-    this.totalSizePercent.set(this.totalSize() / 10);
   }
 
   onSelectedFiles(event: FileSelectEvent): void {
@@ -143,7 +142,6 @@ export class CardsComponent {
   }
 
   uploadEvent(callback: () => void): void {
-    this.totalSizePercent.set(this.totalSize() / 10);
     callback();
   }
 

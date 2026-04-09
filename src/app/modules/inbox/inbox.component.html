@@ -4,7 +4,7 @@
   <div
     class="flex items-center justify-between gap-2 p-4 border-b border-surface"
     >
-    <div class="text-xl font-medium leading-7 text-color">Correos</div>
+    <h1 class="text-xl font-medium leading-7 text-color">Correos</h1>
     <p-button icon="pi pi-plus" styleClass="w-8 h-8" aria-label="Nuevo correo" />
   </div>
   <div
@@ -22,6 +22,7 @@
             <button
               pButton
               (click)="activeInboxNav.set(nav.name)"
+              [attr.aria-current]="activeInboxNav() === nav.name ? 'page' : null"
           [ngClass]="{
             'text-color bg-emphasis': activeInboxNav() === nav.name,
             'text-muted-color bg-transparent': activeInboxNav() !== nav.name
@@ -100,6 +101,7 @@
                       [ngModel]="search()"
                       (ngModelChange)="search.set($event)"
                       placeholder="Buscar"
+                      aria-label="Buscar"
                       class="w-full"
                       />
                     </p-iconfield>

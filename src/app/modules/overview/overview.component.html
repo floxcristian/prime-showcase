@@ -3,20 +3,20 @@
     <!-- Start::Header -->
     <div class="flex-1">
       <div class="text-muted-color font-medium leading-normal">Resumen</div>
-      <div class="text-color text-3xl font-semibold leading-normal">
+      <h1 class="text-color text-3xl font-semibold leading-normal">
         Bienvenido a PrimeNG
-      </div>
+      </h1>
     </div>
     <!-- End::Header -->
 
     <div class="flex gap-2 whitespace-nowrap flex-nowrap">
       <p-iconfield iconPosition="left">
         <p-inputicon class="pi pi-search"></p-inputicon>
-        <input type="text" pInputText placeholder="Buscar" />
+        <input type="text" pInputText placeholder="Buscar" aria-label="Buscar" />
       </p-iconfield>
-      <p-button severity="secondary" outlined>
+      <p-button severity="secondary" outlined aria-label="Notificaciones">
         <p-overlayBadge severity="danger" styleClass="!min-w-0 !w-2.5 !h-2.5">
-          <i class="pi pi-bell"></i>
+          <i class="pi pi-bell" aria-hidden="true"></i>
         </p-overlayBadge>
       </p-button>
     </div>
@@ -49,9 +49,9 @@
           class="w-full border border-surface rounded-2xl py-5 px-7 flex flex-col justify-between"
           >
           <div class="flex items-center gap-6 mb-6">
-            <div class="flex-1 text-color font-semibold leading-6">
+            <h2 class="flex-1 text-color font-semibold leading-6">
               Análisis Cripto
-            </div>
+            </h2>
             <div class="flex items-center gap-5">
               @for (item of chartData()?.datasets; track item.label) {
                 <div
@@ -80,9 +80,9 @@
             <!-- Start::Transactions -->
             <div class="flex-1 border border-surface rounded-2xl py-5 px-7">
               <div class="flex items-center gap-6 mb-4">
-                <div class="flex-1 text-color font-semibold leading-6">
+                <h2 class="flex-1 text-color font-semibold leading-6">
                   Transacciones
-                </div>
+                </h2>
                 <p-button
                   type="button"
                   icon="pi pi-ellipsis-h"
@@ -172,14 +172,15 @@
                   >
                   <div>
                     <div class="flex items-center mb-6">
-                      <div class="flex-1 text-color font-semibold leading-6">
+                      <h2 class="flex-1 text-color font-semibold leading-6">
                         Mi Billetera
-                      </div>
+                      </h2>
                       <p-button
                         type="button"
                         icon="pi pi-ellipsis-h"
                         severity="secondary"
                         text
+                        aria-label="Más opciones"
                         (click)="menu.toggle($event)"
                         aria-haspopup="true"
                         aria-controls="overlay_menu"
