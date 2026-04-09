@@ -10,21 +10,7 @@
 
 ## Falsos Positivos de Accesibilidad
 
-### FP-001: `<th>` sin `scope="col"` en p-table
-
-| Campo          | Valor                                                      |
-|----------------|-------------------------------------------------------------|
-| **Donde**      | overview, customers, inbox (templates con `<p-table>`)      |
-| **Reportado como** | Missing table header scope attribute                    |
-| **Veredicto**  | FALSE POSITIVE                                              |
-
-**Justificación:** PrimeNG `p-table` agrega `scope="col"` automáticamente durante el render del DOM. Los `<th>` en `ng-template` son plantillas declarativas, no el output final del DOM.
-
-**Verificación:** Inspeccionar el DOM renderizado en browser DevTools — los `<th>` renderizados por PrimeNG incluyen `scope="col"`.
-
----
-
-### FP-002: Botón "12 Postulantes" sin `aria-label`
+### FP-001: Botón "12 Postulantes" sin `aria-label`
 
 | Campo          | Valor                                            |
 |----------------|--------------------------------------------------|
@@ -34,11 +20,11 @@
 
 **Justificación:** El botón contiene texto visible "12 Postulantes" que funciona como accessible name según WCAG. Solo los botones icon-only (sin texto visible) necesitan `aria-label` explícito.
 
-**Referencia:** WCAG 4.1.2 (Name, Role, Value) — el accessible name se deriva del contenido de texto visible.
+**Referencia:** W3C Accessible Name and Description Computation (AccName 1.2) — role `button` permite `nameFrom: content`, que traversa recursivamente todos los nodos hijo incluyendo `<div>`. Agregar `aria-label` redundante podría violar WCAG 2.5.3 (Label in Name).
 
 ---
 
-### FP-003: `<p-avatar>` sin atributo `alt`
+### FP-002: `<p-avatar>` sin atributo `alt`
 
 | Campo          | Valor                                                            |
 |----------------|------------------------------------------------------------------|
@@ -52,25 +38,13 @@
 
 La imagen del avatar es decorativa/suplementaria. PrimeNG `p-avatar` con `[label]` usa las iniciales como contenido accesible; con `[image]`, el nombre ya está disponible en contexto.
 
-**Referencia:** WCAG 1.1.1 (Non-text Content) — imágenes puramente decorativas o redundantes no requieren alt text.
+**Referencia:** W3C WAI Images Tutorial — [Decorative Images](https://www.w3.org/WAI/tutorials/images/decorative/): "if the information provided by the image might already be given using adjacent text, use `alt=""`". Confirmado por W3C Alt Decision Tree y técnica H67.
+
+**Caveat:** Verificar que PrimeNG `p-avatar` con `[image]` renderiza `alt=""` en el `<img>` interno (no omitir el atributo, que es un fallo WCAG distinto). Ver [PrimeVue issue #3593](https://github.com/primefaces/primevue/issues/3593) para contexto.
 
 ---
 
-### FP-004: Chart legend "solo usa color" para diferenciar items
-
-| Campo          | Valor                                               |
-|----------------|-----------------------------------------------------|
-| **Donde**      | `overview.component.html` (~líneas 55-69)           |
-| **Reportado como** | Color-only information in chart legend           |
-| **Veredicto**  | FALSE POSITIVE                                      |
-
-**Justificación:** Cada círculo de color tiene un `<span>` adyacente con el label de texto (ej: "Bitcoin", "Ethereum"). El color NO es la única forma de distinguir los items.
-
-**Verificación:** El template renderiza `{{ item.label }}` junto a cada círculo de color dentro del `@for` loop.
-
----
-
-### FP-005: Dark mode toggle div sin keyboard handler
+### FP-003: Dark mode toggle div sin keyboard handler
 
 | Campo          | Valor                                               |
 |----------------|-----------------------------------------------------|
@@ -78,11 +52,13 @@ La imagen del avatar es decorativa/suplementaria. PrimeNG `p-avatar` con `[label
 | **Reportado como** | Interactive div missing keyboard support         |
 | **Veredicto**  | FALSE POSITIVE                                      |
 
-**Justificación:** El elemento interactivo real es el `<p-toggleswitch>` hijo, NO el `<div>` padre. PrimeNG `p-toggleswitch` es nativamente keyboard-accessible (Space/Enter). El `<div>` padre tiene `cursor-pointer` solo como feedback visual pero no es el target interactivo — no necesita keyboard handlers propios.
+**Justificación:** El elemento interactivo real es el `<p-toggleswitch>` hijo, NO el `<div>` padre. PrimeNG `p-toggleswitch` renderiza un `<input type="checkbox" role="switch">` nativo con `tabindex`, focus ring (`:focus-visible`), y respuesta a Space/Enter. El input cubre el 100% del área del componente (`width: 100%`, `height: 100%`, `z-index: 1`). El `<div>` padre tiene `cursor-pointer` solo como feedback visual.
+
+**Verificación:** Confirmado en source code de PrimeNG v21.2.6 (`primeng-toggleswitch.mjs` líneas 218-236).
 
 ---
 
-### FP-006: Uso de `shadow-none` en componentes
+### FP-004: Uso de `shadow-none` en componentes
 
 | Campo          | Valor                                                              |
 |----------------|--------------------------------------------------------------------|
@@ -91,6 +67,8 @@ La imagen del avatar es decorativa/suplementaria. PrimeNG `p-avatar` con `[label
 | **Veredicto**  | FALSE POSITIVE                                                     |
 
 **Justificación:** `!shadow-none` se usa para REMOVER shadows por defecto de PrimeNG, no para agregar elevación visual. El design system (CLAUDE.md) prohíbe `shadow-*` para crear elevación, pero `shadow-none` es un reset/override legítimo para limpiar estilos por defecto de componentes PrimeNG.
+
+**Verificación:** Tailwind CSS 4 source confirma que `shadow-none` aplica `--tw-shadow: 0 0 #0000` (shadow transparente/nula). CLAUDE.md documenta explícitamente `class="!border-0 !shadow-none"` como patrón aprobado para p-select borderless.
 
 ---
 
@@ -194,7 +172,8 @@ Solo limpia contenido del tooltip element (`innerHTML = ''`). Las líneas siguie
 
 | Fecha      | Auditor         | Resultado                                     |
 |------------|-----------------|-----------------------------------------------|
-| 2026-04-09 | Claude (9 agentes, 3 rondas) | Baseline establecido. 6 FP, 5 EX, 2 SEC documentados |
+| 2026-04-09 | Claude (9 agentes, 3 rondas) | Baseline establecido con 6 FP, 5 EX, 2 SEC |
+| 2026-04-09 | Claude (6 agentes, verificación con docs oficiales) | 2 FP reclasificados como gaps reales (FP-001 y FP-004 originales). Baseline corregido a 4 FP verificados contra W3C specs, PrimeNG source code, y Tailwind CSS source |
 
 ---
 

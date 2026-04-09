@@ -101,6 +101,22 @@ El proyecto fue auditado y mejorado en múltiples rondas con agentes especializa
 
 ---
 
+## Gaps Conocidos Pendientes
+
+### GAP-001: `<th>` sin `scope="col"` en p-table
+- **Donde:** overview, customers, inbox (templates con `<p-table>`)
+- **Impacto:** Screen readers no pueden asociar headers con celdas correctamente.
+- **Verificación:** PrimeNG v21.2.6 NO agrega `scope="col"` automáticamente (confirmado: cero matches en `primeng-table.mjs`).
+- **Fix:** Agregar `scope="col"` a todos los `<th>` dentro de `ng-template #header` en las 3 tablas.
+
+### GAP-002: Chart con 3 datasets diferenciados solo por color (WCAG 1.4.1)
+- **Donde:** `overview.component.ts` — 3 datasets (Billetera Personal/Corporativa/Inversión) usan tonos de `primary` (400/300/200).
+- **Impacto:** La legend tiene texto, pero las barras del chart se distinguen solo por color. Usuarios con baja visión del color no pueden mapear qué barra corresponde a qué dataset.
+- **Referencia:** WCAG 1.4.1 (Use of Color) — "color is not used as the only visual means of distinguishing a visual element".
+- **Fix posible:** Agregar `chartjs-plugin-datalabels` para labels directos en barras, o usar patrones/texturas con `patternomaly`.
+
+---
+
 ## Limitaciones Conocidas (No Corregidas)
 
 ### LIM-001: Tests son solo scaffolds
