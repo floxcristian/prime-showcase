@@ -1,6 +1,6 @@
 // Angular
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -72,7 +72,7 @@ const PRIME_MODULES = [
       'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
-export class CardsComponent implements OnInit {
+export class CardsComponent {
   files: FileWithPreview[] = [];
   uploadedFiles: FileWithPreview[] = [];
   totalSize: number = 0;
@@ -83,7 +83,18 @@ export class CardsComponent implements OnInit {
   userProfilesValues: boolean[] = [true, true, false, false, true, false];
   forgotPasswordOTP: string = '023';
   priceRange: number[] = [0, 10000];
-  priceRangePopularSpecs: PriceRangeSpec[] = [];
+  priceRangePopularSpecs: PriceRangeSpec[] = [
+    { value: 'Amueblado', checked: true },
+    { value: 'Sin amueblar', checked: false },
+    { value: 'Independiente', checked: true },
+    { value: 'Calefacción por suelo', checked: false },
+    { value: 'Balcón', checked: true },
+    { value: 'Dúplex', checked: false },
+    { value: 'Tríplex', checked: false },
+    { value: 'Jardín', checked: false },
+    { value: 'Ubicación céntrica', checked: false },
+    { value: 'Vista al mar', checked: true },
+  ];
   priceRangePopularSpecsChecked: string[] = [
     'Amueblado',
     'Independiente',
@@ -95,42 +106,24 @@ export class CardsComponent implements OnInit {
   darkMode: boolean = false;
   emailChips: string[] = [];
   memberSelectedTypes: string[] = ['O', 'E', 'V'];
-  memberTypes: MemberType[] = [];
+  memberTypes: MemberType[] = [
+    { name: 'Propietario', code: 'O' },
+    { name: 'Editor', code: 'E' },
+    { name: 'Lector', code: 'V' },
+  ];
   copiedText: string =
     "https://www.example.com/shared-files/user123/document-collection/file12345';";
   documentName: string = 'Tema Aura';
   filesTag: string[] = ['ui', 'rediseño', 'panel'];
   selectedPermission: string = 'Todos';
-  permissions: Permission[] = [];
+  permissions: Permission[] = [
+    { name: 'Todos', icon: 'pi pi-globe', key: 'E' },
+    { name: 'Solo admins', icon: 'pi pi-users', key: 'A' },
+  ];
   items: string[] = [];
 
   private config = inject(PrimeNG);
   private messageService = inject(MessageService);
-
-  ngOnInit() {
-    this.priceRangePopularSpecs = [
-      { value: 'Amueblado', checked: true },
-      { value: 'Sin amueblar', checked: false },
-      { value: 'Independiente', checked: true },
-      { value: 'Calefacción por suelo', checked: false },
-      { value: 'Balcón', checked: true },
-      { value: 'Dúplex', checked: false },
-      { value: 'Tríplex', checked: false },
-      { value: 'Jardín', checked: false },
-      { value: 'Ubicación céntrica', checked: false },
-      { value: 'Vista al mar', checked: true },
-    ];
-    this.memberTypes = [
-      { name: 'Propietario', code: 'O' },
-      { name: 'Editor', code: 'E' },
-      { name: 'Lector', code: 'V' },
-    ];
-
-    this.permissions = [
-      { name: 'Todos', icon: 'pi pi-globe', key: 'E' },
-      { name: 'Solo admins', icon: 'pi pi-users', key: 'A' },
-    ];
-  }
 
   onRemoveTemplatingFile(
     file: FileWithPreview,
@@ -155,7 +148,7 @@ export class CardsComponent implements OnInit {
   }
 
   onTemplatedUpload(event: FileUploadEvent): void {
-    for (let file of event.files) {
+    for (const file of event.files) {
       this.uploadedFiles.push(file);
     }
     this.messageService.add({

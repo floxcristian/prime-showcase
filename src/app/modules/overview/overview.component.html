@@ -53,7 +53,7 @@
               Análisis Cripto
             </div>
             <div class="flex items-center gap-5">
-              @for (item of chartData?.datasets; track item.label) {
+              @for (item of chartData()?.datasets; track item.label) {
                 <div
                   class="flex items-center gap-2"
                   >
@@ -70,8 +70,8 @@
           </div>
           <p-chart
             type="bar"
-            [data]="chartData"
-            [options]="chartOptions"
+            [data]="chartData()"
+            [options]="chartOptions()"
             [height]="'20rem'"
             />
           </div>
@@ -96,7 +96,7 @@
                   <p-menu #transactionsMenu id="overlay_menu_transactions" [model]="menuItems" [popup]="true" />
                 </div>
                 <p-table
-                  datakey="id"
+                  dataKey="id"
                   [value]="sampleAppsTableDatas"
                   [paginator]="true"
                   paginatorTemplate="PrevPageLink PageLinks NextPageLink  CurrentPageReport RowsPerPageDropdown"
@@ -199,7 +199,7 @@
                                 <div class="flex items-center gap-2">
                                   <div
                                     class="w-2 h-2 rounded-full"
-                                    [ngStyle]="{ backgroundColor: val.color }"
+                                    [style.background-color]="val.color"
                                   ></div>
                                   <div
                                     class="text-color uppercase font-medium leading-6 flex-1"

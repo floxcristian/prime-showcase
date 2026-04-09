@@ -6,7 +6,7 @@
     </div>
   </div>
   <p-button
-    icon="pi pi-circle-fill text-green-500"
+    icon="pi pi-circle-fill text-[var(--p-green-500)]"
     label="950 Usuarios activos"
     outlined
     severity="secondary"
@@ -73,7 +73,7 @@
                 [ngClass]="{
                   'bg-violet-100 text-violet-950 text-xs font-medium':
                     !data.image,
-                  'rounded-md overflow-hidden flex': true
+                  'rounded-lg overflow-hidden flex': true
                 }"
               />
             </p-overlayBadge>
@@ -98,12 +98,12 @@
             </div>
           </div>
         </td>
-        <td field="email" header="Email Address">
+        <td>
           <div class="leading-6 text-muted-color truncate">
             {{ data.email }}
           </div>
         </td>
-        <td field="lead" header="Lead Source">
+        <td>
           <div class="leading-6 text-muted-color">{{ data.lead }}</div>
         </td>
         <td>
@@ -134,7 +134,7 @@
     </ng-template>
   </p-table>
   <p-popover #op>
-    <ng-template pTemplate="content">
+    <ng-template #content>
       <div class="flex gap-2">
         <p-button
           label="Detalles"

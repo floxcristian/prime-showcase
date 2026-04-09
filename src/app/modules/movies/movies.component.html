@@ -28,44 +28,28 @@
     <div class="">
       <div class="flex items-center justify-between gap-2 mb-6">
         <div class="text-color text-xl font-medium leading-7">Seguir viendo</div>
-        <div class="xl:flex hidden items-center gap-2">
+        <div class="flex items-center gap-2">
           <p-button
-            [disabled]="page === 0"
+            [disabled]="page() === 0"
             (click)="previousPage()"
             icon="pi pi-chevron-left"
             severity="secondary"
             outlined
             aria-label="Anterior"
             />
-            <p-button
-              [disabled]="page === carouselData.length - page"
-              (click)="nextPage()"
-              icon="pi pi-chevron-right"
-              severity="secondary"
-              outlined
-              aria-label="Siguiente"
-              />
-            </div>
-            <div class="xl:hidden flex items-center gap-2">
-              <p-button
-                [disabled]="page === 0"
-                (click)="previousPage()"
-                icon="pi pi-chevron-left"
-                severity="secondary"
-                outlined
-                />
-                <p-button
-                  [disabled]="page === carouselData.length - 3"
-                  (click)="nextPage()"
-                  icon="pi pi-chevron-right"
-                  severity="secondary"
-                  outlined
-                  />
-                </div>
-              </div>
-              <p-carousel
+          <p-button
+            [disabled]="page() >= maxPage()"
+            (click)="nextPage()"
+            icon="pi pi-chevron-right"
+            severity="secondary"
+            outlined
+            aria-label="Siguiente"
+            />
+        </div>
+      </div>
+      <p-carousel
                 [value]="carouselData"
-                [page]="page"
+                [page]="page()"
                 [numVisible]="5"
                 [numScroll]="1"
                 [responsiveOptions]="responsiveOptions"
@@ -85,7 +69,7 @@
                         alt="Imagen de película del carrusel"
                         />
                         <div
-                          class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-md"
+                          class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
                           >
                           {{ item.point }}
                         </div>
@@ -141,7 +125,7 @@
                             alt="Portada de película popular"
                             />
                             <div
-                              class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-md"
+                              class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
                               >
                               {{ movie.point }}
                             </div>

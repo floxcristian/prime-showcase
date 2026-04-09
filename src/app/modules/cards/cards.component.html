@@ -106,7 +106,7 @@
                       </div>
                       <div class="border border-surface rounded-3xl p-6">
                         <div
-                          class="flex items-center gap-3 p-3 border border-surface rounded-xl shadow-[0px_1px_2px_0px_rgba(18,18,23,0.05)]"
+                          class="flex items-center gap-3 p-3 border border-surface rounded-xl"
                           >
                           <p-avatar
                             image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
@@ -353,7 +353,7 @@
                                                     >
                                                     @for (file of files; track $index; let i = $index) {
                                                       <div
-                                                        class="card max-w-[120px] !p-2 m-0 flex flex-col border-1 surface-border items-center gap-2 text-center"
+                                                        class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center"
                                                         >
                                                         <div>
                                                           <img
@@ -394,7 +394,7 @@
                                                         <div class="flex flex-wrap gap-2">
                                                           @for (file of uploadedFiles; track $index) {
                                                             <div
-                                                              class="card max-w-[120px] !p-2 m-0 flex flex-col border-1 surface-border items-center gap-2 text-center"
+                                                              class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center"
                                                               >
                                                               <div>
                                                                 <img
@@ -632,7 +632,6 @@
                                                                                                   type="text"
                                                                                                   pInputText
                                                                                                   [(ngModel)]="copiedText"
-                                                                                                  type="text"
                                                                                                   class="flex-1"
                                                                                                   readOnly
                                                                                                   />
@@ -752,7 +751,7 @@
                                                                                                             <div class="flex items-center gap-4 flex-wrap">
                                                                                                               @for (data of priceRangePopularSpecs; track data.value) {
                                                                                                                 <div
-                                                                                                                  class="flex align-items-center"
+                                                                                                                  class="flex items-center"
                                                                                                                   >
                                                                                                                   <p-checkbox
                                                                                                                     [(ngModel)]="priceRangePopularSpecsChecked"

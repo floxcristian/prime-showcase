@@ -1,13 +1,12 @@
 //Angular
-import { isPlatformBrowser, NgClass, NgStyle } from '@angular/common';
+import { isPlatformBrowser, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   effect,
   inject,
-  OnInit,
   PLATFORM_ID,
+  signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -17,34 +16,39 @@ import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { DatePickerModule } from 'primeng/datepicker';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { MeterGroupModule } from 'primeng/metergroup';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import { SelectButton } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
+import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import type { CanvasFontSpec, Chart, TooltipModel, TooltipItem } from 'chart.js';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
+import {
+  OVERVIEW_MENU_ITEMS,
+  OVERVIEW_TRANSACTIONS,
+  OVERVIEW_METERS,
+} from './constants/overview-data';
 
-const NG_MODULES = [RouterModule, FormsModule, NgClass, NgStyle];
+const NG_MODULES = [RouterModule, FormsModule, NgClass];
 const PRIME_MODULES = [
   ChartModule,
-  SelectButtonModule,
+  SelectButton,
   AvatarModule,
   TooltipModule,
-  IconFieldModule,
-  InputIconModule,
+  IconField,
+  InputIcon,
   ButtonModule,
   TableModule,
   MeterGroupModule,
   InputTextModule,
   MenuModule,
-  TagModule,
+  Tag,
   OverlayBadgeModule,
   DatePickerModule,
 ];
@@ -59,15 +63,15 @@ const PRIME_MODULES = [
     class: 'flex-1 h-full overflow-y-auto pb-0.5',
   },
 })
-export class OverviewComponent implements OnInit {
-  chartData: OverviewChartData | undefined;
-  chartOptions: Record<string, unknown> | undefined;
-  dates: Date[] | undefined = [];
+export class OverviewComponent {
+  chartData = signal<OverviewChartData | undefined>(undefined);
+  chartOptions = signal<Record<string, unknown> | undefined>(undefined);
+  dates: Date[] = [];
   selectedTime: string = 'Mensual';
   timeOptions: string[] = ['Semanal', 'Mensual', 'Anual'];
-  menuItems: MenuItem[] | undefined;
-  sampleAppsTableDatas: Transaction[] = [];
-  metersData: MeterItem[] = [];
+  menuItems: MenuItem[] = OVERVIEW_MENU_ITEMS;
+  sampleAppsTableDatas: Transaction[] = OVERVIEW_TRANSACTIONS;
+  metersData: MeterItem[] = OVERVIEW_METERS;
   tableTokens = {
     header: {
       background: 'transparent',
@@ -82,127 +86,17 @@ export class OverviewComponent implements OnInit {
 
   // Dependencies
   private platformId = inject(PLATFORM_ID);
-  private cd = inject(ChangeDetectorRef);
   private configService = inject(AppConfigService);
 
   themeEffect = effect(() => {
-    if (this.configService.transitionComplete()) {
-      this.initChart();
-    }
-  });
-
-  ngOnInit() {
-    this.menuItems = [
-      {
-        label: 'Actualizar',
-        icon: 'pi pi-refresh',
-      },
-      {
-        label: 'Exportar',
-        icon: 'pi pi-upload',
-      },
-    ];
-
-    this.sampleAppsTableDatas = [
-      {
-        id: '#1254',
-        name: { text: 'Amy Yelsner', label: 'AY', color: 'blue' },
-        coin: 'btc',
-        date: '5 May',
-        process: { type: 'success', value: 'Compra' },
-        amount: '3.005 BTC',
-      },
-      {
-        id: '#2355',
-        name: { text: 'Anna Fali', label: 'AF', color: '#ECFCCB' },
-        coin: 'eth',
-        date: '17 Mar',
-        process: { type: 'success', value: 'Compra' },
-        amount: '0.050 ETH',
-      },
-      {
-        id: '#1235',
-        name: { text: 'Stepen Shaw', label: 'SS', color: '#ECFCCB' },
-        coin: 'btc',
-        date: '24 May',
-        process: { type: 'danger', value: 'Venta' },
-        amount: '3.050 BTC',
-      },
-      {
-        id: '#2355',
-        name: { text: 'Anna Fali', label: 'AF', color: '#ECFCCB' },
-        coin: 'eth',
-        date: '17 Mar',
-        process: { type: 'danger', value: 'Venta' },
-        amount: '0.050 ETH',
-      },
-      {
-        id: '#2355',
-        name: { text: 'Anna Fali', label: 'AF', color: '#ECFCCB' },
-        coin: 'eth',
-        date: '17 Mar',
-        process: { type: 'danger', value: 'Venta' },
-        amount: '0.050 ETH',
-      },
-      {
-        id: '#7896',
-        name: { text: 'John Doe', label: 'JD', color: 'green' },
-        coin: 'btc',
-        date: '12 Jun',
-        process: { type: 'success', value: 'Compra' },
-        amount: '2.500 BTC',
-      },
-      {
-        id: '#5648',
-        name: { text: 'Jane Smith', label: 'JS', color: '#FFDDC1' },
-        coin: 'eth',
-        date: '23 Feb',
-        process: { type: 'success', value: 'Compra' },
-        amount: '1.200 ETH',
-      },
-      {
-        id: '#3265',
-        name: { text: 'Michael Johnson', label: 'MJ', color: '#FFD700' },
-        coin: 'btc',
-        date: '30 Abr',
-        process: { type: 'danger', value: 'Venta' },
-        amount: '4.000 BTC',
-      },
-      {
-        id: '#1423',
-        name: { text: 'Emily Davis', label: 'ED', color: '#FFCCCB' },
-        coin: 'btc',
-        date: '15 Ene',
-        process: { type: 'danger', value: 'Venta' },
-        amount: '5.050 LTC',
-      },
-      {
-        id: '#6854',
-        name: { text: 'Robert Brown', label: 'RB', color: '#C0C0C0' },
-        coin: 'eth',
-        date: '2 Dic',
-        process: { type: 'success', value: 'Compra' },
-        amount: '0.300 ETH',
-      },
-    ];
-
-    this.metersData = [
-      { label: 'BTC', color: '#F59E0B', value: 15, text: '27.215' },
-      { label: 'ETH', color: '#717179', value: 5, text: '4.367' },
-      { label: 'GBP', color: '#22C55E', value: 25, text: '£ 147.562,32' },
-      { label: 'EUR', color: '#84CC16', value: 11, text: '€ 137.457,25' },
-      { label: 'USD', color: '#14B8A6', value: 29, text: '$ 133.364,12' },
-      { label: 'XAU', color: '#EAB308', value: 29, text: '200 g' },
-    ];
-
+    this.configService.transitionComplete();
     this.initChart();
-  }
+  });
 
   initChart(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.chartData = this.setChartData(this.selectedTime);
-      this.chartOptions = this.setChartOptions();
-      this.cd.markForCheck();
+      this.chartData.set(this.setChartData(this.selectedTime));
+      this.chartOptions.set(this.setChartOptions());
     }
   }
 
@@ -279,7 +173,7 @@ export class OverviewComponent implements OnInit {
                 'dark:bg-surface-950',
                 'bg-surface-0',
                 'p-3',
-                'rounded-[8px]',
+                'rounded-lg',
                 'overflow-hidden',
                 'opacity-100',
                 'absolute',
@@ -504,7 +398,7 @@ export class OverviewComponent implements OnInit {
   }
 
   changeSelect(): void {
-    this.chartData = this.setChartData(this.selectedTime);
-    this.chartOptions = this.setChartOptions();
+    this.chartData.set(this.setChartData(this.selectedTime));
+    this.chartOptions.set(this.setChartOptions());
   }
 }

@@ -15,25 +15,24 @@ import { AppState } from './models/app-state.interface';
 export class AppConfigService {
   private readonly STORAGE_KEY = 'appConfigState';
 
-  appState = signal<AppState>({} as AppState);
+  appState = signal<AppState>(this.loadAppState());
   transitionComplete = signal<boolean>(false);
 
   // Dependencies
   private document = inject(DOCUMENT);
   private platformId = inject(PLATFORM_ID);
 
-  private initialized = false;
+  private isFirstRun = true;
 
   constructor() {
-    this.appState.set({ ...this.loadAppState() });
-
     effect(() => {
       const state = this.appState();
 
-      if (!this.initialized || !state) {
-        this.initialized = true;
+      if (this.isFirstRun) {
+        this.isFirstRun = false;
         return;
       }
+
       this.saveAppState(state);
       this.handleDarkModeTransition(state);
     });

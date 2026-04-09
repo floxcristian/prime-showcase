@@ -1,6 +1,6 @@
 // Angular
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -51,11 +51,13 @@ const PRIME_MODULES = [
     class: 'h-full',
   },
 })
-export class SideMenuComponent implements OnInit {
+export class SideMenuComponent {
   isSlimMenu: boolean = true;
   sampleAppsSidebarNavs: SidebarNavItem[] = SIDEBAR_NAV_ITEMS;
-  selectedSampleAppsSidebarNav: string = '';
-  sampleAppsSidebarNavsMore: { icon: string; title: string }[] = [];
+  selectedSampleAppsSidebarNav: string = 'Resumen';
+  sampleAppsSidebarNavsMore: { icon: string; title: string }[] = [
+    { icon: 'pi pi-cog', title: 'Configuración' },
+  ];
 
   // Drawer
   dashboardSidebarVisible: boolean = false;
@@ -72,11 +74,4 @@ export class SideMenuComponent implements OnInit {
   emailRecords: EmailRecord[] = EMAIL_RECORDS;
   preferences: PreferenceGroup[] = PREFERENCES;
   opportunities: Opportunity[] = OPPORTUNITIES;
-
-  ngOnInit(): void {
-    this.selectedSampleAppsSidebarNav = 'Resumen';
-    this.sampleAppsSidebarNavsMore = [
-      { icon: 'pi pi-cog', title: 'Configuración' },
-    ];
-  }
 }

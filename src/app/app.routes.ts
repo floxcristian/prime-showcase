@@ -46,6 +46,10 @@ export const routes: Routes = [
             (m) => m.MoviesComponent
           ),
       },
+      {
+        path: '**',
+        redirectTo: '',
+      },
     ],
   },
 ];
