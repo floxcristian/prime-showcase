@@ -101,19 +101,18 @@ El proyecto fue auditado y mejorado en múltiples rondas con agentes especializa
 
 ---
 
-## Gaps Conocidos Pendientes
+## Gaps Corregidos (esta auditoría)
 
-### GAP-001: `<th>` sin `scope="col"` en p-table
-- **Donde:** overview, customers, inbox (templates con `<p-table>`)
-- **Impacto:** Screen readers no pueden asociar headers con celdas correctamente.
-- **Verificación:** PrimeNG v21.2.6 NO agrega `scope="col"` automáticamente (confirmado: cero matches en `primeng-table.mjs`).
-- **Fix:** Agregar `scope="col"` a todos los `<th>` dentro de `ng-template #header` en las 3 tablas.
+### GAP-001: `<th>` sin `scope="col"` en p-table — RESUELTO
+- **Fix:** Agregado `scope="col"` a los 14 `<th>` en overview (6) y customers (8). Inbox no tiene `#header` template.
+- **Nota:** PrimeNG v21.2.6 NO agrega `scope="col"` automáticamente. Debe agregarse manualmente.
 
-### GAP-002: Chart con 3 datasets diferenciados solo por color (WCAG 1.4.1)
-- **Donde:** `overview.component.ts` — 3 datasets (Billetera Personal/Corporativa/Inversión) usan tonos de `primary` (400/300/200).
-- **Impacto:** La legend tiene texto, pero las barras del chart se distinguen solo por color. Usuarios con baja visión del color no pueden mapear qué barra corresponde a qué dataset.
-- **Referencia:** WCAG 1.4.1 (Use of Color) — "color is not used as the only visual means of distinguishing a visual element".
-- **Fix posible:** Agregar `chartjs-plugin-datalabels` para labels directos en barras, o usar patrones/texturas con `patternomaly`.
+### GAP-002: Chart con 3 datasets diferenciados solo por color (WCAG 1.4.1) — RESUELTO
+- **Fix:** Integrado `patternomaly` para texturas visuales en las barras del chart:
+  - Dataset 1 (Billetera Personal): fill sólido (el más oscuro, base)
+  - Dataset 2 (Billetera Corporativa): patrón diagonal
+  - Dataset 3 (Billetera de Inversión): patrón de puntos
+- **Detalles:** Agregado `legendColor` al interface para tooltip dots (CanvasPattern no puede usarse como CSS backgroundColor).
 
 ---
 
