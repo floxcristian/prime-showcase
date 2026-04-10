@@ -3,6 +3,18 @@
     "primeng": {
       "command": "npx",
       "args": ["-y", "@primeng/mcp"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--caps", "vision"]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp"]
+    },
+    "glance": {
+      "command": "npx",
+      "args": ["glance-mcp"]
     }
   }
 }
