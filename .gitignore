@@ -37,6 +37,14 @@ yarn-error.log
 testem.log
 /typings
 
+# MCP & automation artifacts
+.playwright-mcp/
+*.png
+*.jpeg
+
+# Claude Code local settings
+.claude/settings.local.json
+
 # System files
 .DS_Store
 Thumbs.db
