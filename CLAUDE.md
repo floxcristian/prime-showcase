@@ -220,6 +220,18 @@ rounded-3xl     → Cards grandes o secciones principales
 NO USAR: rounded, rounded-sm, rounded-md, rounded-none ni rounded-[value].
 ```
 
+**Cuándo usar cada nivel** — elegir según la jerarquía del elemento en el layout:
+
+| Nivel | Valor | Cuándo usarlo | Ejemplos |
+|---|---|---|---|
+| **Círculo** | `rounded-full` | Elementos que deben ser perfectamente redondos | Avatares circle, status dots, progress bars |
+| **Elemento interno** | `rounded-lg` | Elementos pequeños DENTRO de una card o panel | Inputs, botones, nav items, imágenes, tablas internas, badges sobre imágenes |
+| **Contenedor medio** | `rounded-xl` | Elementos interactivos medianos | Carousel items, media grid items, movie cards |
+| **Card / panel** | `rounded-2xl` | Contenedores de datos con borde propio, panels de layout | Overview cards, inbox/chat panels, host de componentes |
+| **Form card** | `rounded-3xl` | Cards con formularios o contenido editable | Profile cards, file upload, settings, price range |
+
+**Regla clave:** Si un elemento vive DENTRO de un contenedor que ya tiene `rounded-2xl` (como el host), usar `rounded-lg` para sub-contenedores internos (tablas, listas). NO usar `rounded-2xl` para ambos — el radio interior debe ser menor que el exterior.
+
 ### Escala de tipografía
 
 Combinaciones aprobadas — usar estas recetas, no inventar combinaciones nuevas:
