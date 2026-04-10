@@ -176,7 +176,7 @@
                             [ngClass]="message.type === 'received' ? 'bg-surface-200 dark:bg-surface-700' : 'bg-primary-emphasis'"
                             >
                             <img
-                              class="w-full h-auto block cursor-pointer"
+                              class="w-full h-auto block cursor-pointer hover:opacity-70 transition-all"
                               [src]="message.attachment"
                               alt="Imagen del mensaje"
                               loading="lazy"
@@ -276,7 +276,7 @@
                               <div class="mt-4 flex flex-col gap-2">
                                 @for (member of members; track member.name) {
                                   <div
-                                    class="flex items-center gap-2 cursor-pointer"
+                                    class="flex items-center gap-2 cursor-pointer hover:bg-emphasis rounded-lg p-2 transition-all"
                                     >
                                     <p-avatar
                                       [image]="member.image"

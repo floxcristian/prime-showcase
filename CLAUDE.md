@@ -300,6 +300,11 @@ class="text-muted-color bg-transparent"  → Inactivo
 
 Transiciones: usar `transition-all` para elementos interactivos, `transition-colors` para cambios solo de color. **No agregar animaciones** más allá de transitions.
 
+**REGLA:** Todo elemento con `cursor-pointer` DEBE tener un `hover:*` correspondiente. Sin hover feedback el usuario no sabe que puede interactuar. Elegir según el tipo de elemento:
+- **Contenedores/cards/rows** → `hover:bg-emphasis`
+- **Imágenes/avatares** → `hover:opacity-70`
+- **Texto/links** → `hover:text-muted-color-emphasis`
+
 ### Elementos interactivos: acción vs navegación
 
 **REGLA CRITICA:** No todo elemento clickeable es un botón de acción. Distinguir entre:
