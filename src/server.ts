@@ -21,6 +21,25 @@ const angularApp = new AngularNodeAppEngine();
  */
 app.use(compression());
 
+/**
+ * CSP (Content Security Policy) via Helmet.
+ *
+ * Uses 'unsafe-inline' for both script-src and style-src because:
+ * - PrimeNG injects theme styles dynamically at runtime via its useStyle system,
+ *   which does not support per-request nonces.
+ * - Angular's event replay (withEventReplay) injects an inline jsaction bootstrap
+ *   script during SSR that does not receive the ngCspNonce attribute.
+ *
+ * This is the standard approach used by production Angular apps (including Google's
+ * own properties). The CSP still provides meaningful protection via:
+ * - default-src 'self' — blocks unauthorized resource loading
+ * - img-src, font-src, connect-src — restricts asset origins
+ * - frame-ancestors 'self' — prevents clickjacking
+ * - object-src 'none' — blocks Flash/Java embeds
+ *
+ * When PrimeNG and Angular SSR add full nonce support, migrate to nonce-based CSP
+ * by generating per-request nonces and injecting via ngCspNonce attribute.
+ */
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -28,27 +47,16 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        fontSrc: ["'self'", "data:"],
-        connectSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        fontSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'", 'ws:'],
+        workerSrc: ["'self'", 'blob:'],
       },
     },
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   }),
 );
-
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
 
 /**
  * Serve static files from /browser
@@ -86,7 +94,6 @@ app.use('/{*path}', (req, res, next) => {
 
 /**
  * Start the server if this module is the main entry point.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4000;

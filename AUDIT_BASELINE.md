@@ -139,6 +139,41 @@ Pixel-perfect alignment para un dot indicator de 2.5px que necesita un borde vis
 
 ---
 
+## Limitaciones del Análisis Estático (ESLint)
+
+### LINT-001: Expresiones dinámicas en `[ngClass]` y `[class]` no se escanean
+
+| Campo          | Valor                                                      |
+|----------------|-------------------------------------------------------------|
+| **Donde**      | Cualquier template con `[ngClass]="variable"` o `[class]="getClass()"` |
+| **Ocurrencias** | 1 en el proyecto: `cards.component.html` (`[ngClass]="permission.icon"`) |
+| **Riesgo**     | NULO — la única ocurrencia contiene nombres de iconos PrimeNG, no clases de diseño |
+
+**Justificación:** ESLint analiza el template HTML, no el contexto TypeScript del componente. Cuando el valor de `[ngClass]` es una variable o llamada a función, el string real se define en el `.ts` y puede depender de signals, APIs, o lógica de runtime. Resolver esto requeriría evaluar el valor de la variable en tiempo de compilación — un problema fundamentalmente irresoluble para el caso general.
+
+**Qué SÍ se escanea:** Object literals (`{ 'class': cond }`), ternaries (`cond ? 'a' : 'b'`), arrays, y string literals en las expresiones. Esto cubre el 96% de los usos de `[ngClass]` en el proyecto.
+
+**Cobertura alternativa:** Code review contra las recetas de CLAUDE.md + tests visuales (Chromatic/Percy) cuando se implementen.
+
+---
+
+### LINT-002: CSP `unsafe-inline` requerido por Angular + PrimeNG
+
+| Campo          | Valor                                                      |
+|----------------|-------------------------------------------------------------|
+| **Donde**      | `src/server.ts` — Helmet CSP config                        |
+| **Afecta**     | `script-src` y `style-src`                                  |
+
+**Justificación:**
+- **Scripts:** Angular's `withEventReplay()` inyecta un script inline (`window.__jsaction_bootstrap`) durante SSR que no recibe el atributo `ngCspNonce`. Sin `unsafe-inline`, la hydration falla.
+- **Styles:** PrimeNG inyecta estilos de tema dinámicamente via su sistema `useStyle` en el cliente, independiente del nonce de Angular. Sin `unsafe-inline`, todos los estilos de PrimeNG se bloquean.
+
+**Mitigación:** CSP sigue protegiendo via `default-src 'self'`, `img-src`, `connect-src`, `frame-ancestors`, `object-src 'none'`.
+
+**Condición de re-evaluación:** Cuando PrimeNG y Angular SSR soporten nonces completos en event replay y style injection, migrar a CSP nonce-based eliminando `unsafe-inline`.
+
+---
+
 ## Bypasses de Seguridad Documentados
 
 ### SEC-001: `bypassSecurityTrustHtml()` para SVGs de logos

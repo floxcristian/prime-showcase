@@ -25,9 +25,9 @@ El proyecto fue auditado y mejorado en múltiples rondas con agentes especializa
 | Design System               | 8/10   | Tokens semánticos, excepciones documentadas              |
 | Manejo de errores           | 7/10   | try-catch en localStorage, guards SSR                    |
 | Testing                     | 3/10   | Solo scaffold tests (12 "should create")                 |
-| Linting / CI/CD             | 7/10   | ESLint + 4 reglas custom design system. Sin CI/CD        |
+| Linting / CI/CD             | 8/10   | ESLint + 6 reglas custom design system. Sin CI/CD        |
 
-**Puntuación global: 8.2 / 10**
+**Puntuación global: 8.3 / 10**
 
 ---
 
@@ -162,8 +162,8 @@ El proyecto fue auditado y mejorado en múltiples rondas con agentes especializa
 
 ### ~~LIM-002: Sin ESLint configurado~~ — RESUELTO (ver GAP-011)
 - **Estado:** ESLint configurado con `angular-eslint` + 4 reglas custom del design system.
-- **Reglas custom:** `showcase/no-hardcoded-colors`, `showcase/no-shadow-classes`, `showcase/no-forbidden-rounded`, `showcase/no-inline-styles`.
-- **Scope conocido:** Las reglas escanean `class` y `styleClass` (estáticos). No escanean `[ngClass]` ni bindings dinámicos.
+- **Reglas custom (6):** `showcase/no-hardcoded-colors`, `showcase/no-shadow-classes`, `showcase/no-forbidden-rounded`, `showcase/no-inline-styles`, `showcase/no-forbidden-spacing`, `showcase/no-missing-dark-pair`.
+- **Scope:** Escanean `class`, `styleClass`, `*StyleClass`, `[ngClass]` (object keys, ternaries, arrays, literals) y `[class]` (literals). No escanean expresiones dinámicas con variables/funciones ni `[styleClass]="expr"` bound.
 
 ### LIM-003: Sin CI/CD
 - **Estado:** Sin GitHub Actions, Husky, lint-staged.
