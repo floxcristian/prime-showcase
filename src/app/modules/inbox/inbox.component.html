@@ -20,7 +20,6 @@
           </div>
           @for (nav of navData.navs; track nav.name) {
             <button
-              pButton
               (click)="activeInboxNav.set(nav.name)"
               [attr.aria-current]="activeInboxNav() === nav.name ? 'page' : null"
           [ngClass]="{

@@ -3,7 +3,7 @@
 ## Stack
 
 - Angular 21 (standalone components, signals, new control flow)
-- PrimeNG 21 con tema Aura (`@primeng/themes`)
+- PrimeNG 21 con tema Aura (`@primeuix/themes`)
 - Tailwind CSS 4 con plugin `tailwindcss-primeui`
 - PrimeIcons 7
 - SCSS (archivos presentes por convención pero vacíos — todo el estilizado se hace con Tailwind)
@@ -38,7 +38,7 @@ Este proyecto tiene configurado el MCP oficial de PrimeNG (`.mcp.json`). **Usarl
 ## Componentes: Siempre PrimeNG primero
 
 - **SIEMPRE** usar componentes nativos de PrimeNG antes de crear componentes custom.
-- Botones: `<p-button>`, nunca `<button>` sin directiva pButton.
+- Botones de acción: `<p-button>` o `<button pButton>`. Ver sección "Elementos interactivos: acción vs navegación" para cuándo NO usar pButton.
 - Inputs: `<input pInputText>`, `<p-inputnumber>`, `<p-textarea>`, etc.
 - Tablas: `<p-table>`, nunca tablas HTML custom.
 - Selects: `<p-select>`, `<p-selectbutton>`, `<p-multiselect>`.
@@ -287,6 +287,95 @@ class="text-muted-color bg-transparent"  → Inactivo
 ```
 
 Transiciones: usar `transition-all` para elementos interactivos, `transition-colors` para cambios solo de color. **No agregar animaciones** más allá de transitions.
+
+### Elementos interactivos: acción vs navegación
+
+**REGLA CRITICA:** No todo elemento clickeable es un botón de acción. Distinguir entre:
+
+| Tipo | Elemento | Directiva | Estilo |
+|---|---|---|---|
+| **Botón de acción** (submit, cancel, download, toggle) | `<p-button>` o `<button pButton>` | `pButton` obligatorio | PrimeNG controla el estilo |
+| **Nav item principal** (side-menu, routerLink) | `<div>` con `[routerLink]` | Sin pButton | Tailwind + ngClass/routerLinkActive |
+| **Nav item in-page** (sidebar tabs, filtros) | `<button>` o `<div>` | Sin pButton | Tailwind + ngClass |
+| **List item clickeable** (chat list, inbox rows) | `<div>` | Sin pButton | Tailwind + ngClass |
+| **Card/item clickeable** (carousel, media grid) | `<div>` | Sin pButton | Tailwind hover only |
+| **Menu item en card** (acciones de perfil, settings) | `<button>` | Sin pButton | Tailwind + active state |
+| **CTA card item** (postulantes, ver más) | `<button>` | Sin pButton | Tailwind, bg-emphasis por defecto |
+
+**¿Por qué no usar pButton en nav/list items?** `pButton` aplica estilos de botón de PrimeNG (fondo primary, padding, tipografía) que sobreescriben las clases Tailwind de layout. Los nav/list items necesitan control fino de estados activo/inactivo con clases propias.
+
+#### Recetas de nav/list items
+
+```html
+<!-- 1. Nav principal (side-menu) — usa routerLinkActive para estado -->
+<div
+  [routerLink]="item.url"
+  routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
+  #rla="routerLinkActive"
+  [ngClass]="{
+    'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive
+  }"
+  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+>
+  <i [class]="item.icon"></i>
+  <span>{{ item.title }}</span>
+</div>
+
+<!-- 2. Nav in-page (inbox sidebar, filtros) — usa ngClass para estado -->
+<button
+  (click)="activeNav.set(nav.name)"
+  [ngClass]="{
+    'text-color bg-emphasis': activeNav() === nav.name,
+    'text-muted-color bg-transparent': activeNav() !== nav.name
+  }"
+  class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all"
+>
+  <i [class]="nav.icon"></i>
+  <span class="font-medium">{{ nav.name }}</span>
+</button>
+
+<!-- 3. List item clickeable (chat list) — hover only, activo sutil -->
+<div
+  (click)="select(item)"
+  [ngClass]="{ 'bg-emphasis': item.id === activeId() }"
+  class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
+>
+  <!-- contenido -->
+</div>
+
+<!-- 4. Card/item clickeable (carousel, grid) — solo hover -->
+<div class="p-2 rounded-xl hover:bg-emphasis transition-colors cursor-pointer">
+  <!-- contenido -->
+</div>
+
+<!-- 5. Menu item en card (lista de acciones sin pButton) -->
+<button
+  class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+>
+  <i class="pi pi-refresh"></i>
+  <span>Refresh</span>
+</button>
+
+<!-- 6. CTA card item (botón llamativo dentro de card, sin pButton) -->
+<button
+  class="p-4 rounded-3xl w-full bg-emphasis transition-all text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
+>
+  <div class="flex items-center"><!-- avatares, iconos --></div>
+  <div class="flex items-center gap-2">
+    <span class="font-medium leading-6">12 Postulantes</span>
+    <i class="pi pi-arrow-right"></i>
+  </div>
+</button>
+```
+
+Clases base compartidas: `cursor-pointer hover:bg-emphasis transition-all rounded-lg`
+
+Estados:
+- **Activo fuerte** (nav principal): `text-primary-contrast bg-primary hover:bg-primary-emphasis`
+- **Activo sutil** (nav in-page, list items): `text-color bg-emphasis`
+- **Inactivo**: `text-muted-color bg-transparent`
+- **Solo hover** (cards, carousel): sin estado activo, solo `hover:bg-emphasis`
+- **CTA card** (botón destacado en card): `bg-emphasis text-color hover:text-color-emphasis rounded-3xl` — fondo visible por defecto, hover cambia texto
 
 ---
 
@@ -880,6 +969,56 @@ themeEffect = effect(() => { if (this.configService.transitionComplete()) this.i
 
 Reglas: colores siempre con `getPropertyValue()` | Legend custom HTML, no Chart.js built-in | Tooltip con `external` callback | Grid solo eje Y, color condicional dark mode | `barThickness: 32` | `borderRadius` solo en último dataset del stack
 
+## ESLint y enforcement del design system
+
+El proyecto tiene ESLint configurado con reglas custom que **bloquean** violaciones del design system en tiempo de desarrollo.
+
+```
+tools/eslint/
+  plugin.js                         ← Entry point del plugin local
+  utils.js                          ← Visitor helper (escanea class + styleClass + *StyleClass)
+  rules/
+    no-hardcoded-colors.js          ← Bloquea text-gray-*, bg-blue-*, text-white, bg-[#hex], etc.
+    no-shadow-classes.js            ← Bloquea shadow-* y drop-shadow-* (permite !shadow-none para resets)
+    no-forbidden-rounded.js         ← Solo rounded-lg a rounded-3xl + rounded-full + rounded-border
+    no-inline-styles.js             ← Bloquea style="" estático
+```
+
+Comandos: `npm run lint` | `npm run lint:fix`
+
+### Reglas custom (severity: error)
+
+| Regla | Qué bloquea | Qué permite |
+|---|---|---|
+| `showcase/no-hardcoded-colors` | `text-gray-*`, `bg-blue-*`, `text-white`, `bg-black`, `bg-[#hex]`, `bg-[rgb(...)]` | Design tokens (`text-color`, `bg-surface-*`, `bg-primary`), excepciones semánticas (`bg-violet-100`, `border-black/10`) |
+| `showcase/no-shadow-classes` | `shadow-*`, `drop-shadow-*` | `shadow-none`, `!shadow-none` (resets de PrimeNG) |
+| `showcase/no-forbidden-rounded` | `rounded`, `rounded-sm`, `rounded-md`, `rounded-none`, `rounded-[*]` | `rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-3xl`, `rounded-full`, `rounded-border`, directional variants (`rounded-t-lg`) |
+| `showcase/no-inline-styles` | `style="..."` estático | `[style.*]="expr"` y `[ngStyle]` para valores dinámicos |
+
+### Reglas built-in habilitadas
+
+| Regla | Severity | Qué previene |
+|---|---|---|
+| `@angular-eslint/prefer-on-push-component-change-detection` | error | Componentes sin OnPush |
+| `@angular-eslint/template/prefer-control-flow` | error | `*ngIf`, `*ngFor` legacy |
+| `@angular-eslint/component-selector` | error | Selectores sin prefijo `app-` |
+
+### Scope de las reglas custom
+
+Las reglas escanean atributos estáticos:
+- `class="..."` — HTML estándar
+- `styleClass="..."` — Componentes PrimeNG
+- `paginatorStyleClass`, `valueStyleClass`, `panelStyleClass`, `contentStyleClass`, `headerStyleClass`, `footerStyleClass`, `inputStyleClass`, `labelStyleClass` — Variantes de PrimeNG
+
+**No escanean** (limitación conocida): `[ngClass]`, `[class]`, bindings dinámicos. Estos se validan por code review y el CLAUDE.md.
+
+### Agregar nuevas reglas
+
+1. Crear el archivo en `tools/eslint/rules/nombre-regla.js`
+2. Usar `createClassAttrVisitor` de `tools/eslint/utils.js` para escanear clases
+3. Registrar en `tools/eslint/plugin.js`
+4. Habilitar en `eslint.config.js` bajo el bloque `**/*.html`
+
 ## Lo que NO hacer
 
 ### Estilos
@@ -897,7 +1036,7 @@ Reglas: colores siempre con `getPropertyValue()` | Legend custom HTML, no Chart.
 ### Componentes
 - No crear componentes custom si PrimeNG ya tiene uno equivalente.
 - No crear abstracciones prematuras o wrappers innecesarios sobre componentes PrimeNG.
-- No usar `<button>` sin `pButton` o `<p-button>`.
+- No usar `<button>` sin `pButton` para **botones de acción** (submit, cancel, download, etc.). Excepciones: nav items y list items interactivos que usan clases Tailwind propias (ver sección "Elementos interactivos").
 - No usar tablas HTML. Siempre `<p-table>`.
 - No usar `*ngIf`, `*ngFor` u otras directivas estructurales legacy. Usar `@if`, `@for`.
 - No usar `@else` — preferir bloques `@if` separados (patrón del proyecto).

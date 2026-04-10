@@ -7,6 +7,7 @@ import {
   inject,
   PLATFORM_ID,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 // PrimeNG
@@ -26,7 +27,6 @@ import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import type { CanvasFontSpec, Chart, TooltipModel, TooltipItem } from 'chart.js';
-import { draw as patternDraw } from 'patternomaly';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
 import {
@@ -90,7 +90,9 @@ export class OverviewComponent {
 
   themeEffect = effect(() => {
     this.configService.transitionComplete();
-    this.initChart();
+    // Use untracked to avoid re-running this effect when selectedTime changes.
+    // Theme changes rebuild the chart; time selection changes are handled by changeSelect().
+    untracked(() => this.initChart());
   });
 
   initChart(): void {
@@ -116,25 +118,22 @@ export class OverviewComponent {
           label: 'Billetera Personal',
           backgroundColor: primary400,
           hoverBackgroundColor: primary600,
-          legendColor: primary400,
           data: (datasets.data ?? [])[0] ?? [],
           barThickness: 32,
         },
         {
           type: 'bar',
           label: 'Billetera Corporativa',
-          backgroundColor: patternDraw('diagonal', primary300, primary500, 10),
+          backgroundColor: primary300,
           hoverBackgroundColor: primary500,
-          legendColor: primary300,
           data: (datasets.data ?? [])[1] ?? [],
           barThickness: 32,
         },
         {
           type: 'bar',
           label: 'Billetera de Inversión',
-          backgroundColor: patternDraw('dot', primary200, primary400, 10),
+          backgroundColor: primary200,
           hoverBackgroundColor: primary400,
-          legendColor: primary200,
           data: (datasets.data ?? [])[2] ?? [],
           borderRadius: {
             topLeft: 8,
@@ -221,7 +220,7 @@ export class OverviewComponent {
                 const point = document.createElement('div');
 
                 point.classList.add('w-2.5', 'h-2.5', 'rounded-full');
-                point.style.backgroundColor = (item.dataset as unknown as Record<string, unknown>)['legendColor'] as string ?? '';
+                point.style.backgroundColor = item.dataset.backgroundColor as string;
                 row.appendChild(point);
                 const label = document.createElement('span');
 

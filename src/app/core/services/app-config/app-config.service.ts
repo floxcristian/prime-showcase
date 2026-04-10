@@ -15,12 +15,12 @@ import { AppState } from './models/app-state.interface';
 export class AppConfigService {
   private readonly STORAGE_KEY = 'appConfigState';
 
-  appState = signal<AppState>(this.loadAppState());
-  transitionComplete = signal<boolean>(false);
-
-  // Dependencies
+  // Dependencies — must be declared before any field that uses them
   private document = inject(DOCUMENT);
   private platformId = inject(PLATFORM_ID);
+
+  appState = signal<AppState>(this.loadAppState());
+  transitionComplete = signal<boolean>(false);
 
   private isFirstRun = true;
 

@@ -74,8 +74,7 @@ const PRIME_MODULES = [
 export class CardsComponent {
   files = signal<FileWithPreview[]>([]);
   uploadedFiles = signal<FileWithPreview[]>([]);
-  totalSize = signal(0);
-  totalSizePercent = computed(() => this.totalSize() / 10);
+  totalSizeBytes = computed(() => this.files().reduce((sum, f) => sum + f.size, 0));
   jobApplication = signal(false);
   userProfiles = signal('Relajado');
   userProfilesOptions: string[] = ['Relajado', 'No molestar'];
@@ -126,19 +125,15 @@ export class CardsComponent {
   private messageService = inject(MessageService);
 
   onRemoveTemplatingFile(
-    file: FileWithPreview,
+    _file: FileWithPreview,
     removeFileCallback: (index: number) => void,
     index: number
   ): void {
     removeFileCallback(index);
-    this.totalSize.update(n => n - parseInt(this.formatSize(file.size)));
   }
 
   onSelectedFiles(event: FileSelectEvent): void {
     this.files.set(event.files as FileWithPreview[]);
-    this.files().forEach((file) => {
-      this.totalSize.update(n => n + parseInt(this.formatSize(file.size)));
-    });
   }
 
   uploadEvent(callback: () => void): void {
@@ -170,7 +165,7 @@ export class CardsComponent {
     return `${formattedSize} ${sizes[i]}`;
   }
 
-  search(event: AutoCompleteSelectEvent): void {
+  search(_event: AutoCompleteSelectEvent): void {
     this.items.set([...Array(10).keys()].map((item) => '-' + item));
   }
 

@@ -120,7 +120,7 @@
                             <p-button icon="pi pi-bell" severity="contrast" text aria-label="Notificaciones" />
                           </div>
                           <div class="mt-4 flex flex-col gap-1">
-                            <button pButton
+                            <button
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
@@ -131,7 +131,7 @@
                                 Mensajes
                               </div>
                             </button>
-                            <button pButton
+                            <button
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
@@ -142,7 +142,7 @@
                                 Configuración
                               </div>
                             </button>
-                            <button pButton
+                            <button
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
@@ -153,7 +153,7 @@
                                 Cambiar cuenta
                               </div>
                             </button>
-                            <button pButton
+                            <button
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
@@ -228,7 +228,7 @@
                               </div>
                             </div>
                             <div class="p-1 mt-4">
-                              <button pButton
+                              <button
                                 class="p-4 rounded-3xl w-full bg-emphasis transition-all text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
                                 >
                                 <div class="flex items-center [&>*]:-mr-2">
@@ -317,7 +317,7 @@
                                                       rounded
                                                       outlined
                                                       severity="success"
-                                                      [disabled]="!files || files().length === 0"
+                                                      [disabled]="files().length === 0"
                                                       aria-label="Subir archivos"
                                                     ></p-button>
                                                     <p-button
@@ -326,7 +326,7 @@
                                                       rounded
                                                       outlined
                                                       severity="danger"
-                                                      [disabled]="!files || files().length === 0"
+                                                      [disabled]="files().length === 0"
                                                       aria-label="Limpiar archivos"
                                                     ></p-button>
                                                   </div>
@@ -448,12 +448,12 @@
                                                         </p-fileupload>
                                                       </div>
                                                       <div>
-                                                        <label class="text-color font-medium leading-6">Etiqueta (Opcional)</label>
+                                                        <label class="text-color font-medium leading-6" for="file-tags-ac">Etiqueta (Opcional)</label>
                                                         <p-autocomplete
                                                           [ngModel]="filesTag()"
                                                           (ngModelChange)="filesTag.set($event)"
                                                           styleClass="w-full mt-2"
-                                                          inputId="multiple-ac-2"
+                                                          inputId="file-tags-ac"
                                                           multiple
                                                           (completeMethod)="search2($event)"
                                                           [typeahead]="false"
@@ -560,7 +560,8 @@
                                                                                   <p-autocomplete
                                                                                     [ngModel]="emailChips()"
                                                                                     (ngModelChange)="emailChips.set($event)"
-                                                                                    inputId="multiple-ac-2"
+                                                                                    inputId="invite-email-ac"
+                                                                                    aria-label="Correo electrónico"
                                                                                     styleClass="w-full"
                                                                                     class="flex-1"
                                                                                     multiple

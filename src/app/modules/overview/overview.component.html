@@ -25,7 +25,7 @@
     <p-selectbutton
       [ngModel]="selectedTime()" (ngModelChange)="selectedTime.set($event)"
       [options]="timeOptions"
-      aria-labelledby="basic"
+      aria-label="Período de tiempo"
       [allowEmpty]="false"
       (onChange)="changeSelect()"
       />
@@ -59,7 +59,7 @@
                   >
                   <div
                     class="w-3 h-3 rounded-full"
-                    [style.backgroundColor]="item.legendColor"
+                    [style.backgroundColor]="item.backgroundColor"
                   ></div>
                   <span class="font-medium text-color leading-6">{{
                     item.label

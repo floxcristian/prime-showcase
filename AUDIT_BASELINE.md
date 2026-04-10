@@ -174,6 +174,7 @@ Solo limpia contenido del tooltip element (`innerHTML = ''`). Las líneas siguie
 |------------|-----------------|-----------------------------------------------|
 | 2026-04-09 | Claude (9 agentes, 3 rondas) | Baseline establecido con 6 FP, 5 EX, 2 SEC |
 | 2026-04-09 | Claude (6 agentes, verificación con docs oficiales) | 2 FP reclasificados como gaps reales (FP-001 y FP-004 originales). Baseline corregido a 4 FP verificados contra W3C specs, PrimeNG source code, y Tailwind CSS source |
+| 2026-04-09 | Claude (4 rondas, 15+ agentes) | ESLint rules ahora enforce FP-004 (shadow-none en allowlist) y EX-003 (colores de avatar en allowlist). patternomaly revertido — GAP-002 original ya no aplica. |
 
 ---
 
