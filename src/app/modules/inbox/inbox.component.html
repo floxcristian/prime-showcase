@@ -4,7 +4,7 @@
   <div
     class="flex items-center justify-between gap-2 p-4 border-b border-surface"
     >
-    <div class="text-xl font-medium leading-7 text-color">Correos</div>
+    <h1 class="text-xl font-medium leading-7 text-color">Correos</h1>
     <p-button icon="pi pi-plus" styleClass="w-8 h-8" aria-label="Nuevo correo" />
   </div>
   <div
@@ -20,14 +20,15 @@
           </div>
           @for (nav of navData.navs; track nav.name) {
             <button
-              (click)="activeInboxNav = nav.name"
+              (click)="activeInboxNav.set(nav.name)"
+              [attr.aria-current]="activeInboxNav() === nav.name ? 'page' : null"
           [ngClass]="{
-            'text-color bg-emphasis': activeInboxNav === nav.name,
-            'text-muted-color bg-transparent': activeInboxNav !== nav.name
+            'text-color bg-emphasis': activeInboxNav() === nav.name,
+            'text-muted-color bg-transparent': activeInboxNav() !== nav.name
           }"
               class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all"
               >
-              <i [class]="nav.icon"></i>
+              <i [class]="nav.icon" aria-hidden="true"></i>
               <span class="font-medium">{{ nav.name }}</span>
             </button>
           }
@@ -54,8 +55,9 @@
     class="flex-1 h-full overflow-hidden flex border border-surface rounded-2xl"
     >
     <p-table
-      [value]="tableData"
-      [(selection)]="selectedRows"
+      [value]="tableData()"
+      [selection]="selectedRows()"
+      (selectionChange)="selectedRows.set($event)"
       dataKey="id"
       class="w-full"
       [dt]="tableTokens"
@@ -95,8 +97,10 @@
                     <input
                       type="text"
                       pInputText
-                      [(ngModel)]="search"
+                      [ngModel]="search()"
+                      (ngModelChange)="search.set($event)"
                       placeholder="Buscar"
+                      aria-label="Buscar"
                       class="w-full"
                       />
                     </p-iconfield>
@@ -122,14 +126,18 @@
 
                     <td class="w-4 p-2">
                       <div
-            (click)="
-              $event.stopPropagation(); data.bookmarked = !data.bookmarked
-            "
+            (click)="$event.stopPropagation(); toggleBookmark(data)"
+            (keydown.enter)="$event.stopPropagation(); toggleBookmark(data)"
+            (keydown.space)="$event.preventDefault(); $event.stopPropagation(); toggleBookmark(data)"
+                        role="button"
+                        tabindex="0"
+                        [attr.aria-label]="data.bookmarked ? 'Quitar marcador' : 'Agregar marcador'"
                         >
                         <i
               [ngClass]="
                 data.bookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'
               "
+                          aria-hidden="true"
                         ></i>
                       </div>
                     </td>

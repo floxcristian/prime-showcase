@@ -1,6 +1,6 @@
 <div class="flex items-start gap-2 justify-between">
   <div>
-    <div class="text-2xl leading-8 text-color font-medium">Clientes</div>
+    <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
     <div class="mt-1 leading-6 text-muted-color">
       La lista de análisis muestra todos los usuarios
     </div>
@@ -15,7 +15,7 @@
 <div class="mt-10 mb-4 flex items-center justify-between">
   <p-iconfield iconPosition="left">
     <p-inputicon class="pi pi-search"> </p-inputicon>
-    <input pInputText type="text" [(ngModel)]="search" placeholder="Buscar" />
+    <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
   </p-iconfield>
   <div class="flex items-center gap-3">
     <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
@@ -31,23 +31,23 @@
 >
   <p-table
     [value]="tableData"
-    [(selection)]="selectedRows"
+    [selection]="selectedRows()" (selectionChange)="selectedRows.set($event)"
     dataKey="id"
     [rows]="10"
     [dt]="tableTokens"
   >
     <ng-template #header>
       <tr>
-        <th class="w-4">
+        <th scope="col" class="w-4">
           <p-tableHeaderCheckbox />
         </th>
-        <th>Nombre</th>
-        <th>Cargo</th>
-        <th>Empresa</th>
-        <th>Correo electrónico</th>
-        <th>Origen</th>
-        <th>Estado</th>
-        <th>Más</th>
+        <th scope="col">Nombre</th>
+        <th scope="col">Cargo</th>
+        <th scope="col">Empresa</th>
+        <th scope="col">Correo electrónico</th>
+        <th scope="col">Origen</th>
+        <th scope="col">Estado</th>
+        <th scope="col">Más</th>
       </tr>
     </ng-template>
     <ng-template #body let-data>
@@ -122,11 +122,12 @@
         <td>
           <div class="flex justify-end w-full">
             <p-button
-              (onClick)="displayPopover($event, op)"
+              (click)="displayPopover($event, op)"
               icon="pi pi-search"
               rounded
               outlined
               severity="secondary"
+              aria-label="Ver detalles"
             />
           </div>
         </td>
@@ -140,14 +141,14 @@
           label="Detalles"
           size="small"
           outlined
-          (onClick)="op.hide()"
+          (click)="op.hide()"
         ></p-button>
         <p-button
           label="Eliminar"
           severity="danger"
           size="small"
           outlined
-          (onClick)="op.hide()"
+          (click)="op.hide()"
         ></p-button>
       </div>
     </ng-template>

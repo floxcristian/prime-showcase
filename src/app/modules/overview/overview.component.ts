@@ -7,9 +7,9 @@ import {
   inject,
   PLATFORM_ID,
   signal,
+  untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 // PrimeNG
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -35,7 +35,7 @@ import {
   OVERVIEW_METERS,
 } from './constants/overview-data';
 
-const NG_MODULES = [RouterModule, FormsModule, NgClass];
+const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
   ChartModule,
   SelectButton,
@@ -66,8 +66,8 @@ const PRIME_MODULES = [
 export class OverviewComponent {
   chartData = signal<OverviewChartData | undefined>(undefined);
   chartOptions = signal<Record<string, unknown> | undefined>(undefined);
-  dates: Date[] = [];
-  selectedTime: string = 'Mensual';
+  dates = signal<Date[]>([]);
+  selectedTime = signal('Mensual');
   timeOptions: string[] = ['Semanal', 'Mensual', 'Anual'];
   menuItems: MenuItem[] = OVERVIEW_MENU_ITEMS;
   sampleAppsTableDatas: Transaction[] = OVERVIEW_TRANSACTIONS;
@@ -90,12 +90,14 @@ export class OverviewComponent {
 
   themeEffect = effect(() => {
     this.configService.transitionComplete();
-    this.initChart();
+    // Use untracked to avoid re-running this effect when selectedTime changes.
+    // Theme changes rebuild the chart; time selection changes are handled by changeSelect().
+    untracked(() => this.initChart());
   });
 
   initChart(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.chartData.set(this.setChartData(this.selectedTime));
+      this.chartData.set(this.setChartData(this.selectedTime()));
       this.chartOptions.set(this.setChartOptions());
     }
   }
@@ -398,7 +400,7 @@ export class OverviewComponent {
   }
 
   changeSelect(): void {
-    this.chartData.set(this.setChartData(this.selectedTime));
+    this.chartData.set(this.setChartData(this.selectedTime()));
     this.chartOptions.set(this.setChartOptions());
   }
 }

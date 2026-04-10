@@ -1,21 +1,23 @@
+<h1 class="sr-only">Peliculas</h1>
 <div class="flex flex-wrap gap-4 items-center justify-between">
   <p-selectbutton
-    [(ngModel)]="value"
+    [ngModel]="value()"
+    (ngModelChange)="value.set($event)"
     [options]="options"
-    aria-labelledby="basic"
+    aria-label="Filtro de películas"
     />
     <div class="flex gap-2.5 items-center">
       <p-iconfield iconPosition="left">
         <p-inputicon class="pi pi-search"></p-inputicon>
-        <input type="text" pInputText [(ngModel)]="search" placeholder="Buscar" />
+        <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
       </p-iconfield>
-      <p-button severity="secondary" outlined>
+      <p-button severity="secondary" outlined aria-label="Notificaciones">
         <p-overlayBadge
           severity="danger"
           badgeSize="small"
           styleClass="!min-w-0 !w-2.5 !h-2.5"
           >
-          <i class="pi pi-bell"></i>
+          <i class="pi pi-bell" aria-hidden="true"></i>
         </p-overlayBadge>
       </p-button>
       <p-avatar
@@ -27,7 +29,7 @@
     </div>
     <div class="">
       <div class="flex items-center justify-between gap-2 mb-6">
-        <div class="text-color text-xl font-medium leading-7">Seguir viendo</div>
+        <h2 class="text-color text-xl font-medium leading-7">Seguir viendo</h2>
         <div class="flex items-center gap-2">
           <p-button
             [disabled]="page() === 0"
@@ -48,9 +50,9 @@
         </div>
       </div>
       <p-carousel
-                [value]="carouselData"
+                [value]="carouselData()"
                 [page]="page()"
-                [numVisible]="5"
+                [numVisible]="numVisible()"
                 [numScroll]="1"
                 [responsiveOptions]="responsiveOptions"
                 [showIndicators]="false"
@@ -67,6 +69,7 @@
                         [src]="item.image"
                         class="w-full h-full object-cover"
                         alt="Imagen de película del carrusel"
+                        loading="lazy"
                         />
                         <div
                           class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
@@ -98,6 +101,7 @@
                               text
                               aria-label="Quitar de favoritos"
                               rounded
+                              (click)="$event.stopPropagation(); toggleCarouselBookmark(item)"
                               />
                           }
                         </div>
@@ -108,6 +112,7 @@
                 <div>
                   <div class="mb-6 flex items-center gap-4 justify-between">
                     <div class="flex items-center gap-2">
+                      <h2 class="sr-only">Peliculas populares</h2>
                       <p-button label="Popular" severity="secondary" />
                       <p-button label="Estrenos" text severity="secondary" />
                       <p-button label="Recientes" text severity="secondary" />
@@ -116,13 +121,14 @@
                     <p-button label="Mostrar todo" severity="secondary" outlined />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-6">
-                    @for (movie of popularMovies; track movie.name) {
+                    @for (movie of popularMovies(); track movie.name) {
                       <div class="cursor-pointer">
                         <div class="relative aspect-[259/174.5] rounded-lg overflow-hidden">
                           <img
                             class="w-full h-full object-cover"
                             [src]="movie.image"
                             alt="Portada de película popular"
+                            loading="lazy"
                             />
                             <div
                               class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
@@ -145,6 +151,8 @@
                                 severity="contrast"
                                 text
                                 rounded
+                                aria-label="Quitar de favoritos"
+                                (click)="$event.stopPropagation(); togglePopularBookmark(movie)"
                                 />
                             }
                           </div>

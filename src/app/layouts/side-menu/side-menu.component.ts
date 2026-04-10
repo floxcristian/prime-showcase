@@ -1,6 +1,6 @@
 // Angular
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -18,6 +18,7 @@ import type {
   CallLog,
   EmailRecord,
   PreferenceGroup,
+  PreferenceItem,
   Opportunity,
 } from './models/settings-drawer.interface';
 // Constants
@@ -52,16 +53,16 @@ const PRIME_MODULES = [
   },
 })
 export class SideMenuComponent {
-  isSlimMenu: boolean = true;
+  isSlimMenu = signal(true);
   sampleAppsSidebarNavs: SidebarNavItem[] = SIDEBAR_NAV_ITEMS;
-  selectedSampleAppsSidebarNav: string = 'Resumen';
+  selectedSampleAppsSidebarNav = signal('Resumen');
   sampleAppsSidebarNavsMore: { icon: string; title: string }[] = [
     { icon: 'pi pi-cog', title: 'Configuración' },
   ];
 
   // Drawer
-  dashboardSidebarVisible: boolean = false;
-  selectedSidebarOption: string = 'Estadísticas';
+  dashboardSidebarVisible = signal(false);
+  selectedSidebarOption = signal('Estadísticas');
   sidebarOptions: string[] = [
     'Registros',
     'Preferencias',
@@ -72,6 +73,17 @@ export class SideMenuComponent {
   // Drawer data
   callLogs: CallLog[] = CALL_LOGS;
   emailRecords: EmailRecord[] = EMAIL_RECORDS;
-  preferences: PreferenceGroup[] = PREFERENCES;
+  preferences = signal<PreferenceGroup[]>(PREFERENCES);
   opportunities: Opportunity[] = OPPORTUNITIES;
+
+  togglePreference(pref: PreferenceItem): void {
+    this.preferences.update(groups =>
+      groups.map(group => ({
+        ...group,
+        prefs: group.prefs.map(item =>
+          item === pref ? { ...item, checked: !item.checked } : item
+        ),
+      }))
+    );
+  }
 }

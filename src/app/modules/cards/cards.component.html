@@ -62,7 +62,8 @@
                     </p-avatarGroup>
                   </div>
                   <p-selectbutton
-                    [(ngModel)]="selectedUserSelectButtonOption"
+                    [ngModel]="selectedUserSelectButtonOption()"
+                    (ngModelChange)="selectedUserSelectButtonOption.set($event)"
                     [options]="userSelectButtonOptions"
                     />
                     <div class="flex flex-col gap-4">
@@ -124,6 +125,7 @@
                               >
                               <i
                                 class="pi pi-envelope text-lg w-7 h-7 flex items-center justify-center"
+                                aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">
                                 Mensajes
@@ -134,6 +136,7 @@
                               >
                               <i
                                 class="pi pi-cog text-lg w-7 h-7 flex items-center justify-center"
+                                aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">
                                 Configuración
@@ -144,6 +147,7 @@
                               >
                               <i
                                 class="pi pi-sync text-lg w-7 h-7 flex items-center justify-center"
+                                aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">
                                 Cambiar cuenta
@@ -154,6 +158,7 @@
                               >
                               <i
                                 class="pi pi-sign-in text-lg w-7 h-7 flex items-center justify-center"
+                                aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">Cerrar sesión</div>
                             </button>
@@ -165,14 +170,15 @@
                             <i
                               class="pi text-lg w-7 h-7 flex items-center justify-center"
           [ngClass]="{
-            'pi-moon': !darkMode,
-            'pi-sun': darkMode
+            'pi-moon': !darkMode(),
+            'pi-sun': darkMode()
           }"
+                              aria-hidden="true"
                             ></i>
                             <div class="font-medium leading-normal flex-1 text-left">
-                              Cambiar a {{ darkMode ? "Claro" : "Oscuro" }}
+                              Cambiar a {{ darkMode() ? "Claro" : "Oscuro" }}
                             </div>
-                            <p-toggleswitch [(ngModel)]="darkMode" />
+                            <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="darkMode.set($event)" aria-label="Modo oscuro" />
                           </div>
                         </div>
                         <div class="border border-surface rounded-3xl">
@@ -183,30 +189,31 @@
                                 <div class="mt-2 text-color">Data Insights Ltd.</div>
                               </div>
                               <p-button
-                                (click)="jobApplication = !jobApplication"
-                                [icon]="jobApplication ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+                                (click)="jobApplication.set(!jobApplication())"
+                                [icon]="jobApplication() ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
                                 severity="secondary"
                                 outlined
                                 rounded
+                                aria-label="Guardar oferta"
                                 />
                               </div>
                               <div class="flex flex-wrap gap-1 items-center justify-between">
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-users text-xl"></i>
+                                  <i class="pi pi-users text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">Senior</div>
                                 </div>
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-stopwatch text-xl"></i>
+                                  <i class="pi pi-stopwatch text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">Tiempo completo</div>
                                 </div>
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-money-bill text-xl"></i>
+                                  <i class="pi pi-money-bill text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">$80,000</div>
                                 </div>
                               </div>
@@ -248,7 +255,7 @@
                                           </div>
                                           <div class="flex items-center gap-2">
                                             <div class="font-medium leading-6">12 Postulantes</div>
-                                            <i class="pi pi-arrow-right"></i>
+                                            <i class="pi pi-arrow-right" aria-hidden="true"></i>
                                           </div>
                                         </button>
                                       </div>
@@ -257,7 +264,7 @@
                                   <div class="flex-1 flex flex-col gap-6">
                                     <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
                                       <div class="flex items-center gap-2 text-color">
-                                        <i class="pi pi-cloud-upload text-xl"></i>
+                                        <i class="pi pi-cloud-upload text-xl" aria-hidden="true"></i>
                                         <div class="flex-1 font-medium leading-6">Subir archivos</div>
                                         <p-button icon="pi pi-times" text rounded aria-label="Cerrar" />
                                       </div>
@@ -269,7 +276,8 @@
                                           type="text"
                                           pInputText
                                           id="document-name"
-                                          [(ngModel)]="documentName"
+                                          [ngModel]="documentName()"
+                                          (ngModelChange)="documentName.set($event)"
                                           class="mt-2 w-full"
                                           />
                                         </div>
@@ -290,7 +298,7 @@
                                               let-clearCallback="clearCallback"
                                               let-uploadCallback="uploadCallback"
                                               >
-                                              @if (files.length > 0 || uploadedFiles.length > 0) {
+                                              @if (files().length > 0 || uploadedFiles().length > 0) {
                                                 <div
                                                   class="flex w-full flex-wrap justify-between items-center flex-1 gap-4 border-b border-surface pb-4"
                                                   >
@@ -301,6 +309,7 @@
                                                       rounded
                                                       outlined
                                                       severity="secondary"
+                                                      aria-label="Seleccionar archivos"
                                                     ></p-button>
                                                     <p-button
                                                       (click)="uploadEvent(uploadCallback)"
@@ -308,7 +317,8 @@
                                                       rounded
                                                       outlined
                                                       severity="success"
-                                                      [disabled]="!files || files.length === 0"
+                                                      [disabled]="files().length === 0"
+                                                      aria-label="Subir archivos"
                                                     ></p-button>
                                                     <p-button
                                                       (click)="clearCallback()"
@@ -316,17 +326,18 @@
                                                       rounded
                                                       outlined
                                                       severity="danger"
-                                                      [disabled]="!files || files.length === 0"
+                                                      [disabled]="files().length === 0"
+                                                      aria-label="Limpiar archivos"
                                                     ></p-button>
                                                   </div>
                                                 </div>
                                               }
-                                              @if (files.length <= 0 && uploadedFiles.length <= 0) {
+                                              @if (files().length <= 0 && uploadedFiles().length <= 0) {
                                                 <div
                                                   class="flex flex-col items-center justify-center p-6 cursor-pointer"
                                                   (click)="chooseCallback()"
                                                   >
-                                                  <i class="pi pi-cloud-upload text-4xl text-color"></i>
+                                                  <i class="pi pi-cloud-upload text-4xl text-color" aria-hidden="true"></i>
                                                   <div class="text-sm text-color font-medium mt-2">
                                                     Haz clic para subir
                                                     <span class="text-muted-color">o arrastra y suelta</span>
@@ -345,23 +356,24 @@
                                               let-uploadCallback="uploadCallback"
                                               let-removeCallback="removeCallback"
                                               >
-                                              @if (files.length > 0) {
+                                              @if (files().length > 0) {
                                                 <div class="px-4 py-0">
                                                   <h5 class="m-0 mb-2">Pendientes</h5>
                                                   <div
                                                     class="flex flex-wrap gap-2 grow overflow-auto max-h-[210px]"
                                                     >
-                                                    @for (file of files; track $index; let i = $index) {
+                                                    @for (file of files(); track file.name; let i = $index) {
                                                       <div
                                                         class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center"
                                                         >
                                                         <div>
                                                           <img
                                                             role="presentation"
-                                                            [alt]="file.name"
+                                                            alt=""
                                                             [src]="file.objectURL"
                                                             width="100"
                                                             height="50"
+                                                            loading="lazy"
                                                             />
                                                           </div>
                                                           <span
@@ -388,21 +400,22 @@
                                                       </div>
                                                     }
 
-                                                    @if (uploadedFiles.length > 0) {
+                                                    @if (uploadedFiles().length > 0) {
                                                       <div class="px-4 py-0">
                                                         <h5 class="m-0 mb-2">Completados</h5>
                                                         <div class="flex flex-wrap gap-2">
-                                                          @for (file of uploadedFiles; track $index) {
+                                                          @for (file of uploadedFiles(); track file.name) {
                                                             <div
                                                               class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center"
                                                               >
                                                               <div>
                                                                 <img
                                                                   role="presentation"
-                                                                  [alt]="file.name"
+                                                                  alt=""
                                                                   [src]="file.objectURL"
                                                                   width="100"
                                                                   height="50"
+                                                                  loading="lazy"
                                                                   />
                                                                 </div>
                                                                 <span
@@ -435,11 +448,12 @@
                                                         </p-fileupload>
                                                       </div>
                                                       <div>
-                                                        <label class="text-color font-medium leading-6">Etiqueta (Opcional)</label>
+                                                        <label class="text-color font-medium leading-6" for="file-tags-ac">Etiqueta (Opcional)</label>
                                                         <p-autocomplete
-                                                          [(ngModel)]="filesTag"
+                                                          [ngModel]="filesTag()"
+                                                          (ngModelChange)="filesTag.set($event)"
                                                           styleClass="w-full mt-2"
-                                                          inputId="multiple-ac-2"
+                                                          inputId="file-tags-ac"
                                                           multiple
                                                           (completeMethod)="search2($event)"
                                                           [typeahead]="false"
@@ -451,12 +465,13 @@
                                                               [for]="permission.key"
                                                               class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-border border border-surface hover:bg-emphasis transition-all select-none"
                                                               >
-                                                              <i class="text-color" [ngClass]="permission.icon"></i>
+                                                              <i class="text-color" [ngClass]="permission.icon" aria-hidden="true"></i>
                                                               <div class="flex-1 text-sm leading-5 text-color">
                                                                 {{ permission.name }}
                                                               </div>
                                                               <p-radiobutton
-                                                                [(ngModel)]="selectedPermission"
+                                                                [ngModel]="selectedPermission()"
+                                                                (ngModelChange)="selectedPermission.set($event)"
                                                                 [inputId]="permission.key"
                                                                 variant="filled"
                                                                 name="dynamic"
@@ -543,8 +558,10 @@
                                                                                 <div class="text-muted-color leading-6">Correo electrónico</div>
                                                                                 <div class="flex items-start gap-3 mt-2">
                                                                                   <p-autocomplete
-                                                                                    [(ngModel)]="emailChips"
-                                                                                    inputId="multiple-ac-2"
+                                                                                    [ngModel]="emailChips()"
+                                                                                    (ngModelChange)="emailChips.set($event)"
+                                                                                    inputId="invite-email-ac"
+                                                                                    aria-label="Correo electrónico"
                                                                                     styleClass="w-full"
                                                                                     class="flex-1"
                                                                                     multiple
@@ -572,7 +589,8 @@
                                                                                           </div>
                                                                                         </div>
                                                                                         <p-select
-                                                                                          [(ngModel)]="memberSelectedTypes[0]"
+                                                                                          [ngModel]="memberSelectedTypes()[0]"
+                                                                                          (ngModelChange)="updateMemberSelectedType(0, $event)"
                                                                                           [options]="memberTypes"
                                                                                           optionLabel="name"
                                                                                           placeholder="Seleccionar"
@@ -594,7 +612,8 @@
                                                                                               </div>
                                                                                             </div>
                                                                                             <p-select
-                                                                                              [(ngModel)]="memberSelectedTypes[1]"
+                                                                                              [ngModel]="memberSelectedTypes()[1]"
+                                                                                              (ngModelChange)="updateMemberSelectedType(1, $event)"
                                                                                               [options]="memberTypes"
                                                                                               optionLabel="name"
                                                                                               placeholder="Seleccionar"
@@ -616,7 +635,8 @@
                                                                                                   </div>
                                                                                                 </div>
                                                                                                 <p-select
-                                                                                                  [(ngModel)]="memberSelectedTypes[2]"
+                                                                                                  [ngModel]="memberSelectedTypes()[2]"
+                                                                                                  (ngModelChange)="updateMemberSelectedType(2, $event)"
                                                                                                   [options]="memberTypes"
                                                                                                   optionLabel="name"
                                                                                                   placeholder="Seleccionar"
@@ -631,9 +651,11 @@
                                                                                                 <input
                                                                                                   type="text"
                                                                                                   pInputText
-                                                                                                  [(ngModel)]="copiedText"
+                                                                                                  [ngModel]="copiedText()"
+                                                                                                  (ngModelChange)="copiedText.set($event)"
                                                                                                   class="flex-1"
                                                                                                   readOnly
+                                                                                                  aria-label="Copiar enlace"
                                                                                                   />
                                                                                                   <p-button label="Copiar" severity="secondary" />
                                                                                                 </div>
@@ -644,41 +666,42 @@
                                                                                             <div class="flex-1 border border-surface rounded-3xl p-6">
                                                                                               <div class="text-color font-medium leading-6 mb-4">Perfiles de usuario</div>
                                                                                               <p-selectbutton
-                                                                                                [(ngModel)]="userProfiles"
+                                                                                                [ngModel]="userProfiles()"
+                                                                                                (ngModelChange)="userProfiles.set($event)"
                                                                                                 [options]="userProfilesOptions"
                                                                                                 class="w-full"
                                                                                                 styleClass="flex-1 w-full"
                                                                                                 />
                                                                                                 <div class="flex flex-col gap-4 mt-6">
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-volume-down text-color text-xl"></i>
+                                                                                                    <i class="pi pi-volume-down text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Sonido</div>
-                                                                                                    <p-toggleswitch [(ngModel)]="userProfilesValues[0]" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[0]" (ngModelChange)="updateUserProfilesValue(0, $event)" aria-label="Sonido" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-wifi text-color text-xl"></i>
+                                                                                                    <i class="pi pi-wifi text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Wi-Fi</div>
-                                                                                                    <p-toggleswitch [(ngModel)]="userProfilesValues[1]" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[1]" (ngModelChange)="updateUserProfilesValue(1, $event)" aria-label="Wi-Fi" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-moon text-color text-xl"></i>
+                                                                                                    <i class="pi pi-moon text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Modo oscuro</div>
-                                                                                                    <p-toggleswitch [(ngModel)]="userProfilesValues[2]" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[2]" (ngModelChange)="updateUserProfilesValue(2, $event)" aria-label="Modo oscuro" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-map-marker text-color text-xl"></i>
+                                                                                                    <i class="pi pi-map-marker text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Servicios de ubicación</div>
-                                                                                                    <p-toggleswitch [(ngModel)]="userProfilesValues[3]" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[3]" (ngModelChange)="updateUserProfilesValue(3, $event)" aria-label="Servicios de ubicación" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-shield text-color text-xl"></i>
+                                                                                                    <i class="pi pi-shield text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Privacidad</div>
-                                                                                                    <p-toggleswitch [(ngModel)]="userProfilesValues[4]" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[4]" (ngModelChange)="updateUserProfilesValue(4, $event)" aria-label="Privacidad" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-sync text-color text-xl"></i>
+                                                                                                    <i class="pi pi-sync text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Actualización automática</div>
-                                                                                                    <p-toggleswitch [(ngModel)]="userProfilesValues[5]" />
+                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[5]" (ngModelChange)="updateUserProfilesValue(5, $event)" aria-label="Actualización automática" />
                                                                                                   </div>
                                                                                                 </div>
                                                                                               </div>
@@ -689,12 +712,12 @@
                                                                                                   Olvidé mi contraseña
                                                                                                 </div>
                                                                                                 <div>
-                                                                                                  <div class="text-muted-color text-lg text-center leading-snug">
+                                                                                                  <div class="text-muted-color text-lg text-center leading-6">
                                                                                                     El código de verificación <br />
                                                                                                     fue enviado al correo
                                                                                                   </div>
                                                                                                   <div
-                                                                                                    class="rounded-full px-4 py-1 bg-surface-200 dark:bg-surface-800 w-fit mx-auto mt-4 text-color text-lg leading-relaxed"
+                                                                                                    class="rounded-full px-4 py-1 bg-surface-200 dark:bg-surface-800 w-fit mx-auto mt-4 text-color text-lg leading-6"
                                                                                                     >
                                                                                                     u*******m&#64;gmail.com
                                                                                                   </div>
@@ -704,7 +727,8 @@
                                                                                                 </div>
                                                                                                 <div class="flex items-center justify-center">
                                                                                                   <p-inputotp
-                                                                                                    [(ngModel)]="forgotPasswordOTP"
+                                                                                                    [ngModel]="forgotPasswordOTP()"
+                                                                                                    (ngModelChange)="forgotPasswordOTP.set($event)"
                                                                                                     [length]="6"
                                                                                                     [integerOnly]="true"
                                                                                                     class="w-full [&>*]:flex-1 [&>*]:min-h-14 [&>*]:text-2xl"
@@ -715,7 +739,7 @@
                                                                                                 <div class="border border-surface rounded-3xl p-6">
                                                                                                   <div class="text-color font-medium leading-6 mb-6">Rango de precio</div>
                                                                                                   <div>
-                                                                                                    <p-slider [(ngModel)]="priceRange" [min]="0" range [max]="15000" />
+                                                                                                    <p-slider [ngModel]="priceRange()" (ngModelChange)="priceRange.set($event)" [min]="0" range [max]="15000" />
                                                                                                   </div>
                                                                                                   <div class="mt-4 flex gap-2">
                                                                                                     <div class="flex-1">
@@ -723,7 +747,8 @@
                                                                                                         >Valor mínimo</label
                                                                                                         >
                                                                                                         <p-inputnumber
-                                                                                                          [(ngModel)]="priceRange[0]"
+                                                                                                          [ngModel]="priceRange()[0]"
+                                                                                                          (ngModelChange)="updatePriceRangeValue(0, $event)"
                                                                                                           [min]="0"
                                                                                                           inputId="price-min-val"
                                                                                                           mode="currency"
@@ -737,7 +762,8 @@
                                                                                                             >Valor máximo</label
                                                                                                             >
                                                                                                             <p-inputnumber
-                                                                                                              [(ngModel)]="priceRange[1]"
+                                                                                                              [ngModel]="priceRange()[1]"
+                                                                                                              (ngModelChange)="updatePriceRangeValue(1, $event)"
                                                                                                               inputId="price-max-val"
                                                                                                               mode="currency"
                                                                                                               currency="USD"
@@ -754,7 +780,8 @@
                                                                                                                   class="flex items-center"
                                                                                                                   >
                                                                                                                   <p-checkbox
-                                                                                                                    [(ngModel)]="priceRangePopularSpecsChecked"
+                                                                                                                    [ngModel]="priceRangePopularSpecsChecked()"
+                                                                                                                    (ngModelChange)="priceRangePopularSpecsChecked.set($event)"
                                                                                                                     [inputId]="data.value"
                                                                                                                     [name]="data.value"
                                                                                                                     [value]="data.value"

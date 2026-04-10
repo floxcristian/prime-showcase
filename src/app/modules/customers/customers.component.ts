@@ -3,11 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  signal,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
 import { Customer, CompanyLogos } from './models/customer.interface';
 import { CUSTOMERS_TABLE_DATA } from './constants/customers-data';
 // PrimeNG
@@ -25,7 +25,7 @@ import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 
-const NG_MODULES = [FormsModule, RouterModule, NgClass];
+const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
   AvatarModule,
   ButtonModule,
@@ -53,7 +53,7 @@ const PRIME_MODULES = [
   },
 })
 export class CustomersComponent {
-  search: string = '';
+  search = signal('');
 
   tableData: Customer[] = CUSTOMERS_TABLE_DATA;
 
@@ -99,7 +99,7 @@ export class CustomersComponent {
 </svg>`),
   };
 
-  selectedRows: Customer[] = [];
+  selectedRows = signal<Customer[]>([]);
 
   tableTokens = {
     header: {

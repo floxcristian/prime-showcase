@@ -15,12 +15,12 @@ import { AppState } from './models/app-state.interface';
 export class AppConfigService {
   private readonly STORAGE_KEY = 'appConfigState';
 
-  appState = signal<AppState>(this.loadAppState());
-  transitionComplete = signal<boolean>(false);
-
-  // Dependencies
+  // Dependencies — must be declared before any field that uses them
   private document = inject(DOCUMENT);
   private platformId = inject(PLATFORM_ID);
+
+  appState = signal<AppState>(this.loadAppState());
+  transitionComplete = signal<boolean>(false);
 
   private isFirstRun = true;
 
@@ -76,7 +76,11 @@ export class AppConfigService {
     if (isPlatformBrowser(this.platformId)) {
       const storedState = localStorage.getItem(this.STORAGE_KEY);
       if (storedState) {
-        return JSON.parse(storedState);
+        try {
+          return JSON.parse(storedState) as AppState;
+        } catch {
+          return { preset: 'Aura', primary: 'noir', surface: null, darkTheme: false };
+        }
       }
     }
     return {

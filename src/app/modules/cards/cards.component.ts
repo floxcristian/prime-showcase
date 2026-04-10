@@ -1,8 +1,7 @@
 // Angular
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
 // PrimeNG
 import { MessageService } from 'primeng/api';
 import {
@@ -37,7 +36,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Permission } from './models/permission.interface';
 import { FileWithPreview, MemberType, PriceRangeSpec } from './models/member-type.interface';
 
-const NG_MODULES = [FormsModule, RouterModule, NgClass];
+const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
   AutoComplete,
   AvatarModule,
@@ -73,16 +72,15 @@ const PRIME_MODULES = [
   },
 })
 export class CardsComponent {
-  files: FileWithPreview[] = [];
-  uploadedFiles: FileWithPreview[] = [];
-  totalSize: number = 0;
-  totalSizePercent: number = 0;
-  jobApplication: boolean = false;
-  userProfiles: string = 'Relajado';
+  files = signal<FileWithPreview[]>([]);
+  uploadedFiles = signal<FileWithPreview[]>([]);
+  totalSizeBytes = computed(() => this.files().reduce((sum, f) => sum + f.size, 0));
+  jobApplication = signal(false);
+  userProfiles = signal('Relajado');
   userProfilesOptions: string[] = ['Relajado', 'No molestar'];
-  userProfilesValues: boolean[] = [true, true, false, false, true, false];
-  forgotPasswordOTP: string = '023';
-  priceRange: number[] = [0, 10000];
+  userProfilesValues = signal<boolean[]>([true, true, false, false, true, false]);
+  forgotPasswordOTP = signal('023');
+  priceRange = signal<number[]>([0, 10000]);
   priceRangePopularSpecs: PriceRangeSpec[] = [
     { value: 'Amueblado', checked: true },
     { value: 'Sin amueblar', checked: false },
@@ -95,62 +93,55 @@ export class CardsComponent {
     { value: 'Ubicación céntrica', checked: false },
     { value: 'Vista al mar', checked: true },
   ];
-  priceRangePopularSpecsChecked: string[] = [
+  priceRangePopularSpecsChecked = signal<string[]>([
     'Amueblado',
     'Independiente',
     'Balcón',
     'Vista al mar',
-  ];
+  ]);
   userSelectButtonOptions: string[] = ['Inscritos', 'Organizados'];
-  selectedUserSelectButtonOption: string = 'Inscritos';
-  darkMode: boolean = false;
-  emailChips: string[] = [];
-  memberSelectedTypes: string[] = ['O', 'E', 'V'];
+  selectedUserSelectButtonOption = signal('Inscritos');
+  darkMode = signal(false);
+  emailChips = signal<string[]>([]);
+  memberSelectedTypes = signal<string[]>(['O', 'E', 'V']);
   memberTypes: MemberType[] = [
     { name: 'Propietario', code: 'O' },
     { name: 'Editor', code: 'E' },
     { name: 'Lector', code: 'V' },
   ];
-  copiedText: string =
-    "https://www.example.com/shared-files/user123/document-collection/file12345';";
-  documentName: string = 'Tema Aura';
-  filesTag: string[] = ['ui', 'rediseño', 'panel'];
-  selectedPermission: string = 'Todos';
+  copiedText = signal(
+    "https://www.example.com/shared-files/user123/document-collection/file12345';"
+  );
+  documentName = signal('Tema Aura');
+  filesTag = signal<string[]>(['ui', 'rediseño', 'panel']);
+  selectedPermission = signal('Todos');
   permissions: Permission[] = [
     { name: 'Todos', icon: 'pi pi-globe', key: 'E' },
     { name: 'Solo admins', icon: 'pi pi-users', key: 'A' },
   ];
-  items: string[] = [];
+  items = signal<string[]>([]);
 
   private config = inject(PrimeNG);
   private messageService = inject(MessageService);
 
   onRemoveTemplatingFile(
-    file: FileWithPreview,
+    _file: FileWithPreview,
     removeFileCallback: (index: number) => void,
     index: number
   ): void {
     removeFileCallback(index);
-    this.totalSize -= parseInt(this.formatSize(file.size));
-    this.totalSizePercent = this.totalSize / 10;
   }
 
   onSelectedFiles(event: FileSelectEvent): void {
-    this.files = event.files;
-    this.files.forEach((file) => {
-      this.totalSize += parseInt(this.formatSize(file.size));
-    });
+    this.files.set(event.files as FileWithPreview[]);
   }
 
   uploadEvent(callback: () => void): void {
-    this.totalSizePercent = this.totalSize / 10;
     callback();
   }
 
   onTemplatedUpload(event: FileUploadEvent): void {
-    for (const file of event.files) {
-      this.uploadedFiles.push(file);
-    }
+    this.uploadedFiles.update(arr => [...arr, ...event.files]);
     this.messageService.add({
       severity: 'info',
       summary: 'Éxito',
@@ -174,12 +165,36 @@ export class CardsComponent {
     return `${formattedSize} ${sizes[i]}`;
   }
 
-  search(event: AutoCompleteSelectEvent): void {
-    this.items = [...Array(10).keys()].map((item) => '-' + item);
+  search(_event: AutoCompleteSelectEvent): void {
+    this.items.set([...Array(10).keys()].map((item) => '-' + item));
   }
 
   search2(event: AutoCompleteCompleteEvent): void {
-    this.items = [...Array(10).keys()].map((item) => event.query + '-' + item);
+    this.items.set([...Array(10).keys()].map((item) => event.query + '-' + item));
+  }
+
+  updateMemberSelectedType(index: number, value: string): void {
+    this.memberSelectedTypes.update(arr => {
+      const copy = [...arr];
+      copy[index] = value;
+      return copy;
+    });
+  }
+
+  updateUserProfilesValue(index: number, value: boolean): void {
+    this.userProfilesValues.update(arr => {
+      const copy = [...arr];
+      copy[index] = value;
+      return copy;
+    });
+  }
+
+  updatePriceRangeValue(index: number, value: number): void {
+    this.priceRange.update(arr => {
+      const copy = [...arr];
+      copy[index] = value;
+      return copy;
+    });
   }
 
 }
