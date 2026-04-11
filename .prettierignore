@@ -1,0 +1,13 @@
+# Build output
+dist/
+.angular/
+
+# Dependencies
+node_modules/
+
+# Lock file (auto-generated, formatting causes noisy diffs)
+package-lock.json
+
+# SCSS files are empty by convention — all styling is done with Tailwind in templates.
+# Formatting them would add content to intentionally empty files.
+*.scss

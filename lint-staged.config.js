@@ -9,20 +9,24 @@
  * keeping commits fast even in large projects.
  *
  * What runs:
- *   *.ts, *.html  → ESLint (architecture rules + 7 design system rules)
+ *   *.ts, *.html  → Prettier (format) → ESLint (architecture + 7 design system rules)
+ *   *.js, *.json  → Prettier (format)
  *   tools/eslint/ → ESLint rule unit tests (guards against regex regressions)
+ *
+ * Order matters: Prettier runs first to format, then ESLint validates rules.
+ * This avoids formatting-vs-linting conflicts — Prettier owns style, ESLint owns correctness.
  */
 
 module.exports = {
   // ── Application code ─────────────────────────────────────────────────
-  // ESLint checks both TypeScript (.ts) and Angular template (.html) files.
-  // - .ts: OnPush enforcement, no-explicit-any, component-selector, etc.
-  // - .html: design system rules (colors, spacing, typography, shadows, rounded,
-  //          dark mode pairs, inline styles) + control flow + a11y.
-  //
-  // --no-warn-ignored: suppress warnings for files matching eslint ignore patterns
-  //   (e.g. if lint-staged passes a generated file that eslint.config.js ignores).
-  'src/**/*.{ts,html}': 'eslint --no-warn-ignored',
+  // Prettier formats first, then ESLint validates.
+  // --no-warn-ignored: suppress warnings for files matching eslint ignore patterns.
+  'src/**/*.{ts,html}': ['prettier --write', 'eslint --no-warn-ignored'],
+
+  // ── Config and tooling files ─────────────────────────────────────────
+  // Only Prettier (no ESLint rules target these file types).
+  '*.{js,json}': ['prettier --write'],
+  'tools/**/*.js': ['prettier --write'],
 
   // ── ESLint rule infrastructure ───────────────────────────────────────
   // If any rule file, the shared utility, or the plugin entry point changes,
