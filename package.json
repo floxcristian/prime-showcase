@@ -9,6 +9,7 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "test": "ng test",
+    "test:rules": "node --test 'tools/eslint/rules/__tests__/*.test.js'",
     "serve:ssr:prime-showcase": "node dist/prime-showcase/server/server.mjs"
   },
   "private": true,

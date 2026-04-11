@@ -12,9 +12,10 @@
  * Allowed font-weight: font-normal | font-medium | font-semibold
  *
  * Forbidden:           text-4xl+ (except icons/stats via exception list)
- *                      leading-snug | leading-relaxed | leading-loose | leading-[*]
+ *                      leading-snug | leading-relaxed | leading-loose
  *                      font-thin | font-extralight | font-light | font-bold | font-extrabold | font-black
- *                      Arbitrary text sizes: text-[18px] etc.
+ *                      Arbitrary values: text-[18px], text-[1.5rem], leading-[1.5],
+ *                        leading-[calc(...)], font-[800], font-[var(--fw)], etc.
  *
  * Scans: class, styleClass, [ngClass], [class], and all PrimeNG *StyleClass attributes.
  */
@@ -58,16 +59,26 @@ const ALLOWED_TEXT_SIZE_EXCEPTIONS = new Set([
 ]);
 
 // ── Regex patterns ──────────────────────────────────────────────────────
+//
+// All regexes use (?!\w) instead of trailing \b for boundary detection.
+// Reason: \b requires a word/non-word transition, but after a closing
+// bracket `]` (non-word) followed by whitespace or end-of-string
+// (also non-word) there is NO boundary — so \b silently fails to match.
+// (?!\w) simply asserts the next character is not a word character,
+// which works correctly for both `text-xl ` and `text-[18px] `.
+// This is consistent with no-forbidden-rounded.js.
 
-// Matches text size utilities: text-xs, text-sm, text-base, text-lg, text-xl, text-2xl, etc.
-// Also matches arbitrary: text-[18px]
-const TEXT_SIZE_REGEX = /\btext-(?:xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl|\[\w+\])\b/g;
+// Matches text size utilities: text-xs, text-sm, ..., text-9xl
+// Also matches arbitrary values: text-[18px], text-[1.5rem], text-[calc(...)], text-[var(--x)]
+const TEXT_SIZE_REGEX = /\btext-(?:xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl|\[[^\]]+\])(?!\w)/g;
 
-// Matches leading utilities: leading-5, leading-normal, leading-tight, leading-[1.5], etc.
-const LEADING_REGEX = /\bleading-(?:\d+|normal|none|tight|snug|relaxed|loose|\[.*?\])\b/g;
+// Matches leading utilities: leading-5, leading-normal, leading-tight, etc.
+// Also matches arbitrary values: leading-[1.5], leading-[calc(1em+2px)], leading-[var(--lh)]
+const LEADING_REGEX = /\bleading-(?:\d+|normal|none|tight|snug|relaxed|loose|\[[^\]]+\])(?!\w)/g;
 
 // Matches font-weight utilities: font-thin, font-medium, font-bold, etc.
-const FONT_WEIGHT_REGEX = /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black)\b/g;
+// Also matches arbitrary values: font-[800], font-[var(--fw)]
+const FONT_WEIGHT_REGEX = /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?!\w)/g;
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
