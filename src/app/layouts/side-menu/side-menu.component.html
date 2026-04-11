@@ -78,40 +78,45 @@
                             Prime
                           </div>
                         </div>
-                        <div class="mt-10 flex flex-col gap-2">
-                          @for (navItem of sampleAppsSidebarNavs; track navItem.title) {
-                            <div
-                              [pTooltip]="isSlimMenu() ? navItem.title : ''"
-                              [routerLink]="navItem.url"
-                              [attr.aria-label]="navItem.title"
-                              class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
-                              routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
-                              [routerLinkActiveOptions]="{ exact: true }"
-                              #rla="routerLinkActive"
-        [ngClass]="{
-          'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
-          'w-12 justify-center py-4': isSlimMenu(),
-          'w-full': !isSlimMenu()
-        }"
-                              >
-                              <i [class]="navItem.icon" aria-hidden="true"></i>
-                              <span
-          [ngClass]="{
-            hidden: isSlimMenu(),
-            'font-medium leading-8': !isSlimMenu()
-          }"
-                                >・</span
+                        <nav aria-label="Navegación principal">
+                          <ul class="mt-10 flex flex-col gap-2">
+                            @for (navItem of sampleAppsSidebarNavs; track navItem.title) {
+                              <li>
+                                <a
+                                  [pTooltip]="isSlimMenu() ? navItem.title : ''"
+                                  [routerLink]="navItem.url"
+                                  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+                                  routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
+                                  [routerLinkActiveOptions]="{ exact: true }"
+                                  #rla="routerLinkActive"
+                                  [attr.aria-current]="rla.isActive ? 'page' : null"
+                                  [ngClass]="{
+                                    'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
+                                    'w-12 justify-center py-4': isSlimMenu(),
+                                    'w-full': !isSlimMenu()
+                                  }"
                                 >
-                                <span
-          [ngClass]="{
-            hidden: isSlimMenu(),
-            'font-medium leading-none': !isSlimMenu()
-          }"
-                                  >{{ navItem.title }}</span
+                                  <i [class]="navItem.icon" aria-hidden="true"></i>
+                                  <span
+                                    [ngClass]="{
+                                      hidden: isSlimMenu(),
+                                      'font-medium leading-8': !isSlimMenu()
+                                    }"
+                                    aria-hidden="true"
+                                    >・</span
                                   >
-                                </div>
-                              }
-                            </div>
+                                  <span
+                                    [ngClass]="{
+                                      hidden: isSlimMenu(),
+                                      'font-medium leading-none': !isSlimMenu()
+                                    }"
+                                    >{{ navItem.title }}</span
+                                  >
+                                </a>
+                              </li>
+                            }
+                          </ul>
+                        </nav>
                           </div>
                           <div
     [ngClass]="{
@@ -119,36 +124,36 @@
       'w-auto': !isSlimMenu()
     }"
                             >
-                            <div class="mt-10 flex flex-col gap-2">
-                                  @for (navItem of sampleAppsSidebarNavsMore; track navItem.title) {
-                                    <div
+                            <nav aria-label="Acciones secundarias">
+                              <ul class="mt-10 flex flex-col gap-2">
+                                @for (navItem of sampleAppsSidebarNavsMore; track navItem.title) {
+                                  <li>
+                                    <button
                                       [pTooltip]="isSlimMenu() ? navItem.title : ''"
                                       [attr.aria-label]="navItem.title"
                                       (click)="dashboardSidebarVisible.set(true)"
-                                      role="button"
-                                      tabindex="0"
-                                      (keydown.enter)="dashboardSidebarVisible.set(true)"
-                                      (keydown.space)="$event.preventDefault(); dashboardSidebarVisible.set(true)"
                                       class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
-        [ngClass]="{
-          'w-12 justify-center py-4': isSlimMenu(),
-          'w-full': !isSlimMenu(),
-          'text-muted-color hover:bg-emphasis bg-transparent':
-            selectedSampleAppsSidebarNav() !== navItem.title,
-          'text-primary-contrast bg-primary hover:bg-primary-emphasis':
-            selectedSampleAppsSidebarNav() === navItem.title
-        }"
-                                      >
+                                      [ngClass]="{
+                                        'w-12 justify-center py-4': isSlimMenu(),
+                                        'w-full': !isSlimMenu(),
+                                        'text-muted-color hover:bg-emphasis bg-transparent':
+                                          selectedSampleAppsSidebarNav() !== navItem.title,
+                                        'text-primary-contrast bg-primary hover:bg-primary-emphasis':
+                                          selectedSampleAppsSidebarNav() === navItem.title
+                                      }"
+                                    >
                                       <i [class]="navItem.icon" aria-hidden="true"></i>
-                                      <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-8'"
+                                      <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-8'" aria-hidden="true"
                                         >・</span
-                                        >
-                                        <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-none'">{{
-                                          navItem.title
-                                        }}</span>
-                                      </div>
-                                    }
-                                  </div>
+                                      >
+                                      <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-none'">{{
+                                        navItem.title
+                                      }}</span>
+                                    </button>
+                                  </li>
+                                }
+                              </ul>
+                            </nav>
                                   <p-divider />
                                   <div
                                     [class]="isSlimMenu() ? 'justify-center' : ' gap-3'"
