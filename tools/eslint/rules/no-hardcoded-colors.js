@@ -65,12 +65,13 @@ const ALLOWED_BW_CLASSES = new Set([
 ]);
 
 // Exceptions: semantic data colors allowed per CLAUDE.md
+// These are for semantic indicators with fixed meaning (NOT general UI colors).
 const ALLOWED_CLASSES = new Set([
-  'bg-violet-100',
+  'bg-violet-100',   // Semantic indicators (tags, badges, categories)
   'text-violet-950',
-  'bg-orange-100',
+  'bg-orange-100',   // Semantic indicators (alerts, warnings, categories)
   'text-orange-950',
-  'text-yellow-500',
+  'text-yellow-500', // Crypto icons (BTC)
 ]);
 
 // Matches hex colors in class strings (#fff, #f0f0f0, etc.) — catches accidental hardcoding

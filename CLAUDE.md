@@ -185,8 +185,8 @@ SURFACE INTERMEDIOS (solo para detalles finos, no para layout principal)
 
 EXCEPCIONES PERMITIDAS
   Colores con nombre solo para indicadores semánticos con significado fijo:
-  - bg-violet-100, text-violet-950    → Iniciales de avatar (fallback sin imagen)
-  - bg-orange-100, text-orange-950    → Iniciales de avatar
+  - bg-violet-100, text-violet-950    → Indicadores semánticos (tags, badges, categorías)
+  - bg-orange-100, text-orange-950    → Indicadores semánticos (alertas, warnings, categorías)
   - text-yellow-500                   → Iconos de criptomoneda (BTC)
   Estos NO son colores de UI general. Son datos con significado.
 ```
@@ -614,11 +614,10 @@ Patrones estándar para estados de UI. Usar exactamente estas recetas:
   'text-muted-color bg-transparent': !isActive
 }"
 
-<!-- Avatar fallback (sin imagen → iniciales) -->
+<!-- Avatar fallback (sin imagen → iniciales) — UN SOLO COLOR para todos -->
 [ngClass]="{
   '!bg-primary-100 !text-primary-950': !item.image
 }"
-<!-- Variantes de color: bg-violet-100/text-violet-950, bg-orange-100/text-orange-950 -->
 
 <!-- Mensaje enviado vs recibido (chat) -->
 [ngClass]="{
