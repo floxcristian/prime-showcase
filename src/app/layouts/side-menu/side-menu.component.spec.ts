@@ -11,8 +11,7 @@ describe('SideMenuComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SideMenuComponent],
       providers: [provideRouter([])],
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SideMenuComponent);
     component = fixture.componentInstance;

@@ -22,18 +22,12 @@ module.exports = tseslint.config(
     processor: angular.processInlineTemplates,
     rules: {
       // ── Angular architecture ──────────────────────────────────────
-      '@angular-eslint/component-selector': [
-        'error',
-        { type: 'element', prefix: 'app', style: 'kebab-case' },
-      ],
+      '@angular-eslint/component-selector': ['error', { type: 'element', prefix: 'app', style: 'kebab-case' }],
       '@angular-eslint/prefer-on-push-component-change-detection': 'error',
 
       // ── TypeScript style (relaxed where needed) ───────────────────
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       // Allow empty functions in lifecycle hooks and callbacks
       '@typescript-eslint/no-empty-function': 'off',
     },
@@ -42,10 +36,7 @@ module.exports = tseslint.config(
   // ─── HTML templates ────────────────────────────────────────────────
   {
     files: ['**/*.html'],
-    extends: [
-      ...angular.configs.templateRecommended,
-      ...angular.configs.templateAccessibility,
-    ],
+    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
     plugins: {
       showcase: showcasePlugin,
     },

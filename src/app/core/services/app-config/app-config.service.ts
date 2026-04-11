@@ -1,12 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  effect,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-  signal,
-  DOCUMENT
-} from '@angular/core';
+import { effect, inject, Injectable, PLATFORM_ID, signal, DOCUMENT } from '@angular/core';
 import { AppState } from './models/app-state.interface';
 
 @Injectable({

@@ -44,9 +44,7 @@ describe('no-forbidden-typography', () => {
 
     it('allows text-4xl exception (icons/stats)', () => {
       tester.run('text-4xl-exception', rule, {
-        valid: [
-          { code: '<div class="text-4xl"></div>' },
-        ],
+        valid: [{ code: '<div class="text-4xl"></div>' }],
         invalid: [],
       });
     });
@@ -276,9 +274,7 @@ describe('no-forbidden-typography', () => {
   describe('PrimeNG styleClass', () => {
     it('checks styleClass attribute', () => {
       tester.run('styleClass', rule, {
-        valid: [
-          { code: '<p-tag styleClass="font-medium"></p-tag>' },
-        ],
+        valid: [{ code: '<p-tag styleClass="font-medium"></p-tag>' }],
         invalid: [
           {
             code: '<p-tag styleClass="font-bold"></p-tag>',
@@ -294,9 +290,7 @@ describe('no-forbidden-typography', () => {
   describe('bound attributes ([ngClass], [class])', () => {
     it('checks string literals in [ngClass] object keys', () => {
       tester.run('ngClass-object', rule, {
-        valid: [
-          { code: `<div [ngClass]="{ 'text-sm font-medium': true }"></div>` },
-        ],
+        valid: [{ code: `<div [ngClass]="{ 'text-sm font-medium': true }"></div>` }],
         invalid: [
           {
             code: `<div [ngClass]="{ 'text-5xl': isLarge }"></div>`,
@@ -312,9 +306,7 @@ describe('no-forbidden-typography', () => {
 
     it('checks ternary branches in [ngClass]', () => {
       tester.run('ngClass-ternary', rule, {
-        valid: [
-          { code: `<div [ngClass]="active ? 'text-sm' : 'text-base'"></div>` },
-        ],
+        valid: [{ code: `<div [ngClass]="active ? 'text-sm' : 'text-base'"></div>` }],
         invalid: [
           {
             code: `<div [ngClass]="active ? 'text-5xl' : 'text-base'"></div>`,
@@ -330,16 +322,11 @@ describe('no-forbidden-typography', () => {
 
     it('checks string literals in [class]', () => {
       tester.run('class-binding', rule, {
-        valid: [
-          { code: `<div [class]="'text-sm font-medium'"></div>` },
-        ],
+        valid: [{ code: `<div [class]="'text-sm font-medium'"></div>` }],
         invalid: [
           {
             code: `<div [class]="'text-[18px] font-bold'"></div>`,
-            errors: [
-              { messageId: 'forbiddenTextSize' },
-              { messageId: 'forbiddenFontWeight' },
-            ],
+            errors: [{ messageId: 'forbiddenTextSize' }, { messageId: 'forbiddenFontWeight' }],
           },
         ],
       });

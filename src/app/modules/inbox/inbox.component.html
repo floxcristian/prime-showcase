@@ -1,33 +1,25 @@
-<div
-  class="w-64 h-full overflow-hidden border border-surface rounded-2xl flex flex-col"
-  >
-  <div
-    class="flex items-center justify-between gap-2 p-4 border-b border-surface"
-    >
+<div class="w-64 h-full overflow-hidden border border-surface rounded-2xl flex flex-col">
+  <div class="flex items-center justify-between gap-2 p-4 border-b border-surface">
     <h1 class="text-2xl font-medium leading-8 text-color">Correos</h1>
     <p-button icon="pi pi-plus" styleClass="w-8 h-8" aria-label="Nuevo correo" />
   </div>
-  <div
-    class="flex-1 flex flex-col overflow-auto justify-between gap-4 pt-4 pb-4 px-4"
-    >
+  <div class="flex-1 flex flex-col overflow-auto justify-between gap-4 pt-4 pb-4 px-4">
     <div class="flex-1 overflow-auto flex flex-col gap-2">
       @for (navData of inboxNavs; track navData.title) {
         <div class="flex flex-col gap-2">
-          <div
-            class="text-sm font-medium leading-5 text-surface-400 dark:text-surface-500"
-            >
+          <div class="text-sm font-medium leading-5 text-surface-400 dark:text-surface-500">
             {{ navData.title }}
           </div>
           @for (nav of navData.navs; track nav.name) {
             <button
               (click)="activeInboxNav.set(nav.name)"
               [attr.aria-current]="activeInboxNav() === nav.name ? 'page' : null"
-          [ngClass]="{
-            'text-color bg-emphasis': activeInboxNav() === nav.name,
-            'text-muted-color bg-transparent': activeInboxNav() !== nav.name
-          }"
+              [ngClass]="{
+                'text-color bg-emphasis': activeInboxNav() === nav.name,
+                'text-muted-color bg-transparent': activeInboxNav() !== nav.name,
+              }"
               class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all"
-              >
+            >
               <i [class]="nav.icon" aria-hidden="true"></i>
               <span class="font-medium">{{ nav.name }}</span>
             </button>
@@ -43,149 +35,113 @@
             <span
               class="w-full text-center text-sm font-normal text-primary-contrast leading-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
               >4 días restantes</span
-              >
-            </ng-template>
-          </p-progressbar>
-        </div>
-        <p-button label="Actualizar a PRO 🚀" outlined styleClass="w-full" />
+            >
+          </ng-template>
+        </p-progressbar>
       </div>
+      <p-button label="Actualizar a PRO 🚀" outlined styleClass="w-full" />
     </div>
   </div>
-  <div
-    class="flex-1 h-full overflow-hidden flex border border-surface rounded-2xl"
-    >
-    <p-table
-      [value]="tableData()"
-      [selection]="selectedRows()"
-      (selectionChange)="selectedRows.set($event)"
-      dataKey="id"
-      class="w-full"
-      [dt]="tableTokens"
-      [scrollable]="true"
-      scrollHeight="flex"
-      >
-      <ng-template #caption>
-        <div
-          class="flex xl:items-center justify-between gap-2 flex-col xl:flex-row"
-          >
-          <div class="flex items-center gap-2">
-            <p-checkbox [binary]="true" class="mr-1" />
-            <p-button icon="pi pi-envelope" outlined severity="secondary" aria-label="Marcar como leído" />
-            <p-button
-              icon="pi pi-exclamation-circle"
-              outlined
-              severity="secondary"
-              aria-label="Marcar como importante"
-              />
-              <p-button icon="pi pi-tag" outlined severity="secondary" aria-label="Etiquetar" />
-              <p-button
-                icon="pi pi-inbox"
-                label="Archivar"
-                outlined
-                severity="secondary"
-                />
-                <p-button
-                  icon="pi pi-trash"
-                  label="Papelera"
-                  outlined
-                  severity="secondary"
-                  />
-                </div>
-                <div class="flex items-center gap-2">
-                  <p-iconfield iconPosition="left" class="w-6/12 xl:max-w-36">
-                    <p-inputicon class="pi pi-search"></p-inputicon>
-                    <input
-                      type="text"
-                      pInputText
-                      [ngModel]="search()"
-                      (ngModelChange)="search.set($event)"
-                      placeholder="Buscar"
-                      aria-label="Buscar"
-                      class="w-full"
-                      />
-                    </p-iconfield>
-                    <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
-                    <p-divider layout="vertical" styleClass="m-0" />
-                    <p-button icon="pi pi-refresh" outlined severity="secondary" aria-label="Actualizar" />
-                    <p-button
-                      label="1 de 15"
-                      class="!whitespace-nowrap"
-                      outlined
-                      severity="secondary"
-                      />
-                      <p-button icon="pi pi-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
-                      <p-button icon="pi pi-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
-                    </div>
-                  </div>
-                </ng-template>
-                <ng-template #body let-data>
-                  <tr>
-                    <td class="w-4">
-                      <p-tableCheckbox [value]="data" />
-                    </td>
+</div>
+<div class="flex-1 h-full overflow-hidden flex border border-surface rounded-2xl">
+  <p-table
+    [value]="tableData()"
+    [selection]="selectedRows()"
+    (selectionChange)="selectedRows.set($event)"
+    dataKey="id"
+    class="w-full"
+    [dt]="tableTokens"
+    [scrollable]="true"
+    scrollHeight="flex"
+  >
+    <ng-template #caption>
+      <div class="flex xl:items-center justify-between gap-2 flex-col xl:flex-row">
+        <div class="flex items-center gap-2">
+          <p-checkbox [binary]="true" class="mr-1" />
+          <p-button icon="pi pi-envelope" outlined severity="secondary" aria-label="Marcar como leído" />
+          <p-button icon="pi pi-exclamation-circle" outlined severity="secondary" aria-label="Marcar como importante" />
+          <p-button icon="pi pi-tag" outlined severity="secondary" aria-label="Etiquetar" />
+          <p-button icon="pi pi-inbox" label="Archivar" outlined severity="secondary" />
+          <p-button icon="pi pi-trash" label="Papelera" outlined severity="secondary" />
+        </div>
+        <div class="flex items-center gap-2">
+          <p-iconfield iconPosition="left" class="w-6/12 xl:max-w-36">
+            <p-inputicon class="pi pi-search"></p-inputicon>
+            <input
+              type="text"
+              pInputText
+              [ngModel]="search()"
+              (ngModelChange)="search.set($event)"
+              placeholder="Buscar"
+              aria-label="Buscar"
+              class="w-full"
+            />
+          </p-iconfield>
+          <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
+          <p-divider layout="vertical" styleClass="m-0" />
+          <p-button icon="pi pi-refresh" outlined severity="secondary" aria-label="Actualizar" />
+          <p-button label="1 de 15" class="!whitespace-nowrap" outlined severity="secondary" />
+          <p-button icon="pi pi-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
+          <p-button icon="pi pi-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #body let-data>
+      <tr>
+        <td class="w-4">
+          <p-tableCheckbox [value]="data" />
+        </td>
 
-                    <td class="w-4 p-2">
-                      <div
+        <td class="w-4 p-2">
+          <div
             (click)="$event.stopPropagation(); toggleBookmark(data)"
             (keydown.enter)="$event.stopPropagation(); toggleBookmark(data)"
             (keydown.space)="$event.preventDefault(); $event.stopPropagation(); toggleBookmark(data)"
-                        role="button"
-                        tabindex="0"
-                        [attr.aria-label]="data.bookmarked ? 'Quitar marcador' : 'Agregar marcador'"
-                        >
-                        <i
-              [ngClass]="
-                data.bookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'
-              "
-                          aria-hidden="true"
-                        ></i>
-                      </div>
-                    </td>
-                    <td>
-                      <div class="flex items-center">
-                        <p-overlayBadge severity="danger" styleClass="w-fit">
-                          <p-avatar
-                            [image]="data.image"
-                            [label]="!data.image ? data.capName : ''"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="data.bookmarked ? 'Quitar marcador' : 'Agregar marcador'"
+          >
+            <i [ngClass]="data.bookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'" aria-hidden="true"></i>
+          </div>
+        </td>
+        <td>
+          <div class="flex items-center">
+            <p-overlayBadge severity="danger" styleClass="w-fit">
+              <p-avatar
+                [image]="data.image"
+                [label]="!data.image ? data.capName : ''"
                 [ngClass]="{
-                  'bg-violet-100 text-violet-950 text-xs font-medium':
-                    !data.image,
-                  'rounded-lg overflow-hidden flex': true
+                  'bg-violet-100 text-violet-950 text-xs font-medium': !data.image,
+                  'rounded-lg overflow-hidden flex': true,
                 }"
-                            />
-                          </p-overlayBadge>
+              />
+            </p-overlayBadge>
 
-                          <div class="ml-4 leading-6 text-color font-medium">
-                            {{ data.name }}
-                          </div>
-                        </div>
-                      </td>
+            <div class="ml-4 leading-6 text-color font-medium">
+              {{ data.name }}
+            </div>
+          </div>
+        </td>
 
-                      <td class="min-w-56 max-w-80">
-                        <div class="truncate">
-                          <span class="text-color leading-6 mr-2">{{ data.title }}</span>
-                          <span class="text-muted-color leading-5 text-sm">{{
-                            data.message
-                          }}</span>
-                        </div>
-                      </td>
+        <td class="min-w-56 max-w-80">
+          <div class="truncate">
+            <span class="text-color leading-6 mr-2">{{ data.title }}</span>
+            <span class="text-muted-color leading-5 text-sm">{{ data.message }}</span>
+          </div>
+        </td>
 
-                      <td class="w-16">
-                        @if (data.type) {
-                          <p-tag
-                            severity="secondary"
-                            [value]="data.type"
-                            class="font-medium"
-                          ></p-tag>
-                        }
-                      </td>
+        <td class="w-16">
+          @if (data.type) {
+            <p-tag severity="secondary" [value]="data.type" class="font-medium"></p-tag>
+          }
+        </td>
 
-                      <td class="w-16">
-                        <div class="text-right text-sm leading-5 text-muted-color">
-                          {{ data.time }}
-                        </div>
-                      </td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-              </div>
+        <td class="w-16">
+          <div class="text-right text-sm leading-5 text-muted-color">
+            {{ data.time }}
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

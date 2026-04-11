@@ -46,8 +46,7 @@ const PRIME_MODULES = [
   styleUrl: './chat.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden flex border border-surface rounded-2xl',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden flex border border-surface rounded-2xl',
   },
 })
 export class ChatComponent {
@@ -68,5 +67,4 @@ export class ChatComponent {
   chatMessages: ChatMessage[] = CHAT_MESSAGES;
   members: ChatMember[] = CHAT_MEMBERS;
   chatMedia: string[] = CHAT_MEDIA;
-
 }

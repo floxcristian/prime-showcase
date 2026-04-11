@@ -24,15 +24,7 @@ const { createClassAttrVisitor } = require('../utils');
 
 // ── Allowed values ──────────────────────────────────────────────────────
 
-const ALLOWED_TEXT_SIZES = new Set([
-  'text-xs',
-  'text-sm',
-  'text-base',
-  'text-lg',
-  'text-xl',
-  'text-2xl',
-  'text-3xl',
-]);
+const ALLOWED_TEXT_SIZES = new Set(['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl']);
 
 const ALLOWED_LEADING = new Set([
   'leading-4',
@@ -45,18 +37,12 @@ const ALLOWED_LEADING = new Set([
   'leading-tight',
 ]);
 
-const ALLOWED_FONT_WEIGHT = new Set([
-  'font-normal',
-  'font-medium',
-  'font-semibold',
-]);
+const ALLOWED_FONT_WEIGHT = new Set(['font-normal', 'font-medium', 'font-semibold']);
 
 // ── Exceptions ──────────────────────────────────────────────────────────
 
 // text-4xl is used for large icons and stat numbers (side-menu drawers, file upload)
-const ALLOWED_TEXT_SIZE_EXCEPTIONS = new Set([
-  'text-4xl',
-]);
+const ALLOWED_TEXT_SIZE_EXCEPTIONS = new Set(['text-4xl']);
 
 // ── Regex patterns ──────────────────────────────────────────────────────
 //
@@ -78,7 +64,8 @@ const LEADING_REGEX = /\bleading-(?:\d+|normal|none|tight|snug|relaxed|loose|\[[
 
 // Matches font-weight utilities: font-thin, font-medium, font-bold, etc.
 // Also matches arbitrary values: font-[800], font-[var(--fw)]
-const FONT_WEIGHT_REGEX = /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?!\w)/g;
+const FONT_WEIGHT_REGEX =
+  /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?!\w)/g;
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

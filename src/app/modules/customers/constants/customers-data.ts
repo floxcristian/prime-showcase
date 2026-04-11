@@ -3,8 +3,7 @@ import { Customer } from '../models/customer.interface';
 export const CUSTOMERS_TABLE_DATA: Customer[] = [
   {
     id: 1,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
     active: true,
     name: 'Brook Simmons',
     title: 'Ejecutivo de ventas',
@@ -15,8 +14,7 @@ export const CUSTOMERS_TABLE_DATA: Customer[] = [
   },
   {
     id: 2,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
     active: true,
     name: 'Dianne Russell',
     title: 'CEO',
@@ -27,8 +25,7 @@ export const CUSTOMERS_TABLE_DATA: Customer[] = [
   },
   {
     id: 3,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
     active: undefined,
     name: 'Amy Elsner',
     title: 'Gerente de producto',
@@ -39,8 +36,7 @@ export const CUSTOMERS_TABLE_DATA: Customer[] = [
   },
   {
     id: 4,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
     active: true,
     name: 'Jacob Jones',
     title: 'Gerente',
@@ -75,8 +71,7 @@ export const CUSTOMERS_TABLE_DATA: Customer[] = [
   },
   {
     id: 7,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
     active: true,
     name: 'Guy Hawkins',
     title: 'Director',
@@ -87,8 +82,7 @@ export const CUSTOMERS_TABLE_DATA: Customer[] = [
   },
   {
     id: 8,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
     active: true,
     name: 'Annette Black',
     title: 'Gerente',
@@ -99,8 +93,7 @@ export const CUSTOMERS_TABLE_DATA: Customer[] = [
   },
   {
     id: 9,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg',
     active: undefined,
     name: 'Darrell Steward',
     title: 'Gerente de producto',
@@ -123,8 +116,7 @@ export const CUSTOMERS_TABLE_DATA: Customer[] = [
   },
   {
     id: 11,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
     active: undefined,
     name: 'Onyama Limba',
     title: 'Ejecutivo de ventas',

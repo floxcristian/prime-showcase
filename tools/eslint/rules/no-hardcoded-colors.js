@@ -43,26 +43,18 @@ const COLOR_FAMILIES_PATTERN = TAILWIND_COLOR_FAMILIES.join('|');
 
 // All Tailwind utility prefixes that accept color values.
 // Keep in sync across FORBIDDEN_REGEX, BW_REGEX, HEX_COLOR_REGEX, CSS_COLOR_FN_REGEX.
-const COLOR_PREFIXES = 'text|bg|border|from|to|via|ring|ring-offset|outline|decoration|accent|caret|fill|stroke|divide|placeholder|shadow';
+const COLOR_PREFIXES =
+  'text|bg|border|from|to|via|ring|ring-offset|outline|decoration|accent|caret|fill|stroke|divide|placeholder|shadow';
 
 // Matches: text-gray-500, bg-blue-100, border-red-300, divide-gray-200, placeholder-gray-400, etc.
-const FORBIDDEN_REGEX = new RegExp(
-  `\\b(?:${COLOR_PREFIXES})-(?:${COLOR_FAMILIES_PATTERN})-\\d{2,3}\\b`,
-  'g',
-);
+const FORBIDDEN_REGEX = new RegExp(`\\b(?:${COLOR_PREFIXES})-(?:${COLOR_FAMILIES_PATTERN})-\\d{2,3}\\b`, 'g');
 
 // Matches: text-white, text-black, bg-white, bg-black, divide-white, placeholder-black, etc.
 // Also matches opacity variants like border-black/10, border-white/20
-const BW_REGEX = new RegExp(
-  `\\b(?:${COLOR_PREFIXES})-(?:white|black)(?:\\/\\d+)?\\b`,
-  'g',
-);
+const BW_REGEX = new RegExp(`\\b(?:${COLOR_PREFIXES})-(?:white|black)(?:\\/\\d+)?\\b`, 'g');
 
 // Allowed black/white exceptions per CLAUDE.md (layout principal only)
-const ALLOWED_BW_CLASSES = new Set([
-  'border-black/10',
-  'border-white/20',
-]);
+const ALLOWED_BW_CLASSES = new Set(['border-black/10', 'border-white/20']);
 
 // Exceptions: semantic data colors allowed per CLAUDE.md
 const ALLOWED_CLASSES = new Set([
@@ -74,10 +66,7 @@ const ALLOWED_CLASSES = new Set([
 ]);
 
 // Matches hex colors in class strings (#fff, #f0f0f0, etc.) — catches accidental hardcoding
-const HEX_COLOR_REGEX = new RegExp(
-  `\\b(?:${COLOR_PREFIXES})-\\[#[0-9a-fA-F]{3,8}\\]`,
-  'g',
-);
+const HEX_COLOR_REGEX = new RegExp(`\\b(?:${COLOR_PREFIXES})-\\[#[0-9a-fA-F]{3,8}\\]`, 'g');
 
 // Matches arbitrary CSS color functions: bg-[rgb(...)], text-[hsl(...)], border-[oklch(...)], etc.
 const CSS_COLOR_FN_REGEX = new RegExp(

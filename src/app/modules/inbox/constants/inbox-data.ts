@@ -29,8 +29,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 1,
     bookmarked: false,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
     active: false,
     name: 'Brook Simmons',
     type: 'Seguridad',
@@ -42,8 +41,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 2,
     bookmarked: false,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
     active: false,
     name: 'Dianne Russell',
     type: 'Actualizaci\u00f3n',
@@ -55,8 +53,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 3,
     bookmarked: true,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
     active: false,
     name: 'Amy Elsner',
     type: 'Seguridad',
@@ -68,8 +65,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 4,
     bookmarked: false,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png',
     active: false,
     name: 'Jacob Jones',
     type: 'Marketing',
@@ -107,8 +103,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 7,
     bookmarked: false,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
     active: false,
     name: 'Guy Hawkins',
     type: 'Eventos',
@@ -120,8 +115,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 8,
     bookmarked: false,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
     active: false,
     name: 'Annette Black',
     type: '',
@@ -133,8 +127,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 9,
     bookmarked: true,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg',
     active: false,
     name: 'Darrell Steward',
     type: 'Descuento',
@@ -159,8 +152,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 11,
     bookmarked: false,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
     active: false,
     name: 'Onyama Limba',
     type: '',
@@ -198,8 +190,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
   {
     id: 14,
     bookmarked: true,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
     active: false,
     name: 'Arlene McCoy',
     type: '',

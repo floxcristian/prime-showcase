@@ -1,162 +1,139 @@
 <h1 class="sr-only">Peliculas</h1>
 <div class="flex flex-wrap gap-4 items-center justify-between">
-  <p-selectbutton
-    [ngModel]="value()"
-    (ngModelChange)="value.set($event)"
-    [options]="options"
-    aria-label="Filtro de películas"
+  <p-selectbutton [ngModel]="value()" (ngModelChange)="value.set($event)" [options]="options" aria-label="Filtro de películas" />
+  <div class="flex gap-2.5 items-center">
+    <p-iconfield iconPosition="left">
+      <p-inputicon class="pi pi-search"></p-inputicon>
+      <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
+    </p-iconfield>
+    <p-button severity="secondary" outlined aria-label="Notificaciones">
+      <p-overlayBadge severity="danger" badgeSize="small" styleClass="!min-w-0 !w-2.5 !h-2.5">
+        <i class="pi pi-bell" aria-hidden="true"></i>
+      </p-overlayBadge>
+    </p-button>
+    <p-avatar
+      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
+      shape="circle"
+      class="w-9 h-9 cursor-pointer hover:opacity-70 transition-all"
     />
-    <div class="flex gap-2.5 items-center">
-      <p-iconfield iconPosition="left">
-        <p-inputicon class="pi pi-search"></p-inputicon>
-        <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
-      </p-iconfield>
-      <p-button severity="secondary" outlined aria-label="Notificaciones">
-        <p-overlayBadge
-          severity="danger"
-          badgeSize="small"
-          styleClass="!min-w-0 !w-2.5 !h-2.5"
-          >
-          <i class="pi pi-bell" aria-hidden="true"></i>
-        </p-overlayBadge>
-      </p-button>
-      <p-avatar
-        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
-        shape="circle"
-        class="w-9 h-9 cursor-pointer hover:opacity-70 transition-all"
-        />
-      </div>
+  </div>
+</div>
+<div class="">
+  <div class="flex items-center justify-between gap-2 mb-6">
+    <h2 class="text-color text-xl font-medium leading-7">Seguir viendo</h2>
+    <div class="flex items-center gap-2">
+      <p-button
+        [disabled]="page() === 0"
+        (click)="previousPage()"
+        icon="pi pi-chevron-left"
+        severity="secondary"
+        outlined
+        aria-label="Anterior"
+      />
+      <p-button
+        [disabled]="page() >= maxPage()"
+        (click)="nextPage()"
+        icon="pi pi-chevron-right"
+        severity="secondary"
+        outlined
+        aria-label="Siguiente"
+      />
     </div>
-    <div class="">
-      <div class="flex items-center justify-between gap-2 mb-6">
-        <h2 class="text-color text-xl font-medium leading-7">Seguir viendo</h2>
-        <div class="flex items-center gap-2">
-          <p-button
-            [disabled]="page() === 0"
-            (click)="previousPage()"
-            icon="pi pi-chevron-left"
-            severity="secondary"
-            outlined
-            aria-label="Anterior"
+  </div>
+  <p-carousel
+    [value]="carouselData()"
+    [page]="page()"
+    [numVisible]="numVisible()"
+    [numScroll]="1"
+    [responsiveOptions]="responsiveOptions"
+    [showIndicators]="false"
+    [showNavigators]="false"
+  >
+    <ng-template #item let-item>
+      <div class="p-2 rounded-xl hover:bg-emphasis transition-colors cursor-pointer">
+        <div class="relative w-full aspect-[195/118.5] rounded-lg overflow-hidden">
+          <img [src]="item.image" class="w-full h-full object-cover" alt="Imagen de película del carrusel" loading="lazy" />
+          <div
+            class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
+          >
+            {{ item.point }}
+          </div>
+          <div class="absolute z-10 bottom-2 inset-x-2">
+            <p-progressbar
+              [value]="item.watchedPercent"
+              [showValue]="false"
+              styleClass="!h-1.5 !bg-surface-950 dark:!bg-surface-50 !rounded-full"
+              valueStyleClass="p-progressbar-value !bg-surface-0 dark:!bg-surface-950 !rounded-full"
             />
-          <p-button
-            [disabled]="page() >= maxPage()"
-            (click)="nextPage()"
-            icon="pi pi-chevron-right"
-            severity="secondary"
-            outlined
-            aria-label="Siguiente"
+          </div>
+        </div>
+        <div class="mt-2 flex items-start justify-between gap-1">
+          <div class="px-2 flex-1">
+            <div class="font-medium text-color leading-6 line-clamp-1">
+              {{ item.name }}
+            </div>
+            <div class="mt-1 text-muted-color text-sm leading-5">
+              {{ item.categories.join(', ') }}
+            </div>
+          </div>
+          @if (item.bookmarked) {
+            <p-button
+              icon="pi pi-bookmark-fill"
+              severity="contrast"
+              text
+              aria-label="Quitar de favoritos"
+              rounded
+              (click)="$event.stopPropagation(); toggleCarouselBookmark(item)"
             />
+          }
         </div>
       </div>
-      <p-carousel
-                [value]="carouselData()"
-                [page]="page()"
-                [numVisible]="numVisible()"
-                [numScroll]="1"
-                [responsiveOptions]="responsiveOptions"
-                [showIndicators]="false"
-                [showNavigators]="false"
-                >
-                <ng-template #item let-item>
-                  <div
-                    class="p-2 rounded-xl hover:bg-emphasis transition-colors cursor-pointer"
-                    >
-                    <div
-                      class="relative w-full aspect-[195/118.5] rounded-lg overflow-hidden"
-                      >
-                      <img
-                        [src]="item.image"
-                        class="w-full h-full object-cover"
-                        alt="Imagen de película del carrusel"
-                        loading="lazy"
-                        />
-                        <div
-                          class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
-                          >
-                          {{ item.point }}
-                        </div>
-                        <div class="absolute z-10 bottom-2 inset-x-2">
-                          <p-progressbar
-                            [value]="item.watchedPercent"
-                            [showValue]="false"
-                            styleClass="!h-1.5 !bg-surface-950 dark:!bg-surface-50 !rounded-full"
-                            valueStyleClass="p-progressbar-value !bg-surface-0 dark:!bg-surface-950 !rounded-full"
-                            />
-                          </div>
-                        </div>
-                        <div class="mt-2 flex items-start justify-between gap-1">
-                          <div class="px-2 flex-1">
-                            <div class="font-medium text-color leading-6 line-clamp-1">
-                              {{ item.name }}
-                            </div>
-                            <div class="mt-1 text-muted-color text-sm leading-5">
-                              {{ item.categories.join(", ") }}
-                            </div>
-                          </div>
-                          @if (item.bookmarked) {
-                            <p-button
-                              icon="pi pi-bookmark-fill"
-                              severity="contrast"
-                              text
-                              aria-label="Quitar de favoritos"
-                              rounded
-                              (click)="$event.stopPropagation(); toggleCarouselBookmark(item)"
-                              />
-                          }
-                        </div>
-                      </div>
-                    </ng-template>
-                  </p-carousel>
-                </div>
-                <div>
-                  <div class="mb-6 flex items-center gap-4 justify-between">
-                    <div class="flex items-center gap-2">
-                      <h2 class="sr-only">Peliculas populares</h2>
-                      <p-button label="Popular" severity="secondary" />
-                      <p-button label="Estrenos" text severity="secondary" />
-                      <p-button label="Recientes" text severity="secondary" />
-                      <p-button label="Para ti" text severity="secondary" />
-                    </div>
-                    <p-button label="Mostrar todo" severity="secondary" outlined />
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-6">
-                    @for (movie of popularMovies(); track movie.name) {
-                      <div class="cursor-pointer hover:bg-emphasis rounded-xl p-2 transition-all">
-                        <div class="relative aspect-[259/174.5] rounded-lg overflow-hidden">
-                          <img
-                            class="w-full h-full object-cover"
-                            [src]="movie.image"
-                            alt="Portada de película popular"
-                            loading="lazy"
-                            />
-                            <div
-                              class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
-                              >
-                              {{ movie.point }}
-                            </div>
-                          </div>
-                          <div class="mt-2 flex items-start justify-between gap-1">
-                            <div class="px-2 flex-1">
-                              <div class="font-medium text-color leading-6 line-clamp-1">
-                                {{ movie.name }}
-                              </div>
-                              <div class="mt-1 text-muted-color text-sm leading-5">
-                                {{ movie.categories.join(", ") }}
-                              </div>
-                            </div>
-                            @if (movie.bookmarked) {
-                              <p-button
-                                icon="pi pi-bookmark-fill"
-                                severity="contrast"
-                                text
-                                rounded
-                                aria-label="Quitar de favoritos"
-                                (click)="$event.stopPropagation(); togglePopularBookmark(movie)"
-                                />
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  </div>
+    </ng-template>
+  </p-carousel>
+</div>
+<div>
+  <div class="mb-6 flex items-center gap-4 justify-between">
+    <div class="flex items-center gap-2">
+      <h2 class="sr-only">Peliculas populares</h2>
+      <p-button label="Popular" severity="secondary" />
+      <p-button label="Estrenos" text severity="secondary" />
+      <p-button label="Recientes" text severity="secondary" />
+      <p-button label="Para ti" text severity="secondary" />
+    </div>
+    <p-button label="Mostrar todo" severity="secondary" outlined />
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-6">
+    @for (movie of popularMovies(); track movie.name) {
+      <div class="cursor-pointer hover:bg-emphasis rounded-xl p-2 transition-all">
+        <div class="relative aspect-[259/174.5] rounded-lg overflow-hidden">
+          <img class="w-full h-full object-cover" [src]="movie.image" alt="Portada de película popular" loading="lazy" />
+          <div
+            class="absolute z-10 top-2 right-2 px-2 py-1 text-sm font-medium leading-tight bg-surface-0 dark:bg-surface-950 border border-surface rounded-lg"
+          >
+            {{ movie.point }}
+          </div>
+        </div>
+        <div class="mt-2 flex items-start justify-between gap-1">
+          <div class="px-2 flex-1">
+            <div class="font-medium text-color leading-6 line-clamp-1">
+              {{ movie.name }}
+            </div>
+            <div class="mt-1 text-muted-color text-sm leading-5">
+              {{ movie.categories.join(', ') }}
+            </div>
+          </div>
+          @if (movie.bookmarked) {
+            <p-button
+              icon="pi pi-bookmark-fill"
+              severity="contrast"
+              text
+              rounded
+              aria-label="Quitar de favoritos"
+              (click)="$event.stopPropagation(); togglePopularBookmark(movie)"
+            />
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

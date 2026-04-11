@@ -1,183 +1,147 @@
 <div
   [ngClass]="{
     'w-auto': isSlimMenu(),
-    'w-72': !isSlimMenu()
+    'w-72': !isSlimMenu(),
   }"
   class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 h-full flex flex-col justify-between"
-  >
+>
   <div
     [ngClass]="{
       'w-12 flex flex-col items-center': isSlimMenu(),
-      'w-auto': !isSlimMenu()
+      'w-auto': !isSlimMenu(),
     }"
-    >
+  >
     <div class="flex items-center gap-3">
-      <div
-        class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center"
-        >
-        <svg
-          width="20"
-          height="24"
-          viewBox="0 0 20 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          >
+      <div class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center">
+        <svg width="20" height="24" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M14.65 11.0645L13.1283 10.7253L14.3119 12.4216V17.6803L18.3698 14.2876V8.52002L16.5099 9.19856L14.65 11.0645Z"
             fill="var(--p-primary-color)"
-            />
-            <path
-              d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
-              fill="var(--p-primary-color)"
-              />
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
-                fill="var(--p-primary-color)"
-                />
-                <path
-                  d="M14.311 20.9058L16.5091 18.7005V16.4952L14.311 18.3612V20.9058Z"
-                  fill="var(--p-primary-color)"
-                  />
-                  <path
-                    d="M5.51868 20.9058L3.32062 18.7005V16.4952L5.51868 18.3612V20.9058Z"
-                    fill="var(--p-primary-color)"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      clip-rule="evenodd"
-                      d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
-                      fill="var(--p-primary-color)"
-                      />
-                      <path
-                        d="M8.56283 10.5575L1.29232 7.84329L0.277832 3.60242L6.53385 4.11132L8.73191 10.5575H8.56283Z"
-                        fill="var(--p-primary-color)"
-                        />
-                        <path
-                          d="M11.4372 10.5575L18.7077 7.84329L19.7222 3.60242L13.2971 4.11132L11.2681 10.5575H11.4372Z"
-                          fill="var(--p-primary-color)"
-                          />
-                          <path
-                            d="M13.8041 3.60283L17.3548 3.26356L14.9876 0.888672H12.6205L13.8041 3.60283Z"
-                            fill="var(--p-primary-color)"
-                            />
-                            <path
-                              d="M6.02676 3.60283L2.47604 3.26356L4.84318 0.888672H7.21033L6.02676 3.60283Z"
-                              fill="var(--p-primary-color)"
-                              />
-                            </svg>
-                          </div>
-                          <div
+          />
+          <path
+            d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
+            fill="var(--p-primary-color)"
+          />
+          <path d="M14.311 20.9058L16.5091 18.7005V16.4952L14.311 18.3612V20.9058Z" fill="var(--p-primary-color)" />
+          <path d="M5.51868 20.9058L3.32062 18.7005V16.4952L5.51868 18.3612V20.9058Z" fill="var(--p-primary-color)" />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M8.56283 10.5575L1.29232 7.84329L0.277832 3.60242L6.53385 4.11132L8.73191 10.5575H8.56283Z"
+            fill="var(--p-primary-color)"
+          />
+          <path
+            d="M11.4372 10.5575L18.7077 7.84329L19.7222 3.60242L13.2971 4.11132L11.2681 10.5575H11.4372Z"
+            fill="var(--p-primary-color)"
+          />
+          <path d="M13.8041 3.60283L17.3548 3.26356L14.9876 0.888672H12.6205L13.8041 3.60283Z" fill="var(--p-primary-color)" />
+          <path d="M6.02676 3.60283L2.47604 3.26356L4.84318 0.888672H7.21033L6.02676 3.60283Z" fill="var(--p-primary-color)" />
+        </svg>
+      </div>
+      <div
         [ngClass]="{
           hidden: isSlimMenu(),
-          block: !isSlimMenu()
+          block: !isSlimMenu(),
         }"
-                            class="text-surface-950 dark:text-surface-0 font-medium text-3xl"
-                            >
-                            Prime
-                          </div>
-                        </div>
-                        <div class="mt-10 flex flex-col gap-2">
-                          @for (navItem of sampleAppsSidebarNavs; track navItem.title) {
-                            <div
-                              [pTooltip]="isSlimMenu() ? navItem.title : ''"
-                              [routerLink]="navItem.url"
-                              [attr.aria-label]="navItem.title"
-                              class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
-                              routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
-                              [routerLinkActiveOptions]="{ exact: true }"
-                              #rla="routerLinkActive"
-        [ngClass]="{
-          'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
-          'w-12 justify-center py-4': isSlimMenu(),
-          'w-full': !isSlimMenu()
-        }"
-                              >
-                              <i [class]="navItem.icon" aria-hidden="true"></i>
-                              <span
+        class="text-surface-950 dark:text-surface-0 font-medium text-3xl"
+      >
+        Prime
+      </div>
+    </div>
+    <div class="mt-10 flex flex-col gap-2">
+      @for (navItem of sampleAppsSidebarNavs; track navItem.title) {
+        <div
+          [pTooltip]="isSlimMenu() ? navItem.title : ''"
+          [routerLink]="navItem.url"
+          [attr.aria-label]="navItem.title"
+          class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+          routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
+          [routerLinkActiveOptions]="{ exact: true }"
+          #rla="routerLinkActive"
           [ngClass]="{
-            hidden: isSlimMenu(),
-            'font-medium leading-8': !isSlimMenu()
+            'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
+            'w-12 justify-center py-4': isSlimMenu(),
+            'w-full': !isSlimMenu(),
           }"
-                                >・</span
-                                >
-                                <span
-          [ngClass]="{
-            hidden: isSlimMenu(),
-            'font-medium leading-none': !isSlimMenu()
-          }"
-                                  >{{ navItem.title }}</span
-                                  >
-                                </div>
-                              }
-                            </div>
-                          </div>
-                          <div
+        >
+          <i [class]="navItem.icon" aria-hidden="true"></i>
+          <span
+            [ngClass]="{
+              hidden: isSlimMenu(),
+              'font-medium leading-8': !isSlimMenu(),
+            }"
+            >・</span
+          >
+          <span
+            [ngClass]="{
+              hidden: isSlimMenu(),
+              'font-medium leading-none': !isSlimMenu(),
+            }"
+            >{{ navItem.title }}</span
+          >
+        </div>
+      }
+    </div>
+  </div>
+  <div
     [ngClass]="{
       'w-12 flex flex-col items-center': isSlimMenu(),
-      'w-auto': !isSlimMenu()
+      'w-auto': !isSlimMenu(),
     }"
-                            >
-                            <div class="mt-10 flex flex-col gap-2">
-                                  @for (navItem of sampleAppsSidebarNavsMore; track navItem.title) {
-                                    <div
-                                      [pTooltip]="isSlimMenu() ? navItem.title : ''"
-                                      [attr.aria-label]="navItem.title"
-                                      (click)="dashboardSidebarVisible.set(true)"
-                                      role="button"
-                                      tabindex="0"
-                                      (keydown.enter)="dashboardSidebarVisible.set(true)"
-                                      (keydown.space)="$event.preventDefault(); dashboardSidebarVisible.set(true)"
-                                      class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
-        [ngClass]="{
-          'w-12 justify-center py-4': isSlimMenu(),
-          'w-full': !isSlimMenu(),
-          'text-muted-color hover:bg-emphasis bg-transparent':
-            selectedSampleAppsSidebarNav() !== navItem.title,
-          'text-primary-contrast bg-primary hover:bg-primary-emphasis':
-            selectedSampleAppsSidebarNav() === navItem.title
-        }"
-                                      >
-                                      <i [class]="navItem.icon" aria-hidden="true"></i>
-                                      <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-8'"
-                                        >・</span
-                                        >
-                                        <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-none'">{{
-                                          navItem.title
-                                        }}</span>
-                                      </div>
-                                    }
-                                  </div>
-                                  <p-divider />
-                                  <div
-                                    [class]="isSlimMenu() ? 'justify-center' : ' gap-3'"
-                                    class="flex items-center"
-                                    >
-                                    <p-avatar
-                                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
-                                      size="large"
-                                      shape="circle"
-                                      class="shrink-0"
-                                      />
-                                      <div>
-                                        <div
-          [class]="
-            isSlimMenu() ? 'hidden' : 'text-base font-medium text-color leading-5'
-          "
-                                          >
-                                          Robin Jonas
-                                        </div>
-                                        <div [class]="isSlimMenu() ? 'hidden' : 'text-sm text-muted-color mt-1'">
-                                          hi&#64;robin.xyz
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
+  >
+    <div class="mt-10 flex flex-col gap-2">
+      @for (navItem of sampleAppsSidebarNavsMore; track navItem.title) {
+        <div
+          [pTooltip]="isSlimMenu() ? navItem.title : ''"
+          [attr.aria-label]="navItem.title"
+          (click)="dashboardSidebarVisible.set(true)"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="dashboardSidebarVisible.set(true)"
+          (keydown.space)="$event.preventDefault(); dashboardSidebarVisible.set(true)"
+          class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+          [ngClass]="{
+            'w-12 justify-center py-4': isSlimMenu(),
+            'w-full': !isSlimMenu(),
+            'text-muted-color hover:bg-emphasis bg-transparent': selectedSampleAppsSidebarNav() !== navItem.title,
+            'text-primary-contrast bg-primary hover:bg-primary-emphasis': selectedSampleAppsSidebarNav() === navItem.title,
+          }"
+        >
+          <i [class]="navItem.icon" aria-hidden="true"></i>
+          <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-8'">・</span>
+          <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-none'">{{ navItem.title }}</span>
+        </div>
+      }
+    </div>
+    <p-divider />
+    <div [class]="isSlimMenu() ? 'justify-center' : ' gap-3'" class="flex items-center">
+      <p-avatar
+        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+        size="large"
+        shape="circle"
+        class="shrink-0"
+      />
+      <div>
+        <div [class]="isSlimMenu() ? 'hidden' : 'text-base font-medium text-color leading-5'">Robin Jonas</div>
+        <div [class]="isSlimMenu() ? 'hidden' : 'text-sm text-muted-color mt-1'">hi&#64;robin.xyz</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <p-drawer
-  [visible]="dashboardSidebarVisible()" (visibleChange)="dashboardSidebarVisible.set($event)"
+  [visible]="dashboardSidebarVisible()"
+  (visibleChange)="dashboardSidebarVisible.set($event)"
   position="right"
   closeIcon="pi pi-sign-out"
   styleClass="!max-w-2xl !w-full !h-screen rounded-l-2xl"
@@ -205,7 +169,8 @@
           />
         </div>
         <p-selectbutton
-          [ngModel]="selectedSidebarOption()" (ngModelChange)="selectedSidebarOption.set($event)"
+          [ngModel]="selectedSidebarOption()"
+          (ngModelChange)="selectedSidebarOption.set($event)"
           [options]="sidebarOptions"
           class="w-full px-6 py-3"
           styleClass="flex-1 w-full py-2.5"
@@ -236,22 +201,13 @@
               @for (data of callLogs; track data.name) {
                 <div class="flex items-center gap-3 p-2">
                   <p-overlayBadge severity="success" styleClass="w-fit">
-                    <p-avatar
-                      [image]="data.image"
-                      size="normal"
-                      styleClass="rounded-lg w-10 h-10 overflow-hidden flex"
-                    />
+                    <p-avatar [image]="data.image" size="normal" styleClass="rounded-lg w-10 h-10 overflow-hidden flex" />
                   </p-overlayBadge>
                   <div class="flex-1">
                     <div class="text-sm leading-5 font-medium text-color">{{ data.name }}</div>
                     <div class="mt-1 text-sm leading-5 text-muted-color">{{ data.time }}</div>
                   </div>
-                  <p-button
-                    icon="pi pi-phone text-sm"
-                    text
-                    styleClass="bg-primary/10 dark:bg-primary/20 w-8 h-8"
-                    aria-label="Llamar"
-                  />
+                  <p-button icon="pi pi-phone text-sm" text styleClass="bg-primary/10 dark:bg-primary/20 w-8 h-8" aria-label="Llamar" />
                 </div>
               }
             </div>
@@ -273,11 +229,7 @@
               @for (data of emailRecords; track data.name) {
                 <div class="flex items-center gap-3 p-2">
                   <p-overlayBadge severity="danger" styleClass="w-fit">
-                    <p-avatar
-                      [image]="data.image"
-                      size="normal"
-                      styleClass="rounded-lg overflow-hidden w-10 h-10 flex"
-                    />
+                    <p-avatar [image]="data.image" size="normal" styleClass="rounded-lg overflow-hidden w-10 h-10 flex" />
                   </p-overlayBadge>
                   <div class="w-1/5 text-sm leading-5 font-medium text-color">{{ data.name }}</div>
                   <div class="flex-1">
@@ -302,18 +254,13 @@
                 aria-label="Descargar notas de reunión"
               />
             </div>
-            <div
-              class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col rounded-lg overflow-hidden"
-            >
+            <div class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col rounded-lg overflow-hidden">
               <div class="flex items-start justify-between gap-1">
-                <div class="text-sm text-color font-medium max-w-60">
-                  Asunto: Resumen de reunión y acciones pendientes: Jacob Jones
-                </div>
+                <div class="text-sm text-color font-medium max-w-60">Asunto: Resumen de reunión y acciones pendientes: Jacob Jones</div>
                 <div class="text-sm text-muted-color">14 de febrero, 2024 / 2:00 PM</div>
               </div>
               <div class="text-sm text-muted-color mt-6">
-                Aquí hay un resumen rápido de nuestra reunión con Brook Simmons y los próximos pasos.
-                Resumen:
+                Aquí hay un resumen rápido de nuestra reunión con Brook Simmons y los próximos pasos. Resumen:
                 <br /><br />
                 <ul class="list-disc pl-5">
                   <li>Revisamos nuestra solución SaaS y sus características.</li>
@@ -339,9 +286,7 @@
           @for (data of preferences(); track data.title) {
             <div class="h-1/4 flex flex-col p-3 rounded-xl bg-emphasis">
               <div class="leading-6 font-medium text-color p-2">{{ data.title }}</div>
-              <div
-                class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col gap-3 rounded-lg"
-              >
+              <div class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col gap-3 rounded-lg">
                 @for (pref of data.prefs; track pref.title) {
                   <div class="flex items-center gap-2">
                     <i class="text-lg text-color" [class]="pref.icon" aria-hidden="true"></i>

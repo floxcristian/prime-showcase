@@ -40,31 +40,25 @@ const MARGIN_PREFIXES = ['m', 'mx', 'my', 'mt', 'mr', 'mb', 'ml', 'ms', 'me'];
 // Build a single regex that matches ALL spacing utilities with numeric values
 // Captures: (prefix)-(value) e.g. "gap-7", "mt-10", "px-8"
 const ALL_PREFIXES = [...GAP_PREFIXES, ...PADDING_PREFIXES, ...MARGIN_PREFIXES].join('|');
-const SPACING_REGEX = new RegExp(
-  `\\b(${ALL_PREFIXES})-(\\d+(?:\\.\\d+)?)\\b`,
-  'g',
-);
+const SPACING_REGEX = new RegExp(`\\b(${ALL_PREFIXES})-(\\d+(?:\\.\\d+)?)\\b`, 'g');
 
 // Matches arbitrary spacing values: gap-[13px], p-[20px], m-[10px], etc.
-const ARBITRARY_SPACING_REGEX = new RegExp(
-  `\\b(?:${ALL_PREFIXES})-\\[[^\\]]+\\]`,
-  'g',
-);
+const ARBITRARY_SPACING_REGEX = new RegExp(`\\b(?:${ALL_PREFIXES})-\\[[^\\]]+\\]`, 'g');
 
 // ── Allowed exceptions from AUDIT_BASELINE.md ───────────────────────────
 // These are documented violations accepted for specific use cases.
 // Each exception was reviewed and accepted as a pre-existing pattern
 // with minimal visual impact. See AUDIT_BASELINE.md for full rationale.
 const ALLOWED_EXCEPTIONS = new Set([
-  'p-5',       // EX-005: side-menu padding, between p-4 and p-6
-  'gap-7',     // EX-005: chat layout, between gap-6 and gap-8
-  'gap-8',     // EX-005: chat message area, accepted pre-existing pattern
-  'py-8',      // EX-005: chat message area, accepted pre-existing pattern
-  'p-[1px]',   // EX-004: badge indicator pixel-perfect alignment
-  'mt-3',      // Pre-existing: fine spacing in list/card layouts
-  'mb-5',      // Pre-existing: chat media section spacing
-  'mt-5',      // Pre-existing: chat media section spacing
-  'mt-10',     // Pre-existing: side-menu section separators and customers header
+  'p-5', // EX-005: side-menu padding, between p-4 and p-6
+  'gap-7', // EX-005: chat layout, between gap-6 and gap-8
+  'gap-8', // EX-005: chat message area, accepted pre-existing pattern
+  'py-8', // EX-005: chat message area, accepted pre-existing pattern
+  'p-[1px]', // EX-004: badge indicator pixel-perfect alignment
+  'mt-3', // Pre-existing: fine spacing in list/card layouts
+  'mb-5', // Pre-existing: chat media section spacing
+  'mt-5', // Pre-existing: chat media section spacing
+  'mt-10', // Pre-existing: side-menu section separators and customers header
 ]);
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -77,8 +71,7 @@ module.exports = {
     },
     schema: [],
     messages: {
-      forbiddenSpacing:
-        '"{{className}}" is not in the allowed spacing scale. See CLAUDE.md for allowed values.',
+      forbiddenSpacing: '"{{className}}" is not in the allowed spacing scale. See CLAUDE.md for allowed values.',
       arbitrarySpacing:
         'Arbitrary spacing "{{className}}" is not allowed. Use a standard spacing value from the design system.',
     },

@@ -11,8 +11,7 @@ describe('MainComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MainComponent],
       providers: [provideRouter([])],
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MainComponent);
     component = fixture.componentInstance;

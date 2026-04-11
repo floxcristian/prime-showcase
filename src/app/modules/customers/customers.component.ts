@@ -1,10 +1,5 @@
 // Angular
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -48,8 +43,7 @@ const PRIME_MODULES = [
   styleUrl: './customers.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
 export class CustomersComponent {

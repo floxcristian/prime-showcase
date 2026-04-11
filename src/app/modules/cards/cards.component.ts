@@ -4,11 +4,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormsModule } from '@angular/forms';
 // PrimeNG
 import { MessageService } from 'primeng/api';
-import {
-  AutoComplete,
-  AutoCompleteSelectEvent,
-  AutoCompleteCompleteEvent,
-} from 'primeng/autocomplete';
+import { AutoComplete, AutoCompleteSelectEvent, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarGroupModule } from 'primeng/avatargroup';
 import { BadgeModule } from 'primeng/badge';
@@ -16,11 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { PrimeNG } from 'primeng/config';
 import { DividerModule } from 'primeng/divider';
-import {
-  FileSelectEvent,
-  FileUpload,
-  FileUploadEvent,
-} from 'primeng/fileupload';
+import { FileSelectEvent, FileUpload, FileUploadEvent } from 'primeng/fileupload';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputOtp } from 'primeng/inputotp';
 import { InputTextModule } from 'primeng/inputtext';
@@ -67,8 +59,7 @@ const PRIME_MODULES = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService],
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
 export class CardsComponent {
@@ -93,12 +84,7 @@ export class CardsComponent {
     { value: 'Ubicación céntrica', checked: false },
     { value: 'Vista al mar', checked: true },
   ];
-  priceRangePopularSpecsChecked = signal<string[]>([
-    'Amueblado',
-    'Independiente',
-    'Balcón',
-    'Vista al mar',
-  ]);
+  priceRangePopularSpecsChecked = signal<string[]>(['Amueblado', 'Independiente', 'Balcón', 'Vista al mar']);
   userSelectButtonOptions: string[] = ['Inscritos', 'Organizados'];
   selectedUserSelectButtonOption = signal('Inscritos');
   darkMode = signal(false);
@@ -109,9 +95,7 @@ export class CardsComponent {
     { name: 'Editor', code: 'E' },
     { name: 'Lector', code: 'V' },
   ];
-  copiedText = signal(
-    "https://www.example.com/shared-files/user123/document-collection/file12345';"
-  );
+  copiedText = signal("https://www.example.com/shared-files/user123/document-collection/file12345';");
   documentName = signal('Tema Aura');
   filesTag = signal<string[]>(['ui', 'rediseño', 'panel']);
   selectedPermission = signal('Todos');
@@ -124,11 +108,7 @@ export class CardsComponent {
   private config = inject(PrimeNG);
   private messageService = inject(MessageService);
 
-  onRemoveTemplatingFile(
-    _file: FileWithPreview,
-    removeFileCallback: (index: number) => void,
-    index: number
-  ): void {
+  onRemoveTemplatingFile(_file: FileWithPreview, removeFileCallback: (index: number) => void, index: number): void {
     removeFileCallback(index);
   }
 
@@ -141,7 +121,7 @@ export class CardsComponent {
   }
 
   onTemplatedUpload(event: FileUploadEvent): void {
-    this.uploadedFiles.update(arr => [...arr, ...event.files]);
+    this.uploadedFiles.update((arr) => [...arr, ...event.files]);
     this.messageService.add({
       severity: 'info',
       summary: 'Éxito',
@@ -174,7 +154,7 @@ export class CardsComponent {
   }
 
   updateMemberSelectedType(index: number, value: string): void {
-    this.memberSelectedTypes.update(arr => {
+    this.memberSelectedTypes.update((arr) => {
       const copy = [...arr];
       copy[index] = value;
       return copy;
@@ -182,7 +162,7 @@ export class CardsComponent {
   }
 
   updateUserProfilesValue(index: number, value: boolean): void {
-    this.userProfilesValues.update(arr => {
+    this.userProfilesValues.update((arr) => {
       const copy = [...arr];
       copy[index] = value;
       return copy;
@@ -190,11 +170,10 @@ export class CardsComponent {
   }
 
   updatePriceRangeValue(index: number, value: number): void {
-    this.priceRange.update(arr => {
+    this.priceRange.update((arr) => {
       const copy = [...arr];
       copy[index] = value;
       return copy;
     });
   }
-
 }

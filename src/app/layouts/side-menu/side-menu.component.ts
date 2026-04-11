@@ -23,12 +23,7 @@ import type {
 } from './models/settings-drawer.interface';
 // Constants
 import { SIDEBAR_NAV_ITEMS } from './constants/sidebar-nav-items';
-import {
-  CALL_LOGS,
-  EMAIL_RECORDS,
-  PREFERENCES,
-  OPPORTUNITIES,
-} from './constants/settings-drawer-data';
+import { CALL_LOGS, EMAIL_RECORDS, PREFERENCES, OPPORTUNITIES } from './constants/settings-drawer-data';
 
 const NG_MODULES = [RouterModule, NgClass, FormsModule];
 const PRIME_MODULES = [
@@ -56,19 +51,12 @@ export class SideMenuComponent {
   isSlimMenu = signal(true);
   sampleAppsSidebarNavs: SidebarNavItem[] = SIDEBAR_NAV_ITEMS;
   selectedSampleAppsSidebarNav = signal('Resumen');
-  sampleAppsSidebarNavsMore: { icon: string; title: string }[] = [
-    { icon: 'pi pi-cog', title: 'Configuración' },
-  ];
+  sampleAppsSidebarNavsMore: { icon: string; title: string }[] = [{ icon: 'pi pi-cog', title: 'Configuración' }];
 
   // Drawer
   dashboardSidebarVisible = signal(false);
   selectedSidebarOption = signal('Estadísticas');
-  sidebarOptions: string[] = [
-    'Registros',
-    'Preferencias',
-    'Estadísticas',
-    'Oportunidades',
-  ];
+  sidebarOptions: string[] = ['Registros', 'Preferencias', 'Estadísticas', 'Oportunidades'];
 
   // Drawer data
   callLogs: CallLog[] = CALL_LOGS;
@@ -77,13 +65,11 @@ export class SideMenuComponent {
   opportunities: Opportunity[] = OPPORTUNITIES;
 
   togglePreference(pref: PreferenceItem): void {
-    this.preferences.update(groups =>
-      groups.map(group => ({
+    this.preferences.update((groups) =>
+      groups.map((group) => ({
         ...group,
-        prefs: group.prefs.map(item =>
-          item === pref ? { ...item, checked: !item.checked } : item
-        ),
-      }))
+        prefs: group.prefs.map((item) => (item === pref ? { ...item, checked: !item.checked } : item)),
+      })),
     );
   }
 }

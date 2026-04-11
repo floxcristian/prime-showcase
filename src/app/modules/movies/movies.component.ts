@@ -59,13 +59,7 @@ export class MoviesComponent {
   search = signal<string | undefined>(undefined);
   page = signal(0);
   value = signal('Inicio');
-  options: string[] = [
-    'Inicio',
-    'Películas',
-    'Series',
-    'Recientes',
-    'Mi Lista',
-  ];
+  options: string[] = ['Inicio', 'Películas', 'Series', 'Recientes', 'Mi Lista'];
   responsiveOptions: CarouselResponsiveOption[] = CAROUSEL_RESPONSIVE_OPTIONS;
   carouselData = signal<CarouselMovie[]>(CAROUSEL_MOVIES);
   popularMovies = signal<Movie[]>(POPULAR_MOVIES);
@@ -73,7 +67,7 @@ export class MoviesComponent {
   numVisible = signal(CAROUSEL_NUM_VISIBLE);
 
   maxPage = computed(() =>
-    Math.max(0, Math.ceil((this.carouselData().length - this.numVisible()) / CAROUSEL_NUM_SCROLL))
+    Math.max(0, Math.ceil((this.carouselData().length - this.numVisible()) / CAROUSEL_NUM_SCROLL)),
   );
 
   constructor() {
@@ -81,37 +75,32 @@ export class MoviesComponent {
   }
 
   previousPage(): void {
-    this.page.update(p => Math.max(0, p - 1));
+    this.page.update((p) => Math.max(0, p - 1));
   }
 
   nextPage(): void {
-    this.page.update(p => Math.min(this.maxPage(), p + 1));
+    this.page.update((p) => Math.min(this.maxPage(), p + 1));
   }
 
   toggleCarouselBookmark(movie: CarouselMovie): void {
-    this.carouselData.update(data =>
-      data.map(d => d === movie ? { ...d, bookmarked: !d.bookmarked } : d)
-    );
+    this.carouselData.update((data) => data.map((d) => (d === movie ? { ...d, bookmarked: !d.bookmarked } : d)));
   }
 
   togglePopularBookmark(movie: Movie): void {
-    this.popularMovies.update(data =>
-      data.map(d => d === movie ? { ...d, bookmarked: !d.bookmarked } : d)
-    );
+    this.popularMovies.update((data) => data.map((d) => (d === movie ? { ...d, bookmarked: !d.bookmarked } : d)));
   }
 
   private initBreakpointListeners(): void {
     // Sort ascending so we match the most specific (smallest) breakpoint first
-    const sorted = [...this.responsiveOptions]
-      .sort((a, b) => parseInt(a.breakpoint) - parseInt(b.breakpoint));
+    const sorted = [...this.responsiveOptions].sort((a, b) => parseInt(a.breakpoint) - parseInt(b.breakpoint));
 
-    const mediaQueries = sorted.map(opt => ({
+    const mediaQueries = sorted.map((opt) => ({
       mql: window.matchMedia(`(max-width: ${opt.breakpoint})`),
       numVisible: opt.numVisible,
     }));
 
     const update = () => {
-      const match = mediaQueries.find(mq => mq.mql.matches);
+      const match = mediaQueries.find((mq) => mq.mql.matches);
       this.numVisible.set(match ? match.numVisible : CAROUSEL_NUM_VISIBLE);
 
       // Clamp page if it exceeds the new maxPage after viewport change
@@ -121,10 +110,8 @@ export class MoviesComponent {
       }
     };
 
-    mediaQueries.forEach(mq => mq.mql.addEventListener('change', update));
-    this.destroyRef.onDestroy(() =>
-      mediaQueries.forEach(mq => mq.mql.removeEventListener('change', update))
-    );
+    mediaQueries.forEach((mq) => mq.mql.addEventListener('change', update));
+    this.destroyRef.onDestroy(() => mediaQueries.forEach((mq) => mq.mql.removeEventListener('change', update)));
 
     update();
   }

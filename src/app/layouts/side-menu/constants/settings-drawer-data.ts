@@ -1,9 +1,4 @@
-import type {
-  CallLog,
-  EmailRecord,
-  PreferenceGroup,
-  Opportunity,
-} from '../models/settings-drawer.interface';
+import type { CallLog, EmailRecord, PreferenceGroup, Opportunity } from '../models/settings-drawer.interface';
 
 export const CALL_LOGS: CallLog[] = [
   {

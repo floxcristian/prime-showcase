@@ -1,7 +1,5 @@
 <h1 class="text-color text-2xl font-medium leading-8">Tarjetas</h1>
-<div class="mt-1 text-muted-color leading-6">
-  Puedes crear tarjetas usando Aura como las siguientes 👇
-</div>
+<div class="mt-1 text-muted-color leading-6">Puedes crear tarjetas usando Aura como las siguientes 👇</div>
 <div class="mt-6 flex flex-wrap items-start gap-6">
   <div class="flex-1 flex flex-col gap-6">
     <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
@@ -10,791 +8,647 @@
           <p-avatar
             image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
             class="rounded-lg overflow-hidden flex"
+          />
+        </p-overlayBadge>
+
+        <div>
+          <div class="font-medium text-color leading-6">Jacob Jones</div>
+          <div class="mt-1 text-muted-color leading-5">hi&#64;jacobjones.co</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-6">
+        <div class="text-sm leading-5 text-color">14.k <span class="text-muted-color">Seguidores</span></div>
+        <div class="text-sm leading-5 text-color">359 <span class="text-muted-color">Siguiendo</span></div>
+      </div>
+      <p class="text-sm text-muted-color leading-5 mb-0">
+        Conoce a Jacob Jones, el aventurero caprichoso en busca de las peculiaridades de la vida. Desde misterios de calcetines hasta
+        aventuras en el metro, ¡únete a él en un viaje lleno de risas!
+      </p>
+      <div class="flex items-center justify-between gap-2">
+        <div class="text-sm leading-5 text-color font-medium">Amigos en común</div>
+        <p-avatarGroup>
+          <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.png" class="rounded-lg overflow-hidden" />
+          <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg" class="rounded-lg overflow-hidden" />
+          <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg" class="rounded-lg overflow-hidden" />
+          <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg" class="rounded-lg overflow-hidden" />
+          <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png" class="rounded-lg overflow-hidden" />
+          <p-avatar label="+99" class="rounded-lg overflow-hidden text-xs" />
+        </p-avatarGroup>
+      </div>
+      <p-selectbutton
+        [ngModel]="selectedUserSelectButtonOption()"
+        (ngModelChange)="selectedUserSelectButtonOption.set($event)"
+        [options]="userSelectButtonOptions"
+      />
+      <div class="flex flex-col gap-4">
+        <div class="p-2 rounded-2xl flex items-center gap-3 bg-emphasis">
+          <p-overlayBadge severity="danger" class="w-fit">
+            <p-avatar
+              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+              class="rounded-lg overflow-hidden w-10 h-10 block"
             />
           </p-overlayBadge>
 
-          <div>
-            <div class="font-medium text-color leading-6">Jacob Jones</div>
-            <div class="mt-1 text-muted-color leading-5">
-              hi&#64;jacobjones.co
-            </div>
+          <div class="flex-1">
+            <div class="text-color text-sm font-medium leading-5">Jacob Jones</div>
+            <div class="mt-1 text-muted-color text-xs leading-4">hi&#64;jacobjones.co</div>
           </div>
+          <p-button label="Unirse" />
         </div>
-        <div class="flex items-center gap-6">
-          <div class="text-sm leading-5 text-color">
-            14.k <span class="text-muted-color">Seguidores</span>
-          </div>
-          <div class="text-sm leading-5 text-color">
-            359 <span class="text-muted-color">Siguiendo</span>
-          </div>
-        </div>
-        <p class="text-sm text-muted-color leading-5 mb-0">
-          Conoce a Jacob Jones, el aventurero caprichoso en busca de las peculiaridades de la vida.
-          Desde misterios de calcetines hasta aventuras en el metro, ¡únete a él en un viaje
-          lleno de risas!
-        </p>
-        <div class="flex items-center justify-between gap-2">
-          <div class="text-sm leading-5 text-color font-medium">
-            Amigos en común
-          </div>
-          <p-avatarGroup>
+        <div class="p-2 rounded-2xl flex items-center gap-3 bg-emphasis">
+          <p-overlayBadge severity="danger" class="w-fit">
             <p-avatar
-              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.png"
-              class="rounded-lg overflow-hidden"
-              />
-              <p-avatar
-                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
-                class="rounded-lg overflow-hidden"
-                />
-                <p-avatar
-                  image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
-                  class="rounded-lg overflow-hidden"
-                  />
-                  <p-avatar
-                    image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg"
-                    class="rounded-lg overflow-hidden"
-                    />
-                    <p-avatar
-                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png"
-                      class="rounded-lg overflow-hidden"
-                      />
-                      <p-avatar label="+99" class="rounded-lg overflow-hidden text-xs" />
-                    </p-avatarGroup>
-                  </div>
-                  <p-selectbutton
-                    [ngModel]="selectedUserSelectButtonOption()"
-                    (ngModelChange)="selectedUserSelectButtonOption.set($event)"
-                    [options]="userSelectButtonOptions"
-                    />
-                    <div class="flex flex-col gap-4">
-                      <div class="p-2 rounded-2xl flex items-center gap-3 bg-emphasis">
-                        <p-overlayBadge severity="danger" class="w-fit">
-                          <p-avatar
-                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
-                            class="rounded-lg overflow-hidden w-10 h-10 block"
-                            />
-                          </p-overlayBadge>
+              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
+              class="rounded-lg overflow-hidden w-10 h-10 flex"
+            />
+          </p-overlayBadge>
 
-                          <div class="flex-1">
-                            <div class="text-color text-sm font-medium leading-5">
-                              Jacob Jones
-                            </div>
-                            <div class="mt-1 text-muted-color text-xs leading-4">
-                              hi&#64;jacobjones.co
-                            </div>
-                          </div>
-                          <p-button label="Unirse" />
-                        </div>
-                        <div class="p-2 rounded-2xl flex items-center gap-3 bg-emphasis">
-                          <p-overlayBadge severity="danger" class="w-fit">
-                            <p-avatar
-                              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
-                              class="rounded-lg overflow-hidden w-10 h-10 flex"
-                              />
-                            </p-overlayBadge>
-
-                            <div class="flex-1">
-                              <div class="text-color text-sm font-medium leading-5">
-                                Courtney Henry
-                              </div>
-                              <div class="mt-1 text-muted-color text-xs leading-4">
-                                cou.henry41&#64;courtney.co
-                              </div>
-                            </div>
-                            <p-button label="Unirse" />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="border border-surface rounded-3xl p-6">
-                        <div
-                          class="flex items-center gap-3 p-3 border border-surface rounded-xl"
-                          >
-                          <p-avatar
-                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
-                            class="rounded-lg overflow-hidden w-14 h-14"
-                            />
-                            <div class="flex-1">
-                              <div class="text-color font-medium leading-7">Jacob Jones</div>
-                              <div class="text-muted-color text-sm mt-1">hi&#64;jacobjones.co</div>
-                            </div>
-                            <p-button icon="pi pi-bell" severity="contrast" text aria-label="Notificaciones" />
-                          </div>
-                          <div class="mt-4 flex flex-col gap-1">
-                            <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
-                              >
-                              <i
-                                class="pi pi-envelope text-lg w-7 h-7 flex items-center justify-center"
-                                aria-hidden="true"
-                              ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">
-                                Mensajes
-                              </div>
-                            </button>
-                            <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
-                              >
-                              <i
-                                class="pi pi-cog text-lg w-7 h-7 flex items-center justify-center"
-                                aria-hidden="true"
-                              ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">
-                                Configuración
-                              </div>
-                            </button>
-                            <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
-                              >
-                              <i
-                                class="pi pi-sync text-lg w-7 h-7 flex items-center justify-center"
-                                aria-hidden="true"
-                              ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">
-                                Cambiar cuenta
-                              </div>
-                            </button>
-                            <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
-                              >
-                              <i
-                                class="pi pi-sign-in text-lg w-7 h-7 flex items-center justify-center"
-                                aria-hidden="true"
-                              ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">Cerrar sesión</div>
-                            </button>
-                          </div>
-                          <p-divider />
-                          <div
-                            class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis cursor-pointer rounded-lg transition-all select-none"
-                            >
-                            <i
-                              class="pi text-lg w-7 h-7 flex items-center justify-center"
+          <div class="flex-1">
+            <div class="text-color text-sm font-medium leading-5">Courtney Henry</div>
+            <div class="mt-1 text-muted-color text-xs leading-4">cou.henry41&#64;courtney.co</div>
+          </div>
+          <p-button label="Unirse" />
+        </div>
+      </div>
+    </div>
+    <div class="border border-surface rounded-3xl p-6">
+      <div class="flex items-center gap-3 p-3 border border-surface rounded-xl">
+        <p-avatar
+          image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+          class="rounded-lg overflow-hidden w-14 h-14"
+        />
+        <div class="flex-1">
+          <div class="text-color font-medium leading-7">Jacob Jones</div>
+          <div class="text-muted-color text-sm mt-1">hi&#64;jacobjones.co</div>
+        </div>
+        <p-button icon="pi pi-bell" severity="contrast" text aria-label="Notificaciones" />
+      </div>
+      <div class="mt-4 flex flex-col gap-1">
+        <button
+          class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+        >
+          <i class="pi pi-envelope text-lg w-7 h-7 flex items-center justify-center" aria-hidden="true"></i>
+          <div class="font-medium leading-normal flex-1 text-left">Mensajes</div>
+        </button>
+        <button
+          class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+        >
+          <i class="pi pi-cog text-lg w-7 h-7 flex items-center justify-center" aria-hidden="true"></i>
+          <div class="font-medium leading-normal flex-1 text-left">Configuración</div>
+        </button>
+        <button
+          class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+        >
+          <i class="pi pi-sync text-lg w-7 h-7 flex items-center justify-center" aria-hidden="true"></i>
+          <div class="font-medium leading-normal flex-1 text-left">Cambiar cuenta</div>
+        </button>
+        <button
+          class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+        >
+          <i class="pi pi-sign-in text-lg w-7 h-7 flex items-center justify-center" aria-hidden="true"></i>
+          <div class="font-medium leading-normal flex-1 text-left">Cerrar sesión</div>
+        </button>
+      </div>
+      <p-divider />
+      <div
+        class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis cursor-pointer rounded-lg transition-all select-none"
+      >
+        <i
+          class="pi text-lg w-7 h-7 flex items-center justify-center"
           [ngClass]="{
             'pi-moon': !darkMode(),
-            'pi-sun': darkMode()
+            'pi-sun': darkMode(),
           }"
-                              aria-hidden="true"
-                            ></i>
-                            <div class="font-medium leading-normal flex-1 text-left">
-                              Cambiar a {{ darkMode() ? "Claro" : "Oscuro" }}
-                            </div>
-                            <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="darkMode.set($event)" aria-label="Modo oscuro" />
-                          </div>
-                        </div>
-                        <div class="border border-surface rounded-3xl">
-                          <div class="pt-6 px-6 flex flex-col gap-6">
-                            <div class="flex items-start gap-2 justify-between">
-                              <div>
-                                <div class="text-2xl text-color font-medium">Analista de datos</div>
-                                <div class="mt-2 text-color">Data Insights Ltd.</div>
-                              </div>
-                              <p-button
-                                (click)="jobApplication.set(!jobApplication())"
-                                [icon]="jobApplication() ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
-                                severity="secondary"
-                                outlined
-                                rounded
-                                aria-label="Guardar oferta"
-                                />
-                              </div>
-                              <div class="flex flex-wrap gap-1 items-center justify-between">
-                                <div
-                                  class="flex items-center gap-2 whitespace-nowrap text-muted-color"
-                                  >
-                                  <i class="pi pi-users text-xl" aria-hidden="true"></i>
-                                  <div class="font-medium leading-none">Senior</div>
-                                </div>
-                                <div
-                                  class="flex items-center gap-2 whitespace-nowrap text-muted-color"
-                                  >
-                                  <i class="pi pi-stopwatch text-xl" aria-hidden="true"></i>
-                                  <div class="font-medium leading-none">Tiempo completo</div>
-                                </div>
-                                <div
-                                  class="flex items-center gap-2 whitespace-nowrap text-muted-color"
-                                  >
-                                  <i class="pi pi-money-bill text-xl" aria-hidden="true"></i>
-                                  <div class="font-medium leading-none">$80,000</div>
-                                </div>
-                              </div>
-                              <p class="leading-6 text-muted-color mb-0">
-                                ¿Experto en análisis de datos? Únete a Data Insights Ltd. como analista
-                                de datos senior. ¡Lidera en el mundo de los datos con nosotros!
-                              </p>
-                              <div class="flex flex-wrap gap-2 items-center">
-                                <p-tag value="Análisis de datos" rounded class="font-normal"></p-tag>
-                                <p-tag value="Analítica" rounded class="font-normal"></p-tag>
-                                <p-tag value="Big Data" rounded class="font-normal"></p-tag>
-                              </div>
-                            </div>
-                            <div class="p-1 mt-4">
-                              <button
-                                class="p-4 rounded-3xl w-full bg-emphasis transition-all text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
-                                >
-                                <div class="flex items-center [&>*]:-mr-2">
-                                  <p-avatar
-                                    image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
-                                    shape="circle"
-                                    />
-                                    <p-avatar
-                                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg"
-                                      shape="circle"
-                                      />
-                                      <p-avatar
-                                        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg"
-                                        shape="circle"
-                                        />
-                                        <p-avatar
-                                          image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
-                                          shape="circle"
-                                          />
-                                          <p-avatar
-                                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png"
-                                            shape="circle"
-                                            />
-                                          </div>
-                                          <div class="flex items-center gap-2">
-                                            <div class="font-medium leading-6">12 Postulantes</div>
-                                            <i class="pi pi-arrow-right" aria-hidden="true"></i>
-                                          </div>
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div class="flex-1 flex flex-col gap-6">
-                                    <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
-                                      <div class="flex items-center gap-2 text-color">
-                                        <i class="pi pi-cloud-upload text-xl" aria-hidden="true"></i>
-                                        <div class="flex-1 font-medium leading-6">Subir archivos</div>
-                                        <p-button icon="pi pi-times" text rounded aria-label="Cerrar" />
-                                      </div>
-                                      <div>
-                                        <label for="document-name" class="text-color font-medium leading-6"
-                                          >Nombre del documento
-                                        </label>
-                                        <input
-                                          type="text"
-                                          pInputText
-                                          id="document-name"
-                                          [ngModel]="documentName()"
-                                          (ngModelChange)="documentName.set($event)"
-                                          class="mt-2 w-full"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label class="text-color font-medium leading-6">Subir archivos</label>
-                                          <p-fileupload
-                                            name="demo[]"
-                                            url="/api/upload"
-                                            (onUpload)="onTemplatedUpload($event)"
-                                            accept="image/*"
-                                            [maxFileSize]="1000000"
-                                            styleClass="mt-2"
-                                            (onSelect)="onSelectedFiles($event)"
-                                            >
-                                            <ng-template
-                                              #header
-                                              let-chooseCallback="chooseCallback"
-                                              let-clearCallback="clearCallback"
-                                              let-uploadCallback="uploadCallback"
-                                              >
-                                              @if (files().length > 0 || uploadedFiles().length > 0) {
-                                                <div
-                                                  class="flex w-full flex-wrap justify-between items-center flex-1 gap-4 border-b border-surface pb-4"
-                                                  >
-                                                  <div class="flex gap-2">
-                                                    <p-button
-                                                      (click)="chooseCallback()"
-                                                      icon="pi pi-images"
-                                                      rounded
-                                                      outlined
-                                                      severity="secondary"
-                                                      aria-label="Seleccionar archivos"
-                                                    ></p-button>
-                                                    <p-button
-                                                      (click)="uploadEvent(uploadCallback)"
-                                                      icon="pi pi-cloud-upload"
-                                                      rounded
-                                                      outlined
-                                                      severity="success"
-                                                      [disabled]="files().length === 0"
-                                                      aria-label="Subir archivos"
-                                                    ></p-button>
-                                                    <p-button
-                                                      (click)="clearCallback()"
-                                                      icon="pi pi-times"
-                                                      rounded
-                                                      outlined
-                                                      severity="danger"
-                                                      [disabled]="files().length === 0"
-                                                      aria-label="Limpiar archivos"
-                                                    ></p-button>
-                                                  </div>
-                                                </div>
-                                              }
-                                              @if (files().length <= 0 && uploadedFiles().length <= 0) {
-                                                <div
-                                                  class="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-emphasis rounded-lg transition-all"
-                                                  (click)="chooseCallback()"
-                                                  >
-                                                  <i class="pi pi-cloud-upload text-4xl text-color" aria-hidden="true"></i>
-                                                  <div class="text-sm text-color font-medium mt-2">
-                                                    Haz clic para subir
-                                                    <span class="text-muted-color">o arrastra y suelta</span>
-                                                  </div>
-                                                  <p class="mt-2 mb-0 text-sm text-muted-color text-center">
-                                                    PDF, JPG, PNG, JPEG, DOC, CSV, XML, XMLX, XLS, XLSX (max 10MB)
-                                                  </p>
-                                                </div>
-                                              }
-                                            </ng-template>
+          aria-hidden="true"
+        ></i>
+        <div class="font-medium leading-normal flex-1 text-left">Cambiar a {{ darkMode() ? 'Claro' : 'Oscuro' }}</div>
+        <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="darkMode.set($event)" aria-label="Modo oscuro" />
+      </div>
+    </div>
+    <div class="border border-surface rounded-3xl">
+      <div class="pt-6 px-6 flex flex-col gap-6">
+        <div class="flex items-start gap-2 justify-between">
+          <div>
+            <div class="text-2xl text-color font-medium">Analista de datos</div>
+            <div class="mt-2 text-color">Data Insights Ltd.</div>
+          </div>
+          <p-button
+            (click)="jobApplication.set(!jobApplication())"
+            [icon]="jobApplication() ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+            severity="secondary"
+            outlined
+            rounded
+            aria-label="Guardar oferta"
+          />
+        </div>
+        <div class="flex flex-wrap gap-1 items-center justify-between">
+          <div class="flex items-center gap-2 whitespace-nowrap text-muted-color">
+            <i class="pi pi-users text-xl" aria-hidden="true"></i>
+            <div class="font-medium leading-none">Senior</div>
+          </div>
+          <div class="flex items-center gap-2 whitespace-nowrap text-muted-color">
+            <i class="pi pi-stopwatch text-xl" aria-hidden="true"></i>
+            <div class="font-medium leading-none">Tiempo completo</div>
+          </div>
+          <div class="flex items-center gap-2 whitespace-nowrap text-muted-color">
+            <i class="pi pi-money-bill text-xl" aria-hidden="true"></i>
+            <div class="font-medium leading-none">$80,000</div>
+          </div>
+        </div>
+        <p class="leading-6 text-muted-color mb-0">
+          ¿Experto en análisis de datos? Únete a Data Insights Ltd. como analista de datos senior. ¡Lidera en el mundo de los datos con
+          nosotros!
+        </p>
+        <div class="flex flex-wrap gap-2 items-center">
+          <p-tag value="Análisis de datos" rounded class="font-normal"></p-tag>
+          <p-tag value="Analítica" rounded class="font-normal"></p-tag>
+          <p-tag value="Big Data" rounded class="font-normal"></p-tag>
+        </div>
+      </div>
+      <div class="p-1 mt-4">
+        <button
+          class="p-4 rounded-3xl w-full bg-emphasis transition-all text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
+        >
+          <div class="flex items-center [&>*]:-mr-2">
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg" shape="circle" />
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg" shape="circle" />
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg" shape="circle" />
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg" shape="circle" />
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png" shape="circle" />
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="font-medium leading-6">12 Postulantes</div>
+            <i class="pi pi-arrow-right" aria-hidden="true"></i>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="flex-1 flex flex-col gap-6">
+    <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
+      <div class="flex items-center gap-2 text-color">
+        <i class="pi pi-cloud-upload text-xl" aria-hidden="true"></i>
+        <div class="flex-1 font-medium leading-6">Subir archivos</div>
+        <p-button icon="pi pi-times" text rounded aria-label="Cerrar" />
+      </div>
+      <div>
+        <label for="document-name" class="text-color font-medium leading-6">Nombre del documento </label>
+        <input
+          type="text"
+          pInputText
+          id="document-name"
+          [ngModel]="documentName()"
+          (ngModelChange)="documentName.set($event)"
+          class="mt-2 w-full"
+        />
+      </div>
+      <div>
+        <label class="text-color font-medium leading-6">Subir archivos</label>
+        <p-fileupload
+          name="demo[]"
+          url="/api/upload"
+          (onUpload)="onTemplatedUpload($event)"
+          accept="image/*"
+          [maxFileSize]="1000000"
+          styleClass="mt-2"
+          (onSelect)="onSelectedFiles($event)"
+        >
+          <ng-template #header let-chooseCallback="chooseCallback" let-clearCallback="clearCallback" let-uploadCallback="uploadCallback">
+            @if (files().length > 0 || uploadedFiles().length > 0) {
+              <div class="flex w-full flex-wrap justify-between items-center flex-1 gap-4 border-b border-surface pb-4">
+                <div class="flex gap-2">
+                  <p-button
+                    (click)="chooseCallback()"
+                    icon="pi pi-images"
+                    rounded
+                    outlined
+                    severity="secondary"
+                    aria-label="Seleccionar archivos"
+                  ></p-button>
+                  <p-button
+                    (click)="uploadEvent(uploadCallback)"
+                    icon="pi pi-cloud-upload"
+                    rounded
+                    outlined
+                    severity="success"
+                    [disabled]="files().length === 0"
+                    aria-label="Subir archivos"
+                  ></p-button>
+                  <p-button
+                    (click)="clearCallback()"
+                    icon="pi pi-times"
+                    rounded
+                    outlined
+                    severity="danger"
+                    [disabled]="files().length === 0"
+                    aria-label="Limpiar archivos"
+                  ></p-button>
+                </div>
+              </div>
+            }
+            @if (files().length <= 0 && uploadedFiles().length <= 0) {
+              <div
+                class="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-emphasis rounded-lg transition-all"
+                (click)="chooseCallback()"
+              >
+                <i class="pi pi-cloud-upload text-4xl text-color" aria-hidden="true"></i>
+                <div class="text-sm text-color font-medium mt-2">
+                  Haz clic para subir
+                  <span class="text-muted-color">o arrastra y suelta</span>
+                </div>
+                <p class="mt-2 mb-0 text-sm text-muted-color text-center">PDF, JPG, PNG, JPEG, DOC, CSV, XML, XMLX, XLS, XLSX (max 10MB)</p>
+              </div>
+            }
+          </ng-template>
 
-                                            <ng-template
-                                              #content
-                                              let-chooseCallback="chooseCallback"
-                                              let-clearCallback="clearCallback"
-                                              let-uploadCallback="uploadCallback"
-                                              let-removeCallback="removeCallback"
-                                              >
-                                              @if (files().length > 0) {
-                                                <div class="px-4 py-0">
-                                                  <h5 class="m-0 mb-2">Pendientes</h5>
-                                                  <div
-                                                    class="flex flex-wrap gap-2 grow overflow-auto max-h-[210px]"
-                                                    >
-                                                    @for (file of files(); track file.name; let i = $index) {
-                                                      <div
-                                                        class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center"
-                                                        >
-                                                        <div>
-                                                          <img
-                                                            role="presentation"
-                                                            alt=""
-                                                            [src]="file.objectURL"
-                                                            width="100"
-                                                            height="50"
-                                                            loading="lazy"
-                                                            />
-                                                          </div>
-                                                          <span
-                                                            class="font-semibold max-w-[100px] text-ellipsis whitespace-nowrap overflow-hidden"
-                                                            >{{ file.name }}</span
-                                                            >
-                                                            <span class="text-sm text-muted-color">{{
-                                                              formatSize(file.size)
-                                                            }}</span>
-                                                            <div class="grow flex flex-col gap-2 justify-end">
-                                                              <p-badge value="Pendiente" severity="warn" />
-                                                              <p-button
-                                                                icon="pi pi-times text-sm leading-none"
-                                                                (click)="onRemoveTemplatingFile(file, removeCallback, i)"
-                                                                class="!text-sm !leading-none"
-                                                                label="Cancelar"
-                                                                text
-                                                                severity="danger"
-                                                                />
-                                                              </div>
-                                                            </div>
-                                                          }
-                                                        </div>
-                                                      </div>
-                                                    }
+          <ng-template
+            #content
+            let-chooseCallback="chooseCallback"
+            let-clearCallback="clearCallback"
+            let-uploadCallback="uploadCallback"
+            let-removeCallback="removeCallback"
+          >
+            @if (files().length > 0) {
+              <div class="px-4 py-0">
+                <h5 class="m-0 mb-2">Pendientes</h5>
+                <div class="flex flex-wrap gap-2 grow overflow-auto max-h-[210px]">
+                  @for (file of files(); track file.name; let i = $index) {
+                    <div class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center">
+                      <div>
+                        <img role="presentation" alt="" [src]="file.objectURL" width="100" height="50" loading="lazy" />
+                      </div>
+                      <span class="font-semibold max-w-[100px] text-ellipsis whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                      <span class="text-sm text-muted-color">{{ formatSize(file.size) }}</span>
+                      <div class="grow flex flex-col gap-2 justify-end">
+                        <p-badge value="Pendiente" severity="warn" />
+                        <p-button
+                          icon="pi pi-times text-sm leading-none"
+                          (click)="onRemoveTemplatingFile(file, removeCallback, i)"
+                          class="!text-sm !leading-none"
+                          label="Cancelar"
+                          text
+                          severity="danger"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
 
-                                                    @if (uploadedFiles().length > 0) {
-                                                      <div class="px-4 py-0">
-                                                        <h5 class="m-0 mb-2">Completados</h5>
-                                                        <div class="flex flex-wrap gap-2">
-                                                          @for (file of uploadedFiles(); track file.name) {
-                                                            <div
-                                                              class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center"
-                                                              >
-                                                              <div>
-                                                                <img
-                                                                  role="presentation"
-                                                                  alt=""
-                                                                  [src]="file.objectURL"
-                                                                  width="100"
-                                                                  height="50"
-                                                                  loading="lazy"
-                                                                  />
-                                                                </div>
-                                                                <span
-                                                                  class="font-semibold max-w-[100px] text-ellipsis whitespace-nowrap overflow-hidden"
-                                                                  >{{ file.name }}</span
-                                                                  >
-                                                                  <span class="text-sm text-muted-color">{{
-                                                                    formatSize(file.size)
-                                                                  }}</span>
-                                                                  <div class="grow flex flex-col gap-2 justify-end">
-                                                                    <p-badge
-                                                                      value="Completado"
-                                                                      class="mt-3"
-                                                                      severity="success"
-                                                                      />
-                                                                      <p-button
-                                                                        icon="pi pi-times text-sm leading-none"
-                                                                        class="!text-sm !leading-none"
-                                                                        label="Cancelar"
-                                                                        text
-                                                                        severity="danger"
-                                                                        />
-                                                                      </div>
-                                                                    </div>
-                                                                  }
-                                                                </div>
-                                                              </div>
-                                                            }
-                                                          </ng-template>
-                                                        </p-fileupload>
-                                                      </div>
-                                                      <div>
-                                                        <label class="text-color font-medium leading-6" for="file-tags-ac">Etiqueta (Opcional)</label>
-                                                        <p-autocomplete
-                                                          [ngModel]="filesTag()"
-                                                          (ngModelChange)="filesTag.set($event)"
-                                                          styleClass="w-full mt-2"
-                                                          inputId="file-tags-ac"
-                                                          multiple
-                                                          (completeMethod)="search2($event)"
-                                                          [typeahead]="false"
-                                                          />
-                                                        </div>
-                                                        <div class="flex items-center gap-2">
-                                                          @for (permission of permissions; track permission.key) {
-                                                            <label
-                                                              [for]="permission.key"
-                                                              class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-border border border-surface hover:bg-emphasis transition-all select-none"
-                                                              >
-                                                              <i class="text-color" [ngClass]="permission.icon" aria-hidden="true"></i>
-                                                              <div class="flex-1 text-sm leading-5 text-color">
-                                                                {{ permission.name }}
-                                                              </div>
-                                                              <p-radiobutton
-                                                                [ngModel]="selectedPermission()"
-                                                                (ngModelChange)="selectedPermission.set($event)"
-                                                                [inputId]="permission.key"
-                                                                variant="filled"
-                                                                name="dynamic"
-                                                                [value]="permission.name"
-                                                                />
-                                                              </label>
-                                                            }
-                                                          </div>
-                                                          <div class="flex items-center gap-2">
-                                                            <button pButton label="Cancelar" outlined class="flex-1"></button>
-                                                            <button pButton label="Subir" class="flex-1"></button>
-                                                          </div>
-                                                        </div>
-                                                        <div class="border border-surface rounded-3xl p-6">
-                                                          <div class="flex items-start justify-between gap-1">
-                                                            <div class="flex items-center gap-x-2 gap-y-1 flex-wrap flex-1">
-                                                              <p-avatar
-                                                                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.png"
-                                                                shape="circle"
-                                                                class="rounded-lg overflow-hidden"
-                                                                />
-                                                                <p-avatar
-                                                                  image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png"
-                                                                  shape="circle"
-                                                                  class="rounded-lg overflow-hidden"
-                                                                  />
-                                                                  <p-avatar
-                                                                    image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
-                                                                    shape="circle"
-                                                                    class="rounded-lg overflow-hidden"
-                                                                    />
-                                                                    <p-avatar
-                                                                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
-                                                                      shape="circle"
-                                                                      class="rounded-lg overflow-hidden"
-                                                                      />
-                                                                      <div class="w-full"></div>
-                                                                      <p-avatar
-                                                                        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png"
-                                                                        shape="circle"
-                                                                        class="rounded-lg overflow-hidden"
-                                                                        />
-                                                                        <p-avatar
-                                                                          image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg"
-                                                                          shape="circle"
-                                                                          class="rounded-lg overflow-hidden"
-                                                                          />
-                                                                          <p-avatar
-                                                                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png"
-                                                                            shape="circle"
-                                                                            class="rounded-lg overflow-hidden"
-                                                                            />
-                                                                            <p-avatar
-                                                                              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png"
-                                                                              shape="circle"
-                                                                              class="rounded-lg overflow-hidden"
-                                                                              />
-                                                                              <p-avatar
-                                                                                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg"
-                                                                                shape="circle"
-                                                                                class="rounded-lg overflow-hidden"
-                                                                                />
-                                                                                <p-avatar
-                                                                                  image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg"
-                                                                                  shape="circle"
-                                                                                  class="rounded-lg overflow-hidden"
-                                                                                  />
-                                                                                </div>
-                                                                                <p-button icon="pi pi-arrow-up-right" rounded text aria-label="Abrir enlace" />
-                                                                              </div>
-                                                                              <div class="text-2xl font-medium text-color mt-6 leading-8">
-                                                                                Ese es tu avatar
-                                                                              </div>
-                                                                              <div class="leading-6 text-muted-color mt-2">
-                                                                                ¡Fácil de usar! Colócalo y observa.
-                                                                              </div>
-                                                                            </div>
-                                                                            <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
-                                                                              <div class="flex items-center justify-between gap-2">
-                                                                                <div class="text-2xl font-medium leading-8 flex-1">Agregar miembro</div>
-                                                                                <p-button icon="pi pi-times" rounded text severity="secondary" aria-label="Cerrar" />
-                                                                              </div>
-                                                                              <div>
-                                                                                <div class="text-muted-color leading-6">Correo electrónico</div>
-                                                                                <div class="flex items-start gap-3 mt-2">
-                                                                                  <p-autocomplete
-                                                                                    [ngModel]="emailChips()"
-                                                                                    (ngModelChange)="emailChips.set($event)"
-                                                                                    inputId="invite-email-ac"
-                                                                                    aria-label="Correo electrónico"
-                                                                                    styleClass="w-full"
-                                                                                    class="flex-1"
-                                                                                    multiple
-                                                                                    (onSelect)="search($event)"
-                                                                                    [typeahead]="false"
-                                                                                    />
-                                                                                    <p-button label="Invitar" />
-                                                                                  </div>
-                                                                                </div>
-                                                                                <div>
-                                                                                  <div class="font-medium leading-6 text-muted-color">Miembros</div>
-                                                                                  <div class="mt-4 flex flex-col gap-4">
-                                                                                    <div class="flex items-center gap-2 justify-between">
-                                                                                      <p-avatar
-                                                                                        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png"
-                                                                                        class="w-9 h-9"
-                                                                                        shape="circle"
-                                                                                        />
-                                                                                        <div class="flex-1">
-                                                                                          <div class="text-sm font-medium text-color leading-5">
-                                                                                            Brook Simmons
-                                                                                          </div>
-                                                                                          <div class="text-sm text-muted-color leading-5 line-clamp-4">
-                                                                                            brook.sim42&#64;primeng.org
-                                                                                          </div>
-                                                                                        </div>
-                                                                                        <p-select
-                                                                                          [ngModel]="memberSelectedTypes()[0]"
-                                                                                          (ngModelChange)="updateMemberSelectedType(0, $event)"
-                                                                                          [options]="memberTypes"
-                                                                                          optionLabel="name"
-                                                                                          placeholder="Seleccionar"
-                                                                                          class="!border-0 !shadow-none"
-                                                                                          />
-                                                                                        </div>
-                                                                                        <div class="flex items-center gap-2 justify-between">
-                                                                                          <p-avatar
-                                                                                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg"
-                                                                                            class="w-9 h-9"
-                                                                                            shape="circle"
-                                                                                            />
-                                                                                            <div class="flex-1">
-                                                                                              <div class="text-sm font-medium text-color leading-5">
-                                                                                                Dianne Russell
-                                                                                              </div>
-                                                                                              <div class="text-sm text-muted-color leading-5 line-clamp-4">
-                                                                                                di.russ23&#64;primeng.org
-                                                                                              </div>
-                                                                                            </div>
-                                                                                            <p-select
-                                                                                              [ngModel]="memberSelectedTypes()[1]"
-                                                                                              (ngModelChange)="updateMemberSelectedType(1, $event)"
-                                                                                              [options]="memberTypes"
-                                                                                              optionLabel="name"
-                                                                                              placeholder="Seleccionar"
-                                                                                              class="!border-0 !shadow-none"
-                                                                                              />
-                                                                                            </div>
-                                                                                            <div class="flex items-center gap-2 justify-between">
-                                                                                              <p-avatar
-                                                                                                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg"
-                                                                                                class="w-9 h-9"
-                                                                                                shape="circle"
-                                                                                                />
-                                                                                                <div class="flex-1">
-                                                                                                  <div class="text-sm font-medium text-color leading-5">
-                                                                                                    Jacob Jones
-                                                                                                  </div>
-                                                                                                  <div class="text-sm text-muted-color leading-5 line-clamp-4">
-                                                                                                    jac.jon87&#64;primeng.org
-                                                                                                  </div>
-                                                                                                </div>
-                                                                                                <p-select
-                                                                                                  [ngModel]="memberSelectedTypes()[2]"
-                                                                                                  (ngModelChange)="updateMemberSelectedType(2, $event)"
-                                                                                                  [options]="memberTypes"
-                                                                                                  optionLabel="name"
-                                                                                                  placeholder="Seleccionar"
-                                                                                                  class="!border-0 !shadow-none"
-                                                                                                  />
-                                                                                                </div>
-                                                                                              </div>
-                                                                                            </div>
-                                                                                            <div>
-                                                                                              <div class="font-medium leading-6 text-muted-color">Copiar enlace</div>
-                                                                                              <div class="flex items-center gap-3 mt-2">
-                                                                                                <input
-                                                                                                  type="text"
-                                                                                                  pInputText
-                                                                                                  [ngModel]="copiedText()"
-                                                                                                  (ngModelChange)="copiedText.set($event)"
-                                                                                                  class="flex-1"
-                                                                                                  readOnly
-                                                                                                  aria-label="Copiar enlace"
-                                                                                                  />
-                                                                                                  <p-button label="Copiar" severity="secondary" />
-                                                                                                </div>
-                                                                                              </div>
-                                                                                            </div>
-                                                                                          </div>
-                                                                                          <div class="flex-1 flex flex-wrap gap-6">
-                                                                                            <div class="flex-1 border border-surface rounded-3xl p-6">
-                                                                                              <div class="text-color font-medium leading-6 mb-4">Perfiles de usuario</div>
-                                                                                              <p-selectbutton
-                                                                                                [ngModel]="userProfiles()"
-                                                                                                (ngModelChange)="userProfiles.set($event)"
-                                                                                                [options]="userProfilesOptions"
-                                                                                                class="w-full"
-                                                                                                styleClass="flex-1 w-full"
-                                                                                                />
-                                                                                                <div class="flex flex-col gap-4 mt-6">
-                                                                                                  <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-volume-down text-color text-xl" aria-hidden="true"></i>
-                                                                                                    <div class="leading-6 text-color flex-1">Sonido</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[0]" (ngModelChange)="updateUserProfilesValue(0, $event)" aria-label="Sonido" />
-                                                                                                  </div>
-                                                                                                  <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-wifi text-color text-xl" aria-hidden="true"></i>
-                                                                                                    <div class="leading-6 text-color flex-1">Wi-Fi</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[1]" (ngModelChange)="updateUserProfilesValue(1, $event)" aria-label="Wi-Fi" />
-                                                                                                  </div>
-                                                                                                  <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-moon text-color text-xl" aria-hidden="true"></i>
-                                                                                                    <div class="leading-6 text-color flex-1">Modo oscuro</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[2]" (ngModelChange)="updateUserProfilesValue(2, $event)" aria-label="Modo oscuro" />
-                                                                                                  </div>
-                                                                                                  <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-map-marker text-color text-xl" aria-hidden="true"></i>
-                                                                                                    <div class="leading-6 text-color flex-1">Servicios de ubicación</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[3]" (ngModelChange)="updateUserProfilesValue(3, $event)" aria-label="Servicios de ubicación" />
-                                                                                                  </div>
-                                                                                                  <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-shield text-color text-xl" aria-hidden="true"></i>
-                                                                                                    <div class="leading-6 text-color flex-1">Privacidad</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[4]" (ngModelChange)="updateUserProfilesValue(4, $event)" aria-label="Privacidad" />
-                                                                                                  </div>
-                                                                                                  <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-sync text-color text-xl" aria-hidden="true"></i>
-                                                                                                    <div class="leading-6 text-color flex-1">Actualización automática</div>
-                                                                                                    <p-toggleswitch [ngModel]="userProfilesValues()[5]" (ngModelChange)="updateUserProfilesValue(5, $event)" aria-label="Actualización automática" />
-                                                                                                  </div>
-                                                                                                </div>
-                                                                                              </div>
-                                                                                              <div
-                                                                                                class="flex-1 border border-surface rounded-3xl p-6 flex flex-col gap-6"
-                                                                                                >
-                                                                                                <div class="font-medium text-color text-2xl text-center">
-                                                                                                  Olvidé mi contraseña
-                                                                                                </div>
-                                                                                                <div>
-                                                                                                  <div class="text-muted-color text-lg text-center leading-6">
-                                                                                                    El código de verificación <br />
-                                                                                                    fue enviado al correo
-                                                                                                  </div>
-                                                                                                  <div
-                                                                                                    class="rounded-full px-4 py-1 bg-surface-200 dark:bg-surface-800 w-fit mx-auto mt-4 text-color text-lg leading-6"
-                                                                                                    >
-                                                                                                    u*******m&#64;gmail.com
-                                                                                                  </div>
-                                                                                                </div>
-                                                                                                <div class="flex items-center justify-center">
-                                                                                                  <p-button label="Reenviar" text />
-                                                                                                </div>
-                                                                                                <div class="flex items-center justify-center">
-                                                                                                  <p-inputotp
-                                                                                                    [ngModel]="forgotPasswordOTP()"
-                                                                                                    (ngModelChange)="forgotPasswordOTP.set($event)"
-                                                                                                    [length]="6"
-                                                                                                    [integerOnly]="true"
-                                                                                                    class="w-full [&>*]:flex-1 [&>*]:min-h-14 [&>*]:text-2xl"
-                                                                                                    />
-                                                                                                  </div>
-                                                                                                  <button pButton label="Cambiar contraseña" class="w-full"></button>
-                                                                                                </div>
-                                                                                                <div class="border border-surface rounded-3xl p-6">
-                                                                                                  <div class="text-color font-medium leading-6 mb-6">Rango de precio</div>
-                                                                                                  <div>
-                                                                                                    <p-slider [ngModel]="priceRange()" (ngModelChange)="priceRange.set($event)" [min]="0" range [max]="15000" />
-                                                                                                  </div>
-                                                                                                  <div class="mt-4 flex gap-2">
-                                                                                                    <div class="flex-1">
-                                                                                                      <label for="price-min-val" class="leading-6 text-color"
-                                                                                                        >Valor mínimo</label
-                                                                                                        >
-                                                                                                        <p-inputnumber
-                                                                                                          [ngModel]="priceRange()[0]"
-                                                                                                          (ngModelChange)="updatePriceRangeValue(0, $event)"
-                                                                                                          [min]="0"
-                                                                                                          inputId="price-min-val"
-                                                                                                          mode="currency"
-                                                                                                          currency="USD"
-                                                                                                          locale="en-US"
-                                                                                                          styleClass="w-full"
-                                                                                                          />
-                                                                                                        </div>
-                                                                                                        <div class="flex-1">
-                                                                                                          <label for="price-max-val" class="leading-6 text-color"
-                                                                                                            >Valor máximo</label
-                                                                                                            >
-                                                                                                            <p-inputnumber
-                                                                                                              [ngModel]="priceRange()[1]"
-                                                                                                              (ngModelChange)="updatePriceRangeValue(1, $event)"
-                                                                                                              inputId="price-max-val"
-                                                                                                              mode="currency"
-                                                                                                              currency="USD"
-                                                                                                              locale="en-US"
-                                                                                                              styleClass="w-full"
-                                                                                                              />
-                                                                                                            </div>
-                                                                                                          </div>
-                                                                                                          <div class="mt-4">
-                                                                                                            <div class="text-color font-medium leading-6 mb-6">Especificaciones populares</div>
-                                                                                                            <div class="flex items-center gap-4 flex-wrap">
-                                                                                                              @for (data of priceRangePopularSpecs; track data.value) {
-                                                                                                                <div
-                                                                                                                  class="flex items-center"
-                                                                                                                  >
-                                                                                                                  <p-checkbox
-                                                                                                                    [ngModel]="priceRangePopularSpecsChecked()"
-                                                                                                                    (ngModelChange)="priceRangePopularSpecsChecked.set($event)"
-                                                                                                                    [inputId]="data.value"
-                                                                                                                    [name]="data.value"
-                                                                                                                    [value]="data.value"
-                                                                                                                    />
-                                                                                                                    <label [for]="data.value" class="ml-2">{{ data.value }}</label>
-                                                                                                                  </div>
-                                                                                                                }
-                                                                                                              </div>
-                                                                                                            </div>
-                                                                                                            <div class="flex items-center gap-3 flex-wrap [&>*]:flex-1 mt-6">
-                                                                                                              <button pButton label="Deshacer" outlined class="w-full"></button>
-                                                                                                              <button pButton label="Aleatorio" class="w-full"></button>
-                                                                                                            </div>
-                                                                                                          </div>
-                                                                                                        </div>
-                                                                                                      </div>
+            @if (uploadedFiles().length > 0) {
+              <div class="px-4 py-0">
+                <h5 class="m-0 mb-2">Completados</h5>
+                <div class="flex flex-wrap gap-2">
+                  @for (file of uploadedFiles(); track file.name) {
+                    <div class="max-w-30 p-2 flex flex-col border border-surface rounded-xl items-center gap-2 text-center">
+                      <div>
+                        <img role="presentation" alt="" [src]="file.objectURL" width="100" height="50" loading="lazy" />
+                      </div>
+                      <span class="font-semibold max-w-[100px] text-ellipsis whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                      <span class="text-sm text-muted-color">{{ formatSize(file.size) }}</span>
+                      <div class="grow flex flex-col gap-2 justify-end">
+                        <p-badge value="Completado" class="mt-3" severity="success" />
+                        <p-button
+                          icon="pi pi-times text-sm leading-none"
+                          class="!text-sm !leading-none"
+                          label="Cancelar"
+                          text
+                          severity="danger"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </ng-template>
+        </p-fileupload>
+      </div>
+      <div>
+        <label class="text-color font-medium leading-6" for="file-tags-ac">Etiqueta (Opcional)</label>
+        <p-autocomplete
+          [ngModel]="filesTag()"
+          (ngModelChange)="filesTag.set($event)"
+          styleClass="w-full mt-2"
+          inputId="file-tags-ac"
+          multiple
+          (completeMethod)="search2($event)"
+          [typeahead]="false"
+        />
+      </div>
+      <div class="flex items-center gap-2">
+        @for (permission of permissions; track permission.key) {
+          <label
+            [for]="permission.key"
+            class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-border border border-surface hover:bg-emphasis transition-all select-none"
+          >
+            <i class="text-color" [ngClass]="permission.icon" aria-hidden="true"></i>
+            <div class="flex-1 text-sm leading-5 text-color">
+              {{ permission.name }}
+            </div>
+            <p-radiobutton
+              [ngModel]="selectedPermission()"
+              (ngModelChange)="selectedPermission.set($event)"
+              [inputId]="permission.key"
+              variant="filled"
+              name="dynamic"
+              [value]="permission.name"
+            />
+          </label>
+        }
+      </div>
+      <div class="flex items-center gap-2">
+        <button pButton label="Cancelar" outlined class="flex-1"></button>
+        <button pButton label="Subir" class="flex-1"></button>
+      </div>
+    </div>
+    <div class="border border-surface rounded-3xl p-6">
+      <div class="flex items-start justify-between gap-1">
+        <div class="flex items-center gap-x-2 gap-y-1 flex-wrap flex-1">
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.png"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <div class="w-full"></div>
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg"
+            shape="circle"
+            class="rounded-lg overflow-hidden"
+          />
+        </div>
+        <p-button icon="pi pi-arrow-up-right" rounded text aria-label="Abrir enlace" />
+      </div>
+      <div class="text-2xl font-medium text-color mt-6 leading-8">Ese es tu avatar</div>
+      <div class="leading-6 text-muted-color mt-2">¡Fácil de usar! Colócalo y observa.</div>
+    </div>
+    <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
+      <div class="flex items-center justify-between gap-2">
+        <div class="text-2xl font-medium leading-8 flex-1">Agregar miembro</div>
+        <p-button icon="pi pi-times" rounded text severity="secondary" aria-label="Cerrar" />
+      </div>
+      <div>
+        <div class="text-muted-color leading-6">Correo electrónico</div>
+        <div class="flex items-start gap-3 mt-2">
+          <p-autocomplete
+            [ngModel]="emailChips()"
+            (ngModelChange)="emailChips.set($event)"
+            inputId="invite-email-ac"
+            aria-label="Correo electrónico"
+            styleClass="w-full"
+            class="flex-1"
+            multiple
+            (onSelect)="search($event)"
+            [typeahead]="false"
+          />
+          <p-button label="Invitar" />
+        </div>
+      </div>
+      <div>
+        <div class="font-medium leading-6 text-muted-color">Miembros</div>
+        <div class="mt-4 flex flex-col gap-4">
+          <div class="flex items-center gap-2 justify-between">
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png" class="w-9 h-9" shape="circle" />
+            <div class="flex-1">
+              <div class="text-sm font-medium text-color leading-5">Brook Simmons</div>
+              <div class="text-sm text-muted-color leading-5 line-clamp-4">brook.sim42&#64;primeng.org</div>
+            </div>
+            <p-select
+              [ngModel]="memberSelectedTypes()[0]"
+              (ngModelChange)="updateMemberSelectedType(0, $event)"
+              [options]="memberTypes"
+              optionLabel="name"
+              placeholder="Seleccionar"
+              class="!border-0 !shadow-none"
+            />
+          </div>
+          <div class="flex items-center gap-2 justify-between">
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg" class="w-9 h-9" shape="circle" />
+            <div class="flex-1">
+              <div class="text-sm font-medium text-color leading-5">Dianne Russell</div>
+              <div class="text-sm text-muted-color leading-5 line-clamp-4">di.russ23&#64;primeng.org</div>
+            </div>
+            <p-select
+              [ngModel]="memberSelectedTypes()[1]"
+              (ngModelChange)="updateMemberSelectedType(1, $event)"
+              [options]="memberTypes"
+              optionLabel="name"
+              placeholder="Seleccionar"
+              class="!border-0 !shadow-none"
+            />
+          </div>
+          <div class="flex items-center gap-2 justify-between">
+            <p-avatar image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg" class="w-9 h-9" shape="circle" />
+            <div class="flex-1">
+              <div class="text-sm font-medium text-color leading-5">Jacob Jones</div>
+              <div class="text-sm text-muted-color leading-5 line-clamp-4">jac.jon87&#64;primeng.org</div>
+            </div>
+            <p-select
+              [ngModel]="memberSelectedTypes()[2]"
+              (ngModelChange)="updateMemberSelectedType(2, $event)"
+              [options]="memberTypes"
+              optionLabel="name"
+              placeholder="Seleccionar"
+              class="!border-0 !shadow-none"
+            />
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="font-medium leading-6 text-muted-color">Copiar enlace</div>
+        <div class="flex items-center gap-3 mt-2">
+          <input
+            type="text"
+            pInputText
+            [ngModel]="copiedText()"
+            (ngModelChange)="copiedText.set($event)"
+            class="flex-1"
+            readOnly
+            aria-label="Copiar enlace"
+          />
+          <p-button label="Copiar" severity="secondary" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-1 flex flex-wrap gap-6">
+    <div class="flex-1 border border-surface rounded-3xl p-6">
+      <div class="text-color font-medium leading-6 mb-4">Perfiles de usuario</div>
+      <p-selectbutton
+        [ngModel]="userProfiles()"
+        (ngModelChange)="userProfiles.set($event)"
+        [options]="userProfilesOptions"
+        class="w-full"
+        styleClass="flex-1 w-full"
+      />
+      <div class="flex flex-col gap-4 mt-6">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-volume-down text-color text-xl" aria-hidden="true"></i>
+          <div class="leading-6 text-color flex-1">Sonido</div>
+          <p-toggleswitch [ngModel]="userProfilesValues()[0]" (ngModelChange)="updateUserProfilesValue(0, $event)" aria-label="Sonido" />
+        </div>
+        <div class="flex items-center gap-3">
+          <i class="pi pi-wifi text-color text-xl" aria-hidden="true"></i>
+          <div class="leading-6 text-color flex-1">Wi-Fi</div>
+          <p-toggleswitch [ngModel]="userProfilesValues()[1]" (ngModelChange)="updateUserProfilesValue(1, $event)" aria-label="Wi-Fi" />
+        </div>
+        <div class="flex items-center gap-3">
+          <i class="pi pi-moon text-color text-xl" aria-hidden="true"></i>
+          <div class="leading-6 text-color flex-1">Modo oscuro</div>
+          <p-toggleswitch
+            [ngModel]="userProfilesValues()[2]"
+            (ngModelChange)="updateUserProfilesValue(2, $event)"
+            aria-label="Modo oscuro"
+          />
+        </div>
+        <div class="flex items-center gap-3">
+          <i class="pi pi-map-marker text-color text-xl" aria-hidden="true"></i>
+          <div class="leading-6 text-color flex-1">Servicios de ubicación</div>
+          <p-toggleswitch
+            [ngModel]="userProfilesValues()[3]"
+            (ngModelChange)="updateUserProfilesValue(3, $event)"
+            aria-label="Servicios de ubicación"
+          />
+        </div>
+        <div class="flex items-center gap-3">
+          <i class="pi pi-shield text-color text-xl" aria-hidden="true"></i>
+          <div class="leading-6 text-color flex-1">Privacidad</div>
+          <p-toggleswitch
+            [ngModel]="userProfilesValues()[4]"
+            (ngModelChange)="updateUserProfilesValue(4, $event)"
+            aria-label="Privacidad"
+          />
+        </div>
+        <div class="flex items-center gap-3">
+          <i class="pi pi-sync text-color text-xl" aria-hidden="true"></i>
+          <div class="leading-6 text-color flex-1">Actualización automática</div>
+          <p-toggleswitch
+            [ngModel]="userProfilesValues()[5]"
+            (ngModelChange)="updateUserProfilesValue(5, $event)"
+            aria-label="Actualización automática"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 border border-surface rounded-3xl p-6 flex flex-col gap-6">
+      <div class="font-medium text-color text-2xl text-center">Olvidé mi contraseña</div>
+      <div>
+        <div class="text-muted-color text-lg text-center leading-6">
+          El código de verificación <br />
+          fue enviado al correo
+        </div>
+        <div class="rounded-full px-4 py-1 bg-surface-200 dark:bg-surface-800 w-fit mx-auto mt-4 text-color text-lg leading-6">
+          u*******m&#64;gmail.com
+        </div>
+      </div>
+      <div class="flex items-center justify-center">
+        <p-button label="Reenviar" text />
+      </div>
+      <div class="flex items-center justify-center">
+        <p-inputotp
+          [ngModel]="forgotPasswordOTP()"
+          (ngModelChange)="forgotPasswordOTP.set($event)"
+          [length]="6"
+          [integerOnly]="true"
+          class="w-full [&>*]:flex-1 [&>*]:min-h-14 [&>*]:text-2xl"
+        />
+      </div>
+      <button pButton label="Cambiar contraseña" class="w-full"></button>
+    </div>
+    <div class="border border-surface rounded-3xl p-6">
+      <div class="text-color font-medium leading-6 mb-6">Rango de precio</div>
+      <div>
+        <p-slider [ngModel]="priceRange()" (ngModelChange)="priceRange.set($event)" [min]="0" range [max]="15000" />
+      </div>
+      <div class="mt-4 flex gap-2">
+        <div class="flex-1">
+          <label for="price-min-val" class="leading-6 text-color">Valor mínimo</label>
+          <p-inputnumber
+            [ngModel]="priceRange()[0]"
+            (ngModelChange)="updatePriceRangeValue(0, $event)"
+            [min]="0"
+            inputId="price-min-val"
+            mode="currency"
+            currency="USD"
+            locale="en-US"
+            styleClass="w-full"
+          />
+        </div>
+        <div class="flex-1">
+          <label for="price-max-val" class="leading-6 text-color">Valor máximo</label>
+          <p-inputnumber
+            [ngModel]="priceRange()[1]"
+            (ngModelChange)="updatePriceRangeValue(1, $event)"
+            inputId="price-max-val"
+            mode="currency"
+            currency="USD"
+            locale="en-US"
+            styleClass="w-full"
+          />
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="text-color font-medium leading-6 mb-6">Especificaciones populares</div>
+        <div class="flex items-center gap-4 flex-wrap">
+          @for (data of priceRangePopularSpecs; track data.value) {
+            <div class="flex items-center">
+              <p-checkbox
+                [ngModel]="priceRangePopularSpecsChecked()"
+                (ngModelChange)="priceRangePopularSpecsChecked.set($event)"
+                [inputId]="data.value"
+                [name]="data.value"
+                [value]="data.value"
+              />
+              <label [for]="data.value" class="ml-2">{{ data.value }}</label>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap [&>*]:flex-1 mt-6">
+        <button pButton label="Deshacer" outlined class="w-full"></button>
+        <button pButton label="Aleatorio" class="w-full"></button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,16 +1,9 @@
 <div class="flex items-start gap-2 justify-between">
   <div>
     <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      La lista de análisis muestra todos los usuarios
-    </div>
+    <div class="mt-1 leading-6 text-muted-color">La lista de análisis muestra todos los usuarios</div>
   </div>
-  <p-button
-    icon="pi pi-circle-fill text-[var(--p-green-500)]"
-    label="950 Usuarios activos"
-    outlined
-    severity="secondary"
-  />
+  <p-button icon="pi pi-circle-fill text-[var(--p-green-500)]" label="950 Usuarios activos" outlined severity="secondary" />
 </div>
 <div class="mt-10 mb-4 flex items-center justify-between">
   <p-iconfield iconPosition="left">
@@ -26,12 +19,11 @@
     <p-button icon="pi pi-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
   </div>
 </div>
-<div
-  class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto"
->
+<div class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto">
   <p-table
     [value]="tableData"
-    [selection]="selectedRows()" (selectionChange)="selectedRows.set($event)"
+    [selection]="selectedRows()"
+    (selectionChange)="selectedRows.set($event)"
     dataKey="id"
     [rows]="10"
     [dt]="tableTokens"
@@ -57,23 +49,13 @@
         </td>
         <td>
           <div class="flex items-center">
-            <p-overlayBadge
-              [severity]="
-                data.active === undefined
-                  ? 'contrast'
-                  : data.active
-                  ? 'success'
-                  : 'danger'
-              "
-              styleClass="w-fit"
-            >
+            <p-overlayBadge [severity]="data.active === undefined ? 'contrast' : data.active ? 'success' : 'danger'" styleClass="w-fit">
               <p-avatar
                 [image]="data.image"
                 [label]="!data.image ? data.capName : ''"
                 [ngClass]="{
-                  'bg-violet-100 text-violet-950 text-xs font-medium':
-                    !data.image,
-                  'rounded-lg overflow-hidden flex': true
+                  'bg-violet-100 text-violet-950 text-xs font-medium': !data.image,
+                  'rounded-lg overflow-hidden flex': true,
                 }"
               />
             </p-overlayBadge>
@@ -88,10 +70,7 @@
         </td>
         <td>
           <div class="flex items-center gap-2">
-            <div
-              class="flex items-center justify-center"
-              [innerHTML]="companyLogos[data.company.logo]"
-            ></div>
+            <div class="flex items-center justify-center" [innerHTML]="companyLogos[data.company.logo]"></div>
 
             <div class="leading-6 text-surface-600 dark:text-surface-400">
               {{ data.company.name }}
@@ -108,13 +87,7 @@
         </td>
         <td>
           <p-tag
-            [severity]="
-              data.status === 'Activo'
-                ? 'success'
-                : data.status === 'Inactivo'
-                ? 'danger'
-                : 'info'
-            "
+            [severity]="data.status === 'Activo' ? 'success' : data.status === 'Inactivo' ? 'danger' : 'info'"
             [value]="data.status"
             styleClass="font-medium"
           />
@@ -137,19 +110,8 @@
   <p-popover #op>
     <ng-template #content>
       <div class="flex gap-2">
-        <p-button
-          label="Detalles"
-          size="small"
-          outlined
-          (click)="op.hide()"
-        ></p-button>
-        <p-button
-          label="Eliminar"
-          severity="danger"
-          size="small"
-          outlined
-          (click)="op.hide()"
-        ></p-button>
+        <p-button label="Detalles" size="small" outlined (click)="op.hide()"></p-button>
+        <p-button label="Eliminar" severity="danger" size="small" outlined (click)="op.hide()"></p-button>
       </div>
     </ng-template>
   </p-popover>
