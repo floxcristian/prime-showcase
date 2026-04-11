@@ -172,6 +172,12 @@ BORDES
   border-primary                      → Borde de acento (raro, solo énfasis)
   border-black/10 dark:border-white/20 → Solo layout principal (main.component)
 
+  ⚠️ border-surface vs surface-200: NO son iguales.
+  - `border-surface` / `divide-surface` usa --p-surface-border-color → borde FUERTE (cards, panels)
+  - `border-surface-200 dark:border-surface-800` / `divide-surface-200 dark:divide-surface-800`
+    → borde SUTIL gris-azulado (dividers entre items de lista, filas de tabla interna)
+  Usar surface-200/800 para separadores internos que necesiten ser más suaves que border-surface.
+
 SURFACE INTERMEDIOS (solo para detalles finos, no para layout principal)
   text-surface-400 / text-surface-500   → Ticks de charts, texto muy sutil
   text-surface-600 dark:text-surface-400 → Texto de empresas/logos
@@ -205,7 +211,9 @@ PADDING: p-1 | p-2 ← DEFAULT | p-3 | p-4 | p-6 ← CARDS | px-4 py-1 (botones)
 MARGIN:  mt-1 (sutil) | mt-2/mb-2 | mt-4/mb-4 (secciones) | mt-6/mb-6 (grandes) | mb-0 (reset)
 FLEX:    grow (expandir) | shrink-0 (nunca encoger, ej: avatares en flex) | flex-1 (crecer+encoger)
 
-NO USAR: gap-7,9,10,12 | p-5,7,8 | m-3,5 | valores arbitrarios como gap-[13px]
+NO USAR: gap-9,10,12 | p-7,8 | m-7,8,9 | valores arbitrarios como gap-[13px]
+EXCEPCIONES ACEPTADAS (pre-existentes, documentadas en AUDIT_BASELINE.md EX-005):
+  gap-7, gap-8, py-8 (chat) | p-5 (side-menu) | mt-3, mb-5, mt-5 (layouts) | mt-10 (separadores)
 ```
 
 ### Escala de border-radius

@@ -39,6 +39,8 @@ testem.log
 
 # MCP & automation artifacts
 .playwright-mcp/
+*-snapshot.md
+*-detail.md
 *.png
 *.jpeg
 
