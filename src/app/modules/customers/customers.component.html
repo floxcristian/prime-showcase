@@ -18,12 +18,12 @@
     <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
   </p-iconfield>
   <div class="flex items-center gap-3">
-    <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" aria-label="Filtrar" />
+    <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" aria-label="Filtrar" pTooltip="Filtrar" tooltipPosition="bottom" />
     <p-divider layout="vertical" class="m-0 p-0" />
-    <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" aria-label="Actualizar" />
+    <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" aria-label="Actualizar" pTooltip="Actualizar" tooltipPosition="bottom" />
     <p-button label="1 de 15" outlined severity="secondary" />
-    <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
-    <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
+    <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" aria-label="Página anterior" pTooltip="Página anterior" tooltipPosition="bottom" />
+    <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" aria-label="Página siguiente" pTooltip="Página siguiente" tooltipPosition="bottom" />
   </div>
 </div>
 <div
@@ -128,6 +128,8 @@
               outlined
               severity="secondary"
               aria-label="Ver detalles"
+              pTooltip="Ver detalles"
+              tooltipPosition="bottom"
             />
           </div>
         </td>

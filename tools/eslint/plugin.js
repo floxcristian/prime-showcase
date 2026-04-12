@@ -11,6 +11,7 @@
  *   showcase/no-inline-styles      — Forbids static style="" attributes
  *   showcase/no-forbidden-spacing  — Enforces spacing scale (gap, padding, margin)
  *   showcase/no-missing-dark-pair  — Requires dark: counterpart for bg-surface-* classes
+ *   showcase/no-icon-button-without-tooltip — Requires pTooltip on icon-only <p-button>
  */
 
 /** @type {import('eslint').ESLint.Plugin} */
@@ -23,5 +24,6 @@ module.exports = {
     'no-forbidden-spacing': require('./rules/no-forbidden-spacing'),
     'no-missing-dark-pair': require('./rules/no-missing-dark-pair'),
     'no-forbidden-typography': require('./rules/no-forbidden-typography'),
+    'no-icon-button-without-tooltip': require('./rules/no-icon-button-without-tooltip'),
   },
 };

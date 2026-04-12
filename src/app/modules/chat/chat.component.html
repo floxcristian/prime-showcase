@@ -1,26 +1,23 @@
-<div class="w-4/12 xl:w-3/12 min-w-40 overflow-auto flex flex-col gap-6">
+<div class="w-4/12 xl:w-3/12 min-w-40 h-full overflow-hidden flex flex-col">
   <div
-    class="flex flex-col gap-6 pt-3 pb-2 -mb-2 px-5 sticky top-0 bg-surface-0 dark:bg-surface-950 z-10"
+    class="flex items-center justify-between gap-2 p-4 min-h-20 border-b border-surface"
     >
-    <div class="flex items-center justify-between gap-6 text-color">
-      <h1 class="text-2xl font-medium leading-8">Chats</h1>
-      <p-button icon="fa-sharp fa-regular fa-plus" text aria-label="Nuevo chat" />
-    </div>
+    <h1 class="text-2xl font-medium leading-8 text-color">Chats</h1>
+    <p-button icon="fa-sharp fa-regular fa-plus" text aria-label="Nuevo chat" pTooltip="Nuevo chat" tooltipPosition="bottom" />
   </div>
-  <div class="px-5">
-    <p-iconField iconPosition="left">
-      <p-inputIcon class="fa-sharp fa-regular fa-magnifying-glass" />
-      <input
-        type="text"
-        pInputText
-        [ngModel]="search()" (ngModelChange)="search.set($event)"
-        placeholder="Buscar"
-        aria-label="Buscar"
-        class="w-full"
-        />
-      </p-iconField>
-    </div>
-    <div class="w-full px-5">
+  <div class="flex-1 flex flex-col overflow-auto">
+    <div class="flex flex-col gap-4 p-4">
+      <p-iconField iconPosition="left">
+        <p-inputIcon class="fa-sharp fa-regular fa-magnifying-glass" />
+        <input
+          type="text"
+          pInputText
+          [ngModel]="search()" (ngModelChange)="search.set($event)"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          class="w-full"
+          />
+        </p-iconField>
       <p-selectButton
         [ngModel]="value()" (ngModelChange)="value.set($event)"
         [options]="options"
@@ -87,8 +84,9 @@
           }
         </div>
       </div>
-      <div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
-        <div class="flex items-center p-4 gap-7 border-b border-surface">
+    </div>
+    <div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
+        <div class="flex items-center p-4 min-h-20 gap-7 border-b border-surface">
           <div class="flex items-center">
             <p-avatar
               image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png"
@@ -109,13 +107,15 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <p-button icon="fa-sharp fa-regular fa-phone" text aria-label="Llamar" />
-              <p-button icon="fa-sharp fa-regular fa-magnifying-glass" text aria-label="Buscar" />
+              <p-button icon="fa-sharp fa-regular fa-phone" text aria-label="Llamar" pTooltip="Llamar" tooltipPosition="bottom" />
+              <p-button icon="fa-sharp fa-regular fa-magnifying-glass" text aria-label="Buscar" pTooltip="Buscar" tooltipPosition="bottom" />
               <p-button
                 type="button"
                 icon="fa-sharp fa-regular fa-ellipsis"
                 text
                 aria-label="Más opciones"
+                pTooltip="Más opciones"
+                tooltipPosition="bottom"
                 (click)="menu.toggle($event)"
                 aria-haspopup="true"
                 aria-controls="overlay_menu"
@@ -199,8 +199,8 @@
                   </div>
                   <div class="p-4 border-t border-surface flex items-end justify-between gap-2">
                     <div class="flex items-end gap-1 flex-1">
-                      <p-button icon="fa-sharp fa-regular fa-face-smile" text aria-label="Emojis" />
-                      <p-button icon="fa-sharp fa-regular fa-paperclip" text aria-label="Adjuntar archivo" />
+                      <p-button icon="fa-sharp fa-regular fa-face-smile" text aria-label="Emojis" pTooltip="Emojis" tooltipPosition="top" />
+                      <p-button icon="fa-sharp fa-regular fa-paperclip" text aria-label="Adjuntar archivo" pTooltip="Adjuntar archivo" tooltipPosition="top" />
                       <textarea
                         pTextarea
                         class="ml-1 flex-1 border-0 shadow-none max-h-32 min-h-9 bg-emphasis overflow-auto"
@@ -210,7 +210,7 @@
                         aria-label="Escribe tu mensaje"
                       ></textarea>
                     </div>
-                    <p-button icon="fa-sharp fa-regular fa-paper-plane" aria-label="Enviar mensaje" />
+                    <p-button icon="fa-sharp fa-regular fa-paper-plane" aria-label="Enviar mensaje" pTooltip="Enviar mensaje" tooltipPosition="top" />
                   </div>
                 </div>
                 <div class="w-3/12 xl:block hidden min-w-40 py-6 px-3 overflow-auto">
@@ -228,19 +228,23 @@
                         &#64;primetek
                       </div>
                       <div class="flex items-center justify-center flex-wrap gap-1 mt-4">
-                        <p-button icon="fa-sharp fa-regular fa-phone text-muted-color" severity="secondary" text aria-label="Llamar" />
-                        <p-button icon="fa-sharp fa-regular fa-film text-muted-color" severity="secondary" text aria-label="Videollamada" />
+                        <p-button icon="fa-sharp fa-regular fa-phone text-muted-color" severity="secondary" text aria-label="Llamar" pTooltip="Llamar" tooltipPosition="bottom" />
+                        <p-button icon="fa-sharp fa-regular fa-film text-muted-color" severity="secondary" text aria-label="Videollamada" pTooltip="Videollamada" tooltipPosition="bottom" />
                         <p-button
                           icon="fa-sharp fa-regular fa-arrow-right-to-bracket text-muted-color"
                           severity="secondary"
                           text
                           aria-label="Compartir pantalla"
+                          pTooltip="Compartir pantalla"
+                          tooltipPosition="bottom"
                           />
                           <p-button
                             icon="fa-sharp fa-regular fa-circle-info text-muted-color"
                             severity="secondary"
                             text
                             aria-label="Información"
+                            pTooltip="Información"
+                            tooltipPosition="bottom"
                             />
                             <p-button
                               type="button"
@@ -248,6 +252,8 @@
                               severity="secondary"
                               text
                               aria-label="Más opciones"
+                              pTooltip="Más opciones"
+                              tooltipPosition="bottom"
                               (click)="profileMenu.toggle($event)"
                               aria-haspopup="true"
                               aria-controls="overlay_menu_profile"

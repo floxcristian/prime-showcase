@@ -11,7 +11,7 @@
         <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
         <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
       </p-iconfield>
-      <p-button severity="secondary" outlined aria-label="Notificaciones">
+      <p-button severity="secondary" outlined aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom">
         <p-overlayBadge
           severity="danger"
           badgeSize="small"
@@ -38,6 +38,8 @@
             severity="secondary"
             outlined
             aria-label="Anterior"
+            pTooltip="Anterior"
+            tooltipPosition="bottom"
             />
           <p-button
             [disabled]="page() >= maxPage()"
@@ -46,6 +48,8 @@
             severity="secondary"
             outlined
             aria-label="Siguiente"
+            pTooltip="Siguiente"
+            tooltipPosition="bottom"
             />
         </div>
       </div>
@@ -101,6 +105,8 @@
                               text
                               aria-label="Quitar de favoritos"
                               rounded
+                              pTooltip="Quitar de favoritos"
+                              tooltipPosition="bottom"
                               (click)="$event.stopPropagation(); toggleCarouselBookmark(item)"
                               />
                           }
@@ -152,6 +158,8 @@
                                 text
                                 rounded
                                 aria-label="Quitar de favoritos"
+                                pTooltip="Quitar de favoritos"
+                                tooltipPosition="bottom"
                                 (click)="$event.stopPropagation(); togglePopularBookmark(movie)"
                                 />
                             }

@@ -554,19 +554,31 @@ Regla: siempre `object-cover` para imágenes en contenedores. Siempre `rounded-l
 
 ```html
 <!-- 3 paneles (ej: chat) — host: flex border border-surface rounded-2xl -->
-<div class="w-4/12 xl:w-3/12 min-w-40 overflow-auto flex flex-col">
-  <!-- Panel izquierdo: lista -->
+<div class="w-4/12 xl:w-3/12 min-w-40 h-full overflow-hidden flex flex-col">
+  <!-- Header fijo con border-b -->
+  <div class="flex items-center justify-between gap-2 p-4 border-b border-surface">
+    <h1 class="text-2xl font-medium leading-8 text-color">Título</h1>
+    <p-button icon="fa-sharp fa-regular fa-plus" text />
+  </div>
+  <!-- Contenido scrolleable -->
+  <div class="flex-1 flex flex-col overflow-auto">...</div>
 </div>
 <div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
-  <!-- Panel central: contenido principal -->
+  <!-- Header fijo con border-b (misma estructura que panel izquierdo) -->
+  <div class="flex items-center p-4 border-b border-surface">...</div>
+  <!-- Contenido scrolleable -->
+  <div class="flex-1 overflow-auto">...</div>
 </div>
 <div class="w-3/12 xl:block hidden min-w-40 overflow-auto">
   <!-- Panel derecho: info (oculto bajo xl) -->
 </div>
 
 <!-- 2 paneles (ej: inbox) — host: flex gap-4 -->
-<div class="w-64 h-full border border-surface rounded-2xl flex flex-col">
-  <!-- Sidebar fijo -->
+<div class="w-64 h-full overflow-hidden border border-surface rounded-2xl flex flex-col">
+  <!-- Header fijo con border-b -->
+  <div class="flex items-center justify-between gap-2 p-4 border-b border-surface">...</div>
+  <!-- Contenido scrolleable -->
+  <div class="flex-1 flex flex-col overflow-auto">...</div>
 </div>
 <div class="flex-1 h-full border border-surface rounded-2xl">
   <!-- Contenido principal -->
@@ -574,9 +586,11 @@ Regla: siempre `object-cover` para imágenes en contenedores. Siempre `rounded-l
 ```
 
 Reglas multi-panel:
+- **Headers consistentes:** Todos los headers de panel deben usar `p-4 border-b border-surface`. Esto garantiza alturas alineadas entre paneles. Para tablas PrimeNG, usar `header.padding: '1rem'` en `[dt]` tokens.
+- **Estructura header/scroll:** Cada panel con header usa `overflow-hidden` en el contenedor, header fijo arriba, y `flex-1 overflow-auto` en el contenido. **Nunca** usar `sticky` como sustituto de esta estructura.
 - Paneles se separan con `border-x border-surface` (adyacentes) o `gap-4` + bordes propios (separados).
 - Paneles ocultos en mobile usan `xl:block hidden`.
-- Cada panel scrollea independientemente con `overflow-auto`.
+- Cada panel scrollea independientemente con `overflow-auto` en su zona de contenido (no en el contenedor padre).
 - Anchos con fracciones: `w-4/12`, `w-8/12`, `w-3/12`. Fijos: `w-64`, `w-72`.
 
 ### Formularios dentro de cards

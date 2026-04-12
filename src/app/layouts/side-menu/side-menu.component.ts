@@ -1,9 +1,12 @@
 // Angular
 import { NgClass } from '@angular/common';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  Injector,
+  inject,
   signal,
   viewChild,
 } from '@angular/core';
@@ -76,19 +79,11 @@ export class SideMenuComponent {
     'Oportunidades',
   ];
 
-  // Focus management refs
+  // Focus management
+  private injector = inject(Injector);
   private settingsTriggerRef =
     viewChild<ElementRef<HTMLButtonElement>>('settingsTrigger');
   private drawerCloseRef = viewChild('drawerCloseBtn', { read: ElementRef });
-
-  private focusElement(ref: ElementRef<HTMLElement> | undefined): void {
-    const host = ref?.nativeElement;
-    if (!host) return;
-    const focusable = host.matches('button, [tabindex]')
-      ? host
-      : host.querySelector<HTMLElement>('button, [tabindex]');
-    focusable?.focus();
-  }
 
   // Drawer data
   callLogs: CallLog[] = CALL_LOGS;
@@ -97,11 +92,15 @@ export class SideMenuComponent {
   opportunities: Opportunity[] = OPPORTUNITIES;
 
   onDrawerShow(): void {
-    queueMicrotask(() => this.focusElement(this.drawerCloseRef()));
+    afterNextRender(() => {
+      this.drawerCloseRef()?.nativeElement.querySelector('button')?.focus();
+    }, { injector: this.injector });
   }
 
   onDrawerHide(): void {
-    queueMicrotask(() => this.focusElement(this.settingsTriggerRef()));
+    afterNextRender(() => {
+      this.settingsTriggerRef()?.nativeElement.focus();
+    }, { injector: this.injector });
   }
 
   togglePreference(pref: PreferenceItem): void {

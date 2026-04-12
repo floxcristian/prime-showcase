@@ -14,6 +14,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { Textarea } from 'primeng/textarea';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { TooltipModule } from 'primeng/tooltip';
 // Shared
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 // Mocks
@@ -39,6 +40,7 @@ const PRIME_MODULES = [
   MenuModule,
   Textarea,
   ToggleSwitchModule,
+  TooltipModule,
 ];
 const LOCAL_COMPONENTS = [EmptyStateComponent];
 

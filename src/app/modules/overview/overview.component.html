@@ -14,7 +14,7 @@
         <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
         <input type="text" pInputText placeholder="Buscar" aria-label="Buscar" />
       </p-iconfield>
-      <p-button severity="secondary" outlined aria-label="Notificaciones">
+      <p-button severity="secondary" outlined aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom">
         <p-overlayBadge severity="danger" styleClass="!min-w-0 !w-2.5 !h-2.5">
           <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
         </p-overlayBadge>
@@ -89,6 +89,8 @@
                   severity="secondary"
                   text
                   aria-label="Más opciones"
+                  pTooltip="Más opciones"
+                  tooltipPosition="bottom"
                   (click)="transactionsMenu.toggle($event)"
                   aria-haspopup="true"
                   aria-controls="overlay_menu_transactions"
@@ -108,6 +110,12 @@
                   [dt]="tableTokens"
                   paginatorStyleClass="!bg-transparent"
                   >
+                  <ng-template #paginatorpreviouspagelinkicon>
+                    <i class="fa-sharp fa-regular fa-chevron-left" pTooltip="Página anterior" tooltipPosition="bottom"></i>
+                  </ng-template>
+                  <ng-template #paginatornextpagelinkicon>
+                    <i class="fa-sharp fa-regular fa-chevron-right" pTooltip="Página siguiente" tooltipPosition="bottom"></i>
+                  </ng-template>
                   <ng-template #header>
                     <tr>
                       <th scope="col" class="w-1/12">Id</th>
@@ -181,6 +189,8 @@
                         severity="secondary"
                         text
                         aria-label="Más opciones"
+                        pTooltip="Más opciones"
+                        tooltipPosition="bottom"
                         (click)="menu.toggle($event)"
                         aria-haspopup="true"
                         aria-controls="overlay_menu"

@@ -117,7 +117,7 @@
                               <div class="text-color font-medium leading-7">Jacob Jones</div>
                               <div class="text-muted-color text-sm mt-1">hi&#64;jacobjones.co</div>
                             </div>
-                            <p-button icon="fa-sharp fa-regular fa-bell" severity="contrast" text aria-label="Notificaciones" />
+                            <p-button icon="fa-sharp fa-regular fa-bell" severity="contrast" text aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom" />
                           </div>
                           <div class="mt-4 flex flex-col gap-1">
                             <button
@@ -195,6 +195,8 @@
                                 outlined
                                 rounded
                                 aria-label="Guardar oferta"
+                                pTooltip="Guardar oferta"
+                                tooltipPosition="bottom"
                                 />
                               </div>
                               <div class="flex flex-wrap gap-1 items-center justify-between">
@@ -266,7 +268,7 @@
                                       <div class="flex items-center gap-2 text-color">
                                         <i class="fa-sharp fa-regular fa-cloud-arrow-up text-xl" aria-hidden="true"></i>
                                         <div class="flex-1 font-medium leading-6">Subir archivos</div>
-                                        <p-button icon="fa-sharp fa-regular fa-xmark" text rounded aria-label="Cerrar" />
+                                        <p-button icon="fa-sharp fa-regular fa-xmark" text rounded aria-label="Cerrar" pTooltip="Cerrar" tooltipPosition="bottom" />
                                       </div>
                                       <div>
                                         <label for="document-name" class="text-color font-medium leading-6"
@@ -310,6 +312,8 @@
                                                       outlined
                                                       severity="secondary"
                                                       aria-label="Seleccionar archivos"
+                                                      pTooltip="Seleccionar archivos"
+                                                      tooltipPosition="bottom"
                                                     ></p-button>
                                                     <p-button
                                                       (click)="uploadEvent(uploadCallback)"
@@ -319,6 +323,8 @@
                                                       severity="success"
                                                       [disabled]="files().length === 0"
                                                       aria-label="Subir archivos"
+                                                      pTooltip="Subir archivos"
+                                                      tooltipPosition="bottom"
                                                     ></p-button>
                                                     <p-button
                                                       (click)="clearCallback()"
@@ -328,6 +334,8 @@
                                                       severity="danger"
                                                       [disabled]="files().length === 0"
                                                       aria-label="Limpiar archivos"
+                                                      pTooltip="Limpiar archivos"
+                                                      tooltipPosition="bottom"
                                                     ></p-button>
                                                   </div>
                                                 </div>
@@ -540,7 +548,7 @@
                                                                                   class="rounded-lg overflow-hidden"
                                                                                   />
                                                                                 </div>
-                                                                                <p-button icon="fa-sharp fa-regular fa-arrow-up-right" rounded text aria-label="Abrir enlace" />
+                                                                                <p-button icon="fa-sharp fa-regular fa-arrow-up-right" rounded text aria-label="Abrir enlace" pTooltip="Abrir enlace" tooltipPosition="bottom" />
                                                                               </div>
                                                                               <div class="text-2xl font-medium text-color mt-6 leading-8">
                                                                                 Ese es tu avatar
@@ -552,7 +560,7 @@
                                                                             <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
                                                                               <div class="flex items-center justify-between gap-2">
                                                                                 <div class="text-2xl font-medium leading-8 flex-1">Agregar miembro</div>
-                                                                                <p-button icon="fa-sharp fa-regular fa-xmark" rounded text severity="secondary" aria-label="Cerrar" />
+                                                                                <p-button icon="fa-sharp fa-regular fa-xmark" rounded text severity="secondary" aria-label="Cerrar" pTooltip="Cerrar" tooltipPosition="bottom" />
                                                                               </div>
                                                                               <div>
                                                                                 <div class="text-muted-color leading-6">Correo electrónico</div>

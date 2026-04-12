@@ -20,6 +20,7 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ProgressBar } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { InboxNavGroup, InboxMessage } from './models/inbox.interface';
 import {
@@ -41,6 +42,7 @@ const PRIME_MODULES = [
   ProgressBar,
   TableModule,
   Tag,
+  TooltipModule,
 ];
 const LOCAL_COMPONENTS = [EmptyStateComponent];
 @Component({
@@ -84,6 +86,7 @@ export class InboxComponent {
   tableTokens = {
     header: {
       background: 'transparent',
+      padding: '1rem',
     },
     headerCell: {
       background: 'transparent',

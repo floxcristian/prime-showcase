@@ -135,8 +135,7 @@
                                       type="button"
                                       [pTooltip]="isSlimMenu() ? navItem.title : ''"
                                       [attr.aria-label]="navItem.title"
-                                      [attr.aria-haspopup]="'dialog'"
-                                      [attr.aria-expanded]="dashboardSidebarVisible()"
+                                      aria-haspopup="dialog"
                                       (click)="dashboardSidebarVisible.set(true)"
                                       class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
                                       [ngClass]="{
@@ -162,7 +161,7 @@
                             </nav>
                                   <p-divider />
                                   <div
-                                    [class]="isSlimMenu() ? 'justify-center' : ' gap-3'"
+                                    [class]="isSlimMenu() ? 'justify-center' : 'gap-3'"
                                     class="flex items-center"
                                     >
                                     <p-avatar
@@ -196,12 +195,7 @@
   styleClass="!max-w-2xl !w-full !h-screen rounded-l-2xl"
 >
   <ng-template #headless>
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="settings-drawer-title"
-      class="flex flex-col h-screen overflow-auto"
-    >
+    <div class="flex flex-col h-screen overflow-auto">
       <div>
         <div class="flex items-center gap-3 p-6">
           <p-avatar
@@ -210,7 +204,7 @@
             class="rounded-xl overflow-hidden"
           />
           <div class="flex-1">
-            <div id="settings-drawer-title" class="leading-6 text-color font-medium">Brook Simmons</div>
+            <div class="leading-6 text-color font-medium">Brook Simmons</div>
             <div class="mt-1 leading-5 text-muted-color text-sm">Ejecutivo de ventas</div>
           </div>
           <p-button
@@ -221,6 +215,8 @@
             rounded
             severity="secondary"
             aria-label="Cerrar panel"
+            pTooltip="Cerrar panel"
+            tooltipPosition="bottom"
           />
         </div>
         <p-selectbutton
@@ -247,6 +243,8 @@
                 severity="secondary"
                 text
                 aria-label="Descargar registro de llamadas"
+                pTooltip="Descargar"
+                tooltipPosition="bottom"
               />
             </div>
             <div
@@ -270,6 +268,8 @@
                     text
                     styleClass="bg-primary/10 dark:bg-primary/20 w-8 h-8"
                     aria-label="Llamar"
+                    pTooltip="Llamar"
+                    tooltipPosition="bottom"
                   />
                 </div>
               }
@@ -284,6 +284,8 @@
                 severity="secondary"
                 text
                 aria-label="Descargar registro de correos"
+                pTooltip="Descargar"
+                tooltipPosition="bottom"
               />
             </div>
             <div
@@ -319,6 +321,8 @@
                 severity="secondary"
                 text
                 aria-label="Descargar notas de reunión"
+                pTooltip="Descargar"
+                tooltipPosition="bottom"
               />
             </div>
             <div
@@ -388,6 +392,8 @@
                     severity="secondary"
                     text
                     aria-label="Abrir enlace"
+                    pTooltip="Abrir enlace"
+                    tooltipPosition="bottom"
                   />
                 </a>
               </div>
