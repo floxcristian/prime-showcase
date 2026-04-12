@@ -28,8 +28,9 @@ import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import type { CanvasFontSpec, Chart, TooltipModel, TooltipItem } from 'chart.js';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
-import { Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
+import { CoinBadge, CoinKind, Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
 import {
+  COIN_BADGES,
   OVERVIEW_MENU_ITEMS,
   OVERVIEW_TRANSACTIONS,
   OVERVIEW_METERS,
@@ -72,6 +73,11 @@ export class OverviewComponent {
   menuItems: MenuItem[] = OVERVIEW_MENU_ITEMS;
   sampleAppsTableDatas: Transaction[] = OVERVIEW_TRANSACTIONS;
   metersData: MeterItem[] = OVERVIEW_METERS;
+  coinBadges: Record<CoinKind, CoinBadge> = COIN_BADGES;
+
+  getCoinBadge(coin: string): CoinBadge {
+    return this.coinBadges[coin as CoinKind];
+  }
   tableTokens = {
     header: {
       background: 'transparent',

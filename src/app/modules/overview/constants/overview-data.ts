@@ -1,14 +1,27 @@
 import { MenuItem } from 'primeng/api';
-import { Transaction, MeterItem } from '../models/overview.interface';
+import { CoinBadge, CoinKind, Transaction, MeterItem } from '../models/overview.interface';
+
+export const COIN_BADGES: Record<CoinKind, CoinBadge> = {
+  btc: {
+    label: 'Bitcoin',
+    icon: 'fa-brands fa-bitcoin',
+    classes: 'bg-yellow-500 text-surface-0',
+  },
+  eth: {
+    label: 'Ethereum',
+    icon: 'fa-brands fa-ethereum',
+    classes: 'bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950',
+  },
+};
 
 export const OVERVIEW_MENU_ITEMS: MenuItem[] = [
   {
     label: 'Actualizar',
-    icon: 'pi pi-refresh',
+    icon: 'fa-sharp fa-regular fa-arrows-rotate',
   },
   {
     label: 'Exportar',
-    icon: 'pi pi-upload',
+    icon: 'fa-sharp fa-regular fa-upload',
   },
 ];
 

@@ -4,12 +4,12 @@
     >
     <div class="flex items-center justify-between gap-6 text-color">
       <h1 class="text-2xl font-medium leading-8">Chats</h1>
-      <p-button icon="pi pi-plus" text aria-label="Nuevo chat" />
+      <p-button icon="fa-sharp fa-regular fa-plus" text aria-label="Nuevo chat" />
     </div>
   </div>
   <div class="px-5">
     <p-iconField iconPosition="left">
-      <p-inputIcon class="pi pi-search" />
+      <p-inputIcon class="fa-sharp fa-regular fa-magnifying-glass" />
       <input
         type="text"
         pInputText
@@ -30,7 +30,7 @@
         />
       </div>
       <div class="flex-1 flex flex-col">
-        @for (chat of chats; track chat.name) {
+        @for (chat of filteredChats(); track chat.name) {
           <div
             class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
             [attr.aria-current]="chat.name === activeChat() ? 'true' : null"
@@ -74,6 +74,16 @@
                 </div>
               </div>
             </div>
+          } @empty {
+            <app-empty-state
+              icon="fa-comments"
+              title="Sin conversaciones"
+              [description]="
+                search()
+                  ? 'No encontramos chats que coincidan con tu búsqueda.'
+                  : 'Tus conversaciones aparecerán aquí cuando inicies un chat.'
+              "
+            />
           }
         </div>
       </div>
@@ -99,11 +109,11 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <p-button icon="pi pi-phone" text aria-label="Llamar" />
-              <p-button icon="pi pi-search" text aria-label="Buscar" />
+              <p-button icon="fa-sharp fa-regular fa-phone" text aria-label="Llamar" />
+              <p-button icon="fa-sharp fa-regular fa-magnifying-glass" text aria-label="Buscar" />
               <p-button
                 type="button"
-                icon="pi pi-ellipsis-h"
+                icon="fa-sharp fa-regular fa-ellipsis"
                 text
                 aria-label="Más opciones"
                 (click)="menu.toggle($event)"
@@ -189,8 +199,8 @@
                   </div>
                   <div class="p-4 border-t border-surface flex items-end justify-between gap-2">
                     <div class="flex items-end gap-1 flex-1">
-                      <p-button icon="pi pi-face-smile" text aria-label="Emojis" />
-                      <p-button icon="pi pi-paperclip" text aria-label="Adjuntar archivo" />
+                      <p-button icon="fa-sharp fa-regular fa-face-smile" text aria-label="Emojis" />
+                      <p-button icon="fa-sharp fa-regular fa-paperclip" text aria-label="Adjuntar archivo" />
                       <textarea
                         pTextarea
                         class="ml-1 flex-1 border-0 shadow-none max-h-32 min-h-9 bg-emphasis overflow-auto"
@@ -200,7 +210,7 @@
                         aria-label="Escribe tu mensaje"
                       ></textarea>
                     </div>
-                    <p-button icon="pi pi-send" aria-label="Enviar mensaje" />
+                    <p-button icon="fa-sharp fa-regular fa-paper-plane" aria-label="Enviar mensaje" />
                   </div>
                 </div>
                 <div class="w-3/12 xl:block hidden min-w-40 py-6 px-3 overflow-auto">
@@ -218,23 +228,23 @@
                         &#64;primetek
                       </div>
                       <div class="flex items-center justify-center flex-wrap gap-1 mt-4">
-                        <p-button icon="pi pi-phone text-muted-color" severity="secondary" text aria-label="Llamar" />
-                        <p-button icon="pi pi-video text-muted-color" severity="secondary" text aria-label="Videollamada" />
+                        <p-button icon="fa-sharp fa-regular fa-phone text-muted-color" severity="secondary" text aria-label="Llamar" />
+                        <p-button icon="fa-sharp fa-regular fa-film text-muted-color" severity="secondary" text aria-label="Videollamada" />
                         <p-button
-                          icon="pi pi-sign-in text-muted-color"
+                          icon="fa-sharp fa-regular fa-arrow-right-to-bracket text-muted-color"
                           severity="secondary"
                           text
                           aria-label="Compartir pantalla"
                           />
                           <p-button
-                            icon="pi pi-info-circle text-muted-color"
+                            icon="fa-sharp fa-regular fa-circle-info text-muted-color"
                             severity="secondary"
                             text
                             aria-label="Información"
                             />
                             <p-button
                               type="button"
-                              icon="pi pi-ellipsis-v text-muted-color"
+                              icon="fa-sharp fa-regular fa-ellipsis-vertical text-muted-color"
                               severity="secondary"
                               text
                               aria-label="Más opciones"
@@ -247,17 +257,17 @@
                           </div>
                           <div class="flex flex-col gap-4 mt-4">
                             <div class="flex items-center gap-2">
-                              <i class="pi pi-bell text-color" aria-hidden="true"></i>
+                              <i class="fa-sharp fa-regular fa-bell text-color" aria-hidden="true"></i>
                               <div class="leading-6 font-medium text-color flex-1">Notificaciones</div>
                               <p-toggleswitch [ngModel]="notification()" (ngModelChange)="notification.set($event)" aria-label="Notificaciones" />
                             </div>
                             <div class="flex items-center gap-2">
-                              <i class="pi pi-volume-down text-color" aria-hidden="true"></i>
+                              <i class="fa-sharp fa-regular fa-volume-low text-color" aria-hidden="true"></i>
                               <div class="leading-6 font-medium text-color flex-1">Sonido</div>
                               <p-toggleswitch [ngModel]="sound()" (ngModelChange)="sound.set($event)" aria-label="Sonido" />
                             </div>
                             <div class="flex items-center gap-2">
-                              <i class="pi pi-download text-color" aria-hidden="true"></i>
+                              <i class="fa-sharp fa-regular fa-download text-color" aria-hidden="true"></i>
                               <div class="leading-6 font-medium text-color flex-1">
                                 Guardar en descargas
                               </div>
@@ -292,7 +302,7 @@
                                         >
                                         {{ member.name }}
                                       </div>
-                                      <i class="pi pi-chevron-right text-xs text-muted-color" aria-hidden="true"></i>
+                                      <i class="fa-sharp fa-regular fa-chevron-right text-xs text-muted-color" aria-hidden="true"></i>
                                     </div>
                                   }
                                 </div>
@@ -326,7 +336,7 @@
                                     </div>
                                     <p-button
                                       label="Mostrar más"
-                                      icon="pi pi-arrow-right"
+                                      icon="fa-sharp fa-regular fa-arrow-right"
                                       iconPos="right"
                                       outlined
                                       styleClass="w-full text-left"

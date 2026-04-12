@@ -11,12 +11,12 @@
 
     <div class="flex gap-2 whitespace-nowrap flex-nowrap">
       <p-iconfield iconPosition="left">
-        <p-inputicon class="pi pi-search"></p-inputicon>
+        <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
         <input type="text" pInputText placeholder="Buscar" aria-label="Buscar" />
       </p-iconfield>
       <p-button severity="secondary" outlined aria-label="Notificaciones">
         <p-overlayBadge severity="danger" styleClass="!min-w-0 !w-2.5 !h-2.5">
-          <i class="pi pi-bell" aria-hidden="true"></i>
+          <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
         </p-overlayBadge>
       </p-button>
     </div>
@@ -30,7 +30,7 @@
       (onChange)="changeSelect()"
       />
       <div class="flex items-center gap-2">
-        <p-button label="Descargar" icon="pi pi-download" iconPos="right" />
+        <p-button label="Descargar" icon="fa-sharp fa-regular fa-download" iconPos="right" />
         <p-datepicker
           ngSkipHydration
           [ngModel]="dates()" (ngModelChange)="dates.set($event)"
@@ -85,7 +85,7 @@
                 </h2>
                 <p-button
                   type="button"
-                  icon="pi pi-ellipsis-h"
+                  icon="fa-sharp fa-regular fa-ellipsis"
                   severity="secondary"
                   text
                   aria-label="Más opciones"
@@ -136,18 +136,16 @@
                           </div>
                         </td>
                         <td class="w-1/6">
+                          @let badge = getCoinBadge(item.coin);
                           <div class="flex items-center">
-                            <i
-                              class="pi"
+                            <div
                               role="img"
-                              [attr.aria-label]="item.coin === 'btc' ? 'Bitcoin' : 'Ethereum'"
-                    [ngClass]="{
-                      'pi-bitcoin text-yellow-500 !text-3xl':
-                        item.coin === 'btc',
-                      'pi-ethereum bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950 w-7 h-7 rounded-full !flex items-center justify-center':
-                        item.coin === 'eth'
-                    }"
-                            ></i>
+                              [attr.aria-label]="badge.label"
+                              [ngClass]="badge.classes"
+                              class="w-7 h-7 rounded-full flex items-center justify-center"
+                            >
+                              <i [class]="badge.icon" aria-hidden="true"></i>
+                            </div>
                           </div>
                         </td>
                         <td class="w-1/6">
@@ -179,7 +177,7 @@
                       </h2>
                       <p-button
                         type="button"
-                        icon="pi pi-ellipsis-h"
+                        icon="fa-sharp fa-regular fa-ellipsis"
                         severity="secondary"
                         text
                         aria-label="Más opciones"

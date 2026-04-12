@@ -117,14 +117,14 @@
                               <div class="text-color font-medium leading-7">Jacob Jones</div>
                               <div class="text-muted-color text-sm mt-1">hi&#64;jacobjones.co</div>
                             </div>
-                            <p-button icon="pi pi-bell" severity="contrast" text aria-label="Notificaciones" />
+                            <p-button icon="fa-sharp fa-regular fa-bell" severity="contrast" text aria-label="Notificaciones" />
                           </div>
                           <div class="mt-4 flex flex-col gap-1">
                             <button
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
-                                class="pi pi-envelope text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-envelope text-lg w-7 h-7 flex items-center justify-center"
                                 aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">
@@ -135,7 +135,7 @@
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
-                                class="pi pi-cog text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-gear text-lg w-7 h-7 flex items-center justify-center"
                                 aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">
@@ -146,7 +146,7 @@
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
-                                class="pi pi-sync text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-arrows-rotate text-lg w-7 h-7 flex items-center justify-center"
                                 aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">
@@ -157,7 +157,7 @@
                               class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
                               >
                               <i
-                                class="pi pi-sign-in text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-arrow-right-to-bracket text-lg w-7 h-7 flex items-center justify-center"
                                 aria-hidden="true"
                               ></i>
                               <div class="font-medium leading-normal flex-1 text-left">Cerrar sesión</div>
@@ -168,10 +168,10 @@
                             class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis cursor-pointer rounded-lg transition-all select-none"
                             >
                             <i
-                              class="pi text-lg w-7 h-7 flex items-center justify-center"
+                              class="text-lg w-7 h-7 flex items-center justify-center"
           [ngClass]="{
-            'pi-moon': !darkMode(),
-            'pi-sun': darkMode()
+            'fa-sharp fa-regular fa-moon-star': !darkMode(),
+            'fa-sharp fa-regular fa-sun': darkMode()
           }"
                               aria-hidden="true"
                             ></i>
@@ -190,7 +190,7 @@
                               </div>
                               <p-button
                                 (click)="jobApplication.set(!jobApplication())"
-                                [icon]="jobApplication() ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+                                [icon]="jobApplication() ? 'fa-sharp fa-solid fa-bookmark' : 'fa-sharp fa-regular fa-bookmark'"
                                 severity="secondary"
                                 outlined
                                 rounded
@@ -201,19 +201,19 @@
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-users text-xl" aria-hidden="true"></i>
+                                  <i class="fa-sharp fa-regular fa-users text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">Senior</div>
                                 </div>
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-stopwatch text-xl" aria-hidden="true"></i>
+                                  <i class="fa-sharp fa-regular fa-stopwatch text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">Tiempo completo</div>
                                 </div>
                                 <div
                                   class="flex items-center gap-2 whitespace-nowrap text-muted-color"
                                   >
-                                  <i class="pi pi-money-bill text-xl" aria-hidden="true"></i>
+                                  <i class="fa-sharp fa-regular fa-money-bill text-xl" aria-hidden="true"></i>
                                   <div class="font-medium leading-none">$80,000</div>
                                 </div>
                               </div>
@@ -255,7 +255,7 @@
                                           </div>
                                           <div class="flex items-center gap-2">
                                             <div class="font-medium leading-6">12 Postulantes</div>
-                                            <i class="pi pi-arrow-right" aria-hidden="true"></i>
+                                            <i class="fa-sharp fa-regular fa-arrow-right" aria-hidden="true"></i>
                                           </div>
                                         </button>
                                       </div>
@@ -264,9 +264,9 @@
                                   <div class="flex-1 flex flex-col gap-6">
                                     <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
                                       <div class="flex items-center gap-2 text-color">
-                                        <i class="pi pi-cloud-upload text-xl" aria-hidden="true"></i>
+                                        <i class="fa-sharp fa-regular fa-cloud-arrow-up text-xl" aria-hidden="true"></i>
                                         <div class="flex-1 font-medium leading-6">Subir archivos</div>
-                                        <p-button icon="pi pi-times" text rounded aria-label="Cerrar" />
+                                        <p-button icon="fa-sharp fa-regular fa-xmark" text rounded aria-label="Cerrar" />
                                       </div>
                                       <div>
                                         <label for="document-name" class="text-color font-medium leading-6"
@@ -305,7 +305,7 @@
                                                   <div class="flex gap-2">
                                                     <p-button
                                                       (click)="chooseCallback()"
-                                                      icon="pi pi-images"
+                                                      icon="fa-sharp fa-regular fa-images"
                                                       rounded
                                                       outlined
                                                       severity="secondary"
@@ -313,7 +313,7 @@
                                                     ></p-button>
                                                     <p-button
                                                       (click)="uploadEvent(uploadCallback)"
-                                                      icon="pi pi-cloud-upload"
+                                                      icon="fa-sharp fa-regular fa-cloud-arrow-up"
                                                       rounded
                                                       outlined
                                                       severity="success"
@@ -322,7 +322,7 @@
                                                     ></p-button>
                                                     <p-button
                                                       (click)="clearCallback()"
-                                                      icon="pi pi-times"
+                                                      icon="fa-sharp fa-regular fa-xmark"
                                                       rounded
                                                       outlined
                                                       severity="danger"
@@ -337,7 +337,7 @@
                                                   class="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-emphasis rounded-lg transition-all"
                                                   (click)="chooseCallback()"
                                                   >
-                                                  <i class="pi pi-cloud-upload text-4xl text-color" aria-hidden="true"></i>
+                                                  <i class="fa-sharp-duotone fa-regular fa-cloud-arrow-up text-4xl text-color" aria-hidden="true"></i>
                                                   <div class="text-sm text-color font-medium mt-2">
                                                     Haz clic para subir
                                                     <span class="text-muted-color">o arrastra y suelta</span>
@@ -386,7 +386,7 @@
                                                             <div class="grow flex flex-col gap-2 justify-end">
                                                               <p-badge value="Pendiente" severity="warn" />
                                                               <p-button
-                                                                icon="pi pi-times text-sm leading-none"
+                                                                icon="fa-sharp fa-regular fa-xmark text-sm leading-none"
                                                                 (click)="onRemoveTemplatingFile(file, removeCallback, i)"
                                                                 class="!text-sm !leading-none"
                                                                 label="Cancelar"
@@ -432,7 +432,7 @@
                                                                       severity="success"
                                                                       />
                                                                       <p-button
-                                                                        icon="pi pi-times text-sm leading-none"
+                                                                        icon="fa-sharp fa-regular fa-xmark text-sm leading-none"
                                                                         class="!text-sm !leading-none"
                                                                         label="Cancelar"
                                                                         text
@@ -540,7 +540,7 @@
                                                                                   class="rounded-lg overflow-hidden"
                                                                                   />
                                                                                 </div>
-                                                                                <p-button icon="pi pi-arrow-up-right" rounded text aria-label="Abrir enlace" />
+                                                                                <p-button icon="fa-sharp fa-regular fa-arrow-up-right" rounded text aria-label="Abrir enlace" />
                                                                               </div>
                                                                               <div class="text-2xl font-medium text-color mt-6 leading-8">
                                                                                 Ese es tu avatar
@@ -552,7 +552,7 @@
                                                                             <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
                                                                               <div class="flex items-center justify-between gap-2">
                                                                                 <div class="text-2xl font-medium leading-8 flex-1">Agregar miembro</div>
-                                                                                <p-button icon="pi pi-times" rounded text severity="secondary" aria-label="Cerrar" />
+                                                                                <p-button icon="fa-sharp fa-regular fa-xmark" rounded text severity="secondary" aria-label="Cerrar" />
                                                                               </div>
                                                                               <div>
                                                                                 <div class="text-muted-color leading-6">Correo electrónico</div>
@@ -674,32 +674,32 @@
                                                                                                 />
                                                                                                 <div class="flex flex-col gap-4 mt-6">
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-volume-down text-color text-xl" aria-hidden="true"></i>
+                                                                                                    <i class="fa-sharp fa-regular fa-volume-low text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Sonido</div>
                                                                                                     <p-toggleswitch [ngModel]="userProfilesValues()[0]" (ngModelChange)="updateUserProfilesValue(0, $event)" aria-label="Sonido" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-wifi text-color text-xl" aria-hidden="true"></i>
+                                                                                                    <i class="fa-sharp fa-regular fa-wifi text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Wi-Fi</div>
                                                                                                     <p-toggleswitch [ngModel]="userProfilesValues()[1]" (ngModelChange)="updateUserProfilesValue(1, $event)" aria-label="Wi-Fi" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-moon text-color text-xl" aria-hidden="true"></i>
+                                                                                                    <i class="fa-sharp fa-regular fa-moon text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Modo oscuro</div>
                                                                                                     <p-toggleswitch [ngModel]="userProfilesValues()[2]" (ngModelChange)="updateUserProfilesValue(2, $event)" aria-label="Modo oscuro" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-map-marker text-color text-xl" aria-hidden="true"></i>
+                                                                                                    <i class="fa-sharp fa-regular fa-location-dot text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Servicios de ubicación</div>
                                                                                                     <p-toggleswitch [ngModel]="userProfilesValues()[3]" (ngModelChange)="updateUserProfilesValue(3, $event)" aria-label="Servicios de ubicación" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-shield text-color text-xl" aria-hidden="true"></i>
+                                                                                                    <i class="fa-sharp fa-regular fa-shield text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Privacidad</div>
                                                                                                     <p-toggleswitch [ngModel]="userProfilesValues()[4]" (ngModelChange)="updateUserProfilesValue(4, $event)" aria-label="Privacidad" />
                                                                                                   </div>
                                                                                                   <div class="flex items-center gap-3">
-                                                                                                    <i class="pi pi-sync text-color text-xl" aria-hidden="true"></i>
+                                                                                                    <i class="fa-sharp fa-regular fa-arrows-rotate text-color text-xl" aria-hidden="true"></i>
                                                                                                     <div class="leading-6 text-color flex-1">Actualización automática</div>
                                                                                                     <p-toggleswitch [ngModel]="userProfilesValues()[5]" (ngModelChange)="updateUserProfilesValue(5, $event)" aria-label="Actualización automática" />
                                                                                                   </div>

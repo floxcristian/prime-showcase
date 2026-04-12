@@ -2,6 +2,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   signal,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
@@ -19,6 +20,7 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ProgressBar } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { InboxNavGroup, InboxMessage } from './models/inbox.interface';
 import {
   INBOX_NAV_GROUPS,
@@ -40,9 +42,10 @@ const PRIME_MODULES = [
   TableModule,
   Tag,
 ];
+const LOCAL_COMPONENTS = [EmptyStateComponent];
 @Component({
   selector: 'app-inbox',
-  imports: [NG_MODULES, PRIME_MODULES],
+  imports: [NG_MODULES, PRIME_MODULES, LOCAL_COMPONENTS],
   templateUrl: './inbox.component.html',
   styleUrl: './inbox.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +61,17 @@ export class InboxComponent {
   inboxNavs: InboxNavGroup[] = INBOX_NAV_GROUPS;
 
   tableData = signal<InboxMessage[]>(INBOX_MESSAGES);
+
+  filteredTableData = computed<InboxMessage[]>(() => {
+    const term = (this.search() ?? '').trim().toLowerCase();
+    if (!term) return this.tableData();
+    return this.tableData().filter(
+      m =>
+        m.name.toLowerCase().includes(term) ||
+        m.title.toLowerCase().includes(term) ||
+        m.message.toLowerCase().includes(term)
+    );
+  });
 
   selectedRows = signal<InboxMessage[]>([]);
 

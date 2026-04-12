@@ -2,6 +2,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -24,6 +25,7 @@ import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
@@ -40,10 +42,11 @@ const PRIME_MODULES = [
   ToggleSwitchModule,
   TooltipModule,
 ];
+const LOCAL_COMPONENTS = [EmptyStateComponent];
 
 @Component({
   selector: 'app-customers',
-  imports: [NG_MODULES, PRIME_MODULES],
+  imports: [NG_MODULES, PRIME_MODULES, LOCAL_COMPONENTS],
   templateUrl: './customers.component.html',
   styleUrl: './customers.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +59,20 @@ export class CustomersComponent {
   search = signal('');
 
   tableData: Customer[] = CUSTOMERS_TABLE_DATA;
+
+  filteredTableData = computed<Customer[]>(() => {
+    const term = this.search().trim().toLowerCase();
+    if (!term) return this.tableData;
+    return this.tableData.filter(
+      c =>
+        c.name.toLowerCase().includes(term) ||
+        c.title.toLowerCase().includes(term) ||
+        c.email.toLowerCase().includes(term) ||
+        c.company.name.toLowerCase().includes(term) ||
+        c.lead.toLowerCase().includes(term) ||
+        c.status.toLowerCase().includes(term)
+    );
+  });
 
   private sanitizer = inject(DomSanitizer);
 

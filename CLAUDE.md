@@ -5,7 +5,7 @@
 - Angular 21 (standalone components, signals, new control flow)
 - PrimeNG 21 con tema Aura (`@primeuix/themes`)
 - Tailwind CSS 4 con plugin `tailwindcss-primeui`
-- PrimeIcons 7
+- Font Awesome Pro 7 (self-hosted, estilos: regular, solid, light, duotone)
 - SCSS (archivos presentes por convención pero vacíos — todo el estilizado se hace con Tailwind)
 - TypeScript strict mode (`strictTemplates`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`)
 
@@ -389,7 +389,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
 <button
   class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
 >
-  <i class="pi pi-refresh"></i>
+  <i class="fa-regular fa-arrows-rotate"></i>
   <span>Refresh</span>
 </button>
 
@@ -400,7 +400,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
   <div class="flex items-center"><!-- avatares, iconos --></div>
   <div class="flex items-center gap-2">
     <span class="font-medium leading-6">12 Postulantes</span>
-    <i class="pi pi-arrow-right"></i>
+    <i class="fa-regular fa-arrow-right"></i>
   </div>
 </button>
 ```
@@ -430,11 +430,11 @@ Estados:
   <!-- Acciones -->
   <div class="flex gap-2 whitespace-nowrap flex-nowrap">
     <p-iconfield iconPosition="left">
-      <p-inputicon class="pi pi-search"></p-inputicon>
+      <p-inputicon class="fa-regular fa-magnifying-glass"></p-inputicon>
       <input type="text" pInputText placeholder="Search" />
     </p-iconfield>
     <p-button severity="secondary" outlined>
-      <i class="pi pi-bell"></i>
+      <i class="fa-regular fa-bell"></i>
     </p-button>
   </div>
 </div>
@@ -480,13 +480,13 @@ Estados:
 
 <!-- Patrón de nav item -->
 <div class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all">
-  <i class="pi pi-inbox"></i>
+  <i class="fa-regular fa-inbox"></i>
   <span class="font-medium">Label</span>
 </div>
 
 <!-- Patrón de settings row (icon + label + toggle) -->
 <div class="flex items-center gap-2">
-  <i class="pi pi-bell text-color"></i>
+  <i class="fa-regular fa-bell text-color"></i>
   <div class="leading-6 font-medium text-color flex-1">Notification</div>
   <p-toggleswitch [(ngModel)]="value" />
 </div>
@@ -588,7 +588,7 @@ Reglas multi-panel:
     <input pInputText id="id" class="mt-2 w-full" />
   </div>
   <div class="flex items-center gap-3">
-    <i class="pi pi-bell text-color text-xl"></i>
+    <i class="fa-regular fa-bell text-color text-xl"></i>
     <div class="leading-6 text-color flex-1">Label</div>
     <p-toggleswitch [(ngModel)]="value" />
   </div>
@@ -627,7 +627,7 @@ Patrones estándar para estados de UI. Usar exactamente estas recetas:
 <!-- Texto: text-primary-contrast para enviados, text-color para recibidos -->
 
 <!-- Toggle de ícono (bookmark, dark mode) -->
-[ngClass]="value ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
+[ngClass]="value ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark'"
 
 <!-- Visibilidad condicional (slim menu) -->
 [class]="isHidden ? 'hidden' : 'font-medium leading-none'"
@@ -641,13 +641,13 @@ Patrones estándar para estados de UI. Usar exactamente estas recetas:
 
 ```html
 <!-- Botón con ícono only — para acciones secundarias en headers/toolbars -->
-<p-button icon="pi pi-ellipsis-h" text rounded />
+<p-button icon="fa-regular fa-ellipsis" text rounded />
 
 <!-- Botón secundario outlined (acciones secundarias) -->
 <p-button severity="secondary" outlined />
 
 <!-- Botón primario (acción principal) -->
-<p-button label="Download" icon="pi pi-download" iconPos="right" />
+<p-button label="Download" icon="fa-regular fa-download" iconPos="right" />
 
 <!-- Botón full-width -->
 <p-button label="Show All" outlined styleClass="w-full" />
@@ -754,14 +754,14 @@ Reglas de severity:
 
 ```html
 <!-- Trigger con botón -->
-<p-button icon="pi pi-ellipsis-h" severity="secondary" text
+<p-button icon="fa-regular fa-ellipsis" severity="secondary" text
   (click)="menu.toggle($event)" />
 <p-menu #menu [model]="menuItems" [popup]="true" />
 
 <!-- En el .ts -->
 menuItems: MenuItem[] = [
-  { label: 'Refresh', icon: 'pi pi-refresh' },
-  { label: 'Export', icon: 'pi pi-upload' },
+  { label: 'Refresh', icon: 'fa-regular fa-arrows-rotate' },
+  { label: 'Export', icon: 'fa-regular fa-upload' },
 ];
 ```
 
@@ -798,7 +798,7 @@ Reglas:
 ```html
 <!-- Trigger -->
 <p-button (onClick)="displayPopover($event, op)"
-  icon="pi pi-search" rounded outlined severity="secondary" />
+  icon="fa-regular fa-magnifying-glass" rounded outlined severity="secondary" />
 
 <!-- Contenido -->
 <p-popover #op>
@@ -822,7 +822,7 @@ displayPopover(e: MouseEvent, op: Popover) {
 ```html
 <!-- Búsqueda con ícono -->
 <p-iconfield iconPosition="left">
-  <p-inputicon class="pi pi-search"></p-inputicon>
+  <p-inputicon class="fa-regular fa-magnifying-glass"></p-inputicon>
   <input type="text" pInputText placeholder="Search" />
 </p-iconfield>
 ```
@@ -863,10 +863,89 @@ Selectores avanzados permitidos para contenedores con hijos repetidos:
 
 ## Iconos
 
-- Usar PrimeIcons: `class="pi pi-search"`, `icon="pi pi-download"`.
-- Tamaño de íconos: se hereda del contenedor. Para standalone usar `text-xl`, `text-2xl`.
-- Consultar el MCP de PrimeNG o https://primeng.org/icons para íconos disponibles.
-- **No** agregar Font Awesome, Heroicons, ni otras librerías de íconos.
+El proyecto usa **Font Awesome Pro 7** self-hosted desde `public/fontawesome/`, con la familia **Sharp** (regular + solid + duotone) como sistema principal. PrimeIcons fue reemplazado completamente. Se cargan 4 familias (definidas en `angular.json` styles):
+
+- `sharp-regular.css` → familia principal de UI (default inline)
+- `sharp-solid.min.css` → estado activo de toggles binarios (outline vs filled)
+- `sharp-duotone-regular.css` → hero icons a ≥text-4xl (empty states, onboarding)
+- `brands.min.css` → solo para logos de marca reales (Bitcoin, Ethereum, etc.)
+
+### Sintaxis
+
+Sharp requiere TRES clases: **familia** + **estilo** + **nombre**:
+
+```html
+<!-- Sharp regular (default) -->
+<i class="fa-sharp fa-regular fa-magnifying-glass"></i>
+<button pButton icon="fa-sharp fa-regular fa-download" label="Descargar"></button>
+<p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
+
+<!-- Sharp solid (estado activo de toggles binarios) -->
+<i class="fa-sharp fa-solid fa-bookmark"></i>
+
+<!-- Sharp duotone (hero icons ≥text-4xl: empty states, onboarding) -->
+<i class="fa-sharp-duotone fa-regular fa-cloud-arrow-up text-4xl"></i>
+
+<!-- Brands (solo logos reales) -->
+<i class="fa-brands fa-bitcoin"></i>
+```
+
+### Estrategia de estilos (REGLA CRITICA)
+
+**Regla #1 — Un solo peso para UI funcional.** Linear, Vercel, Stripe, GitHub: todos usan UN solo estilo en su product UI. Mezclar pesos en una misma vista (especialmente regular ↔ duotone inline) rompe el ritmo visual. Es exactamente lo que evita la inconsistencia.
+
+**Regla #2 — La selección depende del TAMAÑO y el ROL del icono, no del contenido semántico:**
+
+| Tamaño / Rol | Familia | Por qué |
+|---|---|---|
+| **Inline (16-20px) junto a texto** — list items, metadata, labels, nav, toolbars | `fa-sharp fa-regular` siempre | Consistencia de ritmo visual al escanear |
+| **Mediano (24-32px) standalone** — botones de acción, indicadores | `fa-sharp fa-regular` | Default consistente |
+| **Estado activo de toggle binario** (bookmark, like, favorito, notif on/off) | `fa-sharp fa-solid` (mismo nombre que el inactivo) | Outline ↔ filled es el estándar universal de toggle — lectura inmediata |
+| **Indicador de estado fijo activo** (solo visible cuando true, sin contraparte inactiva) | `fa-sharp fa-solid` | Mismo vocabulario visual que un toggle activo, sin ambigüedad |
+| **Grande (≥48px / `text-4xl`+)** — empty states, hero feature cards, onboarding | `fa-sharp-duotone fa-regular` | A escala grande, los dos tonos crean profundidad |
+| **Brand logos** (Bitcoin, Ethereum, GitHub, Google) | `fa-brands` | Iconos de marca reales — sharp brands no existe |
+
+**Toggle pairs** — mismo nombre, sharp regular (off) ↔ sharp solid (on):
+
+```html
+[ngClass]="bookmarked ? 'fa-sharp fa-solid fa-bookmark' : 'fa-sharp fa-regular fa-bookmark'"
+```
+
+El contraste outline/fill es el que los usuarios reconocen instantáneamente (iOS, Material, GitHub, Linear). **Nunca** usar `fa-sharp-duotone` como estado activo de un toggle inline — duotone es decorativo, no comunica "estado".
+
+**Sharp Duotone — cuándo SÍ y cuándo NO:**
+
+✅ **SÍ funciona en:**
+- Empty states grandes (`<app-empty-state>` ya lo aplica a `text-4xl`)
+- Feature cards con icono hero (e.g., "Plan Premium" con shield 48px)
+- Onboarding screens
+- File upload drop zones (ej: `fa-cloud-arrow-up text-4xl`)
+
+❌ **NO usar sharp-duotone en:**
+- Iconos inline junto a texto en filas de listas/metadata
+- Estado activo de toggles binarios (usar `fa-sharp fa-solid`)
+- Cualquier icono < text-4xl (48px)
+- Mezclado con sharp regular del mismo tamaño SIN diferenciación clara de rol
+
+**Por qué importa:** la mezcla sharp/sharp-duotone inline sin propósito (estado, emphasis) crea "saltos" visuales al escanear. Tu ojo espera ritmo consistente. Cuando hay un cambio de familia debe HABER UN PORQUÉ semántico (toggle activo, hero, etc.).
+
+### Tamaño
+
+- Se hereda del contenedor por default.
+- Para standalone usar `text-xl`, `text-2xl`, `text-4xl` (Tailwind).
+
+### Buscar íconos
+
+- Catálogo oficial: https://fontawesome.com/icons (filtrar por "Pro" + estilo)
+- Naming convention de FA es distinta a PrimeIcons (`fa-xmark` no `fa-times`, `fa-magnifying-glass` no `fa-search`, `fa-arrows-rotate` no `fa-refresh`, `fa-gear` no `fa-cog`).
+
+### Lo que NO hacer
+
+- **No** usar `pi pi-*` (PrimeIcons fue removido del proyecto, ya no existe).
+- **No** usar `fa-regular`, `fa-solid`, `fa-light` o `fa-duotone` SIN el prefijo `fa-sharp` o `fa-sharp-duotone`. La familia base no está cargada — solo sharp.
+- **No** importar otras librerías de íconos (Heroicons, Lucide, Material Icons).
+- **No** usar `fa-sharp-duotone` para iconos inline ni como estado activo de toggles. Solo a ≥text-4xl (hero icons en empty states/onboarding). Para toggles usar `fa-sharp fa-solid`.
+- **No** usar `fa-brands` para iconos genéricos de UI — solo para logos de marca reales (crypto, redes sociales, plataformas).
 
 ### Otros componentes PrimeNG usados en el proyecto
 
@@ -889,7 +968,7 @@ Estos componentes se usan pero no tienen recetas detalladas aquí. **Consultar e
 
 ```html
 <!-- Ícono con fondo (ej: crypto, indicadores) -->
-<i class="pi pi-ethereum bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950 w-7 h-7 rounded-full !flex items-center justify-center"></i>
+<i class="fa-regular fa-bell bg-surface-950 text-surface-0 dark:bg-surface-0 dark:text-surface-950 w-7 h-7 rounded-full !flex items-center justify-center"></i>
 ```
 
 ### SVG inline
@@ -934,7 +1013,7 @@ src/app/modules/feature-name/
 search: string = '';  chats: ChatItem[] = CHATS;  options: string[] = ['Weekly', 'Monthly', 'Yearly'];
 
 // Datos complejos → ngOnInit()
-ngOnInit() { this.menuItems = [{ label: 'Refresh', icon: 'pi pi-refresh' }]; }
+ngOnInit() { this.menuItems = [{ label: 'Refresh', icon: 'fa-regular fa-arrows-rotate' }]; }
 
 // Tema → effect() como field
 themeEffect = effect(() => { if (this.configService.transitionComplete()) this.initChart(); });

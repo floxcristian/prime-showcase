@@ -30,6 +30,11 @@
               }
             ],
             "styles": [
+              "public/fontawesome/css/fontawesome.min.css",
+              "public/fontawesome/css/sharp-regular.css",
+              "public/fontawesome/css/sharp-solid.min.css",
+              "public/fontawesome/css/sharp-duotone-regular.css",
+              "public/fontawesome/css/brands.min.css",
               "src/styles.scss"
             ],
             "scripts": [],

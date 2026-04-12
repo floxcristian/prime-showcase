@@ -9,13 +9,21 @@ export interface TransactionProcess {
   value: 'Compra' | 'Venta';
 }
 
+export type CoinKind = 'btc' | 'eth';
+
 export interface Transaction {
   id: string;
   name: TransactionName;
-  coin: 'btc' | 'eth';
+  coin: CoinKind;
   date: string;
   process: TransactionProcess;
   amount: string;
+}
+
+export interface CoinBadge {
+  label: string;
+  icon: string;
+  classes: string;
 }
 
 export interface MeterItem {

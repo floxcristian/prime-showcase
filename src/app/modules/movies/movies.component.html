@@ -8,7 +8,7 @@
     />
     <div class="flex gap-2.5 items-center">
       <p-iconfield iconPosition="left">
-        <p-inputicon class="pi pi-search"></p-inputicon>
+        <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
         <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
       </p-iconfield>
       <p-button severity="secondary" outlined aria-label="Notificaciones">
@@ -17,7 +17,7 @@
           badgeSize="small"
           styleClass="!min-w-0 !w-2.5 !h-2.5"
           >
-          <i class="pi pi-bell" aria-hidden="true"></i>
+          <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
         </p-overlayBadge>
       </p-button>
       <p-avatar
@@ -34,7 +34,7 @@
           <p-button
             [disabled]="page() === 0"
             (click)="previousPage()"
-            icon="pi pi-chevron-left"
+            icon="fa-sharp fa-regular fa-chevron-left"
             severity="secondary"
             outlined
             aria-label="Anterior"
@@ -42,7 +42,7 @@
           <p-button
             [disabled]="page() >= maxPage()"
             (click)="nextPage()"
-            icon="pi pi-chevron-right"
+            icon="fa-sharp fa-regular fa-chevron-right"
             severity="secondary"
             outlined
             aria-label="Siguiente"
@@ -96,7 +96,7 @@
                           </div>
                           @if (item.bookmarked) {
                             <p-button
-                              icon="pi pi-bookmark-fill"
+                              icon="fa-sharp fa-solid fa-bookmark"
                               severity="contrast"
                               text
                               aria-label="Quitar de favoritos"
@@ -147,7 +147,7 @@
                             </div>
                             @if (movie.bookmarked) {
                               <p-button
-                                icon="pi pi-bookmark-fill"
+                                icon="fa-sharp fa-solid fa-bookmark"
                                 severity="contrast"
                                 text
                                 rounded

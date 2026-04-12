@@ -58,7 +58,7 @@ El proyecto fue auditado y mejorado en múltiples rondas con agentes especializa
 
 ### 4. Performance
 - `PreloadAllModules` strategy para precarga de rutas lazy
-- `font-display: swap` para PrimeIcons (evita FOIT)
+- Font Awesome Pro self-hosted (regular, solid, light, duotone) — sin CDN, sin tracking
 - `@for track` mejorado: de `$index` a IDs únicos en 3 loops
 
 ### 5. Fixes Puntuales

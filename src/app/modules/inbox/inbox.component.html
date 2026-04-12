@@ -5,7 +5,7 @@
     class="flex items-center justify-between gap-2 p-4 border-b border-surface"
     >
     <h1 class="text-2xl font-medium leading-8 text-color">Correos</h1>
-    <p-button icon="pi pi-plus" styleClass="w-8 h-8" aria-label="Nuevo correo" />
+    <p-button icon="fa-sharp fa-regular fa-plus" styleClass="w-8 h-8" aria-label="Nuevo correo" />
   </div>
   <div
     class="flex-1 flex flex-col overflow-auto justify-between gap-4 pt-4 pb-4 px-4"
@@ -55,7 +55,7 @@
     class="flex-1 h-full overflow-hidden flex border border-surface rounded-2xl"
     >
     <p-table
-      [value]="tableData()"
+      [value]="filteredTableData()"
       [selection]="selectedRows()"
       (selectionChange)="selectedRows.set($event)"
       dataKey="id"
@@ -70,22 +70,22 @@
           >
           <div class="flex items-center gap-2">
             <p-checkbox [binary]="true" class="mr-1" />
-            <p-button icon="pi pi-envelope" outlined severity="secondary" aria-label="Marcar como leído" />
+            <p-button icon="fa-sharp fa-regular fa-envelope" outlined severity="secondary" aria-label="Marcar como leído" />
             <p-button
-              icon="pi pi-exclamation-circle"
+              icon="fa-sharp fa-regular fa-circle-exclamation"
               outlined
               severity="secondary"
               aria-label="Marcar como importante"
               />
-              <p-button icon="pi pi-tag" outlined severity="secondary" aria-label="Etiquetar" />
+              <p-button icon="fa-sharp fa-regular fa-tag" outlined severity="secondary" aria-label="Etiquetar" />
               <p-button
-                icon="pi pi-inbox"
+                icon="fa-sharp fa-regular fa-inbox"
                 label="Archivar"
                 outlined
                 severity="secondary"
                 />
                 <p-button
-                  icon="pi pi-trash"
+                  icon="fa-sharp fa-regular fa-trash"
                   label="Papelera"
                   outlined
                   severity="secondary"
@@ -93,7 +93,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <p-iconfield iconPosition="left" class="w-6/12 xl:max-w-36">
-                    <p-inputicon class="pi pi-search"></p-inputicon>
+                    <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
                     <input
                       type="text"
                       pInputText
@@ -104,17 +104,17 @@
                       class="w-full"
                       />
                     </p-iconfield>
-                    <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
+                    <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" aria-label="Filtrar" />
                     <p-divider layout="vertical" styleClass="m-0" />
-                    <p-button icon="pi pi-refresh" outlined severity="secondary" aria-label="Actualizar" />
+                    <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" aria-label="Actualizar" />
                     <p-button
                       label="1 de 15"
                       class="!whitespace-nowrap"
                       outlined
                       severity="secondary"
                       />
-                      <p-button icon="pi pi-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
-                      <p-button icon="pi pi-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
+                      <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
+                      <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
                     </div>
                   </div>
                 </ng-template>
@@ -135,7 +135,7 @@
                         >
                         <i
               [ngClass]="
-                data.bookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'
+                data.bookmarked ? 'fa-sharp fa-solid fa-bookmark' : 'fa-sharp fa-regular fa-bookmark'
               "
                           aria-hidden="true"
                         ></i>
@@ -184,6 +184,21 @@
                         <div class="text-right text-sm leading-5 text-muted-color">
                           {{ data.time }}
                         </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template #emptymessage>
+                    <tr>
+                      <td [attr.colspan]="6">
+                        <app-empty-state
+                          icon="fa-inbox"
+                          title="Sin correos"
+                          [description]="
+                            search()
+                              ? 'No encontramos correos que coincidan con tu búsqueda. Prueba con otros términos.'
+                              : 'Tu bandeja está vacía. Los nuevos correos aparecerán aquí.'
+                          "
+                        />
                       </td>
                     </tr>
                   </ng-template>

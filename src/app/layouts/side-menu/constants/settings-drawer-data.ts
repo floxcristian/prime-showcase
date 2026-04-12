@@ -87,31 +87,31 @@ export const PREFERENCES: PreferenceGroup[] = [
   {
     title: 'Correo electrónico',
     prefs: [
-      { icon: 'pi pi-bell', title: 'Notificaciones', checked: true },
-      { icon: 'pi pi-inbox', title: 'Boletín informativo', checked: false },
-      { icon: 'pi pi-sync', title: 'Actualizaciones de producto', checked: false },
+      { icon: 'fa-sharp fa-regular fa-bell', title: 'Notificaciones', checked: true },
+      { icon: 'fa-sharp fa-regular fa-inbox', title: 'Boletín informativo', checked: false },
+      { icon: 'fa-sharp fa-regular fa-arrows-rotate', title: 'Actualizaciones de producto', checked: false },
     ],
   },
   {
     title: 'Teléfono',
     prefs: [
-      { icon: 'pi pi-mobile', title: 'Llamadas', checked: true },
-      { icon: 'pi pi-volume-down', title: 'Buzón de voz', checked: false },
-      { icon: 'pi pi-comments', title: 'Mensajes SMS', checked: false },
+      { icon: 'fa-sharp fa-regular fa-mobile', title: 'Llamadas', checked: true },
+      { icon: 'fa-sharp fa-regular fa-volume-low', title: 'Buzón de voz', checked: false },
+      { icon: 'fa-sharp fa-regular fa-comments', title: 'Mensajes SMS', checked: false },
     ],
   },
   {
     title: 'Redes sociales',
     prefs: [
-      { icon: 'pi pi-clock', title: 'Publicación automática', checked: true },
-      { icon: 'pi pi-user', title: 'Mensaje directo', checked: false },
+      { icon: 'fa-sharp fa-regular fa-clock', title: 'Publicación automática', checked: true },
+      { icon: 'fa-sharp fa-regular fa-user', title: 'Mensaje directo', checked: false },
     ],
   },
   {
     title: 'Privacidad de datos',
     prefs: [
-      { icon: 'pi pi-box', title: 'Compartir datos con terceros', checked: true },
-      { icon: 'pi pi-file', title: 'Cookies', checked: false },
+      { icon: 'fa-sharp fa-regular fa-box', title: 'Compartir datos con terceros', checked: true },
+      { icon: 'fa-sharp fa-regular fa-file', title: 'Cookies', checked: false },
     ],
   },
 ];

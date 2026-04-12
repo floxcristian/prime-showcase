@@ -116,8 +116,8 @@ export class CardsComponent {
   filesTag = signal<string[]>(['ui', 'rediseño', 'panel']);
   selectedPermission = signal('Todos');
   permissions: Permission[] = [
-    { name: 'Todos', icon: 'pi pi-globe', key: 'E' },
-    { name: 'Solo admins', icon: 'pi pi-users', key: 'A' },
+    { name: 'Todos', icon: 'fa-sharp fa-regular fa-globe', key: 'E' },
+    { name: 'Solo admins', icon: 'fa-sharp fa-regular fa-users', key: 'A' },
   ];
   items = signal<string[]>([]);
 

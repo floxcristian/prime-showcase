@@ -131,8 +131,12 @@
                                 @for (navItem of sampleAppsSidebarNavsMore; track navItem.title) {
                                   <li>
                                     <button
+                                      #settingsTrigger
+                                      type="button"
                                       [pTooltip]="isSlimMenu() ? navItem.title : ''"
                                       [attr.aria-label]="navItem.title"
+                                      [attr.aria-haspopup]="'dialog'"
+                                      [attr.aria-expanded]="dashboardSidebarVisible()"
                                       (click)="dashboardSidebarVisible.set(true)"
                                       class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
                                       [ngClass]="{
@@ -185,12 +189,19 @@
 
 <p-drawer
   [visible]="dashboardSidebarVisible()" (visibleChange)="dashboardSidebarVisible.set($event)"
+  (onShow)="onDrawerShow()"
+  (onHide)="onDrawerHide()"
   position="right"
-  closeIcon="pi pi-sign-out"
+  closeIcon="fa-sharp fa-regular fa-arrow-right-from-bracket"
   styleClass="!max-w-2xl !w-full !h-screen rounded-l-2xl"
 >
   <ng-template #headless>
-    <div class="flex flex-col h-screen overflow-auto">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-drawer-title"
+      class="flex flex-col h-screen overflow-auto"
+    >
       <div>
         <div class="flex items-center gap-3 p-6">
           <p-avatar
@@ -199,12 +210,13 @@
             class="rounded-xl overflow-hidden"
           />
           <div class="flex-1">
-            <div class="leading-6 text-color font-medium">Brook Simmons</div>
+            <div id="settings-drawer-title" class="leading-6 text-color font-medium">Brook Simmons</div>
             <div class="mt-1 leading-5 text-muted-color text-sm">Ejecutivo de ventas</div>
           </div>
           <p-button
+            #drawerCloseBtn
             (click)="dashboardSidebarVisible.set(false)"
-            icon="pi pi-sign-out"
+            icon="fa-sharp fa-regular fa-arrow-right-from-bracket"
             text
             rounded
             severity="secondary"
@@ -230,7 +242,7 @@
             <div class="flex items-start justify-between">
               <div class="leading-6 font-medium text-color">Registro de llamadas</div>
               <p-button
-                icon="pi pi-download text-sm"
+                icon="fa-sharp fa-regular fa-download text-sm"
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-all"
                 severity="secondary"
                 text
@@ -254,7 +266,7 @@
                     <div class="mt-1 text-sm leading-5 text-muted-color">{{ data.time }}</div>
                   </div>
                   <p-button
-                    icon="pi pi-phone text-sm"
+                    icon="fa-sharp fa-regular fa-phone text-sm"
                     text
                     styleClass="bg-primary/10 dark:bg-primary/20 w-8 h-8"
                     aria-label="Llamar"
@@ -267,7 +279,7 @@
             <div class="flex items-start justify-between">
               <div class="leading-6 font-medium text-color">Registro de correos</div>
               <p-button
-                icon="pi pi-download text-sm"
+                icon="fa-sharp fa-regular fa-download text-sm"
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-all"
                 severity="secondary"
                 text
@@ -302,7 +314,7 @@
             <div class="flex items-start justify-between">
               <div class="leading-6 font-medium text-color">Notas de reunión</div>
               <p-button
-                icon="pi pi-download text-sm"
+                icon="fa-sharp fa-regular fa-download text-sm"
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-all leading-none"
                 severity="secondary"
                 text
@@ -371,7 +383,7 @@
                 <div class="font-medium text-color mt-0.5">{{ data.title }}</div>
                 <a [href]="data.link" target="_blank" rel="noopener">
                   <p-button
-                    icon="pi pi-arrow-up-right text-sm !leading-none"
+                    icon="fa-sharp fa-regular fa-arrow-up-right text-sm !leading-none"
                     styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900"
                     severity="secondary"
                     text

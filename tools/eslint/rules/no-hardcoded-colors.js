@@ -72,6 +72,7 @@ const ALLOWED_CLASSES = new Set([
   'bg-orange-100',   // Semantic indicators (alerts, warnings, categories)
   'text-orange-950',
   'text-yellow-500', // Crypto icons (BTC)
+  'bg-yellow-500',   // Crypto badge background (BTC brand color)
 ]);
 
 // Matches hex colors in class strings (#fff, #f0f0f0, etc.) — catches accidental hardcoding

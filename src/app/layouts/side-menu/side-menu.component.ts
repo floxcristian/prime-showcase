@@ -1,6 +1,12 @@
 // Angular
 import { NgClass } from '@angular/common';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 // PrimeNG
@@ -57,7 +63,7 @@ export class SideMenuComponent {
   sampleAppsSidebarNavs: SidebarNavItem[] = SIDEBAR_NAV_ITEMS;
   selectedSampleAppsSidebarNav = signal('Resumen');
   sampleAppsSidebarNavsMore: { icon: string; title: string }[] = [
-    { icon: 'pi pi-cog', title: 'Configuración' },
+    { icon: 'fa-sharp fa-regular fa-gear', title: 'Configuración' },
   ];
 
   // Drawer
@@ -70,11 +76,33 @@ export class SideMenuComponent {
     'Oportunidades',
   ];
 
+  // Focus management refs
+  private settingsTriggerRef =
+    viewChild<ElementRef<HTMLButtonElement>>('settingsTrigger');
+  private drawerCloseRef = viewChild('drawerCloseBtn', { read: ElementRef });
+
+  private focusElement(ref: ElementRef<HTMLElement> | undefined): void {
+    const host = ref?.nativeElement;
+    if (!host) return;
+    const focusable = host.matches('button, [tabindex]')
+      ? host
+      : host.querySelector<HTMLElement>('button, [tabindex]');
+    focusable?.focus();
+  }
+
   // Drawer data
   callLogs: CallLog[] = CALL_LOGS;
   emailRecords: EmailRecord[] = EMAIL_RECORDS;
   preferences = signal<PreferenceGroup[]>(PREFERENCES);
   opportunities: Opportunity[] = OPPORTUNITIES;
+
+  onDrawerShow(): void {
+    queueMicrotask(() => this.focusElement(this.drawerCloseRef()));
+  }
+
+  onDrawerHide(): void {
+    queueMicrotask(() => this.focusElement(this.settingsTriggerRef()));
+  }
 
   togglePreference(pref: PreferenceItem): void {
     this.preferences.update(groups =>

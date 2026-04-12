@@ -6,7 +6,7 @@
     </div>
   </div>
   <p-button
-    icon="pi pi-circle-fill text-[var(--p-green-500)]"
+    icon="fa-sharp fa-solid fa-circle text-[var(--p-green-500)]"
     label="950 Usuarios activos"
     outlined
     severity="secondary"
@@ -14,23 +14,23 @@
 </div>
 <div class="mt-10 mb-4 flex items-center justify-between">
   <p-iconfield iconPosition="left">
-    <p-inputicon class="pi pi-search"> </p-inputicon>
+    <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"> </p-inputicon>
     <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
   </p-iconfield>
   <div class="flex items-center gap-3">
-    <p-button icon="pi pi-filter" outlined severity="secondary" aria-label="Filtrar" />
+    <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" aria-label="Filtrar" />
     <p-divider layout="vertical" class="m-0 p-0" />
-    <p-button icon="pi pi-refresh" outlined severity="secondary" aria-label="Actualizar" />
+    <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" aria-label="Actualizar" />
     <p-button label="1 de 15" outlined severity="secondary" />
-    <p-button icon="pi pi-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
-    <p-button icon="pi pi-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
+    <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" aria-label="Página anterior" />
+    <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" aria-label="Página siguiente" />
   </div>
 </div>
 <div
   class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto"
 >
   <p-table
-    [value]="tableData"
+    [value]="filteredTableData()"
     [selection]="selectedRows()" (selectionChange)="selectedRows.set($event)"
     dataKey="id"
     [rows]="10"
@@ -123,13 +123,28 @@
           <div class="flex justify-end w-full">
             <p-button
               (click)="displayPopover($event, op)"
-              icon="pi pi-search"
+              icon="fa-sharp fa-regular fa-magnifying-glass"
               rounded
               outlined
               severity="secondary"
               aria-label="Ver detalles"
             />
           </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td [attr.colspan]="8">
+          <app-empty-state
+            icon="fa-users"
+            title="Sin clientes"
+            [description]="
+              search()
+                ? 'No encontramos clientes que coincidan con tu búsqueda. Prueba con otros términos.'
+                : 'Aún no hay clientes registrados. Los nuevos aparecerán aquí.'
+            "
+          />
         </td>
       </tr>
     </ng-template>
