@@ -28,6 +28,9 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
+# Large binary assets
+*.zip
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/
