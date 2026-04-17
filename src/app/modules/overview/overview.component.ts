@@ -94,12 +94,21 @@ export class OverviewComponent {
   private platformId = inject(PLATFORM_ID);
   private configService = inject(AppConfigService);
 
-  themeEffect = effect(() => {
-    this.configService.transitionComplete();
-    // Use untracked to avoid re-running this effect when selectedTime changes.
-    // Theme changes rebuild the chart; time selection changes are handled by changeSelect().
-    untracked(() => this.initChart());
-  });
+  constructor() {
+    // Rebuild the chart once per completed dark-mode transition. The counter
+    // ticks post-View-Transition so CSS custom properties have flipped by the
+    // time Chart.js reads them via getComputedStyle.
+    //
+    // `untracked` is load-bearing: setChartOptions() reads
+    // `configService.darkTheme()` internally and we must NOT register that as
+    // a dependency — the effect would then fire on toggle BEFORE the
+    // transition callback applied `.p-dark`, and Chart.js would pick up the
+    // previous theme's colors.
+    effect(() => {
+      this.configService.themeChanged();
+      untracked(() => this.initChart());
+    });
+  }
 
   initChart(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -153,7 +162,7 @@ export class OverviewComponent {
   }
 
   setChartOptions(): Record<string, unknown> {
-    const { darkTheme } = this.configService.appState();
+    const darkTheme = this.configService.darkTheme();
     const documentStyle = getComputedStyle(document.documentElement);
     const surface100 = documentStyle.getPropertyValue('--p-surface-100');
     const surface900 = documentStyle.getPropertyValue('--p-surface-900');

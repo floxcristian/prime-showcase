@@ -1,4 +1,9 @@
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter, withPreloading } from '@angular/router';
 import {
   provideClientHydration,
@@ -10,6 +15,7 @@ import { definePreset } from '@primeuix/themes';
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { BrowserPreloadingStrategy } from './core/strategies/browser-preloading.strategy';
+import { AppConfigService } from './core/services/app-config/app-config.service';
 
 // Desactiva las transiciones internas de PrimeNG (button, input, select, etc.).
 // Razon: en navegacion client-side entre rutas, los componentes PrimeNG nuevos inyectan
@@ -49,10 +55,25 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withPreloading(BrowserPreloadingStrategy)),
     provideHttpClient(withFetch()),
     provideClientHydration(withEventReplay()),
+    // Bootstrap AppConfigService before first render so it reads the theme
+    // cookie (SSR via REQUEST, browser via document.cookie) and applies the
+    // `p-dark` class on <html> — which is what Angular serializes into the
+    // SSR HTML. Using provideAppInitializer (not a component-level inject)
+    // so the contract is: "service runs before render", independent of the
+    // component tree. Ref: ADR-001 §4
+    provideAppInitializer(() => {
+      inject(AppConfigService);
+    }),
     providePrimeNG({
       theme: {
         preset: AppPreset,
         options: {
+          // Dark mode explicito por clase (no default 'system'): permite al
+          // servidor setear `<html class="p-dark">` segun cookie en SSR para
+          // prevenir FOUC, y que el toggle programatico via AppConfigService
+          // tenga efecto real en los tokens de PrimeNG. Alineado con patron
+          // Tailwind v4 `darkMode: 'class'`. Ref: ADR-001 §4
+          darkModeSelector: '.p-dark',
           // Cascade CSS: envuelve PrimeNG en @layer primeng. Efecto:
           // 1. Nuestro :focus-visible global (sin capa) gana por spec CSS cascade layers.
           // 2. Tailwind utilities (capa no declarada en order) gana sobre PrimeNG.

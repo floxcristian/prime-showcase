@@ -6,6 +6,22 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // Pre-hydration theme bootstrap: runs before any CSS paints to prevent
+    // dark-mode FOUC for first-time visitors. SSR already emits the correct
+    // class when the theme cookie is present; this script is the fallback for
+    // users whose preference comes from the OS `prefers-color-scheme`.
+    // Ref: ADR-001 §4
+    (function () {
+      try {
+        var m = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+        var theme = m
+          ? m[1]
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('p-dark');
+      } catch (e) { /* no-op: CSP / sandbox; SSR class will still apply */ }
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

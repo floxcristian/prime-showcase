@@ -10,6 +10,7 @@
     "lint:fix": "ng lint --fix",
     "lint:rules:test": "node --test tools/eslint/rules/__tests__/*.test.js",
     "test": "ng test",
+    "test:ssr:smoke": "node tools/smoke/ssr-theme.smoke.mjs",
     "serve:ssr:prime-showcase": "node dist/prime-showcase/server/server.mjs",
     "postinstall": "patch-package"
   },

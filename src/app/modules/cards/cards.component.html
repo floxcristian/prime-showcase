@@ -178,7 +178,7 @@
                             <div class="font-medium leading-normal flex-1 text-left">
                               Cambiar a {{ darkMode() ? "Claro" : "Oscuro" }}
                             </div>
-                            <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="darkMode.set($event)" aria-label="Modo oscuro" />
+                            <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="toggleDarkMode($event)" aria-label="Modo oscuro" />
                           </div>
                         </div>
                         <div class="border border-surface rounded-3xl">

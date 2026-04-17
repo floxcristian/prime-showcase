@@ -200,9 +200,168 @@ providePrimeNG({
 
 **Es un parche?** No. Es la API oficial de PrimeNG para controlar la cascada CSS. La configuracion sigue la documentacion oficial.
 
-### 4. ~~`definePreset` — zero del box-shadow del focus ring~~
+### 4. Dark mode — cookie como single source of truth + Tailwind `@custom-variant`
 
-Reemplazado por §5. Ver [Changelog](#changelog) y A3 para historia.
+**Objetivo:** que la preferencia de tema sea consistente entre SSR y CSR, sin FOUC, y sin que Tailwind y PrimeNG se desincronicen.
+
+#### 4a. Cookie, no localStorage
+
+```typescript
+// src/app/core/services/app-config/theme-cookie.util.ts
+export function serializeThemeCookie(theme, { secure }) {
+  const base = `theme=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  return secure ? `${base}; Secure` : base;
+}
+```
+
+**Por que cookie:**
+
+| Requisito | Cookie | localStorage |
+|---|---|---|
+| Legible desde el servidor (SSR) | Sí (header `Cookie`) | No (solo existe en el browser) |
+| Persistente entre sesiones | Sí (Max-Age=1 año) | Sí |
+| Disponible antes del hydration | Sí | Solo despues de que corra JS |
+| Tamano | <20 bytes | Sin limite practico |
+
+SSR necesita conocer la preferencia ANTES de serializar el HTML. Sin esa informacion no puede emitir `<html class="p-dark">`, y el browser pinta en light primero → flash al re-render. localStorage es inutil para esto — el servidor no lo ve.
+
+**Alternativa descartada — `Sec-CH-Prefers-Color-Scheme` (Client Hints):** el header existe y lo envia el browser automaticamente, pero (1) solo indica `prefers-color-scheme` del SO, no la preferencia explicita del usuario si la toggleo en la app, (2) no es Baseline (Chromium-only), (3) requiere `Accept-CH` handshake en la respuesta previa → primer render sin hint. Cookie cubre ambos casos (OS + override manual) y funciona cross-browser hoy.
+
+**Atributos de la cookie — decisiones explicitas:**
+
+- `Path=/` — la cookie aplica a todas las rutas. SSR la lee en cualquier endpoint, no solo `/`.
+- `Max-Age=31536000` — un ano. Preferencia de tema rara vez cambia; caducarla antes obliga a re-detectar por cada sesion, lo cual degrada a light en cada visita.
+- `SameSite=Lax` — sobrevive navegaciones top-level desde sitios externos (compartir link), no se envia en POST cross-site. Balance correcto para preferencia de UI.
+- `Secure` condicional — solo sobre HTTPS. El util es puro (`{ secure: boolean }`) y el caller (`AppConfigService`) deriva el flag de `location.protocol === 'https:'`. Localhost sobre HTTP sigue funcionando; produccion HTTPS obtiene `Secure`.
+- Sin `HttpOnly` — intencional. El pre-hydration inline script en `index.html` la lee via `document.cookie` para aplicar la clase `p-dark` antes de que cualquier CSS paint, evitando FOUC en sesiones donde el usuario ya toggleo el tema. Con `HttpOnly` no podriamos hacer eso y tendriamos que esperar al bootstrap de Angular.
+
+**Header size bounding:** Node's HTTP parser caps total header size at `--max-http-header-size` (default 16 KiB) and rejects anything larger before user code ever runs. Un cookie string patologico llega acotado por la capa de transporte, asi que `parseThemeCookie` no lleva un cap redundante en el layer de aplicacion — el regex `[^;\s]+` sobre un input ya acotado es O(n) en bytes, y `n` esta acotado por Node. Defense-in-depth contra injection sigue en `serializeThemeCookie` (TypeError runtime en valores fuera de `dark`/`light`), que es donde una regresion de caller malicioso de verdad pondria bytes en la respuesta.
+
+#### 4b. Tailwind v4 `@custom-variant dark`
+
+```scss
+/* src/styles.scss */
+@custom-variant dark (&:where(.p-dark, .p-dark *));
+```
+
+**Problema que resuelve:** Tailwind v4 default es `dark:` variant driven by `prefers-color-scheme`. PrimeNG (via `darkModeSelector: '.p-dark'`) flipea sus tokens por CLASE, no por media query. Sin alineacion, `class="dark:bg-surface-950"` queda latente cuando el usuario esta en `.p-dark` si el OS dice light → PrimeNG dark pero Tailwind light → mitad de la UI en dark, mitad en light.
+
+El plugin `tailwindcss-primeui` no registra la custom-variant automaticamente (verificado al diagnosticar el bug 2026-04-17). Hay que declararla explicitamente. `:where()` mantiene la especificidad en 0, evitando ganar accidentalmente a reglas con pseudoclases.
+
+#### 4c. `provideAppInitializer` — bootstrap limpio
+
+```typescript
+// src/app/app.config.ts
+provideAppInitializer(() => {
+  inject(AppConfigService);
+}),
+```
+
+**Por que no inyectar en `AppComponent`:**
+
+- **Timing:** `provideAppInitializer` corre ANTES del primer render (CSR y SSR). Inyectar en el constructor de `AppComponent` funciona pero acopla el contrato "el servicio debe correr antes del paint" a un componente especifico — si alguien refactoriza el arbol, se pierde silenciosamente.
+- **Zero-cost:** la llamada a `inject` activa el servicio via DI; el contrato es "resuelve y ejecuta constructor". No hay callback que esperar, no hay Promise que bloquee el bootstrap mas alla del `new AppConfigService()`.
+- **Testabilidad:** el servicio es independiente del arbol de componentes. `TestBed.inject(AppConfigService)` funciona sin montar nada.
+
+Patron usado por Angular core (ApplicationConfig examples), Nx, Spartan, y la mayoria de libraries enterprise.
+
+#### 4d. Patron de mutacion — setter explicito, no `effect` para side effects
+
+```typescript
+// src/app/core/services/app-config/app-config.service.ts
+setDarkTheme(dark: boolean): void {
+  if (dark === this._darkTheme()) return;   // idempotencia
+  this._darkTheme.set(dark);                // state
+  this.persistTheme(dark);                  // cookie
+  this.applyThemeTransition(dark);          // DOM + notify
+}
+```
+
+**Por que no `effect` para persistencia:** revisiones anteriores envolvian `persistState` y `handleDarkModeTransition` en un `effect(() => {...})` con un flag `isFirstRun` que abortaba la primera ejecucion (porque el efecto corre al registrar, disparando cookie-write y View Transition en el bootstrap, cosas que solo queremos en respuesta a accion de usuario). Esto:
+
+1. Mezcla semantica: "cambio de state" ≠ "accion de usuario". `effect` es para derivar state reactivo, no para side effects imperativos.
+2. Requiere un flag mutable (`isFirstRun`) que es clasicamente un code-smell — es un workaround para que una API declarativa se comporte imperativamente.
+3. No se puede auditar con grep — `appState.update(...)` desde cualquier parte del codigo dispara persistencia, sin una funcion concreta que lo explicite.
+
+**Patron bigtech (Redux/Zustand/Jotai/Recoil):** estado reactivo + acciones explicitas que hacen la mutacion y sus side effects juntos. El single write path es `setDarkTheme` — greppable, testeable, idempotente. `darkTheme` se expone como `Signal<boolean>` de solo lectura (`asReadonly()`), bloqueando en tiempo de compilacion cualquier ruta de mutacion alternativa.
+
+#### 4e. `themeChanged` counter — evento discreto sin pulse
+
+```typescript
+readonly themeChanged: Signal<number> = this._themeChanged.asReadonly();
+
+private notifyThemeChanged(): void {
+  this._themeChanged.update(v => v + 1);
+}
+```
+
+**Por que counter y no boolean pulse:** la implementacion anterior (`transitionComplete`) setteaba `true` y luego resetea a `false` via `setTimeout(() => set(false))` para que la proxima transicion pudiera re-disparar. Eso implicaba:
+
+- Ventana de carrera en el setTimeout (si consumidor lee antes de que resetea, ve `true`; despues, `false`).
+- Dos estados donde logicamente hay uno ("ocurrio el evento").
+- `setTimeout` defensivo solo por la mecanica del signal.
+
+Counter monotonico resuelve todo: cada transicion es un valor nuevo (`N+1`), `effect` consumidor se re-ejecuta automaticamente por deteccion de cambio, no hay estado intermedio, no hay `setTimeout`. Patron inspirado en React `useReducer` con counter, y en el `tick` signal de Svelte. Cubierto por tests unitarios que verifican `themeChanged()` incrementa exactamente una vez por `setDarkTheme` cuando el valor cambia (y no incrementa en no-ops).
+
+**Por que counter y no leer `darkTheme()` directamente en el effect consumer:** aparentemente seria mas simple — `effect(() => this.configService.darkTheme(); untracked(() => initChart()))` tiene la misma forma. Pero `document.startViewTransition(callback)` ejecuta el callback de forma asincrona (la spec lo describe como "next frame"); entre `_darkTheme.set(dark)` y la aplicacion real de la clase `.p-dark`, hay una ventana donde los signal effects ya corrieron (microtask) pero el DOM todavia tiene la clase vieja. Chart.js leeria CSS vars obsoletas. El counter se incrementa desde `transition.ready.then(...)` que por contrato resuelve despues de que el nuevo DOM esta paintable — elimina la race.
+
+#### 4f. Pre-hydration inline script — fallback para OS preference
+
+```html
+<!-- src/index.html -->
+<script>
+(function () {
+  try {
+    var m = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+    var theme = m ? m[1] : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (theme === 'dark') document.documentElement.classList.add('p-dark');
+  } catch (e) { /* no-op: CSP / sandbox; SSR class will still apply */ }
+})();
+</script>
+```
+
+**Cuando actua:** solo en browser, solo en primer visit (sin cookie). SSR ya emitio la clase correcta cuando habia cookie — este script es para usuarios que nunca toggleron y cuya preferencia viene del SO.
+
+**Regex alineado con el util TS:** el regex inline `/(?:^|;\s*)theme=(dark|light)/` usa la misma anchor prefix-safety que `parseThemeCookie` (evita false positive en `mytheme=dark`). Divergencia entre los dos parsers es un bug esperando a pasar — si se toca uno, tocar el otro y los tests de `theme-cookie.util.spec.ts` ambos casos.
+
+#### 4g. CDN caching — `Vary: Cookie`
+
+El SSR server emite `Vary: Cookie, Accept-Encoding` y `Cache-Control: public, max-age=3600, s-maxage=86400`. Sin `Vary: Cookie`, un proxy cache serviria HTML de un usuario dark a un usuario light → regresion visible.
+
+**Fragmentacion de cache conocida:** `Vary: Cookie` hace que el CDN almacene una entry por valor unico del header `Cookie`. En practica, el valor completo de la cookie (incluyendo session tokens, analytics, etc.) varia por usuario → cache hit rate cercano a cero. Solucion big-tech (Cloudflare Workers, Fastly VCL, Akamai): normalizar el header a un subset antes del Vary (ej: un header sintetico `X-Theme: dark|light` derivado de la cookie). **No implementado** en este proyecto — ROI no justifica el overhead operacional hasta que el proyecto tenga trafico real que sature origen. Cuando sea relevante, la normalizacion vive en el edge, no en el server Node.
+
+Ref: [MDN — Cache-Control and Vary](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Vary), [Cloudflare — Caching dynamic content](https://developers.cloudflare.com/cache/concepts/vary-header/).
+
+#### 4h. Manual verification checklist
+
+Para validar la SSR → hidratacion sin correr Playwright:
+
+```bash
+# 1. Build + arrancar SSR
+npm run build && npm run serve:ssr:prime-showcase
+
+# 2. Smoke test automatico (tools/smoke/ssr-theme.smoke.mjs)
+npm run test:ssr:smoke
+
+# 3. Verificar manualmente en DevTools
+curl -H 'Cookie: theme=dark' http://localhost:4000/ | grep -o '<html[^>]*>'
+# Expected: <html class="p-dark" lang="en" ...>
+
+curl -H 'Cookie: theme=light' http://localhost:4000/ | grep -o '<html[^>]*>'
+# Expected: <html lang="en" ...> (sin p-dark)
+
+curl -I -H 'Cookie: theme=dark' http://localhost:4000/ | grep -i vary
+# Expected: Vary: Cookie, Accept-Encoding
+```
+
+#### 4i. Alternativas descartadas
+
+- **localStorage + cookie hibrido:** dos storages, dos sources of truth → mismatch cuando divergen. Descartado.
+- **Client Hints (`Sec-CH-Prefers-Color-Scheme`):** Chromium-only, requiere `Accept-CH` handshake → primer render sin hint. Descartado.
+- **Query string (`/?theme=dark`):** rompe URLs compartibles, ensucia analytics, no persiste. Descartado.
+- **Subdomain por tema (`dark.app.com`):** overkill y rompe isolation de cookies. Descartado.
+
+**Es un parche?** No. Es la arquitectura de theming canonica para stack Angular SSR + design token library (PrimeNG, Material, ng-zorro). El patron cookie + inline script + appInitializer es identico al usado por Vercel Analytics, GitHub, Linear, Radix UI Examples — todos publicados.
 
 ### 5. Focus ring — preset-driven tokens + styles.scss consumer
 
@@ -611,6 +770,24 @@ Si se invierten o separan, el focus ring del bell se expone.
 - [Issue interno #4](https://github.com/floxcristian/prime-showcase/issues/4) — seguimiento para remover workaround §6
 
 ## Changelog
+
+### 2026-04-17 (noche — ronda 3 de revision, anti-parche)
+
+- **`AppConfigService.applyThemeTransition` recortado.** Removido el tracking de `activeTransition`, las llamadas a `skipTransition()` y el `try/catch` defensivo alrededor de `startViewTransition`. La implementacion final es la minima: feature-detect → llamar → suscribirse a `ready` para notificar. Los big-tech de referencia (GitHub, Vercel, Stripe) no orquestan concurrencia manual sobre View Transitions — la semantica de `ready`/`finished` del browser ya cubre el skip implicito, y los polyfills que prometen la API pero tiran en invocacion no son un caso observado. YAGNI aplicado sobre codigo que parecia defensivo pero no cubria ningun failure real.
+- **`parseThemeCookie` sin length cap.** El cap de 8 KB a nivel aplicacion era redundante: el parser HTTP de Node (`--max-http-header-size`, default 16 KiB) rechaza headers sobredimensionados antes de que el request llegue al handler. Mantener un cap a la capa de aplicacion solo duplicaba la defense y confundia el modelo mental — "quien acota?" tenia dos respuestas. Eliminado junto a sus dos tests.
+- **Specs podados de tautologias.** (a) El test "darkTheme is read-only" validaba el tipo `Signal<T>` en runtime — lo que TypeScript ya garantiza en compile time; el test no podia fallar. (b) Los tests de `skipTransition` y "throws fallback" dejaron de aplicar al simplificar `applyThemeTransition`. (c) El test SSR "no cookie write" se compactado a `~5` lineas (era 26) sin perder la assertion de setter-spy.
+- **`overview.component` — field initializer → constructor effect.** `themeEffect = effect(...)` a nivel de campo quedaba huerfano: el `EffectRef` no se usa en ningun lado. Movido al constructor como `effect(...)` anonimo, que es el patron idiomatico de Angular v21 cuando no necesitas el handle.
+- **`server.ts` — polaridad NODE_ENV fail-closed.** Cambio de `isProduction = NODE_ENV === 'production'` a `isDev = NODE_ENV === 'development'`. Si el deploy olvida el env var o lo configura como `staging`, la CSP degrada a la version estricta (sin `ws:` plaintext) en vez de a la permisiva. Pequeno pero es la diferencia entre un SRE tranquilo y un post-mortem.
+- **`server.ts` — `frame-ancestors 'none'`.** Esta app es una SPA standalone, nunca deberia embebes en un iframe — ni de terceros ni de si misma. `'none'` endurece mas que `'self'` y bloquea clickjacking self-frame tambien.
+- **`server.ts` — `PORT || 4000` → `PORT ?? 4000`.** Edge case: `PORT=0` (que algunos orchestrators usan para "binde cualquier puerto libre") era tratado como falsy y sobreescrito al 4000. Nullish coalescing respeta el `0` intencional.
+
+### 2026-04-17 (tarde — cleanup enterprise-grade post-revision critica)
+
+- **§4 expandido — Dark mode architecture formalizada.** El marker "~~reemplazado por §5~~" era obsoleto desde que la seccion se volvio sobre focus ring. Nuevo §4 documenta las decisiones completas: cookie como SSOT (vs localStorage / Client Hints), Tailwind v4 `@custom-variant dark` alineado con `darkModeSelector: '.p-dark'` de PrimeNG, `provideAppInitializer` para bootstrap tree-independent, patron setter explicito (vs `effect` + `isFirstRun` skip-flag), counter signal `themeChanged` para eventos discretos (vs pulse booleano con `setTimeout`), pre-hydration inline script con regex alineado al util TS, `Vary: Cookie` + fragmentacion de cache en CDNs con big-tech workaround (edge normalization), y checklist de verificacion manual. Cada subseccion incluye alternativas descartadas con rationale.
+- **`AppState` interface eliminada.** Campos `preset`, `primary`, `surface` nunca fueron consumidos — eran scaffolding del PrimeNG template original. YAGNI: se reintroducen cuando exista un theme picker runtime, no antes. Shape del state reducido a `darkTheme: boolean` via signal directo (`_darkTheme`) expuesto read-only.
+- **`AppConfigService` refactorizado a patron bigtech.** (a) API mutation reducida a `setDarkTheme(dark: boolean)` — single write path, greppable, idempotente, sin `effect` para side effects. (b) `darkTheme` expuesto como `Signal<boolean>` read-only via `asReadonly()` — mutacion directa bloqueada en tiempo de compilacion. (c) `themeChanged` como counter monotonico reemplaza `transitionComplete` pulse — elimina ventana de carrera de `setTimeout` y estado intermedio. (d) localStorage eliminado — cookie es el unico storage, fin de la divergencia entre dos sources of truth. (e) Rama inalcanzable `return false` en `readInitialTheme` removida (platformId es server o browser, no hay tercer caso).
+- **`theme-cookie.util.ts` purificado.** `serializeThemeCookie(theme, { secure })` ahora acepta el flag HTTPS como parametro en vez de sniffear `typeof location !== 'undefined'`. Funciones puras son testeable sin mockear globals; el caller (service) deriva el flag de su propio contexto. Cobertura 100% via test cases en Vitest cubriendo falsy inputs, prefix-safety (`mytheme=dark`), case-sensitivity, duplicados, runtime validation defense-in-depth (cookie-injection), y round-trip parse/serialize.
+- **Tests enterprise-grade agregados.** (a) `theme-cookie.util.spec.ts` — parsing y serializacion, edge cases del regex. (b) `app-config.service.spec.ts` expandido de smoke (1 test) a suite completa (16 tests) cubriendo bootstrap con/sin cookie, prioridad cookie-over-class, `setDarkTheme` idempotencia, contador `themeChanged` monotonico, SSR path con `REQUEST` mockeado, y verificacion de que el servicio no escribe cookies en SSR. (c) Smoke test SSR `tools/smoke/ssr-theme.smoke.mjs` — curl real contra el server en ejecucion validando `<html class="p-dark">` + `Vary: Cookie` header para 4 escenarios (no cookie, theme=dark, theme=light, valor invalido). Invocable via `npm run test:ssr:smoke`.
 
 ### 2026-04-17
 

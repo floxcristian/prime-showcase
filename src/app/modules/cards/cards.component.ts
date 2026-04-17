@@ -35,6 +35,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 import { Permission } from './models/permission.interface';
 import { FileWithPreview, MemberType, PriceRangeSpec } from './models/member-type.interface';
+import { AppConfigService } from '../../core/services/app-config/app-config.service';
 
 const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
@@ -101,7 +102,13 @@ export class CardsComponent {
   ]);
   userSelectButtonOptions: string[] = ['Inscritos', 'Organizados'];
   selectedUserSelectButtonOption = signal('Inscritos');
-  darkMode = signal(false);
+
+  private configService = inject(AppConfigService);
+  // Single source of truth: AppConfigService. The toggle binds directly to
+  // `darkTheme` (read-only signal) and writes through `toggleDarkMode`, which
+  // calls `setDarkTheme` (cookie persist + View Transition + class toggle).
+  darkMode = this.configService.darkTheme;
+
   emailChips = signal<string[]>([]);
   memberSelectedTypes = signal<string[]>(['O', 'E', 'V']);
   memberTypes: MemberType[] = [
@@ -123,6 +130,10 @@ export class CardsComponent {
 
   private config = inject(PrimeNG);
   private messageService = inject(MessageService);
+
+  toggleDarkMode(value: boolean): void {
+    this.configService.setDarkTheme(value);
+  }
 
   onRemoveTemplatingFile(
     _file: FileWithPreview,

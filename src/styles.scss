@@ -2,6 +2,21 @@
 @plugin 'tailwindcss-primeui';
 
 /*
+ * Tailwind v4 dark variant → class-based, driven by `.p-dark` on <html>.
+ *
+ * Tailwind v4 defaults to `prefers-color-scheme: dark` for the `dark:` variant.
+ * PrimeNG is configured with `darkModeSelector: '.p-dark'` (app.config.ts), which
+ * flips PrimeNG tokens on the class. Without this custom-variant declaration the
+ * two systems desynchronize: PrimeNG components turn dark but Tailwind utilities
+ * like `dark:bg-surface-950` stay latent → visible mismatch on every page.
+ *
+ * Single source of truth for dark mode = presence of `.p-dark` on <html>.
+ * `AppConfigService` is the only writer; the cookie + pre-hydration script make
+ * it consistent across SSR → CSR. Ref: ADR-001 §4.
+ */
+@custom-variant dark (&:where(.p-dark, .p-dark *));
+
+/*
  * Focus ring global — consume los tokens del preset (app.config.ts → semantic.focusRing).
  * Para cambiar color/width/offset/shadow editar el preset, no este archivo.
  * Ref: CLAUDE.md §Transiciones, ADR-001 §5 + §9
