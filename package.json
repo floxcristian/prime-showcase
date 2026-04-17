@@ -9,7 +9,8 @@
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "test": "ng test",
-    "serve:ssr:prime-showcase": "node dist/prime-showcase/server/server.mjs"
+    "serve:ssr:prime-showcase": "node dist/prime-showcase/server/server.mjs",
+    "postinstall": "patch-package"
   },
   "private": true,
   "dependencies": {
@@ -45,6 +46,7 @@
     "angular-eslint": "^21.3.1",
     "eslint": "^10.2.0",
     "jsdom": "^29.0.2",
+    "patch-package": "^8.0.1",
     "tailwindcss": "^4.2.2",
     "tailwindcss-primeui": "^0.6.1",
     "typescript": "~5.9.3",

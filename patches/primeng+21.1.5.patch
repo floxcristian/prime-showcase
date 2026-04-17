@@ -1,0 +1,13 @@
+diff --git a/node_modules/primeng/fesm2022/primeng-autofocus.mjs b/node_modules/primeng/fesm2022/primeng-autofocus.mjs
+index 6554d3d..821c9db 100644
+--- a/node_modules/primeng/fesm2022/primeng-autofocus.mjs
++++ b/node_modules/primeng/fesm2022/primeng-autofocus.mjs
+@@ -20,7 +20,7 @@ class AutoFocus extends BaseComponent {
+     host = inject(ElementRef);
+     onAfterContentChecked() {
+         // This sets the `attr.autofocus` which is different than the Input `autofocus` attribute.
+-        if (this.autofocus === false) {
++        if (!this.autofocus) {
+             this.host.nativeElement.removeAttribute('autofocus');
+         }
+         else {

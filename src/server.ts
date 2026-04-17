@@ -14,7 +14,24 @@ const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+
+/**
+ * SSRF protection — Angular 21 SSR validates the Host / X-Forwarded-Host headers
+ * against `allowedHosts`. If the list is empty, every request falls back to CSR
+ * (serves the unrendered `index.csr.html`). In a future major this becomes a 400.
+ *
+ * Production: set `NG_ALLOWED_HOSTS="app.example.com,www.example.com"` via env.
+ * Development: we allow localhost/127.0.0.1 so `npm run start` and the SSR server
+ *              both work out-of-the-box. The env var value is merged on top.
+ *
+ * When deployed behind a trusted LB/reverse proxy that already validates Host,
+ * set `NG_ALLOWED_HOSTS=*`.
+ *
+ * Ref: https://angular.dev/best-practices/security#preventing-server-side-request-forgery-ssrf
+ */
+const angularApp = new AngularNodeAppEngine({
+  allowedHosts: ['localhost', '127.0.0.1'],
+});
 
 /**
  * Compression and security middleware

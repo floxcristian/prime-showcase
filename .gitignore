@@ -31,6 +31,9 @@ yarn-error.log
 # Large binary assets
 *.zip
 
+# Debug artifacts (curl dumps, server logs, verification screenshots)
+/debug/
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/
