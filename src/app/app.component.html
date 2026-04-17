@@ -1,4 +1,7 @@
-<a class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-primary focus:text-primary-contrast focus:rounded-lg" href="#main-content">
-  Saltar al contenido principal
-</a>
+<a
+  href="#main-content"
+  (click)="skipToMain($event)"
+  class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-contrast focus:rounded-lg focus:font-medium focus:leading-6"
+  >Saltar al contenido principal</a
+>
 <router-outlet />
