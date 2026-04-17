@@ -2,7 +2,7 @@
 
 - **Estado:** Aceptado
 - **Fecha:** 2026-04-15
-- **Ultima revision:** 2026-04-17 (fix en dos capas identificado — `allowedHosts` para primer paint SSR + `transitionDuration: '0s'` para inyeccion de estilos en navegacion client-side; ambos son necesarios. Workaround del bug AutoFocus migrado de CSS guard → monkey-patch runtime → `patch-package` declarativo — mismo fix de 2 chars del PR upstream, ahora auditable en code review via diff commiteado. Verificado via `curl` a SSR: Beasties inlinea automaticamente `:focus:not(:focus-visible){outline:none}` desde `styles.scss` como critical CSS — el `<style>` inline manual en `index.html` era redundante y se removio; §6a eliminado del ADR.)
+- **Ultima revision:** 2026-04-17 (fix en dos capas identificado — `allowedHosts` para primer paint SSR + `transitionDuration: '0s'` para inyeccion de estilos en navegacion client-side; ambos son necesarios. Workaround del bug AutoFocus migrado de CSS guard → monkey-patch runtime → `patch-package` declarativo — mismo fix de 2 chars del PR upstream, ahora auditable en code review via diff commiteado. §6a eliminado: el `<style>` inline manual en `index.html` era redundante — Beasties lo inlineaba automaticamente desde `styles.scss`. §8 actualizado: `transition-[background-color] duration-150` removido de los nav items del sidebar para alinear con `transitionDuration: '0s'` de §2b — el patron "instant hover" ahora aplica tambien a elementos custom-Tailwind del layout. §5 simplificado: regla defensiva `:focus:not(:focus-visible) { outline: none }` removida — era polyfill pre-2020 innecesario; browsers modernos ya usan `:focus-visible` en UA stylesheet y PrimeNG 21 define focus rings exclusivamente via `:focus-visible`.)
 - **Autores:** Cristian Flores
 
 ## Contexto
@@ -209,10 +209,6 @@ Anteriormente se usaba `definePreset(Aura, { semantic: { focusRing: { shadow: 'n
 ### 5. Focus ring global en `styles.scss` (single source of truth)
 
 ```scss
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
 :focus-visible {
   outline: 2px solid var(--p-primary-color, #10b981);
   outline-offset: -2px;
@@ -222,7 +218,6 @@ Anteriormente se usaba `definePreset(Aura, { semantic: { focusRing: { shadow: 'n
 
 **Que hace:** establece un focus ring unico y consistente para toda la app. Es la definicion completa — no requiere overrides en el preset de PrimeNG.
 
-- `:focus:not(:focus-visible)` — suprime outlines en clicks de mouse (no son :focus-visible)
 - `:focus-visible` outline — verde (color primario del tema) solo para navegacion por teclado
 - `outline-offset: -2px` — outline hacia adentro, evita que `overflow: hidden` de contenedores padres lo recorte (mismo patron que GitHub)
 - `box-shadow: none` — **necesario**: PrimeNG emite `box-shadow: var(--p-focus-ring-shadow)` en `@layer primeng` para simular un halo alrededor del elemento focado. Sin este override, ese halo verde aparece en cada boton/input con foco.
@@ -231,7 +226,7 @@ Anteriormente se usaba `definePreset(Aura, { semantic: { focusRing: { shadow: 'n
 
 **Es un parche?** No. Es el patron estandar de design systems (GitHub Primer, Radix). Un solo focus ring uniforme definido en un archivo.
 
-**Critical CSS automatico via Beasties (FOUC protection):** Angular SSR difiere el stylesheet principal via `<link ... media="print" onload="this.media='all'">`. Durante ese gap, sin defensa, el browser podria pintar su focus ring por defecto (negro, grueso). Beasties — el extractor de critical CSS incluido por defecto en el build de Angular 21 — analiza el HTML renderizado por SSR y detecta que `:focus:not(:focus-visible) { outline: none }` de `styles.scss` aplica universalmente al contenido above-the-fold, asi que la inlinea como `<style>` en `<head>` automaticamente. Verificado via `curl` a `/` en produccion: el `<style>:focus:not(:focus-visible){outline:none}</style>` aparece inlineado sin intervencion manual. **Consecuencia:** no se necesita mantener un `<style>` inline en `index.html` — la defensa FOUC de mouse-focus es automatica mientras la regla viva en `styles.scss`. La regla mas larga `:focus-visible { outline: 2px solid ... }` no es inlineada por Beasties (selector mas especifico, no above-the-fold) — llega via el stylesheet principal, lo cual es aceptable: afecta solo navegacion por teclado, y keyboard users no estan en el camino critico de primer paint.
+**Por que NO se necesita `:focus:not(:focus-visible) { outline: none }`:** historicamente (pre-2020) los browsers pintaban outline en cualquier foco — mouse o teclado — usando `:focus` en su UA stylesheet. La regla `:focus:not(:focus-visible) { outline: none }` era el "polyfill manual" para suprimir outlines en mouse click. Desde Chrome 86 / Firefox 85 / Safari 15.4 (2020-2022), los UA stylesheets de todos los browsers soportados por Angular 21 usan `:focus-visible` directamente — no pintan outline en mouse click por default. Ademas, PrimeNG 21 define todos sus focus rings via `.p-component:focus-visible { outline: ... }` (verificado en `@primeuix/styles/dist/button/index.mjs`), no via `:focus`. Los selectores `:focus` que existen en PrimeNG (ej: inputtext) solo cambian `background`/`border`, no `outline`. Consecuencia: la regla defensiva era redundante. Removida 2026-04-17.
 
 ### 6. `patch-package` sobre `primeng/autofocus`
 
@@ -351,21 +346,29 @@ Focar `<main>` evita todo esto. Es un landmark — no muestra outline (regla `[t
 
 **Es un parche?** No. Es el patron WCAG 2.1 recomendado para SPA routing. GitHub foca `<main>` despues de cada navegacion. Google apps usan el mismo patron. W3C WAI lo documenta como practica recomendada para landmark regions.
 
-### 8. `transition-[background-color]` en sidebar nav items
+### 8. Sin transicion en sidebar nav items (alineado con `transitionDuration: '0s'`)
 
 ```html
-<!-- Antes -->
-class="... transition-all ..."
+<!-- Historico -->
+class="... transition-all ..."                          <!-- flash de color al navegar -->
+class="... transition-[background-color] duration-150 ..."  <!-- intermedio -->
 
-<!-- Despues -->
-class="... transition-[background-color] duration-150 ..."
+<!-- Actual (2026-04-17) -->
+class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg select-none"
 ```
 
-**Que hace:** restringe la transicion CSS del sidebar a SOLO `background-color`, en vez de `all` (todas las propiedades).
+**Que hace:** remueve completamente la declaracion `transition-*` de los nav items del sidebar. Los cambios de hover/active son instantaneos.
 
-**Que resuelve:** `transition-all` animaba TODOS los cambios de propiedades CSS, incluyendo `color` y `background-color` cuando `routerLinkActive` agregaba/quitaba clases. Esto causaba un flash visible del color del texto e icono al navegar (de verde a gris o viceversa en ~150ms).
+**Por que:** §2b establecio `transitionDuration: '0s'` como decision de diseno para componentes PrimeNG (patron Linear/Vercel/GitHub/Figma/Meta). Mantener una transicion custom de 150ms en los nav items del sidebar contradecia esa decision — creaba una inconsistencia: los botones PrimeNG snappeaban instantaneamente pero los nav items del sidebar animaban. Removiendo `transition-[background-color] duration-150` se extiende la decision de §2b a los elementos custom-Tailwind del layout, cementando el "instant hover" como patron project-wide.
 
-**Es un parche?** No. Es CSS correcto — animar solo la propiedad que quieres animar. `transition-all` es un shortcut comodo pero impreciso que causa side effects cuando otras propiedades CSS cambian.
+**Convencion CLAUDE.md:** el project style guide permite `transition-all` y `transition-colors` como shortcuts, pero no valores arbitrarios como `transition-[background-color]`. La decision de §2b + la convencion del style guide convergen: la opcion correcta es no declarar transicion alguna.
+
+**Historial:**
+- **Inicial:** `transition-all` — causaba flash de color de texto/icono al activar `routerLinkActive` (cambio de verde ↔ gris animado).
+- **2026-04-15:** reemplazado por `transition-[background-color] duration-150` — narrowing a solo background para eliminar el flash del color del texto.
+- **2026-04-17:** removido completamente — alineacion con `transitionDuration: '0s'` (§2b). Los nav items se comportan igual que un `<p-button>`: cambio de estado instantaneo, sin animacion.
+
+**Es un parche?** No. Es consistencia deliberada con la decision de diseno de §2b, aplicada a elementos custom-Tailwind que no heredan el token de PrimeNG.
 
 ## Alternativas evaluadas y descartadas
 

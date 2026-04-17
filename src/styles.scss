@@ -1,27 +1,42 @@
-/* You can add global styles to this file, and also import other style files */
 @use "tailwindcss";
 @plugin 'tailwindcss-primeui';
 
 /*
- * PrimeNG line-height normalization.
+ * Focus ring — single source of truth del design system.
  *
- * Several PrimeNG components use inline-flex + align-items:center for text
- * centering but omit an explicit line-height in their base styles
- * (@primeuix/styles) and expose no design token (dt()) for it.
+ * cssLayer (app.config.ts) envuelve PrimeNG en @layer primeng. Estas reglas sin capa ganan
+ * sobre las de PrimeNG por spec CSS (cascade layers: un-layered > layered para declaraciones
+ * normales).
  *
- * When these components sit inside containers with Tailwind typography classes
- * (leading-5, leading-6, etc.), the inherited line-height creates a text box
- * taller than the font-size, shifting text downward despite flexbox centering.
+ * `box-shadow: none` es necesario: PrimeNG emite `box-shadow: var(--p-focus-ring-shadow)` en
+ * @layer primeng para simular un halo alrededor del elemento focado. Sin este override, ese
+ * halo verde aparece en cada botón/input con foco. Antes se zeroaba via definePreset
+ * (`focusRing.shadow: 'none'`) pero eso dividía la definición del focus ring en dos archivos.
+ * Consolidado aquí para single source of truth. Ref: ADR-001 §3-5
+ */
+:focus-visible {
+  outline: 2px solid var(--p-primary-color, #10b981);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+/* Landmarks (main, nav) reciben foco programático para routing de teclado, no son interactivos. */
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+/*
+ * Normalización de line-height para PrimeNG.
  *
- * The fix: line-height:1 constrains each component's text box to its
- * font-size so inline-flex centering works as intended.
+ * Varios componentes PrimeNG usan inline-flex + align-items:center pero no definen
+ * line-height explícito ni exponen un design token (dt()) para ello.
+ * Cuando heredan line-height de contenedores Tailwind (leading-5, leading-6),
+ * el texto se desplaza hacia abajo pese al centrado flexbox.
+ * line-height:1 lo corrige.
  *
- * Reviewed against: PrimeNG 21 / @primeuix/styles v21 / @primeuix/themes aura
- * Affected components verified to have no line-height token or base style:
- *   - badge:        inline-flex, no dt('badge.line.height')
- *   - tag:          inline-flex, no dt('tag.line.height')
- *   - avatar:       inline-flex, no dt('avatar.line.height') — affects [label] text only
- *   - togglebutton: inline-flex (inside p-selectbutton), no dt('togglebutton.line.height')
+ * Verificado en PrimeNG 21 / @primeuix/styles v21 / tema Aura.
+ * Componentes afectados (sin token de line-height):
+ *   - badge, tag, avatar, togglebutton
  */
 .p-badge,
 .p-tag,
