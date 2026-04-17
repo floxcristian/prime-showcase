@@ -26,6 +26,20 @@ import { BrowserPreloadingStrategy } from './core/strategies/browser-preloading.
 const AppPreset = definePreset(Aura, {
   semantic: {
     transitionDuration: '0s',
+    // Focus ring halo-only estilo Lara — single source of truth del design system.
+    // Sobreescribe el default de Aura (outline + halo) por box-shadow puro, mas limpio
+    // visualmente y alineado con Tailwind/Radix/Primer. Los tokens se emiten como CSS
+    // vars (--p-focus-ring-*) que styles.scss consume en una regla :focus-visible global
+    // — propagacion uniforme a componentes PrimeNG y elementos HTML nativos.
+    // Border change a primary en form fields viene nativo de formField.focusBorderColor.
+    // Ref: ADR-001 §5
+    focusRing: {
+      width: '0',
+      style: 'none',
+      color: 'transparent',
+      offset: '0',
+      shadow: '0 0 0 0.2rem {primary.200}',
+    },
   },
 });
 

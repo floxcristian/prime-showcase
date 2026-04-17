@@ -12,6 +12,8 @@
  *   showcase/no-forbidden-spacing  — Enforces spacing scale (gap, padding, margin)
  *   showcase/no-missing-dark-pair  — Requires dark: counterpart for bg-surface-* classes
  *   showcase/no-icon-button-without-tooltip — Requires pTooltip on icon-only <p-button>
+ *   showcase/no-forbidden-transitions — Forbids transition-all / bare `transition` (use narrow variants)
+ *   showcase/hover-requires-cursor-pointer — Requires cursor-pointer and hover:* to appear together
  */
 
 /** @type {import('eslint').ESLint.Plugin} */
@@ -25,5 +27,7 @@ module.exports = {
     'no-missing-dark-pair': require('./rules/no-missing-dark-pair'),
     'no-forbidden-typography': require('./rules/no-forbidden-typography'),
     'no-icon-button-without-tooltip': require('./rules/no-icon-button-without-tooltip'),
+    'no-forbidden-transitions': require('./rules/no-forbidden-transitions'),
+    'hover-requires-cursor-pointer': require('./rules/hover-requires-cursor-pointer'),
   },
 };

@@ -74,6 +74,7 @@ module.exports = {
     docs: {
       description:
         'Enforce the spacing scale from the design system. Forbids gap-7/9/10+, p-8+, m-3/5/7+, and arbitrary spacing values.',
+      url: '../../docs/rules/no-forbidden-spacing.md',
     },
     schema: [],
     messages: {
@@ -84,10 +85,9 @@ module.exports = {
     },
   },
   create(context) {
-    return createClassAttrVisitor(context, (value, loc) => {
+    return createClassAttrVisitor(context, (value, ctx) => {
       let match;
 
-      // Check numeric spacing values
       SPACING_REGEX.lastIndex = 0;
       while ((match = SPACING_REGEX.exec(value)) !== null) {
         const fullClass = match[0];
@@ -106,23 +106,14 @@ module.exports = {
         }
 
         if (forbidden.has(numValue)) {
-          context.report({
-            loc,
-            messageId: 'forbiddenSpacing',
-            data: { className: fullClass },
-          });
+          ctx.report(match, 'forbiddenSpacing', { className: fullClass });
         }
       }
 
-      // Check arbitrary spacing values
       ARBITRARY_SPACING_REGEX.lastIndex = 0;
       while ((match = ARBITRARY_SPACING_REGEX.exec(value)) !== null) {
         if (ALLOWED_EXCEPTIONS.has(match[0])) continue;
-        context.report({
-          loc,
-          messageId: 'arbitrarySpacing',
-          data: { className: match[0] },
-        });
+        ctx.report(match, 'arbitrarySpacing', { className: match[0] });
       }
     });
   },

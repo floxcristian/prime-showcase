@@ -2,27 +2,50 @@
 @plugin 'tailwindcss-primeui';
 
 /*
- * Focus ring — single source of truth del design system.
- *
- * cssLayer (app.config.ts) envuelve PrimeNG en @layer primeng. Estas reglas sin capa ganan
- * sobre las de PrimeNG por spec CSS (cascade layers: un-layered > layered para declaraciones
- * normales).
- *
- * `box-shadow: none` es necesario: PrimeNG emite `box-shadow: var(--p-focus-ring-shadow)` en
- * @layer primeng para simular un halo alrededor del elemento focado. Sin este override, ese
- * halo verde aparece en cada botón/input con foco. Antes se zeroaba via definePreset
- * (`focusRing.shadow: 'none'`) pero eso dividía la definición del focus ring en dos archivos.
- * Consolidado aquí para single source of truth. Ref: ADR-001 §3-5
+ * Focus ring global — consume los tokens del preset (app.config.ts → semantic.focusRing).
+ * Para cambiar color/width/offset/shadow editar el preset, no este archivo.
+ * Ref: CLAUDE.md §Transiciones, ADR-001 §5 + §9
  */
 :focus-visible {
-  outline: 2px solid var(--p-primary-color, #10b981);
-  outline-offset: -2px;
-  box-shadow: none;
+  outline: var(--p-focus-ring-width) var(--p-focus-ring-style) var(--p-focus-ring-color);
+  outline-offset: var(--p-focus-ring-offset);
+  box-shadow: var(--p-focus-ring-shadow);
+  /*
+   * Defense-in-depth: el enforcement primario de "focus ring instantaneo" lo hace la
+   * politica narrow-transitions (CLAUDE.md §Transiciones + ESLint no-forbidden-transitions).
+   * Esta declaracion garantiza el comportamiento aunque alguien re-introduzca `transition-all`
+   * en un elemento focable. Per CSS spec, transition-property del after-change style cancela
+   * la animacion entrante. Ref: ADR-001 §9.
+   */
+  transition-property: none;
 }
 
 /* Landmarks (main, nav) reciben foco programático para routing de teclado, no son interactivos. */
 [tabindex="-1"]:focus-visible {
   outline: none;
+  box-shadow: none;
+}
+
+/*
+ * p-autocomplete[multiple]: proxy del ring SOLO cuando el <input> de texto tiene foco.
+ * El wrapper <ul> contiene tanto el input como los chip-remove buttons (tabindex=0); usar
+ * `:focus-within` iluminaba el ring externo durante N+1 tabstops y lo duplicaba con el ring
+ * global del × button. `:has(> .p-autocomplete-input-chip > input:focus)` restringe a la
+ * caja de texto — los chip × reciben su propio ring aislado via `:focus-visible` global.
+ * `:has()` es Baseline 2023 (Chrome 105+, Safari 15.4+, Firefox 121) → aceptable para este stack.
+ * Ref: ADR-001 §5c (root cause + alternativas consideradas).
+ */
+.p-autocomplete-input-chip input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.p-autocomplete-input-multiple:has(> .p-autocomplete-input-chip > input:focus) {
+  outline: var(--p-focus-ring-width) var(--p-focus-ring-style) var(--p-focus-ring-color);
+  outline-offset: var(--p-focus-ring-offset);
+  box-shadow: var(--p-focus-ring-shadow);
+  border-color: var(--p-autocomplete-focus-border-color);
+  transition-property: none;
 }
 
 /*
@@ -43,4 +66,34 @@
 .p-avatar,
 .p-togglebutton-content {
   line-height: 1;
+}
+
+/*
+ * Dark-mode focus ring tuning.
+ * El preset emite `shadow: 0 0 0 0.2rem {primary.200}` que da buen contraste sobre
+ * surface-0 (light) pero queda lavado sobre surface-950 (dark). En dark mode pasamos
+ * a `primary.400` con `color-mix` para elevar contraste (WCAG 2.4.7 AA ≥ 3:1 contra
+ * el fondo) manteniendo el halo sutil no-agresivo. Override puntual — el token del
+ * preset sigue siendo la fuente de verdad para light mode.
+ * Ref: ADR-001 §5
+ */
+.p-dark {
+  --p-focus-ring-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--p-primary-400) 55%, transparent);
+}
+
+/*
+ * Respeta prefers-reduced-motion (WCAG 2.3.3, MDN: prefers-reduced-motion).
+ * PrimeNG aplica transitionDuration inline desde tokens → un media query global es la
+ * forma mas limpia de neutralizar animaciones sin tocar cada componente. 0.01ms (no 0)
+ * preserva eventos transitionend/animationend para listeners JS.
+ * Patron usado por Stripe, GitHub, Tailwind docs.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

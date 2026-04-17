@@ -59,6 +59,8 @@ module.exports = tseslint.config(
       'showcase/no-missing-dark-pair': 'error',
       'showcase/no-forbidden-typography': 'error',
       'showcase/no-icon-button-without-tooltip': 'error',
+      'showcase/no-forbidden-transitions': 'error',
+      'showcase/hover-requires-cursor-pointer': 'error',
 
       // ── Angular template best practices ───────────────────────────
       // Prefer @if/@for over *ngIf/*ngFor

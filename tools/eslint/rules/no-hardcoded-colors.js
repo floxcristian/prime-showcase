@@ -94,6 +94,7 @@ module.exports = {
     docs: {
       description:
         'Disallow generic Tailwind color utilities. Use PrimeNG design tokens instead (text-color, bg-surface-*, bg-primary, etc.).',
+      url: '../../docs/rules/no-hardcoded-colors.md',
     },
     schema: [],
     messages: {
@@ -106,33 +107,29 @@ module.exports = {
     },
   },
   create(context) {
-    return createClassAttrVisitor(context, (value, loc) => {
+    return createClassAttrVisitor(context, (value, ctx) => {
       let match;
 
-      // Check generic Tailwind colors (e.g. text-gray-500, bg-blue-100)
       FORBIDDEN_REGEX.lastIndex = 0;
       while ((match = FORBIDDEN_REGEX.exec(value)) !== null) {
         if (ALLOWED_CLASSES.has(match[0])) continue;
-        context.report({ loc, messageId: 'noHardcodedColor', data: { className: match[0] } });
+        ctx.report(match, 'noHardcodedColor', { className: match[0] });
       }
 
-      // Check black/white (e.g. text-white, bg-black, border-black/10)
       BW_REGEX.lastIndex = 0;
       while ((match = BW_REGEX.exec(value)) !== null) {
         if (ALLOWED_BW_CLASSES.has(match[0])) continue;
-        context.report({ loc, messageId: 'noHardcodedColor', data: { className: match[0] } });
+        ctx.report(match, 'noHardcodedColor', { className: match[0] });
       }
 
-      // Check arbitrary hex values (e.g. bg-[#fff], text-[#1a1a1a])
       HEX_COLOR_REGEX.lastIndex = 0;
       while ((match = HEX_COLOR_REGEX.exec(value)) !== null) {
-        context.report({ loc, messageId: 'noHexColor', data: { className: match[0] } });
+        ctx.report(match, 'noHexColor', { className: match[0] });
       }
 
-      // Check arbitrary CSS color functions (e.g. bg-[rgb(0,0,0)], text-[hsl(0,50%,50%)])
       CSS_COLOR_FN_REGEX.lastIndex = 0;
       while ((match = CSS_COLOR_FN_REGEX.exec(value)) !== null) {
-        context.report({ loc, messageId: 'noArbitraryColor', data: { className: match[0] } });
+        ctx.report(match, 'noArbitraryColor', { className: match[0] });
       }
     });
   },

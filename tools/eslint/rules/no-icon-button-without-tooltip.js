@@ -20,6 +20,7 @@ module.exports = {
     docs: {
       description:
         'Icon-only <p-button> must have a pTooltip attribute so users can discover its purpose on hover.',
+      url: '../../docs/rules/no-icon-button-without-tooltip.md',
     },
     schema: [],
     messages: {

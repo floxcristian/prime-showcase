@@ -121,7 +121,7 @@
                           </div>
                           <div class="mt-4 flex flex-col gap-1">
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
                                 class="fa-sharp fa-regular fa-envelope text-lg w-7 h-7 flex items-center justify-center"
@@ -132,7 +132,7 @@
                               </div>
                             </button>
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
                                 class="fa-sharp fa-regular fa-gear text-lg w-7 h-7 flex items-center justify-center"
@@ -143,7 +143,7 @@
                               </div>
                             </button>
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
                                 class="fa-sharp fa-regular fa-arrows-rotate text-lg w-7 h-7 flex items-center justify-center"
@@ -154,7 +154,7 @@
                               </div>
                             </button>
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
                                 class="fa-sharp fa-regular fa-arrow-right-to-bracket text-lg w-7 h-7 flex items-center justify-center"
@@ -165,7 +165,7 @@
                           </div>
                           <p-divider />
                           <div
-                            class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis cursor-pointer rounded-lg transition-all select-none"
+                            class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis cursor-pointer rounded-lg transition-colors select-none"
                             >
                             <i
                               class="text-lg w-7 h-7 flex items-center justify-center"
@@ -231,7 +231,7 @@
                             </div>
                             <div class="p-1 mt-4">
                               <button
-                                class="p-4 rounded-3xl w-full bg-emphasis transition-all text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
+                                class="p-4 rounded-3xl w-full bg-emphasis transition-colors text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
                                 >
                                 <div class="flex items-center [&>*]:-mr-2">
                                   <p-avatar
@@ -342,7 +342,7 @@
                                               }
                                               @if (files().length <= 0 && uploadedFiles().length <= 0) {
                                                 <div
-                                                  class="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-emphasis rounded-lg transition-all"
+                                                  class="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-emphasis rounded-lg transition-colors"
                                                   (click)="chooseCallback()"
                                                   >
                                                   <i class="fa-sharp-duotone fa-regular fa-cloud-arrow-up text-4xl text-color" aria-hidden="true"></i>
@@ -471,7 +471,7 @@
                                                           @for (permission of permissions; track permission.key) {
                                                             <label
                                                               [for]="permission.key"
-                                                              class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-border border border-surface hover:bg-emphasis transition-all select-none"
+                                                              class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-border border border-surface hover:bg-emphasis transition-colors select-none"
                                                               >
                                                               <i class="text-color" [ngClass]="permission.icon" aria-hidden="true"></i>
                                                               <div class="flex-1 text-sm leading-5 text-color">

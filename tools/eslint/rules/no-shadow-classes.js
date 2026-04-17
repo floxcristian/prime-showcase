@@ -29,6 +29,7 @@ module.exports = {
     docs: {
       description:
         'Disallow Tailwind shadow utilities. Use `border border-surface` for elevation instead.',
+      url: '../../docs/rules/no-shadow-classes.md',
     },
     schema: [],
     messages: {
@@ -37,12 +38,12 @@ module.exports = {
     },
   },
   create(context) {
-    return createClassAttrVisitor(context, (value, loc) => {
+    return createClassAttrVisitor(context, (value, ctx) => {
       let match;
       SHADOW_REGEX.lastIndex = 0;
       while ((match = SHADOW_REGEX.exec(value)) !== null) {
         if (ALLOWED_CLASSES.has(match[0])) continue;
-        context.report({ loc, messageId: 'noShadow', data: { className: match[0] } });
+        ctx.report(match, 'noShadow', { className: match[0] });
       }
     });
   },

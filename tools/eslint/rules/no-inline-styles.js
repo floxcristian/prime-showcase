@@ -19,6 +19,7 @@ module.exports = {
     docs: {
       description:
         'Disallow static inline style attributes. Use Tailwind classes or dynamic [style.*] bindings instead.',
+      url: '../../docs/rules/no-inline-styles.md',
     },
     schema: [],
     messages: {

@@ -29,7 +29,7 @@
       <div class="flex-1 flex flex-col">
         @for (chat of filteredChats(); track chat.name) {
           <div
-            class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
+            class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors"
             [attr.aria-current]="chat.name === activeChat() ? 'true' : null"
       [ngClass]="{
         'bg-emphasis': chat.name === activeChat()
@@ -130,7 +130,7 @@
                   [ngClass]="{ 'ml-auto mr-0 flex-row-reverse': message.type === 'sent' }"
                   >
                   <div
-                    class="flex items-center gap-2 sticky top-0 transition-all"
+                    class="flex items-center gap-2 sticky top-0"
         [ngClass]="{
           'flex-row-reverse': message.type === 'sent'
         }"
@@ -182,11 +182,11 @@
                         </p>
                         @if (message.attachment) {
                           <div
-                            class="mt-2 w-full rounded-lg mb-0.5 hover:opacity-75 transition-all"
+                            class="mt-2 w-full rounded-lg mb-0.5"
                             [ngClass]="message.type === 'received' ? 'bg-surface-200 dark:bg-surface-700' : 'bg-primary-emphasis'"
                             >
                             <img
-                              class="w-full h-auto block cursor-pointer hover:opacity-70 transition-all"
+                              class="w-full h-auto block cursor-pointer hover:opacity-70 transition-opacity"
                               [src]="message.attachment"
                               alt="Imagen del mensaje"
                               loading="lazy"
@@ -292,7 +292,7 @@
                               <div class="mt-4 flex flex-col gap-2">
                                 @for (member of members; track member.name) {
                                   <div
-                                    class="flex items-center gap-2 cursor-pointer hover:bg-emphasis rounded-lg p-2 transition-all"
+                                    class="flex items-center gap-2 cursor-pointer hover:bg-emphasis rounded-lg p-2 transition-colors"
                                     >
                                     <p-avatar
                                       [image]="member.image"
@@ -304,7 +304,7 @@
                                       shape="circle"
                                       />
                                       <div
-                                        class="text-sm text-color hover:text-muted-color-emphasis transition-colors font-medium leading-5 flex-1"
+                                        class="text-sm text-color font-medium leading-5 flex-1"
                                         >
                                         {{ member.name }}
                                       </div>
@@ -324,7 +324,7 @@
                                   <div class="mt-3 mb-5 grid grid-cols-3 gap-2">
                                     @for (media of chatMedia; track media) {
                                       <div
-                                        class="bg-emphasis hover:opacity-70 transition-all flex-1 aspect-square rounded-lg border border-surface cursor-pointer"
+                                        class="bg-emphasis hover:opacity-70 transition-opacity flex-1 aspect-square rounded-lg border border-surface cursor-pointer"
                                         >
                                         <img
                                           class="w-full h-full object-cover block"
@@ -335,7 +335,7 @@
                                         </div>
                                       }
                                       <div
-                                        class="bg-emphasis hover:opacity-70 transition-all flex-1 aspect-square rounded-lg border border-surface cursor-pointer flex items-center justify-center"
+                                        class="bg-emphasis hover:opacity-70 transition-opacity flex-1 aspect-square rounded-lg border border-surface cursor-pointer flex items-center justify-center"
                                         >
                                         <span class="text-muted-color font-medium">99+</span>
                                       </div>

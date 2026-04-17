@@ -2,7 +2,7 @@
 
 - **Estado:** Aceptado
 - **Fecha:** 2026-04-15
-- **Ultima revision:** 2026-04-17 (fix en dos capas identificado — `allowedHosts` para primer paint SSR + `transitionDuration: '0s'` para inyeccion de estilos en navegacion client-side; ambos son necesarios. Workaround del bug AutoFocus migrado de CSS guard → monkey-patch runtime → `patch-package` declarativo — mismo fix de 2 chars del PR upstream, ahora auditable en code review via diff commiteado. §6a eliminado: el `<style>` inline manual en `index.html` era redundante — Beasties lo inlineaba automaticamente desde `styles.scss`. §8 actualizado: `transition-[background-color] duration-150` removido de los nav items del sidebar para alinear con `transitionDuration: '0s'` de §2b — el patron "instant hover" ahora aplica tambien a elementos custom-Tailwind del layout. §5 simplificado: regla defensiva `:focus:not(:focus-visible) { outline: none }` removida — era polyfill pre-2020 innecesario; browsers modernos ya usan `:focus-visible` en UA stylesheet y PrimeNG 21 define focus rings exclusivamente via `:focus-visible`.)
+- **Ultima revision:** 2026-04-17 (ver [Changelog](#changelog))
 - **Autores:** Cristian Flores
 
 ## Contexto
@@ -200,33 +200,144 @@ providePrimeNG({
 
 **Es un parche?** No. Es la API oficial de PrimeNG para controlar la cascada CSS. La configuracion sigue la documentacion oficial.
 
-### 4. ~~`definePreset` — zero del box-shadow del focus ring~~ (consolidado en §5)
+### 4. ~~`definePreset` — zero del box-shadow del focus ring~~
 
-Anteriormente se usaba `definePreset(Aura, { semantic: { focusRing: { shadow: 'none' } } })` para zeroar el token `--p-focus-ring-shadow` de PrimeNG.
+Reemplazado por §5. Ver [Changelog](#changelog) y A3 para historia.
 
-**Removido en auditoria 2026-04-16.** La definicion del focus ring se consolido en styles.scss (§5) para single source of truth — evitar que el focus ring viva partido entre `app.config.ts` (box-shadow) y `styles.scss` (outline).
+### 5. Focus ring — preset-driven tokens + styles.scss consumer
 
-### 5. Focus ring global en `styles.scss` (single source of truth)
+**Arquitectura de dos capas con responsabilidades claras:**
+
+1. **Preset (`app.config.ts`)** — `semantic.focusRing` define los tokens. **Single source of truth** del diseno.
+2. **styles.scss** — consume los CSS vars emitidos por el preset (`--p-focus-ring-*`) via regla global `:focus-visible`. Projecta el ring uniformemente sobre PrimeNG + HTML nativo.
+
+#### 5a. Tokens en el preset
+
+```typescript
+// src/app/app.config.ts
+semantic: {
+  focusRing: {
+    width: '0',
+    style: 'none',
+    color: 'transparent',
+    offset: '0',
+    shadow: '0 0 0 0.2rem {primary.200}',
+  },
+}
+```
+
+**Estilo halo-only (patron Lara):** sin outline (width 0), solo `box-shadow` como indicador de foco. Aura default usa outline + halo; preferimos Lara por ser mas limpio y alineado con Tailwind/Radix/Primer.
+
+**`0.2rem`** escala con user preference de tamano de fuente — big-tech pattern. Evita valores absolutos en px (el `2.8px` observable es `0.2rem` a base 14px, `3.2px` a base 16px).
+
+**`{primary.200}`** es interpolacion de token del preset. Si el primario cambia, el halo propaga sin edits manuales en CSS.
+
+**Border change en form fields:** viene nativo de Aura via `formField.focusBorderColor: {primary.color}` — no requiere configuracion adicional. El observable `border: solid #10B981` al focar un input sale de ahi.
+
+#### 5b. Regla global en styles.scss
 
 ```scss
 :focus-visible {
-  outline: 2px solid var(--p-primary-color, #10b981);
-  outline-offset: -2px;
+  outline: var(--p-focus-ring-width) var(--p-focus-ring-style) var(--p-focus-ring-color);
+  outline-offset: var(--p-focus-ring-offset);
+  box-shadow: var(--p-focus-ring-shadow);
+  transition-property: none;
+}
+```
+
+**Por que funciona:** cssLayer (§3) hace que esta regla un-layered gane sobre PrimeNG layered. Los CSS vars consumidos vienen del preset — cambiar el token propaga a TODOS los focables (PrimeNG + HTML nativo) uniformemente.
+
+**`transition-property: none`** cancela la animacion entrante de `outline-width`, `box-shadow` y `border-color` que `transition-all` (Tailwind 150ms) dispararia al focar. Per CSS spec, `transition-property` del after-change style gobierna la transicion entrante. Sin esto, el ring "crece" visiblemente de delgado a grueso, se siente laggy. Patron big-tech (GitHub, Vercel, Linear, Stripe) — focus rings instantaneos, nunca animados.
+
+#### 5c. Edge cases documentados
+
+Dos excepciones explicitas en styles.scss. Cada bloque tiene comment-block con el WHY (constraint del framework + spec CSS aplicable).
+
+**1. Landmarks via `[tabindex="-1"]`:**
+
+```scss
+[tabindex="-1"]:focus-visible {
+  outline: none;
   box-shadow: none;
 }
 ```
 
-**Que hace:** establece un focus ring unico y consistente para toda la app. Es la definicion completa — no requiere overrides en el preset de PrimeNG.
+`<main>` y elementos similares reciben foco programatico para routing de teclado (§7), no son interactivos → no deben mostrar ring. No es parche — es semantica WCAG correcta para landmarks.
 
-- `:focus-visible` outline — verde (color primario del tema) solo para navegacion por teclado
-- `outline-offset: -2px` — outline hacia adentro, evita que `overflow: hidden` de contenedores padres lo recorte (mismo patron que GitHub)
-- `box-shadow: none` — **necesario**: PrimeNG emite `box-shadow: var(--p-focus-ring-shadow)` en `@layer primeng` para simular un halo alrededor del elemento focado. Sin este override, ese halo verde aparece en cada boton/input con foco.
+**2. `p-autocomplete[multiple]` — proxy via `:focus-within`:**
 
-**Por que funciona:** cssLayer (§3) hace que nuestras reglas un-layered ganen sobre PrimeNG (layered) por CSS cascade layers spec. Esto aplica a `outline` y a `box-shadow` por igual. Nuestro un-layered `box-shadow: none` pisa el `box-shadow: var(--p-focus-ring-shadow)` layered de PrimeNG.
+**Problema observable:** al hacer click/tab sobre un `<p-autocomplete [multiple]="true">`, el halo + border-color primary aparecen con lag perceptible (~1 frame a 60Hz) comparado con un `<input pInputText>` plano, cuyo focus es instantaneo. Se siente "pegajoso" en comparacion.
 
-**Es un parche?** No. Es el patron estandar de design systems (GitHub Primer, Radix). Un solo focus ring uniforme definido en un archivo.
+**Causa raiz (zoneless + plain property):**
 
-**Por que NO se necesita `:focus:not(:focus-visible) { outline: none }`:** historicamente (pre-2020) los browsers pintaban outline en cualquier foco — mouse o teclado — usando `:focus` en su UA stylesheet. La regla `:focus:not(:focus-visible) { outline: none }` era el "polyfill manual" para suprimir outlines en mouse click. Desde Chrome 86 / Firefox 85 / Safari 15.4 (2020-2022), los UA stylesheets de todos los browsers soportados por Angular 21 usan `:focus-visible` directamente — no pintan outline en mouse click por default. Ademas, PrimeNG 21 define todos sus focus rings via `.p-component:focus-visible { outline: ... }` (verificado en `@primeuix/styles/dist/button/index.mjs`), no via `:focus`. Los selectores `:focus` que existen en PrimeNG (ej: inputtext) solo cambian `background`/`border`, no `outline`. Consecuencia: la regla defensiva era redundante. Removida 2026-04-17.
+Dos constraints convergen:
+
+1. **Aura base:** `formField.focusRing` esta hardcodeado a zeros/transparent en `@primeuix/themes/aura/base/index.mjs`. Los form-field wrappers no reciben halo nativamente — solo border-color primary via la regla `.p-autocomplete.p-focus .p-autocomplete-input-multiple`.
+
+2. **Zoneless CD + plain property:** la clase `.p-focus` la aplica PrimeNG en `onInputFocus` via `this.focused = true` — **propiedad plana, no signal**, en la directiva. Este proyecto usa `provideZonelessChangeDetection()`, por lo que mutar una propiedad plana **no agenda CD automaticamente**: la clase aparece ~1 frame (~13ms, Chrome 131) despues del focus event.
+
+**Nota sobre el rol de zoneless:** en modo Zone.js clasico el mismo lag existe a nivel de framework, pero Zone se suscribe a eventos DOM y dispara CD microtask-driven tras cada handler — el gap se enmascara dentro del mismo frame y resulta imperceptible. Zoneless hace el CD explicitamente signal-driven, por lo que una mutacion sobre propiedad plana NO lo agenda y el lag queda visible. El fix elegido (`:focus-within`) evade el framework completamente: la cascada CSS es sincrona, no depende de CD en absoluto.
+
+**Alternativas consideradas:**
+
+| Enfoque | Latencia (ms) | Observacion | Decision |
+|---|---|---|---|
+| Solo `.p-focus` class JS-mediada (sin proxy) | ~13ms en click | ~1 frame a 60Hz — lag perceptible | Rechazada (status quo del bug) |
+| `:has(input:focus-visible)` | ~13ms en click | Selector solo matchea en keyboard focus; en mouse click cae al fallback `.p-focus` JS-mediado (mismo lag) | **Rechazada** (no cubre mouse) |
+| `:has(input:focus)` | ~2.6ms | Funciona cross-input-mode, pero `:has()` requiere re-evaluacion del arbol y semanticamente es menos claro | Rechazada (sobra vs `:focus-within`) |
+| **`:focus-within` (CSS-native)** | **~2.6ms** | **Sub-frame, equivalente a `<input pInputText>` plano; cubre mouse + keyboard; mejor support historico cross-browser** | **ELEGIDA** |
+
+**Solucion (chosen):**
+
+```scss
+.p-autocomplete-input-chip input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.p-autocomplete-input-multiple:focus-within {
+  outline: var(--p-focus-ring-width) var(--p-focus-ring-style) var(--p-focus-ring-color);
+  outline-offset: var(--p-focus-ring-offset);
+  box-shadow: var(--p-focus-ring-shadow);
+  border-color: var(--p-autocomplete-focus-border-color);
+  transition-property: none;
+}
+```
+
+**Por que funciona:**
+- Suprime el ring global en el input interno (`.p-autocomplete-input-chip input:focus-visible`) → evita un ring "flotando" dentro del wrapper.
+- Proyecta el ring sobre el wrapper (`.p-autocomplete-input-multiple:focus-within`) usando propagacion CSS-nativa — sincrona, sin dependencia de JS-mediated class, sin involucrar el CD de Angular.
+- `border-color: var(--p-autocomplete-focus-border-color)` se aplica aqui mismo para que el cambio de borde tampoco dependa de `.p-focus`.
+- `transition-property: none` cancela la animacion definida por PrimeNG en el wrapper (background/color/border-color/outline-color/box-shadow) — mismo patron que el `:focus-visible` global.
+
+Tradeoff: se pierde la semantica de `:focus-visible` (solo keyboard). Pero PrimeNG Aura default ya muestra ring en mouse + keyboard para form fields, asi que es consistente con el comportamiento esperado.
+
+**Cross-ref:** la regla vive en `src/styles.scss`. Ver ese archivo para la forma exacta; este ADR documenta el porque.
+
+**Es parche?** Si — documented deviation. Se elimina cuando cualquiera de estas condiciones ocurra:
+1. PrimeNG arregle el inheritance de `formField.focusRing` desde `semantic.focusRing` (ring nativo en wrappers).
+2. PrimeNG migre `this.focused` a signal (sincronizacion instantanea en zoneless).
+3. PrimeNG use `:focus-within` internamente en vez de `.p-focus` JS class.
+
+Monitorear/proponer issue upstream.
+
+**Riesgo latente en otros wrappers.** El mismo patron `.p-focus` plain-property (no signal) se observo en `p-iconfield`, `p-inputnumber`, `p-select`. Hoy no se manifiesta visualmente porque el ring nativo vive en el `<input>` interno (no en el wrapper) → recibe `:focus-visible` global sincronico. Cualquier cambio futuro de PrimeNG o refactor nuestro que mueva el halo al wrapper re-activa el mismo lag. Aplicar preventivamente el mismo patron `:focus-within` / `:has(input:focus)` como defense-in-depth si se introduce estilizado sobre el wrapper.
+
+#### 5d. Por que esta arquitectura es enterprise-grade
+
+| Principio | Implementacion |
+|---|---|
+| **Single source of truth** | Design system en `app.config.ts`. CSS es consumer. |
+| **Zero magic values** | Cero hex, cero px absolutos en CSS. Todo via tokens (`{primary.200}`) y CSS vars (`--p-focus-ring-*`). |
+| **Propagacion uniforme** | Cambiar `primary.color` o `focusRing.shadow` en el preset actualiza focus ring de TODOS los focables sin tocar CSS. |
+| **Trabaja CON el framework** | Consume el halo de PrimeNG via CSS vars (`--p-focus-ring-*`). El approach previo (ver A3) sobreescribia el halo con `box-shadow: none` y volvia a declarar un ring hardcoded — un fight con la cascada. La arquitectura actual configura el halo en el preset y lo proyecta via CSS, sin overrides destructivos. |
+| **Edge cases explicitos** | Cada parche con comment-block + WHY. Patron "documented deviation" (Stripe, Airbnb, GitHub). |
+| **Consistencia visual** | Halo externo uniforme en todo (buttons, inputs, nav, links). Un solo vocabulario de foco — no mix inset/outset. |
+| **Instant feedback** | `transition-property: none` — patron Linear/Vercel/GitHub/Stripe. Animar el ring es laggy y contradice su rol. |
+
+**Validacion por industria:** halo-only + instant es el patron de Linear, Vercel, Stripe, GitHub Primer, Radix. Ninguno anima el focus ring.
+
+**Es un parche?** No. Es la arquitectura estandar de design systems modernos. El zigzag historico (ver §4 y A3) refleja el aprendizaje iterativo hasta llegar aqui.
 
 ### 6. `patch-package` sobre `primeng/autofocus`
 
@@ -370,9 +481,61 @@ class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg sel
 
 **Es un parche?** No. Es consistencia deliberada con la decision de diseno de §2b, aplicada a elementos custom-Tailwind que no heredan el token de PrimeNG.
 
+### 9. Narrow transitions como estandar project-wide
+
+**Regla:** `transition-all` esta prohibido en el proyecto. Usar `transition-colors` (default para hover/active) o `transition-opacity` (para avatares/imagenes/iconos). `transition-transform` / `transition-all` solo con justificacion documentada.
+
+**Contexto — inconsistencia detectada:** tras aplicar §2b (`transitionDuration: '0s'`), §5 (`transition-property: none` en `:focus-visible`) y §8 (sin transition en nav items), el proyecto tenia TRES comportamientos de focus-blur coexistiendo:
+
+| Elemento | Focus ring al entrar | Focus ring al salir (blur) |
+|---|---|---|
+| PrimeNG (`<p-button>`, `<input pInputText>`) | Instantaneo (§2b: 0s) | Instantaneo |
+| Nav items sidebar (§8) | Instantaneo (sin transition) | Instantaneo |
+| Elementos con `transition-all` (cards, list items, menu items) | Instantaneo (§5: `transition-property: none`) | **Fade-out 150ms** |
+
+**Causa del fade-out:** `:focus-visible { transition-property: none }` (§5) gobierna la transicion **entrante** per CSS spec (after-change style). Al perder foco, la regla deja de matchear → el `transition-all` base vuelve a aplicar → outline-width/box-shadow/border-color se animan de vuelta a cero en 150ms.
+
+**Por que eliminar `transition-all`:** anima TODAS las propiedades animables, incluyendo outline/box-shadow/border-color/transform. Para hover de color solo necesitamos `transition-colors`. Para opacidad solo `transition-opacity`. Reducir el scope elimina la animacion fantasma en blur sin sacrificar el efecto hover deseado.
+
+**Validacion por industria:**
+
+| Shop | Transition strategy |
+|---|---|
+| GitHub Primer | `transition: color 80ms, background-color 80ms, border-color 80ms` — narrow explicito |
+| Linear | Atomic properties (`transition-property: color`) en CSS Modules |
+| Stripe | `transition: background-color 150ms` — solo lo que cambia |
+| Vercel (Geist) | `transition: color, background` — narrow |
+| Radix / shadcn | `transition-colors` como primitiva base en todos los interactivos |
+
+Ninguno usa `transition-all` en product UI de referencia. La razon es exactamente la observada: `transition-all` genera fade-outs indeseados en focus rings, transforms heredados, y propiedades que cambian por side-effects.
+
+**Refactor aplicado (2026-04-17):** 24 ocurrencias de `transition-all` en 7 archivos migradas a narrow transitions:
+
+```
+transition-all → transition-colors (14)    # hover:bg-emphasis, hover:text-*, active:bg-*
+transition-all → transition-opacity (8)    # hover:opacity-70/75 en avatares/imagenes
+transition-all → (removido) (1)             # dead code en chat (solo toggle flex-row-reverse)
+transition-all → transition-opacity (1)     # Chart.js tooltip show/hide en TS
+```
+
+Archivos: `side-menu.component.html`, `cards.component.html`, `chat.component.html`, `movies.component.html`, `inbox.component.html`, `overview.component.ts`.
+
+**Convencion CLAUDE.md actualizada:** la seccion "Transiciones" ahora lista `transition-colors` y `transition-opacity` como defaults, con `transition-all` marcado como prohibido salvo justificacion explicita documentada (ver CLAUDE.md — "Transiciones — narrow por default").
+
+**Defense-in-depth:** el `transition-property: none` de §5 se mantiene — ya no es el enforcement primario (eso lo hace la politica CLAUDE.md) sino un safety net: si un desarrollador futuro re-introduce `transition-all`, el focus ring sigue apareciendo instantaneamente.
+
+**Es un parche?** No. Es la politica de transitions del proyecto, alineada con big-tech. Los tres mecanismos (§2b, §5, §8, §9) convergen en una unica narrativa: **feedback visual instantaneo para estados de interaccion**. Animar cambios de layout o focus rings es anti-pattern.
+
+**Enforcement (implementado 2026-04-17):**
+- **`showcase/no-forbidden-transitions`** (`tools/eslint/rules/no-forbidden-transitions.js`) — bloquea `transition-all` en atributos `class`, `styleClass` y variantes. Sigue el patron de `no-forbidden-rounded.js`. Cualquier ocurrencia nueva falla el lint.
+- **`showcase/hover-requires-cursor-pointer`** (`tools/eslint/rules/hover-requires-cursor-pointer.js`) — regla complementaria que asegura que todo elemento con estado `hover:*` declare tambien `cursor-pointer`. Refuerza la regla del style guide ("todo elemento con cursor-pointer DEBE tener hover y viceversa") evitando hovers huerfanos sin feedback visual de "clickable".
+- Code review sigue siendo la ultima capa: cualquier override justificado (ej. `transition-transform` con comentario) se valida manualmente.
+
 ## Alternativas evaluadas y descartadas
 
 Durante la auditoria 2026-04-16 se probaron tres refactors buscando una solucion menos "parche". Se documentan aqui para que futuros desarrolladores no repitan el experimento sin contexto.
+
+> **Nota historica — clase `.hydrating`:** A1 y A2 abajo referencian la clase CSS `.hydrating` que el proyecto aplicaba al `<body>` durante la ventana de hydration. Ese mecanismo fue removido cuando §6 migro de CSS guard a `patch-package` (ver Changelog 2026-04-17). La clase ya no existe en el codigo actual. Las referencias se preservan intactas porque la leccion (A1: guard scoped por hydration no cubre client-side nav; A2: el acoplamiento con `NavigationEnd` es intencional) sigue siendo relevante para futuras regresiones.
 
 ### A1. Scoped transition guard `.hydrating * { transition: none !important }` (descartada)
 
@@ -407,13 +570,15 @@ constructor() {
 
 Si se invierten o separan, el focus ring del bell se expone.
 
-### A3. Eliminar `focusRing.shadow: 'none'` del preset
+### A3. Consolidar focus ring en `styles.scss` (REVERTIDA 2026-04-17)
 
-**Hipotesis:** consolidar la definicion del focus ring en un solo archivo (`styles.scss`) en lugar de dividirla entre `app.config.ts` (box-shadow) y `styles.scss` (outline). Agregar `box-shadow: none` a la regla `:focus-visible` y eliminar el bloque `focusRing` del preset.
+**Hipotesis (2026-04-16):** remover el bloque `focusRing` del preset y declarar el ring completamente en `styles.scss` con `box-shadow: none` como override del halo de PrimeNG. Meta: definicion en un solo archivo.
 
-**Resultado:** EXITO. Aplicado 2026-04-16. Ver §5.
+**Resultado:** funcional pero arquitectonicamente incorrecto. Los valores quedaban hardcoded en CSS (`2px solid`, `-2px`, fallback `#10b981`) y la regla peleaba con el halo de PrimeNG en vez de configurarlo.
 
-**Por que funciono:** las declaraciones normales (no `!important`) en cascade layers siguen la regla `un-layered > layered`. Nuestro `box-shadow: none` un-layered gana sobre el `box-shadow: var(--p-focus-ring-shadow)` layered de PrimeNG.
+**Reversion (2026-04-17):** focus ring vuelve al preset como design tokens completos; styles.scss queda como consumer de CSS vars. Ver §5.
+
+**Leccion:** "single file" ≠ "single source of truth". La SOT correcta es el design system (tokens), no el archivo CSS que los consume. Big-tech pattern: GitHub Primer, Radix, Linear tokens viven en TS/JSON, CSS solo consume.
 
 ## Consecuencias
 
@@ -444,3 +609,29 @@ Si se invierten o separan, el focus ring del bell se expone.
 - [GitHub Primer focus ring pattern](https://primer.style/foundations/css-utilities/focus)
 - [PrimeNG AutoFocus bug (upstream)](https://github.com/primefaces/primeng/issues/18774) — bug tracking en repo de PrimeNG
 - [Issue interno #4](https://github.com/floxcristian/prime-showcase/issues/4) — seguimiento para remover workaround §6
+
+## Changelog
+
+### 2026-04-17
+
+- **Defense-in-depth adicional en `styles.scss`.** (a) `:focus-within` del `p-autocomplete[multiple]` narrowed a `:has(> .p-autocomplete-input-chip > input:focus)` — previene double-ring cuando el foco entra a un chip existente (chip × tiene su propio halo) y evita que el halo del wrapper quede "encendido" mientras se navega entre chips con Tab. (b) Reset global `prefers-reduced-motion: reduce` — respeta user preference del SO, alinea con WCAG 2.3.3 (Animation from Interactions). (c) Shadow del focus-ring tuneado por color-mode vía CSS custom property override (halo mas denso en dark mode para mantener contraste AA sobre fondos oscuros).
+- **`showcase/no-icon-button-without-tooltip` documentada en CLAUDE.md.** La regla existia en `tools/eslint/rules/` desde antes pero no estaba descrita en la guia de estilo. Agregada bajo §Botones con rationale (a11y parity entre screen readers y mouse/keyboard) y exception (botones con `label` visible).
+- **TODO markers cerrados project-wide.** RuleTester tests ahora viven en `tools/eslint/rules/__tests__/`, cubren todas las reglas custom incluyendo `no-forbidden-transitions` y `hover-requires-cursor-pointer`. El scope del visitor compartido (`tools/eslint/utils.js`) se extendio para escanear `routerLinkActive` con la misma politica que `class`.
+- **ESLint rules para §9 implementadas (TODO cerrado).** Agregadas `showcase/no-forbidden-transitions` y `showcase/hover-requires-cursor-pointer` en `tools/eslint/rules/`. La primera bloquea `transition-all` en atributos `class`/`styleClass` (enforcement automatico de la politica big-tech documentada en §9). La segunda asegura que todo elemento con `hover:*` declare tambien `cursor-pointer` — evita hovers huerfanos sin feedback de "clickable". El lint detecto y corrigio 2 violaciones reales en `chat.component.html` que pasaron code review.
+- **§5c refactorizado: contexto de root cause explicito.** Reordenado a: problema observable → causa raiz (zoneless CD + PrimeNG plain property) → alternativas consideradas con tabla → solucion elegida → cross-ref a `styles.scss`. Agregado parrafo sobre el rol de zoneless: el lag existe a nivel de framework incluso en Zone.js, pero Zone lo enmascara via CD microtask-driven; zoneless lo surface porque el CD es signal-driven y una mutacion sobre propiedad plana no lo agenda. `:focus-within` evade el framework entero (cascada CSS sincrona). El detalle de `provideZonelessChangeDetection()` tambien se documenta en CLAUDE.md (actualizacion paralela).
+- **§5c edge case de `p-autocomplete[multiple]` refinado.** Migrado de `:has(input:focus-visible)` a `:focus-within`. Causa raiz identificada: PrimeNG aplica `.p-focus` al host via mutacion de propiedad plana (`this.focused = true`, no signal) en `onInputFocus` — en zoneless Angular el CD se agenda asincrono → clase aparece ~13ms despues del focus event (1 frame perceptible). `:has(input:focus-visible)` solo matchea en keyboard (mouse click caia al fallback JS-mediado). Con `:focus-within` (CSS-native, cubre mouse + keyboard) la latencia visual baja a ~2.6ms (sub-frame), equivalente a `<input pInputText>` plano. Tambien se incluye `border-color: var(--p-autocomplete-focus-border-color)` para no depender de `.p-focus` en el cambio de borde.
+- **§9 agregado — narrow transitions como estandar project-wide.** Refactor de 24 ocurrencias de `transition-all` en 7 archivos a `transition-colors` / `transition-opacity`. Elimina el fade-out de 150ms del focus ring en blur (inconsistencia entre PrimeNG con §2b/§5 y elementos custom-Tailwind). Convencion CLAUDE.md actualizada: `transition-all` prohibido salvo justificacion. `transition-property: none` en `:focus-visible` (§5) queda como defense-in-depth contra futuras regresiones. Alineacion final con patron big-tech (GitHub Primer, Linear, Stripe, Vercel, Radix): feedback instantaneo en estados de interaccion.
+- **§5 refactorizado a arquitectura preset-driven.** Focus ring migrado a tokens completos en `semantic.focusRing` (estilo halo-only tipo Lara) con styles.scss como consumer de CSS vars `--p-focus-ring-*`. Zero hardcoded hex/px — todo via tokens. Edge cases documentados: landmarks via `[tabindex="-1"]` y autocomplete multiple via `:has()` proxy (workaround del `formField.focusRing` hardcoded a zeros en Aura). `transition-property: none` en `:focus-visible` para focus ring instantaneo (patron GitHub/Vercel/Linear/Stripe). A3 revertida: "single file ≠ single source of truth".
+- **§8 actualizado.** `transition-[background-color] duration-150` removido de los nav items del sidebar para alinear con `transitionDuration: '0s'` de §2b — el patron "instant hover" ahora aplica tambien a elementos custom-Tailwind del layout.
+- **§6 migrado a `patch-package`.** Workaround del bug AutoFocus paso de CSS guard (dic'25) → monkey-patch runtime (abr'26 temprano) → `patch-package` declarativo. Mismo fix de 2 chars del [PR upstream #19114](https://github.com/primefaces/primeng/pull/19114), ahora auditable en code review via diff commiteado.
+- **Regla defensiva `:focus:not(:focus-visible) { outline: none }` removida.** Era polyfill pre-2020 innecesario — UA stylesheets modernos (Chrome 86+, Firefox 85+, Safari 15.4+) soportan `:focus-visible` nativamente y PrimeNG 21 define focus rings exclusivamente via `:focus-visible`.
+- **§6a eliminado.** El `<style>` inline manual en `index.html` era redundante — Beasties lo inlineaba automaticamente desde `styles.scss`.
+- **Fix en dos capas identificado para el flash de colores.** `allowedHosts` (§2a) para primer paint SSR + `transitionDuration: '0s'` (§2b) para inyeccion de estilos en navegacion client-side. Ambos son necesarios; remover cualquiera regresa el problema.
+
+### 2026-04-16
+
+- **Auditoria de arquitectura.** Evaluadas 3 alternativas (ver Alternativas evaluadas A1-A3). A1 descartada (scoped hydration guard no cubre navegacion client-side), A2 descartada (orden de ejecucion rompe focus management), A3 aplicada inicialmente y posteriormente revertida (ver 2026-04-17).
+
+### 2026-04-15
+
+- **Version inicial del ADR.** Documentadas las 3 decisiones principales: `provideClientHydration`, `cssLayer`, y focus management en SPA navigation.

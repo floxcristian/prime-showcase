@@ -76,6 +76,7 @@ module.exports = {
     docs: {
       description:
         'Enforce the typography scale from the design system. Blocks forbidden text sizes, line heights, and font weights.',
+      url: '../../docs/rules/no-forbidden-typography.md',
     },
     schema: [],
     messages: {
@@ -88,32 +89,29 @@ module.exports = {
     },
   },
   create(context) {
-    return createClassAttrVisitor(context, (value, loc) => {
+    return createClassAttrVisitor(context, (value, ctx) => {
       let match;
 
-      // Check text sizes
       TEXT_SIZE_REGEX.lastIndex = 0;
       while ((match = TEXT_SIZE_REGEX.exec(value)) !== null) {
         const cls = match[0];
         if (ALLOWED_TEXT_SIZES.has(cls)) continue;
         if (ALLOWED_TEXT_SIZE_EXCEPTIONS.has(cls)) continue;
-        context.report({ loc, messageId: 'forbiddenTextSize', data: { className: cls } });
+        ctx.report(match, 'forbiddenTextSize', { className: cls });
       }
 
-      // Check leading (line-height)
       LEADING_REGEX.lastIndex = 0;
       while ((match = LEADING_REGEX.exec(value)) !== null) {
         const cls = match[0];
         if (ALLOWED_LEADING.has(cls)) continue;
-        context.report({ loc, messageId: 'forbiddenLeading', data: { className: cls } });
+        ctx.report(match, 'forbiddenLeading', { className: cls });
       }
 
-      // Check font-weight
       FONT_WEIGHT_REGEX.lastIndex = 0;
       while ((match = FONT_WEIGHT_REGEX.exec(value)) !== null) {
         const cls = match[0];
         if (ALLOWED_FONT_WEIGHT.has(cls)) continue;
-        context.report({ loc, messageId: 'forbiddenFontWeight', data: { className: cls } });
+        ctx.report(match, 'forbiddenFontWeight', { className: cls });
       }
     });
   },

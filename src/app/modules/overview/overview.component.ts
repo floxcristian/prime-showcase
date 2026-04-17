@@ -185,7 +185,7 @@ export class OverviewComponent {
                 'overflow-hidden',
                 'opacity-100',
                 'absolute',
-                'transition-all',
+                'transition-opacity',
                 'duration-[0.1s]',
                 'pointer-events-none',
                 'shadow-[0px_25px_20px_-5px_rgba(0,0,0,0.10),0px_10px_8px_-6px_rgba(0,0,0,0.10)]'

@@ -61,6 +61,7 @@ module.exports = {
     docs: {
       description:
         'Require dark: counterpart for bg-surface-* classes. Per design system: never use bg-surface-* without dark:bg-surface-*.',
+      url: '../../docs/rules/no-missing-dark-pair.md',
     },
     schema: [],
     messages: {
@@ -71,8 +72,7 @@ module.exports = {
     },
   },
   create(context) {
-    return createClassAttrVisitor(context, (value, loc) => {
-      // Split into individual class tokens and categorize
+    return createClassAttrVisitor(context, (value, ctx) => {
       const tokens = value.split(/\s+/).filter(Boolean);
       const lightShades = new Set();
       const darkShades = new Set();
@@ -87,41 +87,37 @@ module.exports = {
         }
       }
 
-      // No light bg-surface-* found — nothing to check
       if (lightShades.size === 0) return;
 
-      // Check each light shade that requires a pair
       for (const shade of lightShades) {
         const expectedDarkOptions = SURFACE_PAIRS.get(shade);
-
-        // Shades like 900, 950 are used AS dark variants — no pair needed
         if (!expectedDarkOptions) continue;
 
-        // Check if any of the accepted dark shades is present
         const hasPair = expectedDarkOptions.some((d) => darkShades.has(d));
+        if (hasPair) continue;
 
-        if (!hasPair) {
-          if (darkShades.size > 0) {
-            const actualDark = [...darkShades][0];
-            context.report({
-              loc,
-              messageId: 'wrongDarkPair',
-              data: {
-                shade,
-                actualDark,
-                expectedOptions: expectedDarkOptions.map((d) => `dark:bg-surface-${d}`).join(' or '),
-              },
-            });
-          } else {
-            context.report({
-              loc,
-              messageId: 'missingDarkPair',
-              data: {
-                shade,
-                expectedDark: expectedDarkOptions[0],
-              },
-            });
-          }
+        // For element-level rules, fall back to attribute loc (no per-match token).
+        const loc = ctx.fallbackLoc;
+        if (darkShades.size > 0) {
+          const actualDark = [...darkShades][0];
+          context.report({
+            loc,
+            messageId: 'wrongDarkPair',
+            data: {
+              shade,
+              actualDark,
+              expectedOptions: expectedDarkOptions.map((d) => `dark:bg-surface-${d}`).join(' or '),
+            },
+          });
+        } else {
+          context.report({
+            loc,
+            messageId: 'missingDarkPair',
+            data: {
+              shade,
+              expectedDark: expectedDarkOptions[0],
+            },
+          });
         }
       }
     });

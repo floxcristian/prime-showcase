@@ -1,59 +1,76 @@
-# PrimeShowcase
+# prime-showcase
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.15.
+Showcase de UI enterprise construido con PrimeNG + Tailwind como vitrina de patrones de diseño, theming y accesibilidad.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- **Angular 21** — standalone components, signals, nuevo control flow (`@if` / `@for`), zoneless change detection.
+- **PrimeNG 21** con tema **Aura** (`@primeuix/themes`) y `cssLayer` para interop con Tailwind.
+- **Tailwind CSS 4** + `tailwindcss-primeui` (clases consumen design tokens del preset, no colores ad-hoc).
+- **Font Awesome Pro 7** self-hosted — familias Sharp (regular + solid + duotone) y Brands.
+- **TypeScript strict mode** (`strictTemplates`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`).
+- **@angular/ssr** con hydration (`provideClientHydration(withEventReplay())`).
 
-```bash
-ng serve
-```
+## Required reading antes de contribuir
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Leer en este orden — son documentos normativos, no opcionales:
 
-## Code scaffolding
+1. **[`CLAUDE.md`](./CLAUDE.md)** — guía de estilo del proyecto. Design system, tokens permitidos, patrones de componente, convenciones de Tailwind. Autoritativa.
+2. **[`docs/adr/001-ssr-hydration-and-primeng-theming.md`](./docs/adr/001-ssr-hydration-and-primeng-theming.md)** — decisiones de arquitectura (SSR + PrimeNG theming + focus management + narrow transitions). Explica el *por qué* de configuraciones críticas en `app.config.ts` y `styles.scss`.
+3. **[`docs/rules/README.md`](./docs/rules/README.md)** — documentación por regla del plugin ESLint local. Cada regla tiene su página con ejemplos pasan / fallan y rationale.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Cualquier cambio que entre en conflicto con estos documentos debe actualizar el documento primero.
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Scripts
 
 ```bash
-ng build
+npm start              # dev server (Angular dev server con SSR)
+npm run build          # production build (SSR + prerender)
+npm run lint           # ESLint — incluye reglas custom del plugin local
+npm run lint:fix       # auto-fix para reglas con suggestions
+npm run lint:rules:test # RuleTester unit tests para el plugin local
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Build budgets
 
-## Running unit tests
+Enforced en `angular.json`:
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+- **Initial bundle:** < 750 kB (warn) / 1 MB (error).
+- **Component styles:** < 4 kB (warn) / 8 kB (error).
 
-```bash
-ng test
+Los SCSS de componente deben permanecer vacíos (convención del proyecto — todo el styling se hace con Tailwind en el template). Si un componente se acerca al budget de styles, revisar `CLAUDE.md` — probablemente hay CSS que debería migrarse a clases Tailwind.
+
+## Estructura
+
+```text
+src/app/
+  modules/           ← páginas de la app, una carpeta por feature
+    <feature>/
+      <feature>.component.{ts,html,scss}
+      constants/     ← configuraciones, listas estáticas
+      mocks/         ← datos de ejemplo tipados
+      models/        ← interfaces y tipos
+  layouts/           ← shell (main, side-menu)
+  core/              ← servicios globales (AppConfigService, etc.)
+docs/
+  adr/               ← Architecture Decision Records
+  rules/             ← documentación del plugin ESLint local
+tools/eslint/
+  plugin.js          ← entry point del plugin `showcase/*`
+  utils.js           ← visitor compartido (escanea class + styleClass + routerLinkActive)
+  rules/             ← una regla por archivo, con tests en __tests__/
+patches/             ← patch-package diffs sobre node_modules (documentados en ADR-001 §6)
 ```
 
-## Running end-to-end tests
+## Flujo de contribución
 
-For end-to-end (e2e) testing, run:
+1. Leer `CLAUDE.md` completo la primera vez.
+2. Revisar componentes existentes en `src/app/modules/` antes de implementar uno nuevo — replicar patrones, no inventar.
+3. `npm run lint` debe pasar limpio antes de commit.
+4. Para cambios arquitecturales, crear o actualizar el ADR correspondiente en `docs/adr/` antes de tocar código.
 
-```bash
-ng e2e
-```
+## Convenciones del repositorio
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- **Idioma:** ADR, commits y documentación interna en español. Código e identifiers en inglés.
+- **Commits:** estilo conventional (ver `git log` reciente). Sin co-authorship tags automáticos salvo que lo pida explícitamente el reviewer.
+- **No proactive docs:** no crear `*.md` sin pedido explícito. CLAUDE.md + ADRs + per-rule docs son la única documentación sostenida.

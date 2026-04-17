@@ -5,7 +5,7 @@
 - Angular 21 (standalone components, signals, new control flow)
 - PrimeNG 21 con tema Aura (`@primeuix/themes`)
 - Tailwind CSS 4 con plugin `tailwindcss-primeui`
-- Font Awesome Pro 7 (self-hosted, estilos: regular, solid, light, duotone)
+- Font Awesome Pro 7 (self-hosted, estilos: sharp-regular, sharp-solid, sharp-duotone-regular, brands)
 - SCSS (archivos presentes por convención pero vacíos — todo el estilizado se hace con Tailwind)
 - TypeScript strict mode (`strictTemplates`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`)
 
@@ -19,6 +19,31 @@ Leer SIEMPRE antes de generar código:
 4. **Tailwind en template, SCSS vacío** — Cero CSS en archivos `.scss`. Todo con clases Tailwind en el HTML.
 5. **Consultar MCP de PrimeNG** — Antes de implementar cualquier componente PrimeNG, verificar su API actual via MCP.
 6. **Consistencia** — Revisar componentes existentes en `src/app/modules/` y replicar sus patrones exactos.
+
+## Índice
+
+- [Stack](#stack)
+- [Resumen de reglas críticas](#resumen-de-reglas-críticas)
+- [MCP: PrimeNG (`@primeng/mcp`)](#mcp-primeng-primengmcp)
+- [Regla principal: Consistencia con lo existente](#regla-principal-consistencia-con-lo-existente)
+- [Componentes: Siempre PrimeNG primero](#componentes-siempre-primeng-primero)
+- [Estructura de componente](#estructura-de-componente)
+- [Templates HTML](#templates-html)
+- [Design System: Valores Restringidos](#design-system-valores-restringidos)
+- [Patrones estructurales de página](#patrones-estructurales-de-página)
+- [Recetas de estado dinámico (ngClass)](#recetas-de-estado-dinámico-ngclass)
+- [Patrones de componentes PrimeNG](#patrones-de-componentes-primeng)
+- [Iconos](#iconos)
+- [Routing](#routing)
+- [Organización de archivos](#organización-de-archivos)
+- [Servicios y estado](#servicios-y-estado)
+- [Zoneless change detection (implicaciones para autoría)](#zoneless-change-detection-implicaciones-para-autoría)
+- [SSR guard](#ssr-guard)
+- [Focus ring: `:focus-visible` vs `:focus-within` vs `:has()`](#focus-ring-focus-visible-vs-focus-within-vs-has)
+- [PrimeNG imports: Module vs Standalone](#primeng-imports-module-vs-standalone)
+- [Charts (Chart.js via PrimeNG)](#charts-chartjs-via-primeng)
+- [ESLint y enforcement del design system](#eslint-y-enforcement-del-design-system)
+- [Lo que NO hacer](#lo-que-no-hacer)
 
 ## MCP: PrimeNG (`@primeng/mcp`)
 
@@ -147,7 +172,7 @@ host: { class: 'flex-1 h-full overflow-y-auto pb-0.5' }
 
 **Nunca** usar colores Tailwind genéricos (`text-gray-500`, `bg-blue-100`, `text-slate-700`) ni valores hex/rgb hardcodeados. Usar exclusivamente tokens semánticos del tema Aura:
 
-```
+```text
 TEXTO
   text-color                          → Texto principal (body, títulos)
   text-muted-color                    → Texto secundario (labels, ayuda, metadata)
@@ -203,9 +228,23 @@ class="bg-surface-200 dark:bg-surface-700"
 Los componentes PrimeNG manejan dark mode automáticamente via el tema Aura.
 Para CSS variables en JS (charts): `getComputedStyle(document.documentElement).getPropertyValue('--p-primary-400')`.
 
+### Focus ring — CSS custom properties
+
+El focus ring global usa estas variables, definidas por el preset Aura en `src/app/app.config.ts` → `definePreset(..., { semantic: { focusRing: {...} } })`:
+
+```text
+--p-focus-ring-width      (ej: 2px)
+--p-focus-ring-style      (ej: solid)
+--p-focus-ring-color      (primary)
+--p-focus-ring-offset     (ej: 2px)
+--p-focus-ring-shadow     (ej: 0 0 0 4px hsl(...))
+```
+
+Uso práctico: al construir un elemento enfocable custom (raro — la mayoría de UI usa PrimeNG o inputs nativos), heredar la regla global `:focus-visible` de `styles.scss` o aplicar estas vars directamente. Nunca hardcodear colores/widths del focus ring.
+
 ### Escala de spacing — valores permitidos
 
-```
+```text
 GAP:     gap-1 | gap-2 ← DEFAULT | gap-3 | gap-4 | gap-5 | gap-6 ← CARDS/SECCIONES | gap-8
 PADDING: p-1 | p-2 ← DEFAULT | p-3 | p-4 | p-6 ← CARDS | px-4 py-1 (botones) | px-7 py-5 (cabecera)
 MARGIN:  mt-1 (sutil) | mt-2/mb-2 | mt-4/mb-4 (secciones) | mt-6/mb-6 (grandes) | mb-0 (reset)
@@ -218,7 +257,7 @@ EXCEPCIONES ACEPTADAS (pre-existentes, documentadas en AUDIT_BASELINE.md EX-005)
 
 ### Escala de border-radius
 
-```
+```text
 rounded-full    → Círculos: avatares, indicadores de estado, dots
 rounded-lg      → Elementos pequeños: botones, inputs, badges, avatares con imagen
 rounded-xl      → Contenedores medianos
@@ -244,7 +283,7 @@ NO USAR: rounded, rounded-sm, rounded-md, rounded-none ni rounded-[value].
 
 Combinaciones aprobadas — usar estas recetas, no inventar combinaciones nuevas:
 
-```
+```text
 TÍTULOS:    text-3xl font-semibold leading-normal (principal)
             text-2xl font-medium leading-8 (sección)
             text-xl font-medium leading-7 (subsección, inbox/movies headers)
@@ -268,7 +307,7 @@ PESO: font-medium = default (90%) | font-semibold = solo títulos card/sección 
 
 ### Sombras
 
-```
+```text
 NO USAR SOMBRAS. El proyecto usa border-surface en vez de sombras para definir
 elevación. La única excepción es el tooltip custom de Chart.js.
 Si necesitas elevar un elemento, usar: border border-surface rounded-2xl
@@ -302,7 +341,7 @@ Breakpoints: usar `xl:` como breakpoint principal para layout. `lg:` secundario.
 
 ```html
 <!-- Hover estándar para elementos clickeables -->
-class="hover:bg-emphasis cursor-pointer transition-all"
+class="hover:bg-emphasis cursor-pointer transition-colors"
 
 <!-- Active (click/pressed) -->
 class="active:bg-surface-200 dark:active:bg-surface-700"
@@ -311,19 +350,36 @@ class="active:bg-surface-200 dark:active:bg-surface-700"
 class="hover:text-muted-color-emphasis"
 
 <!-- Hover con opacidad (links, iconos) -->
-class="hover:opacity-70"
+class="hover:opacity-70 transition-opacity"
 
 <!-- Elemento activo/seleccionado (nav, tabs) -->
 class="text-color bg-emphasis"           → Activo
 class="text-muted-color bg-transparent"  → Inactivo
 ```
 
-Transiciones: usar `transition-all` para elementos interactivos, `transition-colors` para cambios solo de color. **No agregar animaciones** más allá de transitions.
+### Transiciones — narrow por default
+
+**REGLA CRITICA:** `transition-all` está **prohibido sin excepciones** y bloqueado por `showcase/no-forbidden-transitions`. Solo se permiten: `transition-colors`, `transition-opacity`, `transition-transform`, `transition-none`, `transition-shadow`, y arbitrary values narrow (`transition-[transform]`).
+
+| Efecto | Clase | Cuándo |
+|---|---|---|
+| Cambio de color/fondo (hover:bg-emphasis, hover:text-*) | `transition-colors` | Default para la mayoría de elementos interactivos |
+| Cambio de opacidad (hover:opacity-70) | `transition-opacity` | Imágenes, avatares, iconos con hover por opacidad |
+| Sin animación | — (omitir) | Nav items con estado activo binario (ver side-menu) |
+| Transform / layout (movement) | `transition-transform` | Animaciones de movimiento (carousel, sheets, panels) |
+
+**No agregar animaciones** más allá de estas transitions (sin keyframes, sin delays).
+
+Rationale, validación por industria y análisis frame-by-frame del fade-out en focus rings: **Ref: ADR-001 §9**.
 
 **REGLA:** Todo elemento con `cursor-pointer` DEBE tener un `hover:*` correspondiente. Sin hover feedback el usuario no sabe que puede interactuar. Elegir según el tipo de elemento:
 - **Contenedores/cards/rows** → `hover:bg-emphasis`
 - **Imágenes/avatares** → `hover:opacity-70`
 - **Texto/links** → `hover:text-muted-color-emphasis`
+
+**Exenciones de `showcase/hover-requires-cursor-pointer`:**
+- **`<p-*>` components** y cualquier elemento con la directiva `[pButton]` están exentos. PrimeNG aplica sus propios estados hover vía el tema Aura; declarar `cursor-pointer` sobre un `<p-button>` es redundante y añade ruido.
+- **`group-hover:*`** y **`peer-hover:*`** NO se flaggean: son patrones legítimos de Tailwind donde el hover vive en el padre/sibling y el efecto se aplica a un descendiente — el `cursor-pointer` debe estar en el elemento que captura el hover, no en el receptor del estilo.
 
 ### Elementos interactivos: acción vs navegación
 
@@ -352,7 +408,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
   [ngClass]="{
     'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive
   }"
-  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-colors select-none"
 >
   <i [class]="item.icon"></i>
   <span>{{ item.title }}</span>
@@ -365,7 +421,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
     'text-color bg-emphasis': activeNav() === nav.name,
     'text-muted-color bg-transparent': activeNav() !== nav.name
   }"
-  class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all"
+  class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-colors"
 >
   <i [class]="nav.icon"></i>
   <span class="font-medium">{{ nav.name }}</span>
@@ -375,7 +431,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
 <div
   (click)="select(item)"
   [ngClass]="{ 'bg-emphasis': item.id === activeId() }"
-  class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
+  class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors"
 >
   <!-- contenido -->
 </div>
@@ -387,7 +443,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
 
 <!-- 5. Menu item en card (lista de acciones sin pButton) -->
 <button
-  class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-all select-none"
+  class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
 >
   <i class="fa-regular fa-arrows-rotate"></i>
   <span>Refresh</span>
@@ -395,7 +451,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
 
 <!-- 6. CTA card item (botón llamativo dentro de card, sin pButton) -->
 <button
-  class="p-4 rounded-3xl w-full bg-emphasis transition-all text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
+  class="p-4 rounded-3xl w-full bg-emphasis transition-colors text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
 >
   <div class="flex items-center"><!-- avatares, iconos --></div>
   <div class="flex items-center gap-2">
@@ -405,7 +461,7 @@ Transiciones: usar `transition-all` para elementos interactivos, `transition-col
 </button>
 ```
 
-Clases base compartidas: `cursor-pointer hover:bg-emphasis transition-all rounded-lg`
+Clases base compartidas: `cursor-pointer hover:bg-emphasis transition-colors rounded-lg`
 
 Estados:
 - **Activo fuerte** (nav principal): `text-primary-contrast bg-primary hover:bg-primary-emphasis`
@@ -467,7 +523,7 @@ Estados:
 
 ```html
 <!-- Patrón base de list item -->
-<div class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all">
+<div class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors">
   <p-avatar ... />
   <div class="flex-1">
     <div class="flex items-start gap-1 justify-between">
@@ -479,7 +535,7 @@ Estados:
 </div>
 
 <!-- Patrón de nav item -->
-<div class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-all">
+<div class="px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-colors">
   <i class="fa-regular fa-inbox"></i>
   <span class="font-medium">Label</span>
 </div>
@@ -674,6 +730,15 @@ Reglas de severity:
 - `severity="contrast"` → alto contraste visual
 - `severity="success"` / `"warn"` → rara vez, solo donde el significado semántico lo requiere
 
+**Icon-only buttons — tooltip obligatorio.** Todo `<p-button>` sin `label` visible (solo `icon`) DEBE declarar tanto `aria-label` como `pTooltip` con el mismo texto:
+
+```html
+<!-- Correcto: screen readers (aria-label) + mouse/keyboard (pTooltip) -->
+<p-button icon="fa-sharp fa-regular fa-bell" aria-label="Notifications" pTooltip="Notifications" />
+```
+
+Rationale: `aria-label` expone el propósito a tecnologías asistivas, pero usuarios de mouse/teclado que no usan screen reader no ven esa etiqueta — sin `pTooltip` el botón es opaco para ellos. Con ambos, la UX es equivalente en todos los modos de entrada. Excepción: si el botón tiene un `label` visible, el texto ya está presente y `pTooltip` sería redundante. Enforcement: la regla `showcase/no-icon-button-without-tooltip` falla el lint si un `<p-button>` tiene `icon` + `aria-label` pero le falta `pTooltip`.
+
 ### Tags y Badges
 
 ```html
@@ -794,7 +859,7 @@ menuItems: MenuItem[] = [
     'w-12 justify-center py-4': isSlimMenu,
     'w-full': !isSlimMenu
   }"
-  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-all select-none"
+  class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-colors select-none"
 >
   <i [class]="navItem.icon"></i>
   <span>{{ navItem.title }}</span>
@@ -859,7 +924,7 @@ Consultar MCP para el nombre exacto del evento de cada componente.
 ### styleClass y selectores avanzados
 
 `styleClass` para ajustes de layout en componentes PrimeNG (usar `!` para override):
-```
+```text
 styleClass="w-full"                          → Full width
 styleClass="!min-w-0 !w-2.5 !h-2.5"         → Override badges
 styleClass="!bg-transparent"                 → Fondo transparente (paginador)
@@ -1043,7 +1108,19 @@ themeEffect = effect(() => { if (this.configService.transitionComplete()) this.i
 - `AppConfigService` para acceso al tema/dark mode.
 - No usar librerías de state management externas.
 
-### SSR guard
+## Zoneless change detection (implicaciones para autoría)
+
+El proyecto corre con `provideZonelessChangeDetection()` — NO hay `zone.js`. Reglas prácticas:
+
+1. **Siempre signals para estado reactivo.** Propiedades mutables (`this.foo = ...`) no disparan CD en zoneless. Usar `signal()` / `computed()` para toda pieza de estado que afecte el template. **No negociable.**
+2. **`effect()` para side effects** que reaccionan a signals (tema, route, mediaQuery). No usar lifecycle hooks para sincronizar con estado reactivo.
+3. **Librerías con propiedades planas** (ej: PrimeNG 21 aplica `.p-focus` vía `this.focused = true` sin signal) pueden mostrar lag perceptible. Solución: estilizar con selectores CSS-nativos (`:focus-within`, `:has()`) que no dependen del ciclo de CD.
+
+**Workflow ante sospecha de lag visual:** DevTools → ver si la clase esperada (`.p-focus`, `.p-highlight`) aparece sincrónicamente con el evento. Si llega tarde, cambiar a selector CSS-nativo en `styles.scss`.
+
+Análisis root-cause detallado (Zone.js vs zoneless, latencias medidas, alternativas consideradas): **Ref: ADR-001 §5c**.
+
+## SSR guard
 
 El proyecto tiene `@angular/ssr`. Usar `isPlatformBrowser` antes de acceder a APIs del browser:
 
@@ -1056,6 +1133,18 @@ ngOnInit() {
   }
 }
 ```
+
+## Focus ring: `:focus-visible` vs `:focus-within` vs `:has()`
+
+Tres selectores cubren todos los casos de focus ring. Elegir por rol del elemento, no por preferencia:
+
+| Selector | Dispara con | Aplicar en | Caso de uso |
+|---|---|---|---|
+| `:focus-visible` | Teclado solamente | El elemento enfocado mismo | Buttons, links, inputs planos. Es la regla global de `styles.scss` — default para todo lo enfocable. |
+| `:focus-within` | Teclado **y** clic del mouse, cualquier descendiente con foco | Elemento **wrapper** cuando el enfocable real es un hijo | `p-autocomplete[multiple]`, `p-iconfield`. CSS-nativo y sincrónico → evita lag por clases mediadas en zoneless CD. Ref: ADR-001 §5c. |
+| `:has(input:focus-visible)` | Teclado solamente, via descendiente | Wrapper cuando se necesita filtro teclado-only **y** patrón wrapper | Cuando `:focus-within` sería muy amplio (también activa con clic). Requiere soporte Baseline (OK en 2026) y tiene pequeño overhead vs `:focus-within`. |
+
+**Regla práctica:** si hay lag visible al enfocar un wrapper de PrimeNG (clase `.p-focus` no aplica a tiempo), preferir `:focus-within` en `styles.scss`. Ya aplicado a `p-autocomplete-input-multiple:focus-within` — seguir ese patrón.
 
 ## PrimeNG imports: Module vs Standalone
 
@@ -1102,18 +1191,21 @@ Reglas: colores siempre con `getPropertyValue()` | Legend custom HTML, no Chart.
 
 El proyecto tiene ESLint configurado con reglas custom que **bloquean** violaciones del design system en tiempo de desarrollo.
 
-```
+```text
 tools/eslint/
-  plugin.js                         ← Entry point del plugin local
-  utils.js                          ← Visitor helper (escanea class + styleClass + *StyleClass)
+  plugin.js                           ← Entry point del plugin local
+  utils.js                            ← Visitor helper (escanea class + styleClass + *StyleClass + routerLinkActive)
   rules/
-    no-hardcoded-colors.js          ← Bloquea text-gray-*, bg-blue-*, text-white, bg-[#hex], etc.
-    no-shadow-classes.js            ← Bloquea shadow-* y drop-shadow-* (permite !shadow-none para resets)
-    no-forbidden-rounded.js         ← Solo rounded-lg a rounded-3xl + rounded-full + rounded-border
-    no-inline-styles.js             ← Bloquea style="" estático
-    no-forbidden-spacing.js         ← Enforces spacing scale (gap, padding, margin)
-    no-missing-dark-pair.js         ← Requiere dark: counterpart para bg-surface-*
-    no-forbidden-typography.js      ← Enforces text size, leading, font-weight scale
+    no-hardcoded-colors.js            ← Bloquea text-gray-*, bg-blue-*, text-white, bg-[#hex], etc.
+    no-shadow-classes.js              ← Bloquea shadow-* y drop-shadow-* (permite !shadow-none para resets)
+    no-forbidden-rounded.js           ← Solo rounded-lg a rounded-3xl + rounded-full + rounded-border
+    no-inline-styles.js               ← Bloquea style="" estático
+    no-forbidden-spacing.js           ← Enforces spacing scale (gap, padding, margin)
+    no-missing-dark-pair.js           ← Requiere dark: counterpart para bg-surface-*
+    no-forbidden-typography.js        ← Enforces text size, leading, font-weight scale
+    no-forbidden-transitions.js       ← Bloquea transition-all / bare transition (política big-tech)
+    hover-requires-cursor-pointer.js  ← hover:* ↔ cursor-pointer deben ir en pareja
+    no-icon-button-without-tooltip.js ← Icon-only <p-button> requiere pTooltip
 ```
 
 Comandos: `npm run lint` | `npm run lint:fix`
@@ -1129,6 +1221,9 @@ Comandos: `npm run lint` | `npm run lint:fix`
 | `showcase/no-forbidden-spacing` | `gap-9`, `p-8`, `m-3`, `m-5`, `gap-[13px]`, etc. | Escala aprobada (gap 1-6,8 / p 1-4,6 / m 0,1,2,4,6) + excepciones documentadas |
 | `showcase/no-missing-dark-pair` | `bg-surface-100` sin `dark:bg-surface-800` | Pares completos, shades oscuros sin par (900, 950) |
 | `showcase/no-forbidden-typography` | `text-4xl+`, `leading-snug`, `leading-relaxed`, `font-bold`, `font-black`, `text-[18px]` | Escala aprobada (text-xs a text-3xl, leading-4 a leading-8, font-normal/medium/semibold) + `text-4xl` para iconos/stats |
+| `showcase/no-forbidden-transitions` | `transition-all`, bare `transition`, `transition-[all]` arbitrary values | `transition-colors`, `transition-opacity`, `transition-transform`, `transition-none`, `transition-shadow`, `transition-[transform]` |
+| `showcase/hover-requires-cursor-pointer` | Elementos con `hover:*` pero sin `cursor-pointer`, o viceversa (plain HTML, `<div>`, `<button>` sin pButton) | Mismo elemento con el par correspondiente; `group-hover:*` y `peer-hover:*` NO se flaggean; `<p-*>` y `[pButton]` están exentos |
+| `showcase/no-icon-button-without-tooltip` | `<p-button [icon]="..." aria-label="..."/>` sin `pTooltip` (icon-only buttons sin hint en hover) | Botones con `label` visible, o con `pTooltip` |
 
 ### Reglas built-in habilitadas
 
@@ -1146,6 +1241,7 @@ Las reglas escanean atributos estáticos y dinámicos:
 - `class="..."` — HTML estándar
 - `styleClass="..."` — Componentes PrimeNG
 - `paginatorStyleClass`, `valueStyleClass`, `panelStyleClass`, `contentStyleClass`, `headerStyleClass`, `footerStyleClass`, `inputStyleClass`, `labelStyleClass` — Variantes de PrimeNG
+- `routerLinkActive="..."` — Clases aplicadas al elemento en estado activo (escaneadas con la misma política que `class`)
 
 **Dinámicos** (expresiones Angular — se camina el AST para extraer string literals):
 - `[ngClass]="{ 'class': cond }"` — Object literal keys
@@ -1175,6 +1271,8 @@ Las reglas escanean atributos estáticos y dinámicos:
 - No usar `style=""` inline. Para valores dinámicos de datos usar `[style.backgroundColor]="item.color"` o `[ngStyle]="{ backgroundColor: val.color }"`.
 - No inventar combinaciones de tipografía fuera de las recetas definidas.
 - No usar `bg-surface-*` sin su par `dark:bg-surface-*`.
+
+**Excepción documentada:** `shadow-[...]` aplicado en runtime vía `classList.add()` sobre el tooltip custom de Chart.js (`src/app/modules/overview/overview.component.ts:191`). Chart.js dibuja el tooltip fuera del árbol de componentes Angular, por lo que no hereda el vocabulario de design tokens del preset y el elevation no se puede expresar con `border border-surface` (rompería el layout del tooltip). Es la única excepción aprobada — agregar otra requiere justificación en code review. ESLint no la detecta porque vive en una string concatenada en TS, fuera del scope del visitor HTML.
 
 ### Componentes
 - No crear componentes custom si PrimeNG ya tiene uno equivalente.

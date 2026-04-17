@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
+    "lint:rules:test": "node --test tools/eslint/rules/__tests__/*.test.js",
     "test": "ng test",
     "serve:ssr:prime-showcase": "node dist/prime-showcase/server/server.mjs",
     "postinstall": "patch-package"

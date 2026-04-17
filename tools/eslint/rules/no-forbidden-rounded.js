@@ -42,6 +42,7 @@ module.exports = {
     docs: {
       description:
         'Enforce the allowed border-radius scale: rounded-full, rounded-lg, rounded-xl, rounded-2xl, rounded-3xl.',
+      url: '../../docs/rules/no-forbidden-rounded.md',
     },
     schema: [],
     messages: {
@@ -50,19 +51,16 @@ module.exports = {
     },
   },
   create(context) {
-    return createClassAttrVisitor(context, (value, loc) => {
+    return createClassAttrVisitor(context, (value, ctx) => {
       let match;
       ROUNDED_REGEX.lastIndex = 0;
       while ((match = ROUNDED_REGEX.exec(value)) !== null) {
         const cls = match[0];
 
         if (ALLOWED_ROUNDED.has(cls)) continue;
-
-        // Allow directional variants (e.g. rounded-t-lg) — the size part
-        // is validated by the developer, we only block the base scale.
         if (DIRECTIONAL_PREFIX_REGEX.test(cls)) continue;
 
-        context.report({ loc, messageId: 'noForbiddenRounded', data: { className: cls } });
+        ctx.report(match, 'noForbiddenRounded', { className: cls });
       }
     });
   },
