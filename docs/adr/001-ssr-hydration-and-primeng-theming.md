@@ -2,7 +2,7 @@
 
 - **Estado:** Aceptado
 - **Fecha:** 2026-04-15
-- **Ultima revision:** 2026-04-17 (fix en dos capas identificado — `allowedHosts` para primer paint SSR + `transitionDuration: '0s'` para inyeccion de estilos en navegacion client-side; ambos son necesarios. Workaround del bug AutoFocus migrado de CSS guard → monkey-patch runtime → `patch-package` declarativo — mismo fix de 2 chars del PR upstream, ahora auditable en code review via diff commiteado.)
+- **Ultima revision:** 2026-04-17 (fix en dos capas identificado — `allowedHosts` para primer paint SSR + `transitionDuration: '0s'` para inyeccion de estilos en navegacion client-side; ambos son necesarios. Workaround del bug AutoFocus migrado de CSS guard → monkey-patch runtime → `patch-package` declarativo — mismo fix de 2 chars del PR upstream, ahora auditable en code review via diff commiteado. Verificado via `curl` a SSR: Beasties inlinea automaticamente `:focus:not(:focus-visible){outline:none}` desde `styles.scss` como critical CSS — el `<style>` inline manual en `index.html` era redundante y se removio; §6a eliminado del ADR.)
 - **Autores:** Cristian Flores
 
 ## Contexto
@@ -231,29 +231,9 @@ Anteriormente se usaba `definePreset(Aura, { semantic: { focusRing: { shadow: 'n
 
 **Es un parche?** No. Es el patron estandar de design systems (GitHub Primer, Radix). Un solo focus ring uniforme definido en un archivo.
 
-### 6. Critical CSS inline en `index.html` + patch-package para AutoFocus
+**Critical CSS automatico via Beasties (FOUC protection):** Angular SSR difiere el stylesheet principal via `<link ... media="print" onload="this.media='all'">`. Durante ese gap, sin defensa, el browser podria pintar su focus ring por defecto (negro, grueso). Beasties — el extractor de critical CSS incluido por defecto en el build de Angular 21 — analiza el HTML renderizado por SSR y detecta que `:focus:not(:focus-visible) { outline: none }` de `styles.scss` aplica universalmente al contenido above-the-fold, asi que la inlinea como `<style>` en `<head>` automaticamente. Verificado via `curl` a `/` en produccion: el `<style>:focus:not(:focus-visible){outline:none}</style>` aparece inlineado sin intervencion manual. **Consecuencia:** no se necesita mantener un `<style>` inline en `index.html` — la defensa FOUC de mouse-focus es automatica mientras la regla viva en `styles.scss`. La regla mas larga `:focus-visible { outline: 2px solid ... }` no es inlineada por Beasties (selector mas especifico, no above-the-fold) — llega via el stylesheet principal, lo cual es aceptable: afecta solo navegacion por teclado, y keyboard users no estan en el camino critico de primer paint.
 
-```html
-<!-- src/index.html -->
-<head>
-  <style>:focus:not(:focus-visible){outline:none}</style>
-</head>
-<body>
-  <app-root></app-root>
-</body>
-```
-
-#### 6a. `:focus:not(:focus-visible)` inline — critical CSS
-
-Suprime outlines de focus no-keyboard durante el gap antes de que el stylesheet principal cargue.
-
-**Por que existe:** Angular SSR con Beasties difiere el stylesheet principal via `media="print" onload="this.media='all'"`. Durante ese gap, el browser podria mostrar su focus ring por defecto (negro, grueso). Este inline style lo previene.
-
-**Solo suprime `:focus:not(:focus-visible)`**, no `:focus-visible`. Si el stylesheet falla, usuarios de teclado siguen viendo el focus ring del browser (accesibilidad preservada).
-
-**Es un parche?** No. Es critical CSS inlined — patron estandar para prevenir FOUC.
-
-#### 6b. `patch-package` declarativo sobre `primeng/autofocus`
+### 6. `patch-package` sobre `primeng/autofocus`
 
 ```diff
 # patches/primeng+21.1.5.patch
@@ -444,7 +424,7 @@ Si se invierten o separan, el focus ring del bell se expone.
 ### Negativas
 - `allowedHosts` debe mantenerse sincronizado con los dominios de produccion. En deploys multi-entorno, usar `NG_ALLOWED_HOSTS` via env. Con LB que valida Host, `NG_ALLOWED_HOSTS=*` es aceptable.
 - `transitionDuration: '0s'` (§2b) sacrifica la animacion de 0.2s cross-fade de PrimeNG en hover/active states. El cambio de color sigue ocurriendo pero instantaneo. Patron validado por Linear/Vercel/GitHub/Figma/Meta. Transiciones custom via Tailwind no se ven afectadas.
-- `patch-package` sobre `primeng/autofocus` (§6b) depende de que la linea exacta del diff siga presente en `node_modules/primeng/fesm2022/primeng-autofocus.mjs`. Si PrimeNG refactoriza el archivo entre versiones, el `postinstall` falla ruidoso ("patch does not apply cleanly") — esto es una feature: obliga a re-evaluar si el fix sigue siendo necesario (posiblemente upstream ya lo mergeo). Mitigacion adicional: CI incluye test E2E que verifica `document.querySelectorAll('[autofocus]').length === 0` en la ruta `/` post-hidratacion. Seguimiento: [issue #4](https://github.com/floxcristian/prime-showcase/issues/4) — verificar si el PR upstream #19114 se mergeo y remover `patches/primeng+*.patch` + el script `postinstall`.
+- `patch-package` sobre `primeng/autofocus` (§6) depende de que la linea exacta del diff siga presente en `node_modules/primeng/fesm2022/primeng-autofocus.mjs`. Si PrimeNG refactoriza el archivo entre versiones, el `postinstall` falla ruidoso ("patch does not apply cleanly") — esto es una feature: obliga a re-evaluar si el fix sigue siendo necesario (posiblemente upstream ya lo mergeo). Mitigacion adicional: CI incluye test E2E que verifica `document.querySelectorAll('[autofocus]').length === 0` en la ruta `/` post-hidratacion. Seguimiento: [issue #4](https://github.com/floxcristian/prime-showcase/issues/4) — verificar si el PR upstream #19114 se mergeo y remover `patches/primeng+*.patch` + el script `postinstall`.
 
 ### Neutras
 - `cssLayer` requiere que los overrides de PrimeNG via Tailwind funcionen naturalmente (sin `!important`), pero overrides de propiedades que PrimeNG define explicitamente siguen necesitando el prefijo `!` en `styleClass`.
@@ -460,4 +440,4 @@ Si se invierten o separan, el focus ring del bell se expone.
 - [CSS Cascade Layers spec](https://www.w3.org/TR/css-cascade-5/#layering) — un-layered > layered
 - [GitHub Primer focus ring pattern](https://primer.style/foundations/css-utilities/focus)
 - [PrimeNG AutoFocus bug (upstream)](https://github.com/primefaces/primeng/issues/18774) — bug tracking en repo de PrimeNG
-- [Issue interno #4](https://github.com/floxcristian/prime-showcase/issues/4) — seguimiento para remover workaround §6b
+- [Issue interno #4](https://github.com/floxcristian/prime-showcase/issues/4) — seguimiento para remover workaround §6
