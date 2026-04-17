@@ -326,7 +326,7 @@ Counter monotonico resuelve todo: cada transicion es un valor nuevo (`N+1`), `ef
 
 #### 4g. CDN caching — `Vary: Cookie`
 
-El SSR server emite `Vary: Cookie, Accept-Encoding` y `Cache-Control: public, max-age=3600, s-maxage=86400`. Sin `Vary: Cookie`, un proxy cache serviria HTML de un usuario dark a un usuario light → regresion visible.
+El SSR server emite `Vary: Cookie` explicitamente y `Cache-Control: public, max-age=3600, s-maxage=86400`; el middleware `compression` anexa `Accept-Encoding` al `Vary` cuando la respuesta viaja comprimida, por lo que el header observado es `Vary: Cookie, Accept-Encoding`. Sin `Vary: Cookie`, un proxy cache serviria HTML de un usuario dark a un usuario light → regresion visible.
 
 **Fragmentacion de cache conocida:** `Vary: Cookie` hace que el CDN almacene una entry por valor unico del header `Cookie`. En practica, el valor completo de la cookie (incluyendo session tokens, analytics, etc.) varia por usuario → cache hit rate cercano a cero. Solucion big-tech (Cloudflare Workers, Fastly VCL, Akamai): normalizar el header a un subset antes del Vary (ej: un header sintetico `X-Theme: dark|light` derivado de la cookie). **No implementado** en este proyecto — ROI no justifica el overhead operacional hasta que el proyecto tenga trafico real que sature origen. Cuando sea relevante, la normalizacion vive en el edge, no en el server Node.
 
