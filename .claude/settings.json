@@ -10,7 +10,8 @@
       "Bash(curl -sL --max-time 15 \"https://blog.angular.dev/\")",
       "Bash(curl -s -L \"https://primeng.org/guides/migration/v20\" -o /tmp/migration_v20.html)",
       "Bash(curl -s -L \"https://primeng.org/guides/migration/v21\" -o /tmp/migration_v21.html)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(xargs wc *)"
     ]
   }
 }

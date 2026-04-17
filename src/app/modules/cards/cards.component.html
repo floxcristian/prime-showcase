@@ -121,63 +121,60 @@
                           </div>
                           <div class="mt-4 flex flex-col gap-1">
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                              class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
-                                class="fa-sharp fa-regular fa-envelope text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-envelope text-lg"
                                 aria-hidden="true"
                               ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">
+                              <span class="font-medium flex-1 text-left">
                                 Mensajes
-                              </div>
+                              </span>
                             </button>
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                              class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
-                                class="fa-sharp fa-regular fa-gear text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-gear text-lg"
                                 aria-hidden="true"
                               ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">
+                              <span class="font-medium flex-1 text-left">
                                 Configuración
-                              </div>
+                              </span>
                             </button>
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                              class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
-                                class="fa-sharp fa-regular fa-arrows-rotate text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-arrows-rotate text-lg"
                                 aria-hidden="true"
                               ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">
+                              <span class="font-medium flex-1 text-left">
                                 Cambiar cuenta
-                              </div>
+                              </span>
                             </button>
                             <button
-                              class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                              class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
-                                class="fa-sharp fa-regular fa-arrow-right-to-bracket text-lg w-7 h-7 flex items-center justify-center"
+                                class="fa-sharp fa-regular fa-arrow-right-to-bracket text-lg"
                                 aria-hidden="true"
                               ></i>
-                              <div class="font-medium leading-normal flex-1 text-left">Cerrar sesión</div>
+                              <span class="font-medium flex-1 text-left">Cerrar sesión</span>
                             </button>
                           </div>
                           <p-divider />
                           <div
-                            class="w-full flex items-center gap-2 text-color p-2 bg-transparent hover:bg-emphasis cursor-pointer rounded-lg transition-colors select-none"
+                            class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis cursor-pointer rounded-lg transition-colors select-none"
                             >
                             <i
-                              class="text-lg w-7 h-7 flex items-center justify-center"
-          [ngClass]="{
-            'fa-sharp fa-regular fa-moon-star': !darkMode(),
-            'fa-sharp fa-regular fa-sun': darkMode()
-          }"
+                              class="fa-sharp fa-regular text-lg"
+                              [ngClass]="darkMode() ? 'fa-sun' : 'fa-moon'"
                               aria-hidden="true"
                             ></i>
-                            <div class="font-medium leading-normal flex-1 text-left">
+                            <span class="font-medium flex-1 text-left">
                               Cambiar a {{ darkMode() ? "Claro" : "Oscuro" }}
-                            </div>
+                            </span>
                             <p-toggleswitch [ngModel]="darkMode()" (ngModelChange)="toggleDarkMode($event)" aria-label="Modo oscuro" />
                           </div>
                         </div>
