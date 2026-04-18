@@ -14,6 +14,11 @@
  *   showcase/no-icon-button-without-tooltip — Requires pTooltip on icon-only <p-button>
  *   showcase/no-forbidden-transitions — Forbids transition-all / bare `transition` (use narrow variants)
  *   showcase/hover-requires-cursor-pointer — Requires cursor-pointer and hover:* to appear together
+ *   showcase/no-bare-fa-without-sharp — Forbids fa-regular/fa-solid without fa-sharp prefix (invisible icon)
+ *   showcase/no-button-without-type — Requires explicit type= on plain <button> (no form-submit surprises)
+ *   showcase/no-duotone-inline-icon — Restricts fa-sharp-duotone to hero sizes (text-4xl+)
+ *   showcase/no-decorative-icon-without-aria-hidden — Requires aria-hidden on <i> icons
+ *   showcase/no-deprecated-styleclass — Forbids styleClass (deprecated in PrimeNG v20, use `class` instead)
  */
 
 /** @type {import('eslint').ESLint.Plugin} */
@@ -29,5 +34,10 @@ module.exports = {
     'no-icon-button-without-tooltip': require('./rules/no-icon-button-without-tooltip'),
     'no-forbidden-transitions': require('./rules/no-forbidden-transitions'),
     'hover-requires-cursor-pointer': require('./rules/hover-requires-cursor-pointer'),
+    'no-bare-fa-without-sharp': require('./rules/no-bare-fa-without-sharp'),
+    'no-button-without-type': require('./rules/no-button-without-type'),
+    'no-duotone-inline-icon': require('./rules/no-duotone-inline-icon'),
+    'no-decorative-icon-without-aria-hidden': require('./rules/no-decorative-icon-without-aria-hidden'),
+    'no-deprecated-styleclass': require('./rules/no-deprecated-styleclass'),
   },
 };

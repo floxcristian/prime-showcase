@@ -7,6 +7,7 @@ import {
   Injector,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
@@ -34,7 +35,10 @@ export class MainComponent {
     // El siguiente Tab del usuario lo lleva al primer elemento interactivo de la pagina.
     // Ref: W3C WAI Managing Focus in SPA | ADR-001 §7
     this.router.events
-      .pipe(filter((e) => e instanceof NavigationEnd))
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
       .subscribe(() => {
         afterNextRender(
           () => {

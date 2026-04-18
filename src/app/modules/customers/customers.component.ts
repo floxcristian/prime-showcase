@@ -26,6 +26,7 @@ import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { TRANSPARENT_TABLE_TOKENS } from '../../shared/tokens/table-tokens';
 
 const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
@@ -118,17 +119,7 @@ export class CustomersComponent {
 
   selectedRows = signal<Customer[]>([]);
 
-  tableTokens = {
-    header: {
-      background: 'transparent',
-    },
-    headerCell: {
-      background: 'transparent',
-    },
-    row: {
-      background: 'transparent',
-    },
-  };
+  tableTokens = TRANSPARENT_TABLE_TOKENS;
 
   displayPopover(e: MouseEvent, op: Popover): void {
     op.hide();

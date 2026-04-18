@@ -1,0 +1,97 @@
+# CI pipeline for prime-showcase.
+#
+# Enforces the full pre-merge contract on every push to main and every PR:
+#   1. Deterministic install (npm ci) — honors package-lock.json + fires
+#      the `postinstall` hook that applies patches/primeng+21.1.5.patch.
+#   2. Lint — `ng lint` (ESLint + custom design-system rules) and the
+#      node:test suite for rules/__tests__ (chained via `npm run lint`).
+#   3. Production build — confirms bundle budgets (750kB warn / 1MB error)
+#      and produces dist/prime-showcase/server/server.mjs used by the smoke.
+#   4. SSR smoke — boots the SSR server in the background, waits for it to
+#      accept traffic on :4000, runs the theme-cookie smoke suite, and
+#      always stops the server (even on smoke failure) so the job cleans up.
+#
+# Least-privilege permissions: the job only needs to read the repo.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, build, SSR smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      # Full checkout so lint/tests see the complete tree (no shallow surprises).
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Node 22 matches local dev. `cache: npm` keys off package-lock.json so
+      # reruns skip the download step when the lockfile is unchanged.
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` is strict about the lockfile and triggers `postinstall`,
+      # which runs patch-package against primeng/autofocus (see patches/).
+      - name: Install dependencies
+        run: npm ci
+
+      # Chains `ng lint` + the custom rule unit tests in tools/eslint/rules.
+      - name: Lint (ESLint + design-system rules)
+        run: npm run lint
+
+      # Production build. Fails the job if any budget is exceeded (angular.json).
+      - name: Build (production)
+        run: npm run build
+
+      # Start the SSR server produced by the previous step, detached so the
+      # step can continue. PORT=4000 matches tools/smoke/ssr-theme.smoke.mjs
+      # default (SSR_BASE_URL). We redirect output to a log file so failures
+      # can be inspected in the Actions run summary.
+      - name: Start SSR server
+        run: |
+          PORT=4000 node dist/prime-showcase/server/server.mjs > ssr-server.log 2>&1 &
+          echo "SSR_PID=$!" >> "$GITHUB_ENV"
+
+      # Poll the root URL until it responds or 30s elapses. Fails fast with
+      # the server log so a crashed boot doesn't time out the smoke silently.
+      - name: Wait for SSR server on :4000
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ -o /dev/null; then
+              echo "SSR server is up after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "SSR server did not come up within 30s" >&2
+          echo "--- ssr-server.log ---" >&2
+          cat ssr-server.log >&2 || true
+          exit 1
+
+      # Runs the 4-case cookie/theme suite against the live server.
+      - name: Run SSR theme smoke
+        run: npm run test:ssr:smoke
+
+      # `if: always()` guarantees the server is stopped even when the smoke
+      # step failed — otherwise a hung process would pin the runner until
+      # the job timeout.
+      - name: Stop SSR server
+        if: always()
+        run: |
+          if [ -n "${SSR_PID:-}" ] && kill -0 "$SSR_PID" 2>/dev/null; then
+            kill "$SSR_PID"
+            echo "Stopped SSR server (pid=$SSR_PID)"
+          else
+            echo "SSR server was not running"
+          fi

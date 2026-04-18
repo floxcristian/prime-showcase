@@ -25,6 +25,11 @@ Rules scan the following attributes as class lists:
 | [`no-icon-button-without-tooltip`](./no-icon-button-without-tooltip.md) | Icon-only `<p-button>` without `pTooltip` (accessibility) |
 | [`no-forbidden-transitions`](./no-forbidden-transitions.md) | `transition-all`, bare `transition`, arbitrary transitions with forbidden properties |
 | [`hover-requires-cursor-pointer`](./hover-requires-cursor-pointer.md) | `cursor-pointer` without `hover:*`, or `hover:*` without `cursor-pointer` |
+| [`no-bare-fa-without-sharp`](./no-bare-fa-without-sharp.md) | `fa-regular`/`fa-solid`/`fa-light`/`fa-duotone` without the `fa-sharp` or `fa-sharp-duotone` prefix the project actually loads |
+| [`no-button-without-type`](./no-button-without-type.md) | Plain `<button>` without `type="button"` (accidental form submission) |
+| [`no-duotone-inline-icon`](./no-duotone-inline-icon.md) | `fa-sharp-duotone` outside hero scale (`text-4xl`+) — keeps UI-chrome icons on a single family |
+| [`no-decorative-icon-without-aria-hidden`](./no-decorative-icon-without-aria-hidden.md) | `<i>` Font Awesome icon missing `aria-hidden="true"` (screen-reader leakage) |
+| [`no-deprecated-styleclass`](./no-deprecated-styleclass.md) | `styleClass` on PrimeNG components deprecated since v20 — use `class` instead |
 
 All rules ship at severity **error**.
 

@@ -23,13 +23,14 @@
         [options]="options"
         aria-label="Tipo de chat"
         class="w-full"
-        styleClass="w-full"
         />
       </div>
       <div class="flex-1 flex flex-col">
         @for (chat of filteredChats(); track chat.name) {
-          <div
-            class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors"
+          <button
+            type="button"
+            (click)="activeChat.set(chat.name)"
+            class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors text-left w-full bg-transparent"
             [attr.aria-current]="chat.name === activeChat() ? 'true' : null"
       [ngClass]="{
         'bg-emphasis': chat.name === activeChat()
@@ -45,10 +46,8 @@
               <p-avatar
                 [image]="chat.image"
                 [label]="!chat.image ? chat.capName : ''"
-          [ngClass]="{
-            '!bg-primary-100 !text-primary-950': !chat.image
-          }"
-                styleClass="text-base font-medium flex"
+                class="text-base font-medium flex"
+                [ngClass]="{ '!bg-primary-100 !text-primary-950': !chat.image }"
                 size="large"
                 shape="circle"
                 />
@@ -70,7 +69,7 @@
                   }
                 </div>
               </div>
-            </div>
+            </button>
           } @empty {
             <app-empty-state
               icon="fa-comments"
@@ -90,7 +89,7 @@
           <div class="flex items-center">
             <p-avatar
               image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png"
-              styleClass="mr-2 av"
+              class="mr-2 av"
               size="large"
               shape="circle"
               />
@@ -138,10 +137,8 @@
                     <p-avatar
                       [image]="message.image"
                       [label]="!message.image ? message.capName : ''"
-          [ngClass]="{
-            'bg-primary-100 text-primary-950': !message.image
-          }"
-                      styleClass="w-10 h-10 text-sm font-medium"
+                      class="w-10 h-10 text-sm font-medium"
+                      [ngClass]="{ 'bg-primary-100 text-primary-950': !message.image }"
                       shape="circle"
                       />
                       <div>
@@ -218,7 +215,7 @@
                   <div class="flex flex-col items-center justify-center">
                     <p-avatar
                       image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png"
-                      styleClass="w-32 h-32"
+                      class="w-32 h-32"
                       size="xlarge"
                       shape="circle"
                       />
@@ -249,7 +246,7 @@
                             />
                             <p-button
                               type="button"
-                              icon="fa-sharp fa-regular fa-ellipsis-vertical text-muted-color"
+                              icon="fa-sharp fa-regular fa-ellipsis"
                               severity="secondary"
                               text
                               aria-label="Más opciones"
@@ -298,10 +295,8 @@
                                     <p-avatar
                                       [image]="member.image"
                                       [label]="!member.image ? member.capName : ''"
-          [ngClass]="{
-            '!bg-primary-100 !text-primary-950': !member.image
-          }"
-                                      styleClass="font-medium text-xs"
+                                      class="font-medium text-xs"
+                                      [ngClass]="{ '!bg-primary-100 !text-primary-950': !member.image }"
                                       shape="circle"
                                       />
                                       <div
@@ -318,8 +313,7 @@
                                 <p-selectbutton
                                   [ngModel]="media()" (ngModelChange)="media.set($event)"
                                   [options]="mediaOptions"
-                                  class="w-full"
-                                  styleClass="flex-1 w-full"
+                                  class="flex-1 w-full"
                                   />
 
                                   <div class="mt-3 mb-5 grid grid-cols-3 gap-2">

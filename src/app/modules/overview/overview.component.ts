@@ -27,8 +27,9 @@ import { Skeleton } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import type { CanvasFontSpec, Chart, TooltipModel, TooltipItem } from 'chart.js';
+import type { CanvasFontSpec, Chart, ChartOptions, TooltipModel, TooltipItem } from 'chart.js';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
+import { TRANSPARENT_TABLE_TOKENS } from '../../shared/tokens/table-tokens';
 import { CoinBadge, CoinKind, Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
 import {
   COIN_BADGES,
@@ -68,7 +69,7 @@ const PRIME_MODULES = [
 })
 export class OverviewComponent {
   chartData = signal<OverviewChartData | undefined>(undefined);
-  chartOptions = signal<Record<string, unknown> | undefined>(undefined);
+  chartOptions = signal<ChartOptions<'bar'> | undefined>(undefined);
   dates = signal<Date[]>([]);
   selectedTime = signal('Mensual');
   timeOptions: string[] = ['Semanal', 'Mensual', 'Anual'];
@@ -77,20 +78,18 @@ export class OverviewComponent {
   metersData: MeterItem[] = OVERVIEW_METERS;
   coinBadges: Record<CoinKind, CoinBadge> = COIN_BADGES;
 
+  // Single source of truth for the transactions table page size. Drives both
+  // the live `[rows]` config and the placeholder skeleton row count so the
+  // pre-hydration UI matches the hydrated layout (zero CLS).
+  protected readonly transactionsRowsPerPage = 5;
+  protected readonly transactionsSkeletonRows = Array.from({
+    length: this.transactionsRowsPerPage,
+  });
+
   getCoinBadge(coin: string): CoinBadge {
     return this.coinBadges[coin as CoinKind];
   }
-  tableTokens = {
-    header: {
-      background: 'transparent',
-    },
-    headerCell: {
-      background: 'transparent',
-    },
-    row: {
-      background: 'transparent',
-    },
-  };
+  tableTokens = TRANSPARENT_TABLE_TOKENS;
 
   // Dependencies
   private platformId = inject(PLATFORM_ID);
@@ -163,7 +162,7 @@ export class OverviewComponent {
     };
   }
 
-  setChartOptions(): Record<string, unknown> {
+  setChartOptions(): ChartOptions<'bar'> {
     const darkTheme = this.configService.darkTheme();
     const documentStyle = getComputedStyle(document.documentElement);
     const surface100 = documentStyle.getPropertyValue('--p-surface-100');
@@ -178,7 +177,10 @@ export class OverviewComponent {
         tooltip: {
           enabled: false,
           position: 'nearest',
-          external: function (context: { chart: Chart; tooltip: TooltipModel<'bar'> }) {
+          external: function (
+            this: TooltipModel<'bar'>,
+            context: { chart: Chart; tooltip: TooltipModel<'bar'> },
+          ) {
             const { chart, tooltip } = context;
             const parentNode = chart.canvas.parentNode as HTMLElement;
             let tooltipEl = parentNode.querySelector<HTMLDivElement>(
@@ -305,7 +307,6 @@ export class OverviewComponent {
           },
           grid: {
             display: false,
-            borderColor: 'transparent',
           },
           border: {
             display: false,
@@ -320,7 +321,6 @@ export class OverviewComponent {
           grid: {
             display: true,
             color: darkTheme ? surface900 : surface100,
-            borderColor: 'transparent',
           },
           border: {
             display: false,

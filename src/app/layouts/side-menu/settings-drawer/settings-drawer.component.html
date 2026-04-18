@@ -1,0 +1,325 @@
+<p-drawer
+  [(visible)]="visible"
+  (onShow)="onDrawerShow()"
+  (onHide)="onDrawerHide()"
+  position="right"
+  closeIcon="fa-sharp fa-regular fa-arrow-right-from-bracket"
+  styleClass="!max-w-2xl !w-full !h-screen rounded-l-2xl"
+  [pt]="drawerPt"
+>
+  <ng-template #headless>
+    <div class="flex flex-col h-screen overflow-auto">
+      <div>
+        <div class="flex items-center gap-3 p-6">
+          <p-avatar
+            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
+            size="large"
+            class="rounded-xl overflow-hidden"
+          />
+          <div class="flex-1">
+            <div class="leading-6 text-color font-medium">Brook Simmons</div>
+            <div class="mt-1 leading-5 text-muted-color text-sm">Ejecutivo de ventas</div>
+          </div>
+          <p-button
+            #drawerCloseBtn
+            (click)="close()"
+            icon="fa-sharp fa-regular fa-arrow-right-from-bracket"
+            text
+            rounded
+            severity="secondary"
+            aria-label="Cerrar panel"
+            pTooltip="Cerrar panel"
+            tooltipPosition="bottom"
+          />
+        </div>
+        <p-selectbutton
+          [ngModel]="selectedSidebarOption()"
+          (ngModelChange)="selectedSidebarOption.set($event)"
+          [options]="sidebarOptions"
+          class="w-full px-6 py-3 flex-1"
+        >
+          <ng-template #item let-item>
+            <span class="text-sm">{{ item }}</span>
+          </ng-template>
+        </p-selectbutton>
+      </div>
+
+      <!-- Registros de interacción -->
+      @if (selectedSidebarOption() === 'Registros') {
+        <div class="h-[calc(100%-172px)] flex flex-col gap-4 p-6">
+          <div class="h-1/3 flex flex-col p-3 rounded-xl bg-emphasis">
+            <div class="flex items-start justify-between">
+              <div class="leading-6 font-medium text-color">Registro de llamadas</div>
+              <p-button
+                icon="fa-sharp fa-regular fa-download text-sm"
+                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
+                severity="secondary"
+                text
+                aria-label="Descargar registro de llamadas"
+                pTooltip="Descargar"
+                tooltipPosition="bottom"
+              />
+            </div>
+            <div
+              class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 flex flex-col rounded-lg overflow-hidden divide-y divide-surface-200 dark:divide-surface-800"
+            >
+              @for (data of callLogs; track data.name) {
+                <div class="flex items-center gap-3 p-2">
+                  <p-overlayBadge severity="success" class="w-fit">
+                    <p-avatar
+                      [image]="data.image"
+                      size="normal"
+                      class="rounded-lg w-10 h-10 overflow-hidden flex"
+                    />
+                  </p-overlayBadge>
+                  <div class="flex-1">
+                    <div class="text-sm leading-5 font-medium text-color">{{ data.name }}</div>
+                    <div class="mt-1 text-sm leading-5 text-muted-color">{{ data.time }}</div>
+                  </div>
+                  <p-button
+                    icon="fa-sharp fa-regular fa-phone text-sm"
+                    text
+                    styleClass="bg-primary-100 dark:bg-primary-900 w-8 h-8"
+                    aria-label="Llamar"
+                    pTooltip="Llamar"
+                    tooltipPosition="bottom"
+                  />
+                </div>
+              }
+            </div>
+          </div>
+          <div class="h-1/3 flex flex-col p-3 rounded-xl bg-emphasis">
+            <div class="flex items-start justify-between">
+              <div class="leading-6 font-medium text-color">Registro de correos</div>
+              <p-button
+                icon="fa-sharp fa-regular fa-download text-sm"
+                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
+                severity="secondary"
+                text
+                aria-label="Descargar registro de correos"
+                pTooltip="Descargar"
+                tooltipPosition="bottom"
+              />
+            </div>
+            <div
+              class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 flex flex-col rounded-lg overflow-hidden divide-y divide-surface-200 dark:divide-surface-800"
+            >
+              @for (data of emailRecords; track data.name) {
+                <div class="flex items-center gap-3 p-2">
+                  <p-overlayBadge severity="danger" class="w-fit">
+                    <p-avatar
+                      [image]="data.image"
+                      size="normal"
+                      class="rounded-lg overflow-hidden w-10 h-10 flex"
+                    />
+                  </p-overlayBadge>
+                  <div class="w-1/5 text-sm leading-5 font-medium text-color">{{ data.name }}</div>
+                  <div class="flex-1">
+                    <div class="text-sm leading-5 font-medium text-color line-clamp-2">
+                      {{ data.title }}
+                      <span class="text-muted-color">{{ data.text }}</span>
+                    </div>
+                  </div>
+                  <div class="w-1/6 text-sm leading-5 text-muted-color text-right">{{ data.time }}</div>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="h-1/3 flex flex-col p-3 rounded-xl bg-emphasis">
+            <div class="flex items-start justify-between">
+              <div class="leading-6 font-medium text-color">Notas de reunión</div>
+              <p-button
+                icon="fa-sharp fa-regular fa-download text-sm"
+                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity leading-none"
+                severity="secondary"
+                text
+                aria-label="Descargar notas de reunión"
+                pTooltip="Descargar"
+                tooltipPosition="bottom"
+              />
+            </div>
+            <div
+              class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col rounded-lg overflow-hidden"
+            >
+              <div class="flex items-start justify-between gap-1">
+                <div class="text-sm text-color font-medium max-w-60">
+                  Asunto: Resumen de reunión y acciones pendientes: Jacob Jones
+                </div>
+                <div class="text-sm text-muted-color">14 de febrero, 2024 / 2:00 PM</div>
+              </div>
+              <div class="text-sm text-muted-color mt-6">
+                Aquí hay un resumen rápido de nuestra reunión con Brook Simmons y los próximos pasos.
+                Resumen:
+                <br /><br />
+                <ul class="list-disc pl-5">
+                  <li>Revisamos nuestra solución SaaS y sus características.</li>
+                  <li>Arlene McCoy mostró interés en el potencial de experiencia de usuario.</li>
+                  <li>Se expresaron preocupaciones sobre la integración con el sistema actual.</li>
+                </ul>
+                <br />
+                Acciones pendientes:<br /><br />
+                Demo: Programar demostración del producto con Arlene McCoy. (Asignado a: Jerome Bell)<br /><br />
+                Plan de integración: Redactar y entregar plano técnico. (Asignado a: Cameron Williamson)<br /><br />
+                Reunión de seguimiento: Organizar para discutir consultas post-demo. (Asignado a: Dianne Russell)
+                <br /><br />
+                Por favor, actúen sobre estos puntos de manera oportuna.
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Preferencias -->
+      @if (selectedSidebarOption() === 'Preferencias') {
+        <div class="h-[calc(100%-72px)] flex flex-col gap-4 p-6">
+          @for (data of preferences(); track data.title) {
+            <div class="h-1/4 flex flex-col p-3 rounded-xl bg-emphasis">
+              <div class="leading-6 font-medium text-color p-2">{{ data.title }}</div>
+              <div
+                class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col gap-3 rounded-lg"
+              >
+                @for (pref of data.prefs; track pref.title) {
+                  <div class="flex items-center gap-2">
+                    <i class="text-lg text-color" [class]="pref.icon" aria-hidden="true"></i>
+                    <div class="font-medium text-color flex-1">{{ pref.title }}</div>
+                    <p-toggleswitch
+                      [ngModel]="pref.checked"
+                      (ngModelChange)="togglePreference(pref)"
+                      [attr.aria-label]="pref.title"
+                    />
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Oportunidades -->
+      @if (selectedSidebarOption() === 'Oportunidades') {
+        <div class="grid grid-cols-2 gap-6 p-6">
+          @for (data of opportunities; track data.title) {
+            <div class="flex flex-col p-3 rounded-xl bg-emphasis">
+              <div class="flex items-start justify-between gap-2">
+                <div class="font-medium text-color mt-0.5">{{ data.title }}</div>
+                <a [href]="data.link" target="_blank" rel="noopener">
+                  <p-button
+                    icon="fa-sharp fa-regular fa-arrow-up-right text-sm !leading-none"
+                    styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900"
+                    severity="secondary"
+                    text
+                    aria-label="Abrir enlace"
+                    pTooltip="Abrir enlace"
+                    tooltipPosition="bottom"
+                  />
+                </a>
+              </div>
+              <img class="w-full rounded-lg mt-2 block" [src]="data.image" [alt]="data.title" loading="lazy" />
+              <div class="flex-1 mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 text-xs text-color">
+                {{ data.text }}
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Estadísticas -->
+      @if (selectedSidebarOption() === 'Estadísticas') {
+        @let c = charts();
+        <div class="h-[calc(100%-160px)] p-6">
+          <div class="grid grid-cols-2 gap-4">
+            @if (c?.gauges?.[0]; as satisfaction) {
+              <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="font-medium text-color p-2">{{ satisfaction.label }}</div>
+                </div>
+                <div
+                  class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
+                >
+                  <div class="w-40 h-40 relative">
+                    <p-chart
+                      type="doughnut"
+                      [data]="satisfaction.data"
+                      [options]="satisfaction.options"
+                      width="160"
+                      height="160"
+                    />
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <span class="text-3xl font-semibold text-muted-color">{{ satisfaction.pct }}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
+              <div class="flex items-center justify-between gap-2">
+                <div class="font-medium text-color p-2">Valor estimado de vida</div>
+              </div>
+              <div
+                class="flex-1 flex items-center gap-2 justify-center mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
+              >
+                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">$</div>
+                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">272</div>
+                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">123</div>
+                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">000</div>
+              </div>
+            </div>
+            @if (c?.productUsage; as productUsage) {
+              <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="font-medium text-color p-2">{{ productUsage.label }}</div>
+                </div>
+                <div
+                  class="flex-1 mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
+                >
+                  <p-chart
+                    type="line"
+                    [data]="productUsage.data"
+                    [options]="productUsage.options"
+                    height="140px"
+                  />
+                </div>
+              </div>
+            }
+            @if (c?.gauges?.[1]; as churn) {
+              <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
+                <div class="font-medium text-color p-2">{{ churn.label }}</div>
+                <div
+                  class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
+                >
+                  <div class="w-40 h-40 relative">
+                    <p-chart
+                      type="doughnut"
+                      [data]="churn.data"
+                      [options]="churn.options"
+                      width="160"
+                      height="160"
+                    />
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <span class="text-3xl font-semibold text-muted-color">{{ churn.pct }}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+          @if (c?.totalPurchases; as totalPurchases) {
+            <div class="mt-4 w-full flex flex-col p-3 rounded-xl bg-emphasis">
+              <div class="font-medium text-color p-2">{{ totalPurchases.label }}</div>
+              <div
+                class="flex-1 p-2 w-full mt-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
+              >
+                <p-chart
+                  type="bar"
+                  [data]="totalPurchases.data"
+                  [options]="totalPurchases.options"
+                  height="240px"
+                />
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </ng-template>
+</p-drawer>

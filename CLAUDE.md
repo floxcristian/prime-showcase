@@ -177,6 +177,7 @@ host: { class: 'flex-1 h-full overflow-y-auto pb-0.5' }
 ```text
 TEXTO
   text-color                          → Texto principal (body, títulos)
+  text-color-emphasis                 → Texto principal hover (CTA cards, links destacados)
   text-muted-color                    → Texto secundario (labels, ayuda, metadata)
   text-muted-color-emphasis           → Texto secundario hover
   text-primary                        → Texto con color de acento
@@ -215,6 +216,7 @@ EXCEPCIONES PERMITIDAS
   - bg-violet-100, text-violet-950    → Indicadores semánticos (tags, badges, categorías)
   - bg-orange-100, text-orange-950    → Indicadores semánticos (alertas, warnings, categorías)
   - text-yellow-500                   → Iconos de criptomoneda (BTC)
+  - text-green-500                    → Indicadores de estado activo/online (dot icons)
   Estos NO son colores de UI general. Son datos con significado.
 ```
 
@@ -1281,9 +1283,23 @@ tools/eslint/
     no-forbidden-transitions.js       ← Bloquea transition-all / bare transition (política big-tech)
     hover-requires-cursor-pointer.js  ← hover:* ↔ cursor-pointer deben ir en pareja
     no-icon-button-without-tooltip.js ← Icon-only <p-button> requiere pTooltip
+    no-deprecated-styleclass.js       ← `styleClass` deprecated en PrimeNG v20 — usar `class`
+  rules/__tests__/                    ← node:test suites por regla (RuleTester + invariantes del set)
 ```
 
-Comandos: `npm run lint` | `npm run lint:fix`
+### Comandos del proyecto
+
+| Comando | Qué hace | Cuándo correrlo |
+|---|---|---|
+| `npm run lint` | `ng lint` (HTML+TS rules) **+ chained** `lint:rules:test` (10 RuleTester suites + drift detection vs PrimeNG type defs) | Antes de cada commit |
+| `npm run lint:fix` | Igual que `lint` con autofix donde aplique | Para limpiar warnings mecánicas |
+| `npm run lint:rules:test` | Solo los tests del plugin local (útil al editar reglas) | Al modificar `tools/eslint/rules/*` |
+| `npm test` | `ng test` → vitest sobre `src/**/*.spec.ts` | Después de cambios en componentes/servicios |
+| `npm run build` | Build de producción, valida budgets (`750 kB warn` / `1 MB error`) | Antes de PR |
+| `npm run test:ssr:smoke` | 4 cookie cases del dark-mode SSR (necesita `serve:ssr:prime-showcase` corriendo en `:4000`) | Después de cambios en SSR/theme/cookie |
+| `npm run verify` | `lint && build && (server + smoke)` end-to-end con server orchestration | **Antes de pushear** — paridad exacta con CI |
+
+CI (`.github/workflows/ci.yml`) corre el equivalente de `verify` en cada push a main y cada PR.
 
 ### Reglas custom (severity: error)
 
@@ -1299,6 +1315,7 @@ Comandos: `npm run lint` | `npm run lint:fix`
 | `showcase/no-forbidden-transitions` | `transition-all`, bare `transition`, `transition-[all]` arbitrary values | `transition-colors`, `transition-opacity`, `transition-transform`, `transition-none`, `transition-shadow`, `transition-[transform]` |
 | `showcase/hover-requires-cursor-pointer` | Elementos con `hover:*` pero sin `cursor-pointer`, o viceversa (plain HTML, `<div>`, `<button>` sin pButton) | Mismo elemento con el par correspondiente; `group-hover:*` y `peer-hover:*` NO se flaggean; `<p-*>` y `[pButton]` están exentos |
 | `showcase/no-icon-button-without-tooltip` | `<p-button [icon]="..." aria-label="..."/>` sin `pTooltip` (icon-only buttons sin hint en hover) | Botones con `label` visible, o con `pTooltip` |
+| `showcase/no-deprecated-styleclass` | `styleClass` / `[styleClass]` en componentes PrimeNG v20 que deprecaron el atributo (53 selectores: p-tag, p-avatar, p-table, p-skeleton, etc.) | `class=`, `[class]=`, `[ngClass]=`. Sub-element variants (`paginatorStyleClass`, `valueStyleClass`, etc.) y overlays (`p-drawer`, `p-dialog`, `p-popover`, `p-tooltip`, `p-menu`, `p-button`) no se flaggean. Set sincronizado automáticamente con PrimeNG type defs vía drift-test. |
 
 ### Reglas built-in habilitadas
 

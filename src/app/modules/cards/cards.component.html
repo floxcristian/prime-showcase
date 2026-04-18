@@ -6,7 +6,7 @@
   <div class="flex-1 flex flex-col gap-6">
     <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
       <div class="flex items-center gap-3">
-        <p-overlayBadge severity="danger" styleClass="w-fit">
+        <p-overlayBadge severity="danger" class="w-fit">
           <p-avatar
             image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
             class="rounded-lg overflow-hidden flex"
@@ -67,7 +67,7 @@
                     [options]="userSelectButtonOptions"
                     />
                     <div class="flex flex-col gap-4">
-                      <div class="p-2 rounded-2xl flex items-center gap-3 bg-emphasis">
+                      <div class="p-2 rounded-lg flex items-center gap-3 bg-emphasis">
                         <p-overlayBadge severity="danger" class="w-fit">
                           <p-avatar
                             image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
@@ -85,7 +85,7 @@
                           </div>
                           <p-button label="Unirse" />
                         </div>
-                        <div class="p-2 rounded-2xl flex items-center gap-3 bg-emphasis">
+                        <div class="p-2 rounded-lg flex items-center gap-3 bg-emphasis">
                           <p-overlayBadge severity="danger" class="w-fit">
                             <p-avatar
                               image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
@@ -121,6 +121,7 @@
                           </div>
                           <div class="mt-4 flex flex-col gap-1">
                             <button
+                              type="button"
                               class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
@@ -132,6 +133,7 @@
                               </span>
                             </button>
                             <button
+                              type="button"
                               class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
@@ -143,6 +145,7 @@
                               </span>
                             </button>
                             <button
+                              type="button"
                               class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
@@ -154,6 +157,7 @@
                               </span>
                             </button>
                             <button
+                              type="button"
                               class="w-full flex items-center gap-3 text-color p-2 bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                               >
                               <i
@@ -182,7 +186,7 @@
                           <div class="pt-6 px-6 flex flex-col gap-6">
                             <div class="flex items-start gap-2 justify-between">
                               <div>
-                                <div class="text-2xl text-color font-medium">Analista de datos</div>
+                                <div class="text-2xl text-color font-medium leading-8">Analista de datos</div>
                                 <div class="mt-2 text-color">Data Insights Ltd.</div>
                               </div>
                               <p-button
@@ -228,6 +232,7 @@
                             </div>
                             <div class="p-1 mt-4">
                               <button
+                                type="button"
                                 class="p-4 rounded-3xl w-full bg-emphasis transition-colors text-color hover:text-color-emphasis flex items-center gap-2 justify-between cursor-pointer"
                                 >
                                 <div class="flex items-center [&>*]:-mr-2">
@@ -266,7 +271,7 @@
                                       <div class="flex items-center gap-2 text-color">
                                         <i class="fa-sharp fa-regular fa-cloud-arrow-up text-xl" aria-hidden="true"></i>
                                         <div class="flex-1 font-medium leading-6">Subir archivos</div>
-                                        <p-button icon="fa-sharp fa-regular fa-xmark" text rounded aria-label="Cerrar" pTooltip="Cerrar" tooltipPosition="bottom" />
+                                        <p-button icon="fa-sharp fa-regular fa-xmark" text rounded severity="secondary" aria-label="Cerrar" pTooltip="Cerrar" tooltipPosition="bottom" />
                                       </div>
                                       <div>
                                         <label for="document-name" class="text-color font-medium leading-6"
@@ -282,14 +287,14 @@
                                           />
                                         </div>
                                         <div>
-                                          <label class="text-color font-medium leading-6">Subir archivos</label>
+                                          <div class="text-color font-medium leading-6">Subir archivos</div>
                                           <p-fileupload
                                             name="demo[]"
                                             url="/api/upload"
                                             (onUpload)="onTemplatedUpload($event)"
                                             accept="image/*"
                                             [maxFileSize]="1000000"
-                                            styleClass="mt-2"
+                                            class="mt-2"
                                             (onSelect)="onSelectedFiles($event)"
                                             >
                                             <ng-template
@@ -339,8 +344,9 @@
                                                 </div>
                                               }
                                               @if (files().length <= 0 && uploadedFiles().length <= 0) {
-                                                <div
-                                                  class="flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-emphasis rounded-lg transition-colors"
+                                                <button
+                                                  type="button"
+                                                  class="w-full flex flex-col items-center justify-center p-6 cursor-pointer hover:bg-emphasis rounded-lg transition-colors bg-transparent"
                                                   (click)="chooseCallback()"
                                                   >
                                                   <i class="fa-sharp-duotone fa-regular fa-cloud-arrow-up text-4xl text-color" aria-hidden="true"></i>
@@ -351,7 +357,7 @@
                                                   <p class="mt-2 mb-0 text-sm text-muted-color text-center">
                                                     PDF, JPG, PNG, JPEG, DOC, CSV, XML, XMLX, XLS, XLSX (max 10MB)
                                                   </p>
-                                                </div>
+                                                </button>
                                               }
                                             </ng-template>
 
@@ -394,7 +400,7 @@
                                                               <p-button
                                                                 icon="fa-sharp fa-regular fa-xmark text-sm leading-none"
                                                                 (click)="onRemoveTemplatingFile(file, removeCallback, i)"
-                                                                class="!text-sm !leading-none"
+                                                                styleClass="!text-sm !leading-none"
                                                                 label="Cancelar"
                                                                 text
                                                                 severity="danger"
@@ -439,7 +445,7 @@
                                                                       />
                                                                       <p-button
                                                                         icon="fa-sharp fa-regular fa-xmark text-sm leading-none"
-                                                                        class="!text-sm !leading-none"
+                                                                        styleClass="!text-sm !leading-none"
                                                                         label="Cancelar"
                                                                         text
                                                                         severity="danger"
@@ -458,7 +464,7 @@
                                                         <p-autocomplete
                                                           [ngModel]="filesTag()"
                                                           (ngModelChange)="filesTag.set($event)"
-                                                          styleClass="w-full mt-2"
+                                                          class="w-full mt-2"
                                                           inputId="file-tags-ac"
                                                           multiple
                                                           (completeMethod)="search2($event)"
@@ -469,7 +475,7 @@
                                                           @for (permission of permissions; track permission.key) {
                                                             <label
                                                               [for]="permission.key"
-                                                              class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-border border border-surface hover:bg-emphasis transition-colors select-none"
+                                                              class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-lg border border-surface hover:bg-emphasis transition-colors select-none"
                                                               >
                                                               <i class="text-color" [ngClass]="permission.icon" aria-hidden="true"></i>
                                                               <div class="flex-1 text-sm leading-5 text-color">
@@ -498,19 +504,19 @@
                                                             >
                                                             <div class="flex items-center gap-2">
                                                               <p-skeleton shape="circle" size="1.5rem" />
-                                                              <p-skeleton width="10rem" height="1.5rem" styleClass="flex-1" />
+                                                              <p-skeleton width="10rem" height="1.5rem" class="flex-1" />
                                                             </div>
                                                             <div>
-                                                              <p-skeleton width="12rem" height="1rem" styleClass="mb-2" />
+                                                              <p-skeleton width="12rem" height="1rem" class="mb-2" />
                                                               <p-skeleton width="100%" height="2.5rem" />
                                                             </div>
                                                             <div>
-                                                              <p-skeleton width="8rem" height="1rem" styleClass="mb-2" />
+                                                              <p-skeleton width="8rem" height="1rem" class="mb-2" />
                                                               <p-skeleton width="100%" height="10rem" borderRadius="0.5rem" />
                                                             </div>
                                                             <div class="flex items-center gap-2">
-                                                              <p-skeleton width="100%" height="2.5rem" styleClass="flex-1" />
-                                                              <p-skeleton width="100%" height="2.5rem" styleClass="flex-1" />
+                                                              <p-skeleton width="100%" height="2.5rem" class="flex-1" />
+                                                              <p-skeleton width="100%" height="2.5rem" class="flex-1" />
                                                             </div>
                                                           </div>
                                                         }
@@ -584,15 +590,14 @@
                                                                                 <p-button icon="fa-sharp fa-regular fa-xmark" rounded text severity="secondary" aria-label="Cerrar" pTooltip="Cerrar" tooltipPosition="bottom" />
                                                                               </div>
                                                                               <div>
-                                                                                <div class="text-muted-color leading-6">Correo electrónico</div>
+                                                                                <div class="text-color font-medium leading-6">Correo electrónico</div>
                                                                                 <div class="flex items-start gap-3 mt-2">
                                                                                   <p-autocomplete
                                                                                     [ngModel]="emailChips()"
                                                                                     (ngModelChange)="emailChips.set($event)"
                                                                                     inputId="invite-email-ac"
                                                                                     aria-label="Correo electrónico"
-                                                                                    styleClass="w-full"
-                                                                                    class="flex-1"
+                                                                                    class="flex-1 w-full"
                                                                                     multiple
                                                                                     (onSelect)="search($event)"
                                                                                     [typeahead]="false"
@@ -601,7 +606,7 @@
                                                                                   </div>
                                                                                 </div>
                                                                                 <div>
-                                                                                  <div class="font-medium leading-6 text-muted-color">Miembros</div>
+                                                                                  <div class="text-color font-medium leading-6">Miembros</div>
                                                                                   <div class="mt-4 flex flex-col gap-4">
                                                                                     <div class="flex items-center gap-2 justify-between">
                                                                                       <p-avatar
@@ -675,7 +680,7 @@
                                                                                               </div>
                                                                                             </div>
                                                                                             <div>
-                                                                                              <div class="font-medium leading-6 text-muted-color">Copiar enlace</div>
+                                                                                              <div class="text-color font-medium leading-6">Copiar enlace</div>
                                                                                               <div class="flex items-center gap-3 mt-2">
                                                                                                 <input
                                                                                                   type="text"
@@ -698,8 +703,7 @@
                                                                                                 [ngModel]="userProfiles()"
                                                                                                 (ngModelChange)="userProfiles.set($event)"
                                                                                                 [options]="userProfilesOptions"
-                                                                                                class="w-full"
-                                                                                                styleClass="flex-1 w-full"
+                                                                                                class="flex-1 w-full"
                                                                                                 />
                                                                                                 <div class="flex flex-col gap-4 mt-6">
                                                                                                   <div class="flex items-center gap-3">
@@ -737,7 +741,7 @@
                                                                                               <div
                                                                                                 class="flex-1 border border-surface rounded-3xl p-6 flex flex-col gap-6"
                                                                                                 >
-                                                                                                <div class="font-medium text-color text-2xl text-center">
+                                                                                                <div class="font-medium text-color text-2xl leading-8 text-center">
                                                                                                   Olvidé mi contraseña
                                                                                                 </div>
                                                                                                 <div>
@@ -772,7 +776,7 @@
                                                                                                   </div>
                                                                                                   <div class="mt-4 flex gap-2">
                                                                                                     <div class="flex-1">
-                                                                                                      <label for="price-min-val" class="leading-6 text-color"
+                                                                                                      <label for="price-min-val" class="text-color font-medium leading-6"
                                                                                                         >Valor mínimo</label
                                                                                                         >
                                                                                                         <p-inputnumber
@@ -783,11 +787,11 @@
                                                                                                           mode="currency"
                                                                                                           currency="USD"
                                                                                                           locale="en-US"
-                                                                                                          styleClass="w-full"
+                                                                                                          class="w-full"
                                                                                                           />
                                                                                                         </div>
                                                                                                         <div class="flex-1">
-                                                                                                          <label for="price-max-val" class="leading-6 text-color"
+                                                                                                          <label for="price-max-val" class="text-color font-medium leading-6"
                                                                                                             >Valor máximo</label
                                                                                                             >
                                                                                                             <p-inputnumber
@@ -797,7 +801,7 @@
                                                                                                               mode="currency"
                                                                                                               currency="USD"
                                                                                                               locale="en-US"
-                                                                                                              styleClass="w-full"
+                                                                                                              class="w-full"
                                                                                                               />
                                                                                                             </div>
                                                                                                           </div>

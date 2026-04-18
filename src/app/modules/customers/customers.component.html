@@ -6,7 +6,7 @@
     </div>
   </div>
   <p-button
-    icon="fa-sharp fa-solid fa-circle text-[var(--p-green-500)]"
+    icon="fa-sharp fa-solid fa-circle text-green-500"
     label="950 Usuarios activos"
     outlined
     severity="secondary"
@@ -65,15 +65,14 @@
                   ? 'success'
                   : 'danger'
               "
-              styleClass="w-fit"
+              class="w-fit"
             >
               <p-avatar
                 [image]="data.image"
                 [label]="!data.image ? data.capName : ''"
+                class="rounded-lg overflow-hidden flex"
                 [ngClass]="{
-                  '!bg-primary-100 !text-primary-950 text-xs font-medium':
-                    !data.image,
-                  'rounded-lg overflow-hidden flex': true
+                  '!bg-primary-100 !text-primary-950 text-xs font-medium': !data.image
                 }"
               />
             </p-overlayBadge>
@@ -116,7 +115,7 @@
                 : 'info'
             "
             [value]="data.status"
-            styleClass="font-medium"
+            class="font-medium"
           />
         </td>
         <td>

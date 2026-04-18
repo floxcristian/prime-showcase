@@ -840,6 +840,34 @@ Si se invierten o separan, el focus ring del bell se expone.
 
 ## Changelog
 
+### 2026-04-18 — §10 Incremental Hydration P1: tabla de transacciones de Overview
+
+- **Quinto bloque `@defer (hydrate on viewport)` aplicado.** Triage P1 evaluo 7 candidatos secundarios; solo uno paso el corte enterprise-grade ("defer the cost, not the content"):
+
+  | Componente | Bloque diferido | Razon | Trigger |
+  |---|---|---|---|
+  | `overview.component.html:91-186` | Card "Transacciones" (`p-table` + paginator + `p-menu` popover por fila + avatares + tags) | Below-fold bajo el chart de Crypto Analytics; el `p-table` con paginator y menus per-row carga state machinery moderada que no es critica al bootstrap | viewport |
+
+- **Rechazados con razon (no todos los P1 evaluados se merecen defer).**
+  - **`overview.component.html` "Mi Billetera" (`p-metergroup`)** — visualizacion standalone liviana; el overhead de un IntersectionObserver adicional + skeleton placeholder no compensa el ahorro marginal de hidratacion. Big-tech principle: un widget pequeno aislado no justifica un defer dedicado.
+  - **`cards.component.html` price range slider + OTP** — fragmentos pequenos individuales. Dos defers separados meterian dos IO + dos skeletons por ahorrar ~1 kB de hidratacion combinada. Si fueran una seccion contigua larga, si; sueltos, no.
+  - **`customers.component.html` y `inbox.component.html` tablas** — son el contenido **principal** de su ruta, above-fold. Diferir contenido principal castiga LCP y mete flash de skeleton. Big-tech lo paginaria server-side, no lo diferiria.
+
+- **`@placeholder` con `<p-skeleton>` dimensionado para zero CLS.** Header (1.5rem) + table-header strip (2.5rem) + 5 row strips (3.5rem c/u con mb-2) + paginator (2rem con mt-4). Total ~30rem de interior — coincide con la altura real del card al hidratar.
+- **Bundle delta medido (vs post-P0 baseline registrado en entry anterior):**
+
+  | Chunk | Pre P1 | Post P1 | Delta |
+  |---|---|---|---|
+  | `overview-component` (browser) | 27.30 kB / 7.57 kB | 28.08 kB / 7.76 kB | +0.78 kB / +0.19 kB |
+  | Initial total | 705.45 kB | 740.99 kB | +35.54 kB (atribuible al font Inter Variable bundlado en commit 4919bc6, no al P1) |
+  | Initial total post-cleanup | — | 714.29 kB | -26.70 kB vs medicion previa, tras migrar 49 atributos `styleClass` deprecados a `class` y extraer constantes de skeleton rows |
+
+  El delta puro del defer en overview es ~0.78 kB raw — costo del bloque condicional + skeleton placeholder. Auditoria honesta del initial total (`git show 4919bc6 -- angular.json package.json`): el commit P0 anadio `@fontsource-variable/inter` a `package.json` y la linea `node_modules/@fontsource-variable/inter/index.css` a `angular.json` styles. La medicion "post-P0" 705 kB del entry anterior subestimo este peso; la baseline real post-P0 es ~740 kB. **El P1 mismo no mueve el initial total** — solo el chunk lazy del overview (+0.78 kB). Tras el cleanup enterprise-grade (PrimeNG 21 deprecation de `styleClass`, codemod 49→0 ocurrencias, indentacion normalizada en overview, constantes `transactionsRowsPerPage` / `carouselSkeletonSlots` extraidas), el initial total cae a 714.29 kB — 35 kB de margen sobre el warn budget de 750 kB. El siguiente trabajo de tipografia (subset Latin-only, swap-to-system pre-load) sigue siendo la palanca mas grande de aqui en adelante.
+
+- **Verificacion en SSR.** `curl http://localhost:4000/` (overview es la ruta default) devuelve 2 markers de defer en el HTML: `<!--ngh=d0-->` (P0 chart) + `<!--ngh=d1-->` (P1 transactions table). Confirma que ambos bloques se SSR-renderizan completos y posponen hidratacion hasta IntersectionObserver disparar.
+- **No regresiones.** `npm test` 91/91 verde. `npm run lint` 0 errores. `npm run build` exit 0, dentro de budget. `npm run test:ssr:smoke` 4/4 cookie cases verde.
+- **Wallet meter (`p-metergroup`) queda como sibling fuera del defer.** El layout `<div class="flex gap-6 xl:flex-row flex-col">` envuelve ambos cards; el `@defer` se aplica solo al primero (transactions), preservando el layout flex sin colapsar el segundo card cuando el placeholder se renderiza.
+
 ### 2026-04-18 — §10 Incremental Hydration aplicada a 4 bloques heavy
 
 - **`withIncrementalHydration()` activado en `app.config.ts`.** Sin esta feature, `@defer (hydrate on <trigger>)` se trata como `@defer` normal (CSR) y la hidratacion ocurre eager en el bootstrap. Activarla cambia el contrato del SSR: el server emite el HTML completo del bloque diferido, anota markers `ngh=dN` (visibles en DOM como comentarios), y la hidratacion (registro de event listeners + creacion de instancias de componentes Angular) se posterga hasta que el trigger se cumple. Co-existencia con `withEventReplay()` validada — se usan en el mismo `provideClientHydration()`.

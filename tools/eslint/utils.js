@@ -263,9 +263,42 @@ function createClassAttrVisitor(context, checkFn) {
   };
 }
 
+/**
+ * Collects every class string declared on a given Element node, across all
+ * class-carrying attributes (static `class`, `styleClass`, `*StyleClass`,
+ * `routerLinkActive`, and bound equivalents including `[ngClass]`).
+ *
+ * Used by element-level rules (e.g. "this `<i>` icon must have aria-hidden"
+ * or "this element's duotone class and its hero-size token must co-exist").
+ * Rules that just inspect one class string at a time should use
+ * `createClassAttrVisitor` instead.
+ *
+ * @param {object} node — Angular template Element node (from template-parser)
+ * @returns {string[]} — all class strings found on the element
+ */
+function collectElementClassStrings(node) {
+  /** @type {string[]} */
+  const result = [];
+
+  for (const attr of node.attributes || []) {
+    if (!CLASS_ATTRIBUTE_NAMES.has(attr.name)) continue;
+    if (typeof attr.value !== 'string') continue;
+    result.push(attr.value);
+  }
+
+  for (const input of node.inputs || []) {
+    if (!BOUND_CLASS_ATTR_NAMES.has(input.name)) continue;
+    if (!input.value) continue;
+    result.push(...extractClassStrings(input.value));
+  }
+
+  return result;
+}
+
 module.exports = {
   createClassAttrVisitor,
   extractClassStrings,
+  collectElementClassStrings,
   computePreciseLocForStatic,
   offsetToLoc,
   CLASS_ATTRIBUTE_NAMES,

@@ -33,21 +33,13 @@ export interface MeterItem {
   text: string;
 }
 
-export interface ChartDataset {
-  type: 'bar';
-  label: string;
-  backgroundColor: string;
-  hoverBackgroundColor: string;
-  data: number[];
-  barThickness: number;
-  borderRadius?: { topLeft: number; topRight: number };
-  borderSkipped?: boolean;
-}
+import type { ChartData } from 'chart.js';
 
-export interface OverviewChartData {
-  labels?: string[];
-  datasets: ChartDataset[];
-}
+// Chart.js's own typing — handles every valid dataset field for bar charts
+// (backgroundColor, hoverBackgroundColor, barThickness, borderRadius,
+// borderSkipped, etc.) without maintaining a parallel local shape that drifts
+// from the library's API.
+export type OverviewChartData = ChartData<'bar', number[]>;
 
 export interface ChartDatasetResult {
   labels: string[] | undefined;

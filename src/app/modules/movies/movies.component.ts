@@ -75,6 +75,10 @@ export class MoviesComponent {
 
   numVisible = signal(CAROUSEL_NUM_VISIBLE);
 
+  // Stable array reference for the carousel placeholder skeleton grid.
+  // Matches CAROUSEL_NUM_VISIBLE for visual parity with the hydrated state.
+  protected readonly carouselSkeletonSlots = Array.from({ length: CAROUSEL_NUM_VISIBLE });
+
   maxPage = computed(() =>
     Math.max(0, Math.ceil((this.carouselData().length - this.numVisible()) / CAROUSEL_NUM_SCROLL))
   );

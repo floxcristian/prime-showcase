@@ -6,7 +6,7 @@
     [options]="options"
     aria-label="Filtro de películas"
     />
-    <div class="flex gap-2.5 items-center">
+    <div class="flex gap-2 items-center">
       <p-iconfield iconPosition="left">
         <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
         <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
@@ -85,7 +85,7 @@
                             <p-progressbar
                               [value]="item.watchedPercent"
                               [showValue]="false"
-                              styleClass="!h-1.5 !bg-surface-950 dark:!bg-surface-50 !rounded-full"
+                              class="!h-1.5 !bg-surface-950 dark:!bg-surface-50 !rounded-full"
                               valueStyleClass="p-progressbar-value !bg-surface-0 dark:!bg-surface-950 !rounded-full"
                               />
                             </div>
@@ -126,7 +126,7 @@
           </div>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-          @for (i of [0, 1, 2, 3, 4]; track i) {
+          @for (_ of carouselSkeletonSlots; track $index; let i = $index) {
             <div
               [ngClass]="{
                 'hidden md:block': i >= 2,
@@ -134,8 +134,8 @@
               }"
               >
               <p-skeleton height="7.5rem" borderRadius="0.5rem" />
-              <p-skeleton width="80%" height="1rem" styleClass="mt-2" />
-              <p-skeleton width="60%" height="0.75rem" styleClass="mt-1" />
+              <p-skeleton width="80%" height="1rem" class="mt-2" />
+              <p-skeleton width="60%" height="0.75rem" class="mt-1" />
             </div>
           }
         </div>

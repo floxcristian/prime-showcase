@@ -22,6 +22,7 @@ import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { TRANSPARENT_TABLE_TOKENS } from '../../shared/tokens/table-tokens';
 import { InboxNavGroup, InboxMessage } from './models/inbox.interface';
 import {
   INBOX_NAV_GROUPS,
@@ -84,15 +85,7 @@ export class InboxComponent {
   }
 
   tableTokens = {
-    header: {
-      background: 'transparent',
-      padding: '1rem',
-    },
-    headerCell: {
-      background: 'transparent',
-    },
-    row: {
-      background: 'transparent',
-    },
+    ...TRANSPARENT_TABLE_TOKENS,
+    header: { ...TRANSPARENT_TABLE_TOKENS.header, padding: '1rem' },
   };
 }

@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -11,11 +17,15 @@ import { RouterOutlet } from '@angular/router';
 export class AppComponent {
   title = 'prime-showcase';
 
+  private platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
+
   // WCAG 2.4.1 bypass block: skip link al <main> renderizado por MainComponent.
-  // El default del browser tras `#hash` es scrollear pero no focar consistentemente
-  // (Safari/Firefox varian). Focamos explicitamente para portabilidad.
+  // Focamos explícitamente porque el default del browser tras `#hash` no es
+  // consistente (Safari/Firefox varían). SSR-guarded: el servidor no tiene DOM.
   skipToMain(e: Event) {
     e.preventDefault();
-    document.getElementById('main-content')?.focus();
+    if (!isPlatformBrowser(this.platformId)) return;
+    this.document.getElementById('main-content')?.focus();
   }
 }
