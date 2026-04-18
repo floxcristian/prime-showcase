@@ -8,6 +8,7 @@ import { provideRouter, withPreloading } from '@angular/router';
 import {
   provideClientHydration,
   withEventReplay,
+  withIncrementalHydration,
 } from '@angular/platform-browser';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
@@ -54,7 +55,15 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes, withPreloading(BrowserPreloadingStrategy)),
     provideHttpClient(withFetch()),
-    provideClientHydration(withEventReplay()),
+    // Incremental Hydration: el SSR sigue emitiendo HTML completo, pero los bloques
+    // marcados con `@defer (hydrate on <trigger>)` posponen la hidratacion (registro
+    // de event listeners + creacion de instancias de componentes) hasta que el
+    // trigger se cumple. Pareo: viewport defiere hasta que IntersectionObserver
+    // detecta el bloque visible. Beneficio: TTI mas bajo en rutas con contenido
+    // pesado fuera de la primera mitad del viewport (chart, carousel, file upload,
+    // panel lateral xl). Sin esta feature, `@defer hydrate` se trata como `@defer`
+    // normal y la hidratacion ocurre eagerly. Ref: ADR-001 §10
+    provideClientHydration(withEventReplay(), withIncrementalHydration()),
     // Bootstrap AppConfigService before first render so it reads the theme
     // cookie (SSR via REQUEST, browser via document.cookie) and applies the
     // `p-dark` class on <html> — which is what Angular serializes into the

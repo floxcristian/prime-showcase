@@ -42,6 +42,8 @@ Leer SIEMPRE antes de generar código:
 - [Focus ring: `:focus-visible` vs `:focus-within` vs `:has()`](#focus-ring-focus-visible-vs-focus-within-vs-has)
 - [PrimeNG imports: Module vs Standalone](#primeng-imports-module-vs-standalone)
 - [Charts (Chart.js via PrimeNG)](#charts-chartjs-via-primeng)
+- [Loading states: `<p-skeleton>` always](#loading-states-p-skeleton-always)
+- [Incremental Hydration (`@defer hydrate`)](#incremental-hydration-defer-hydrate)
 - [ESLint y enforcement del design system](#eslint-y-enforcement-del-design-system)
 - [Lo que NO hacer](#lo-que-no-hacer)
 
@@ -1186,6 +1188,79 @@ themeEffect = effect(() => { if (this.configService.transitionComplete()) this.i
 ```
 
 Reglas: colores siempre con `getPropertyValue()` | Legend custom HTML, no Chart.js built-in | Tooltip con `external` callback | Grid solo eje Y, color condicional dark mode | `barThickness: 32` | `borderRadius` solo en último dataset del stack
+
+## Loading states: `<p-skeleton>` always
+
+**REGLA CRITICA:** Cualquier estado de carga — placeholders de `@defer`, contenido pendiente de HTTP, listas que se rellenan async — usa `<p-skeleton>` de PrimeNG. **Nunca** divs con `animate-pulse`, spinners custom ni `bg-surface-*` sin animacion como sustituto.
+
+**Por que:** la base del repo es enterprise-grade (cards con HTTP en cada tarjeta). Una sola convencion de loading state evita inconsistencia visual al escanear, hereda animacion `wave` del tema Aura (sin escribir keyframes), y respeta dark mode automaticamente. Patron alineado con Linear, Vercel, Stripe — un solo skeleton primitive aplicado en todos los contextos.
+
+```html
+<!-- Bloque generico (rectangulo con borde rounded-lg) -->
+<p-skeleton width="100%" height="20rem" />
+
+<!-- Avatar / dot circular -->
+<p-skeleton shape="circle" size="2.5rem" />
+
+<!-- Linea de texto compacta (con margen al siguiente bloque) -->
+<p-skeleton width="60%" height="1rem" styleClass="mt-2" />
+
+<!-- Sustituye exactamente al borde del componente real (file upload card) -->
+<p-skeleton width="100%" height="10rem" borderRadius="0.5rem" />
+```
+
+**Imports:** `Skeleton` es standalone (sin sufijo Module) — agregar a `PRIME_MODULES`:
+```typescript
+import { Skeleton } from 'primeng/skeleton';
+const PRIME_MODULES = [..., Skeleton];
+```
+
+**Dimensiones del placeholder:** medir el componente real renderizado y reproducir esas alturas/anchos. Un placeholder que cambia de tamano al hidratarse causa CLS — el objetivo es zero layout shift.
+
+**`aria-busy="true"`** en el contenedor del placeholder. Lectores de pantalla anuncian "ocupado" sin enumerar cada skeleton individual.
+
+## Incremental Hydration (`@defer hydrate`)
+
+El proyecto usa `withIncrementalHydration()` (configurado en [app.config.ts](src/app/app.config.ts)). Esto activa el comportamiento de `@defer (hydrate on <trigger>)`:
+
+| Aspecto | Sin Incremental Hydration | Con Incremental Hydration |
+|---|---|---|
+| SSR del bloque | Renderiza placeholder | Renderiza contenido completo |
+| Bytes enviados | Solo `@placeholder` | Contenido SSR + markers `ngh=dN` |
+| Hidratacion | Eager al bootstrap | Lazy hasta que dispara el trigger |
+| Beneficio | Bundle inicial mas pequeno (CSR) | TTI mas rapido + main thread libre (SSR) |
+
+**Cuando aplicar `@defer (hydrate on <trigger>)`:**
+
+| Trigger | Cuando usar | Ejemplo |
+|---|---|---|
+| `viewport` | Bloque pesado (chart, carousel, file upload, panel lateral xl) | Charts de Chart.js, Carousel con muchos items |
+| `interaction` | Bloque que solo importa al click/hover | Menu contextual con 50 items |
+| `idle` | Bloque secundario que puede esperar a que el browser este libre | Footer, sidebar de "tambien podria interesarte" |
+| `timer(Nms)` | Animacion diferida o efecto progresivo | Banner de "newsletter" 3s post-load |
+| `never` | Solo SSR, nunca hidratar (estatico puro) | Footer legal, copyright |
+
+**Cuando NO aplicar:**
+- Componentes pequenos (`< 5kB` de JS) — el overhead de IO + hydration scheduling no compensa
+- Bloques above-the-fold critical (header, primer card) — siempre hidratan instantly de todos modos
+- Bloques con `effect()` que reaccionan a estado externo desde el primer frame (ej: theme switcher)
+
+**Patron del repo:**
+```html
+@defer (hydrate on viewport) {
+  <!-- contenido pesado real -->
+} @placeholder {
+  <div aria-busy="true">
+    <p-skeleton width="100%" height="20rem" />
+  </div>
+}
+```
+
+El `@placeholder` es opcional pero se debe incluir siempre porque:
+1. CSR fallback: si el cliente navega a la ruta sin SSR (client-side route change), el placeholder es lo que se ve hasta el trigger
+2. Documentacion visual: comunica al lector la dimension/forma esperada del bloque
+
+**Verificado en:** overview chart, movies carousel, chat right panel, cards file upload. Ref: ADR-001 §10.
 
 ## ESLint y enforcement del design system
 

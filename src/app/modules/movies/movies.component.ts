@@ -1,4 +1,5 @@
 // Angular
+import { NgClass } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -20,6 +21,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ProgressBar } from 'primeng/progressbar';
 import { Carousel } from 'primeng/carousel';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { Skeleton } from 'primeng/skeleton';
 import { Movie, CarouselMovie, CarouselResponsiveOption } from './models/movie.interface';
 import {
   CAROUSEL_NUM_VISIBLE,
@@ -29,7 +31,7 @@ import {
   POPULAR_MOVIES,
 } from './constants/movies-data';
 
-const NG_MODULES = [FormsModule];
+const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
   SelectButton,
   AvatarModule,
@@ -41,6 +43,7 @@ const PRIME_MODULES = [
   ProgressBar,
   Carousel,
   OverlayBadgeModule,
+  Skeleton,
 ];
 @Component({
   selector: 'app-movies',

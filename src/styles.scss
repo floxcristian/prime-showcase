@@ -2,6 +2,20 @@
 @plugin 'tailwindcss-primeui';
 
 /*
+ * Inter Variable — fuente principal del showcase oficial de PrimeNG (y de Linear,
+ * Vercel, Retool, Rippling). Self-hosted via @fontsource-variable/inter para evitar
+ * dependencia de Google Fonts CDN (privacy + offline). El axis `wght` variable cubre
+ * 100–900 en un único woff2, por lo que cargar pesos 400/500/600 no multiplica requests.
+ * El `@font-face` se carga vía angular.json → styles[] (mismo patrón que Font Awesome)
+ * para evitar la deprecación de `@import` en Dart Sass 3. Stack fallback prioriza
+ * `system-ui` (Segoe/SF/Roboto) para render inmediato mientras carga el woff2.
+ */
+html {
+  font-family: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/*
  * Tailwind v4 dark variant → class-based, driven by `.p-dark` on <html>.
  *
  * Tailwind v4 defaults to `prefers-color-scheme: dark` for the `dark:` variant.

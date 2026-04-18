@@ -23,6 +23,7 @@ import { MenuModule } from 'primeng/menu';
 import { MeterGroupModule } from 'primeng/metergroup';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { SelectButton } from 'primeng/selectbutton';
+import { Skeleton } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
@@ -52,6 +53,7 @@ const PRIME_MODULES = [
   Tag,
   OverlayBadgeModule,
   DatePickerModule,
+  Skeleton,
 ];
 
 @Component({

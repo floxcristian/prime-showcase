@@ -12,6 +12,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
+import { Skeleton } from 'primeng/skeleton';
 import { Textarea } from 'primeng/textarea';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
@@ -41,6 +42,7 @@ const PRIME_MODULES = [
   Textarea,
   ToggleSwitchModule,
   TooltipModule,
+  Skeleton,
 ];
 const LOCAL_COMPONENTS = [EmptyStateComponent];
 

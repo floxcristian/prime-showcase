@@ -690,6 +690,75 @@ Archivos: `side-menu.component.html`, `cards.component.html`, `chat.component.ht
 - **`showcase/hover-requires-cursor-pointer`** (`tools/eslint/rules/hover-requires-cursor-pointer.js`) — regla complementaria que asegura que todo elemento con estado `hover:*` declare tambien `cursor-pointer`. Refuerza la regla del style guide ("todo elemento con cursor-pointer DEBE tener hover y viceversa") evitando hovers huerfanos sin feedback visual de "clickable".
 - Code review sigue siendo la ultima capa: cualquier override justificado (ej. `transition-transform` con comentario) se valida manualmente.
 
+### 10. Incremental Hydration (`withIncrementalHydration` + `@defer hydrate`)
+
+**Decision (2026-04-18):** activar `withIncrementalHydration()` en `provideClientHydration()` y aplicar `@defer (hydrate on viewport)` a 4 bloques heavy: chart de overview, carousel de movies, panel derecho de chat, file upload de cards.
+
+**Por que ahora — el contexto del repo es enterprise-grade.** El proyecto es la base para sistemas con cards que cargan datos via HTTP en cada tarjeta (dashboards, paneles administrativos, vistas multi-widget). En ese contexto, la hidratacion eager del bootstrap es cara: Angular debe instanciar TODOS los componentes del arbol antes de que el usuario pueda interactuar con cualquier parte. Para una pagina como `/cards` con 10+ cards independientes, el TTI se estira por componentes que el usuario probablemente nunca vera (panel derecho oculto bajo xl, cards a 3 scrolls de distancia). Incremental Hydration corrige esto: el SSR sigue emitiendo el HTML completo (no hay flash), pero la hidratacion se posterga hasta que el bloque entra en viewport.
+
+**Mecanica:**
+1. `withIncrementalHydration()` cambia el contrato del SSR: cada `@defer (hydrate on <trigger>)` se serializa con markers `ngh=dN` (visibles como comentarios en el DOM).
+2. El cliente lee esos markers al bootstrap y NO instancia los componentes diferidos. El DOM existe (renderizado por el server) pero no esta vivo — sin event listeners, sin reactividad de Angular.
+3. Cuando el trigger del bloque se cumple (IntersectionObserver para `viewport`, `requestIdleCallback` para `idle`, etc.), Angular descarga el chunk de hydration y "promueve" el subtree a hidratado: registra event listeners, crea instancias de componentes, conecta signals.
+4. Con `withEventReplay()` co-habitando, los clicks/focus que el usuario hizo durante la ventana pre-hidratacion se replayan automaticamente — el usuario nunca pierde una interaccion.
+
+**Triggers seleccionados:**
+
+| Bloque | Componente | Trigger | Razon |
+|---|---|---|---|
+| Crypto Analytics chart | `overview.component.html:47-77` | `viewport` | Chart.js es ~165 kB en chunk dedicado y ~80 ms de init JS — caro, baja prioridad si esta below-the-fold |
+| Carousel "Seguir viendo" | `movies.component.html:30-117` | `viewport` | Primer card del modulo, suele estar in-viewport en desktop pero se beneficia de defer en mobile (height bajo) |
+| Panel derecho de chat | `chat.component.html:216-351` | `viewport` | `xl:block hidden` — invisible bajo xl. Sin defer, se hidrata aunque nunca se muestre |
+| File upload card | `cards.component.html:264-492` | `viewport` | Card mid-page con FileUpload + AutoComplete + RadioButton; usuario debe scroll para verla |
+
+**Por que no `interaction` o `idle`:**
+- `interaction` es para bloques que solo importan al click/hover (menus contextuales, modales). Los bloques diferidos aqui son contenido visual, no acciones.
+- `idle` permite hidratar antes de viewport, util para below-the-fold de baja prioridad sin penalizar UX. Para bloques deliberadamente caros (chart, carousel) preferimos esperar a viewport para no consumir CPU en background mientras el usuario lee above-the-fold.
+
+**`@placeholder` con `<p-skeleton>`:**
+- Cada `@defer` lleva un `@placeholder` con `<p-skeleton>` que reproduce las dimensiones del bloque real. Esto cubre el CSR fallback (client-side route changes sin SSR) y previene CLS al hidratar.
+- Decision de convencion (no del feature): cualquier loading state del proyecto (placeholder de defer, contenido HTTP pendiente, lista async) usa `<p-skeleton>` de PrimeNG. Razon: una sola primitive evita inconsistencia visual al escanear, hereda animacion `wave` del tema Aura, respeta dark mode automaticamente. Documentado en CLAUDE.md ("Loading states: `<p-skeleton>` always").
+
+**Bundle deltas medidos (raw / transfer):**
+
+| Chunk | Pre @defer | Post @defer | Delta |
+|---|---|---|---|
+| `cards-component` | 174.23 kB / 33.02 kB | 174.32 kB / 33.04 kB | +0.09 kB / +0.02 kB |
+| `movies-component` | 38.30 kB / 8.80 kB | 39.34 kB / 9.13 kB | +1.04 kB / +0.33 kB |
+| `chat-component` | 27.05 kB / 6.84 kB | 28.02 kB / 7.10 kB | +0.97 kB / +0.26 kB |
+| `overview-component` | 26.82 kB / 7.45 kB | 27.30 kB / 7.57 kB | +0.48 kB / +0.12 kB |
+| Initial total | 705.45 kB / 159.00 kB | 705.45 kB / 159.00 kB | 0 kB |
+
+**Lectura honesta:** el chunk del componente padre crece marginalmente porque `Skeleton` debe estar en el chunk eager (el placeholder debe poder renderizarse antes que el bloque diferido). El initial total NO se mueve — los componentes son lazy (preloaded por `BrowserPreloadingStrategy`), asi que el "ahorro de bytes" no es la metrica relevante. **El beneficio es work scheduling**: la hidratacion de cada bloque (creacion de instancias, registro de listeners, init de Chart.js / Carousel / FileUpload) sale del critical path del bootstrap. En el caso del panel xl de chat, si la viewport es < xl nunca se hidrata.
+
+**Verificacion:**
+- `npm test` — 91/91 verde (sin cambios de tests, no hay nuevo behavior que validar mas alla del visual).
+- `npm run lint` — 0 errores nuevos.
+- `npm run build` — dentro del budget. Build time 16.3s vs 10.9s pre-feature; el aumento es el procesamiento adicional de markers en el SSR build.
+- `npm run test:ssr:smoke` — 4/4 cookie cases siguen pasando. La feature no rompe el contrato de SSR.
+- Browser inspection (Playwright): el HTML SSR contiene comentarios `ngh=d0` y `nghm` — markers de Angular para "deferred block + hydration manifest". Confirmacion empirica de que el contrato `withIncrementalHydration` esta en efecto.
+
+**Cuando aplicar a futuro:**
+
+| Trigger | Cuando usar | Ejemplo |
+|---|---|---|
+| `viewport` | Bloque pesado below-the-fold o condicionalmente visible (responsive hidden) | Charts, carousels, panels xl-only |
+| `interaction` | Bloque que solo importa al click/hover | Menu contextual con muchos items |
+| `idle` | Bloque secundario que puede esperar al main thread libre | Footer, "tambien podria interesarte" |
+| `timer(Nms)` | Animacion diferida o efecto progresivo | Banner de newsletter 3s post-load |
+| `never` | Solo SSR, nunca hidratar (estatico puro) | Footer legal, copyright |
+
+**Cuando NO aplicar:**
+- Componentes < 5 kB de JS — el overhead de IO + hydration scheduling no compensa.
+- Bloques above-the-fold critical (header, primer card visible) — siempre hidratan instantly de todos modos.
+- Bloques con `effect()` que reaccionan a estado externo desde el primer frame (ej: theme switcher).
+
+**Limitacion conocida — code splitting parcial:** el `@defer` de Angular intenta extraer los componentes diferidos a chunks separados, pero solo si esos componentes NO son referenciados eagerly en el componente padre. Si `FileUpload` esta en `PRIME_MODULES = [..., FileUpload]` del componente, Angular lo bundlea en el chunk del padre — el split no ocurre. Para code splitting completo habria que mover el import del componente diferido a un componente standalone separado y referenciarlo solo desde dentro del `@defer`. Aceptable trade-off por ahora: la mayor parte del beneficio de Incremental Hydration es work scheduling, no bytes.
+
+**Co-habitacion con `withEventReplay()`:** ambas features se invocan en el mismo `provideClientHydration(withEventReplay(), withIncrementalHydration())`. EventReplay captura clicks/focus que el usuario hace durante la ventana pre-hidratacion y los replayea al hidratar — esencial para no perder interacciones cuando el usuario click-ea un boton dentro de un bloque diferido antes de que se hidrate. Sin EventReplay, esos clicks se perderian silenciosamente.
+
+**Compatibilidad con zoneless:** validado. Incremental Hydration es independiente del CD strategy. Funciona con `provideZonelessChangeDetection()` activo.
+
 ## Alternativas evaluadas y descartadas
 
 Durante la auditoria 2026-04-16 se probaron tres refactors buscando una solucion menos "parche". Se documentan aqui para que futuros desarrolladores no repitan el experimento sin contexto.
@@ -770,6 +839,35 @@ Si se invierten o separan, el focus ring del bell se expone.
 - [Issue interno #4](https://github.com/floxcristian/prime-showcase/issues/4) — seguimiento para remover workaround §6
 
 ## Changelog
+
+### 2026-04-18 — §10 Incremental Hydration aplicada a 4 bloques heavy
+
+- **`withIncrementalHydration()` activado en `app.config.ts`.** Sin esta feature, `@defer (hydrate on <trigger>)` se trata como `@defer` normal (CSR) y la hidratacion ocurre eager en el bootstrap. Activarla cambia el contrato del SSR: el server emite el HTML completo del bloque diferido, anota markers `ngh=dN` (visibles en DOM como comentarios), y la hidratacion (registro de event listeners + creacion de instancias de componentes Angular) se posterga hasta que el trigger se cumple. Co-existencia con `withEventReplay()` validada — se usan en el mismo `provideClientHydration()`.
+- **4 bloques `@defer (hydrate on viewport)` aplicados.** Triage P0 priorizo bloques con peso JS alto y baja probabilidad de visibilidad inmediata:
+
+  | Componente | Bloque diferido | Razon | Trigger |
+  |---|---|---|---|
+  | `overview.component.html:47-77` | Card "Crypto Analytics" (Chart.js bar chart) | Chart.js ~165 kB en chunk dedicado, pesado de inicializar; usuario puede no scrollear hasta verlo | viewport |
+  | `movies.component.html:30-117` | Card "Seguir viendo" (Carousel multi-item) | PrimeNG Carousel ~28 kB + 5 items con imagenes; primer card del modulo | viewport |
+  | `chat.component.html:216-351` | Panel derecho (perfil + miembros + media) | `xl:block hidden` — invisible bajo viewport xl, costoso hidratar para no mostrarse | viewport |
+  | `cards.component.html:264-492` | Card "Subir archivos" (FileUpload + AutoComplete + RadioButton) | FileUpload ~12 kB de logica + DOM denso; mid-page scroll-into | viewport |
+
+- **`@placeholder` con `<p-skeleton>` en cada bloque.** Convencion enterprise: cualquier loading state (placeholder de defer, contenido pendiente de HTTP, lista async) usa `<p-skeleton>` de PrimeNG. Razon: una sola primitive evita inconsistencia visual al escanear, hereda la animacion `wave` del tema Aura sin escribir keyframes, respeta dark mode, y mantiene el design system limpio. Documentado en CLAUDE.md bajo "Loading states: `<p-skeleton>` always". Cada placeholder reproduce las dimensiones del componente real para zero CLS al hidratar.
+- **Bundle deltas medidos (raw / transfer):**
+
+  | Chunk | Pre @defer | Post @defer | Delta |
+  |---|---|---|---|
+  | `cards-component` | 174.23 kB / 33.02 kB | 174.32 kB / 33.04 kB | +0.09 kB / +0.02 kB |
+  | `movies-component` | 38.30 kB / 8.80 kB | 39.34 kB / 9.13 kB | +1.04 kB / +0.33 kB |
+  | `chat-component` | 27.05 kB / 6.84 kB | 28.02 kB / 7.10 kB | +0.97 kB / +0.26 kB |
+  | `overview-component` | 26.82 kB / 7.45 kB | 27.30 kB / 7.57 kB | +0.48 kB / +0.12 kB |
+  | Initial total | 705.45 kB / 159.00 kB | 705.45 kB / 159.00 kB | 0 kB |
+
+  **Lectura honesta del delta:** el chunk del componente padre crece marginalmente porque `Skeleton` tiene que estar en el chunk eager (el placeholder debe poder renderizarse antes que el bloque diferido). El initial total no se mueve porque los componentes son lazy (preloaded por `BrowserPreloadingStrategy`, no eager). El beneficio NO es bytes — es **work scheduling**: la hidratacion de cada bloque diferido (creacion de instancias, registro de DOM listeners, inicializacion de Chart.js / Carousel / FileUpload) sale del critical path del bootstrap y se difiere hasta que el bloque entra en viewport. En el caso del panel xl de chat, si la viewport es < xl nunca se hidrata.
+
+- **Verificacion en SSR.** Smoke test (`npm run test:ssr:smoke`) sigue pasando los 4 casos de cookie. SSR HTML inspeccionado en browser via Playwright contiene comentarios `ngh=d0` y `nghm` — markers de Angular para "bloque diferido + metadata de hydration manifest". Confirmacion de que el server-side rendering incluye los markers que el cliente lee para gating.
+- **No regresiones.** `npm test` 91/91 verde. `npm run lint` 0 errores nuevos. `npm run build` dentro del budget (705 kB initial < 750 kB warn). Build time 16.3s (vs 10.9s pre-feature; el aumento es por el procesamiento adicional de los markers en el SSR build, aceptable).
+- **Patron de aplicacion futuro.** Documentado en CLAUDE.md bajo "Incremental Hydration (`@defer hydrate`)" — incluye tabla de cuando usar cada trigger (viewport / interaction / idle / timer / never), reglas de cuando NO aplicar (componentes `< 5 kB`, above-the-fold critical, bloques con `effect()` desde primer frame), y obligatoriedad del `@placeholder` con `<p-skeleton>` para CSR fallback en client-side route changes.
 
 ### 2026-04-17 (noche — ronda 3 de revision, anti-parche)
 

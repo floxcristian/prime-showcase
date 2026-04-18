@@ -29,6 +29,7 @@ import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { RadioButton } from 'primeng/radiobutton';
 import { Select } from 'primeng/select';
 import { SelectButton } from 'primeng/selectbutton';
+import { Skeleton } from 'primeng/skeleton';
 import { Slider } from 'primeng/slider';
 import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -55,6 +56,7 @@ const PRIME_MODULES = [
   RadioButton,
   Select,
   SelectButton,
+  Skeleton,
   Slider,
   Tag,
   ToggleSwitchModule,
