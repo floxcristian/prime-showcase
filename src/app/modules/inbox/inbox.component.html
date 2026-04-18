@@ -41,7 +41,7 @@
         <p-progressbar [value]="75">
           <ng-template #content let-value>
             <span
-              class="w-full text-center text-sm font-normal text-primary-contrast leading-5 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              class="absolute inset-0 flex items-center justify-center text-sm font-normal text-primary-contrast leading-none"
               >4 días restantes</span
               >
             </ng-template>
@@ -121,27 +121,29 @@
                   </div>
                 </ng-template>
                 <ng-template #body let-data>
-                  <tr>
+                  <tr class="group">
                     <td class="w-4">
                       <p-tableCheckbox [value]="data" />
                     </td>
 
-                    <td class="w-4 p-2">
-                      <div
-            (click)="$event.stopPropagation(); toggleBookmark(data)"
-            (keydown.enter)="$event.stopPropagation(); toggleBookmark(data)"
-            (keydown.space)="$event.preventDefault(); $event.stopPropagation(); toggleBookmark(data)"
-                        role="button"
-                        tabindex="0"
-                        [attr.aria-label]="data.bookmarked ? 'Quitar marcador' : 'Agregar marcador'"
-                        >
+                    <td class="w-10">
+                      <button
+                        type="button"
+                        (click)="$event.stopPropagation(); toggleBookmark(data)"
+                        [attr.aria-label]="data.bookmarked ? 'Quitar destacado' : 'Destacar'"
+                        [pTooltip]="data.bookmarked ? 'Quitar destacado' : 'Destacar'"
+                        tooltipPosition="top"
+                        [ngClass]="{
+                          'text-primary': data.bookmarked,
+                          'text-muted-color hover:text-color': !data.bookmarked
+                        }"
+                        class="w-8 h-8 inline-flex items-center justify-center bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                      >
                         <i
-              [ngClass]="
-                data.bookmarked ? 'fa-sharp fa-solid fa-bookmark' : 'fa-sharp fa-regular fa-bookmark'
-              "
+                          [ngClass]="data.bookmarked ? 'fa-sharp fa-solid fa-star' : 'fa-sharp fa-regular fa-star'"
                           aria-hidden="true"
                         ></i>
-                      </div>
+                      </button>
                     </td>
                     <td>
                       <div class="flex items-center">
@@ -182,9 +184,45 @@
                         }
                       </td>
 
-                      <td class="w-16">
-                        <div class="text-right text-sm leading-5 text-muted-color">
+                      <td class="w-28 relative">
+                        <div
+                          class="text-right text-sm leading-5 text-muted-color transition-opacity opacity-100 group-hover:opacity-0 group-focus-within:opacity-0"
+                        >
                           {{ data.time }}
+                        </div>
+                        <div
+                          class="absolute inset-0 flex items-center justify-end gap-1 pr-2 transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto"
+                        >
+                          <button
+                            type="button"
+                            (click)="$event.stopPropagation()"
+                            aria-label="Marcar como leído"
+                            pTooltip="Marcar como leído"
+                            tooltipPosition="bottom"
+                            class="w-8 h-8 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                          >
+                            <i class="fa-sharp fa-regular fa-envelope" aria-hidden="true"></i>
+                          </button>
+                          <button
+                            type="button"
+                            (click)="$event.stopPropagation()"
+                            aria-label="Archivar"
+                            pTooltip="Archivar"
+                            tooltipPosition="bottom"
+                            class="w-8 h-8 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                          >
+                            <i class="fa-sharp fa-regular fa-inbox" aria-hidden="true"></i>
+                          </button>
+                          <button
+                            type="button"
+                            (click)="$event.stopPropagation()"
+                            aria-label="Eliminar"
+                            pTooltip="Eliminar"
+                            tooltipPosition="bottom"
+                            class="w-8 h-8 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                          >
+                            <i class="fa-sharp fa-regular fa-trash" aria-hidden="true"></i>
+                          </button>
                         </div>
                       </td>
                     </tr>
