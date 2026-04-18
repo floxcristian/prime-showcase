@@ -37,6 +37,7 @@
           (ngModelChange)="selectedSidebarOption.set($event)"
           [options]="sidebarOptions"
           class="w-full px-6 py-3 flex-1"
+          styleClass="flex-1 w-full"
         >
           <ng-template #item let-item>
             <span class="text-sm">{{ item }}</span>
