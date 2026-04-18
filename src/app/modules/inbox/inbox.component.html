@@ -129,8 +129,9 @@
                     <td class="w-10">
                       <button
                         type="button"
-                        (click)="$event.stopPropagation(); toggleBookmark(data)"
-                        [attr.aria-label]="data.bookmarked ? 'Quitar destacado' : 'Destacar'"
+                        (click)="toggleBookmark(data)"
+                        aria-label="Destacar"
+                        [attr.aria-pressed]="data.bookmarked"
                         [pTooltip]="data.bookmarked ? 'Quitar destacado' : 'Destacar'"
                         tooltipPosition="top"
                         [ngClass]="{
@@ -186,16 +187,15 @@
 
                       <td class="w-28 relative">
                         <div
-                          class="text-right text-sm leading-5 text-muted-color transition-opacity opacity-100 group-hover:opacity-0 group-focus-within:opacity-0"
+                          class="text-right text-sm leading-5 text-muted-color transition-opacity opacity-100 group-hover:opacity-0 group-focus-within:opacity-0 pointer-coarse:opacity-0"
                         >
                           {{ data.time }}
                         </div>
                         <div
-                          class="absolute inset-0 flex items-center justify-end gap-1 pr-2 transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto"
+                          class="absolute inset-0 flex items-center justify-end gap-1 pr-2 transition-opacity opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto pointer-coarse:opacity-100 pointer-coarse:pointer-events-auto"
                         >
                           <button
                             type="button"
-                            (click)="$event.stopPropagation()"
                             aria-label="Marcar como leído"
                             pTooltip="Marcar como leído"
                             tooltipPosition="bottom"
@@ -205,7 +205,6 @@
                           </button>
                           <button
                             type="button"
-                            (click)="$event.stopPropagation()"
                             aria-label="Archivar"
                             pTooltip="Archivar"
                             tooltipPosition="bottom"
@@ -215,7 +214,6 @@
                           </button>
                           <button
                             type="button"
-                            (click)="$event.stopPropagation()"
                             aria-label="Eliminar"
                             pTooltip="Eliminar"
                             tooltipPosition="bottom"

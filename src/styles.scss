@@ -64,6 +64,28 @@
 }
 
 /*
+ * p-autocomplete[multiple] chip removal: el × interno recibe tabindex=0 (Tab se desplaza
+ * input → chip₁× → chip₂× → ...). El ring global envolvia solo el glifo ~14px y se veia
+ * desalineado. Big-tech envuelve la pastilla entera en vez del ícono (GitHub labels,
+ * Linear tags, Notion multi-select). `:has(> .p-chip-remove-icon:focus-visible)` eleva
+ * el ring al contenedor `.p-autocomplete-chip` — keyboard-only, consistente con el
+ * contrato `:focus-visible` del resto del archivo (clic de mouse sobre el × destruye
+ * el chip, el ring nunca es el visual correcto ahí).
+ * Ref: ADR-001 §5c.
+ */
+.p-autocomplete-chip > .p-chip-remove-icon:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.p-autocomplete-chip:has(> .p-chip-remove-icon:focus-visible) {
+  outline: var(--p-focus-ring-width) var(--p-focus-ring-style) var(--p-focus-ring-color);
+  outline-offset: var(--p-focus-ring-offset);
+  box-shadow: var(--p-focus-ring-shadow);
+  transition-property: none;
+}
+
+/*
  * Normalización de line-height para PrimeNG.
  *
  * Varios componentes PrimeNG usan inline-flex + align-items:center pero no definen
