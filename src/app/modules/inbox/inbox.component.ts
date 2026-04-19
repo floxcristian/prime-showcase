@@ -84,7 +84,7 @@ export class InboxComponent {
     );
   }
 
-  tableTokens = {
+  readonly tableTokens = {
     ...TRANSPARENT_TABLE_TOKENS,
     header: { ...TRANSPARENT_TABLE_TOKENS.header, padding: '1rem' },
   };

@@ -139,6 +139,17 @@ Pixel-perfect alignment para un dot indicator de 2.5px que necesita un borde vis
 
 ---
 
+### EX-006: Spacing `px-12 py-8` en panel de marca del login
+
+| Campo          | Valor                                                  |
+|----------------|--------------------------------------------------------|
+| **Donde**      | `login.component.html` (línea 3, `<aside>` del panel de marca) |
+| **Estado**     | Excepción aceptada — padding asimétrico para marketing-page full-height |
+
+El panel izquierdo del login ocupa toda la altura de la pantalla (100vh) y ~40% del ancho en desktop. Las cards de datos usan `p-6` (24px) porque son pequeñas y viven en grids. En un contenedor de ~620px de ancho `p-6` deja el contenido pegado a las esquinas; `p-8` añade apenas 8px por lado, casi imperceptible. Stripe, Linear y Supabase usan 48px horizontal en sus paneles laterales de login — ese es el aire que distingue una marketing-page de una card de datos. El eje vertical se mantiene en `py-8` (32px, ya excepcionado para chat) para no exceder el viewport en 720p (con `py-12` el headline rompía a 3 líneas y el footer chocaba con el último stat).
+
+---
+
 ## Limitaciones del Análisis Estático (ESLint)
 
 ### LINT-001: Expresiones dinámicas en `[ngClass]` y `[class]` no se escanean

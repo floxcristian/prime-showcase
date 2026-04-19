@@ -1,14 +1,14 @@
 <div
   [ngClass]="{
-    'w-auto': isSlimMenu(),
-    'w-72': !isSlimMenu()
+    'w-auto': isSlimMenu,
+    'w-72': !isSlimMenu
   }"
   class="rounded-2xl p-5 bg-surface-50 dark:bg-surface-900 h-full flex flex-col justify-between"
 >
   <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu(),
-      'w-auto': !isSlimMenu()
+      'w-12 flex flex-col items-center': isSlimMenu,
+      'w-auto': !isSlimMenu
     }"
   >
     <div class="flex items-center gap-3">
@@ -72,8 +72,8 @@
       </div>
       <div
         [ngClass]="{
-          hidden: isSlimMenu(),
-          block: !isSlimMenu()
+          hidden: isSlimMenu,
+          block: !isSlimMenu
         }"
         class="text-surface-950 dark:text-surface-0 font-medium text-3xl"
       >
@@ -85,7 +85,7 @@
         @for (navItem of sampleAppsSidebarNavs; track navItem.title) {
           <li>
             <a
-              [pTooltip]="isSlimMenu() ? navItem.title : ''"
+              [pTooltip]="isSlimMenu ? navItem.title : ''"
               [routerLink]="navItem.url"
               class="px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-colors select-none"
               routerLinkActive="text-primary-contrast bg-primary hover:bg-primary-emphasis"
@@ -94,23 +94,23 @@
               [attr.aria-current]="rla.isActive ? 'page' : null"
               [ngClass]="{
                 'text-muted-color hover:bg-emphasis bg-transparent': !rla.isActive,
-                'w-12 justify-center py-4': isSlimMenu(),
-                'w-full': !isSlimMenu()
+                'w-12 justify-center py-4': isSlimMenu,
+                'w-full': !isSlimMenu
               }"
             >
               <i [class]="navItem.icon" aria-hidden="true"></i>
               <span
                 [ngClass]="{
-                  hidden: isSlimMenu(),
-                  'font-medium leading-8': !isSlimMenu()
+                  hidden: isSlimMenu,
+                  'font-medium leading-8': !isSlimMenu
                 }"
                 aria-hidden="true"
                 >・</span
               >
               <span
                 [ngClass]="{
-                  hidden: isSlimMenu(),
-                  'font-medium leading-none': !isSlimMenu()
+                  hidden: isSlimMenu,
+                  'font-medium leading-none': !isSlimMenu
                 }"
                 >{{ navItem.title }}</span
               >
@@ -122,8 +122,8 @@
   </div>
   <div
     [ngClass]="{
-      'w-12 flex flex-col items-center': isSlimMenu(),
-      'w-auto': !isSlimMenu()
+      'w-12 flex flex-col items-center': isSlimMenu,
+      'w-auto': !isSlimMenu
     }"
   >
     <nav aria-label="Acciones secundarias">
@@ -132,25 +132,48 @@
           <button
             #settingsTrigger
             type="button"
-            [pTooltip]="isSlimMenu() ? settingsNavTitle : ''"
+            [pTooltip]="isSlimMenu ? settingsNavTitle : ''"
             [attr.aria-label]="settingsNavTitle"
             aria-haspopup="dialog"
             [attr.aria-expanded]="dashboardSidebarVisible()"
             (click)="dashboardSidebarVisible.set(true)"
             class="text-muted-color hover:bg-emphasis bg-transparent px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-colors select-none"
             [ngClass]="{
-              'w-12 justify-center py-4': isSlimMenu(),
-              'w-full': !isSlimMenu()
+              'w-12 justify-center py-4': isSlimMenu,
+              'w-full': !isSlimMenu
             }"
           >
             <i [class]="settingsNavIcon" aria-hidden="true"></i>
             <span
-              [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-8'"
+              [class]="isSlimMenu ? 'hidden' : 'font-medium leading-8'"
               aria-hidden="true"
               >・</span
             >
-            <span [class]="isSlimMenu() ? 'hidden' : 'font-medium leading-none'">{{
+            <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-none'">{{
               settingsNavTitle
+            }}</span>
+          </button>
+        </li>
+        <li>
+          <button
+            type="button"
+            [pTooltip]="isSlimMenu ? logoutNavTitle : ''"
+            [attr.aria-label]="logoutNavTitle"
+            (click)="logout()"
+            class="text-muted-color hover:bg-emphasis bg-transparent px-4 py-1 flex items-center gap-1 cursor-pointer text-base rounded-lg transition-colors select-none"
+            [ngClass]="{
+              'w-12 justify-center py-4': isSlimMenu,
+              'w-full': !isSlimMenu
+            }"
+          >
+            <i [class]="logoutNavIcon" aria-hidden="true"></i>
+            <span
+              [class]="isSlimMenu ? 'hidden' : 'font-medium leading-8'"
+              aria-hidden="true"
+              >・</span
+            >
+            <span [class]="isSlimMenu ? 'hidden' : 'font-medium leading-none'">{{
+              logoutNavTitle
             }}</span>
           </button>
         </li>
@@ -158,7 +181,7 @@
     </nav>
     <p-divider />
     <div
-      [class]="isSlimMenu() ? 'justify-center' : 'gap-3'"
+      [class]="isSlimMenu ? 'justify-center' : 'gap-3'"
       class="flex items-center"
     >
       <p-avatar
@@ -170,12 +193,12 @@
       <div>
         <div
           [class]="
-            isSlimMenu() ? 'hidden' : 'text-base font-medium text-color leading-5'
+            isSlimMenu ? 'hidden' : 'text-base font-medium text-color leading-5'
           "
         >
           Robin Jonas
         </div>
-        <div [class]="isSlimMenu() ? 'hidden' : 'text-sm text-muted-color mt-1'">
+        <div [class]="isSlimMenu ? 'hidden' : 'text-sm text-muted-color mt-1'">
           hi&#64;robin.xyz
         </div>
       </div>

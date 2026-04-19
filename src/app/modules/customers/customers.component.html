@@ -121,7 +121,7 @@
         <td>
           <div class="flex justify-end w-full">
             <p-button
-              (click)="displayPopover($event, op)"
+              (onClick)="displayPopover($event, op)"
               icon="fa-sharp fa-regular fa-magnifying-glass"
               rounded
               outlined
@@ -157,14 +157,14 @@
           label="Detalles"
           size="small"
           outlined
-          (click)="op.hide()"
+          (onClick)="op.hide()"
         ></p-button>
         <p-button
           label="Eliminar"
           severity="danger"
           size="small"
           outlined
-          (click)="op.hide()"
+          (onClick)="op.hide()"
         ></p-button>
       </div>
     </ng-template>

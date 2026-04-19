@@ -119,7 +119,7 @@ export class CustomersComponent {
 
   selectedRows = signal<Customer[]>([]);
 
-  tableTokens = TRANSPARENT_TABLE_TOKENS;
+  readonly tableTokens = TRANSPARENT_TABLE_TOKENS;
 
   displayPopover(e: MouseEvent, op: Popover): void {
     op.hide();

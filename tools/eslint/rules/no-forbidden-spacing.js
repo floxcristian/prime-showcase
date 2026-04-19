@@ -60,6 +60,7 @@ const ALLOWED_EXCEPTIONS = new Set([
   'gap-7',     // EX-005: chat layout, between gap-6 and gap-8
   'gap-8',     // EX-005: chat message area, accepted pre-existing pattern
   'py-8',      // EX-005: chat message area, accepted pre-existing pattern
+  'px-12',     // EX-006: login brand panel — 48px horizontal al estilo Stripe/Linear/Supabase. Vertical usa py-8 (ya permitido) para no exceder el viewport 720p.
   'p-[1px]',   // EX-004: badge indicator pixel-perfect alignment
   'mt-3',      // Pre-existing: fine spacing in list/card layouts
   'mb-5',      // Pre-existing: chat media section spacing

@@ -29,7 +29,6 @@
       [options]="timeOptions"
       aria-label="Período de tiempo"
       [allowEmpty]="false"
-      (onChange)="changeSelect()"
     />
     <div class="flex items-center gap-2">
       <p-button label="Descargar" icon="fa-sharp fa-regular fa-download" iconPos="right" />
@@ -100,7 +99,7 @@
               aria-label="Más opciones"
               pTooltip="Más opciones"
               tooltipPosition="bottom"
-              (click)="transactionsMenu.toggle($event)"
+              (onClick)="transactionsMenu.toggle($event)"
               aria-haspopup="true"
               aria-controls="overlay_menu_transactions"
             />
@@ -211,7 +210,7 @@
               aria-label="Más opciones"
               pTooltip="Más opciones"
               tooltipPosition="bottom"
-              (click)="menu.toggle($event)"
+              (onClick)="menu.toggle($event)"
               aria-haspopup="true"
               aria-controls="overlay_menu"
             />

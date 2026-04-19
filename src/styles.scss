@@ -100,6 +100,36 @@ html {
 }
 
 /*
+ * p-password toggleMask: el SVG del ojito es clickeable pero PrimeNG 21 no le
+ * aplica `cursor: pointer`. Override mínimo — afecta solo al icono de mostrar/
+ * ocultar contraseña, no al resto del componente.
+ */
+.p-password-toggle-mask-icon {
+  cursor: pointer;
+}
+
+/*
+ * Browser autofill override — Chrome/Edge/Safari pintan los inputs autofilled
+ * con un amarillo/celeste (`-webkit-autofill`) que ignora todo el theming del
+ * site. No se puede cambiar con `background` normal: el navegador fuerza el
+ * color via `!important` interno. La única solución estándar es pintar un
+ * `box-shadow inset` opaco del color del surface real + color de texto via
+ * `-webkit-text-fill-color` (regular `color` también es sobrescrito).
+ *
+ * Referencia: chromium bug 953689 (wontfix), Stripe/Linear usan este patrón.
+ * Duración 5000s evita el fade-out amarillo que Chrome anima por defecto.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--p-inputtext-background) inset;
+  -webkit-text-fill-color: var(--p-inputtext-color);
+  caret-color: var(--p-inputtext-color);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/*
  * Normalización de line-height para PrimeNG.
  *
  * Varios componentes PrimeNG usan inline-flex + align-items:center pero no definen

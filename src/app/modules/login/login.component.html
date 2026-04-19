@@ -1,0 +1,376 @@
+<!-- Panel de marca (solo desktop) -->
+<aside
+  class="hidden lg:flex flex-col justify-between w-1/2 xl:w-5/12 px-12 py-8 bg-primary text-primary-contrast relative overflow-hidden"
+  aria-label="Acerca de Implementos"
+>
+  <!-- Patrón decorativo: círculos concéntricos sutiles -->
+  <div
+    class="absolute inset-0 opacity-10 pointer-events-none select-none"
+    aria-hidden="true"
+  >
+    <svg
+      class="absolute -top-20 -right-20 w-96 h-96"
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="1" />
+      <circle cx="100" cy="100" r="60" stroke="currentColor" stroke-width="1" />
+      <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="1" />
+      <circle cx="100" cy="100" r="100" stroke="currentColor" stroke-width="1" />
+    </svg>
+    <svg
+      class="absolute -bottom-32 -left-16 w-96 h-96"
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="1" />
+      <circle cx="100" cy="100" r="70" stroke="currentColor" stroke-width="1" />
+      <circle cx="100" cy="100" r="100" stroke="currentColor" stroke-width="1" />
+    </svg>
+  </div>
+
+  <!-- Cabecera: logo + nombre -->
+  <div class="relative z-10 flex items-center gap-3">
+    <div
+      class="w-11 h-11 border border-primary-contrast rounded-xl flex items-center justify-center"
+    >
+      <svg
+        width="20"
+        height="24"
+        viewBox="0 0 20 24"
+        fill="currentColor"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M14.65 11.0645L13.1283 10.7253L14.3119 12.4216V17.6803L18.3698 14.2876V8.52002L16.5099 9.19856L14.65 11.0645Z"
+        />
+        <path
+          d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
+        />
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
+        />
+        <path d="M14.311 20.9058L16.5091 18.7005V16.4952L14.311 18.3612V20.9058Z" />
+        <path d="M5.51868 20.9058L3.32062 18.7005V16.4952L5.51868 18.3612V20.9058Z" />
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
+        />
+        <path
+          d="M8.56283 10.5575L1.29232 7.84329L0.277832 3.60242L6.53385 4.11132L8.73191 10.5575H8.56283Z"
+        />
+        <path
+          d="M11.4372 10.5575L18.7077 7.84329L19.7222 3.60242L13.2971 4.11132L11.2681 10.5575H11.4372Z"
+        />
+        <path d="M13.8041 3.60283L17.3548 3.26356L14.9876 0.888672H12.6205L13.8041 3.60283Z" />
+        <path d="M6.02676 3.60283L2.47604 3.26356L4.84318 0.888672H7.21033L6.02676 3.60283Z" />
+      </svg>
+    </div>
+    <div class="text-3xl font-semibold leading-normal">Implementos</div>
+  </div>
+
+  <!-- Hero: copy + testimonial (reducido de 7 a 4 bloques: Linear/Supabase pattern) -->
+  <div class="relative z-10 flex flex-col gap-8">
+    <div class="flex flex-col gap-3">
+      <h2 class="text-3xl font-semibold leading-normal">
+        Mueve repuestos por todo Chile<br />sin perder de vista un pedido.
+      </h2>
+      <p class="leading-6 opacity-80 max-w-md">
+        Desde la cotización del mecánico hasta el DTE en el SII, sin saltar
+        entre sistemas.
+      </p>
+    </div>
+
+    <!-- Testimonial: una voz real reemplaza el grid de acrónimos (Retool/Linear pattern) -->
+    <figure class="flex flex-col gap-4">
+      <blockquote
+        class="text-xl font-medium leading-7 max-w-md relative pl-4 border-l-2 border-primary-contrast"
+      >
+        «{{ testimonial.quote }}»
+      </blockquote>
+      <figcaption class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-full border border-primary-contrast flex items-center justify-center shrink-0 text-sm font-semibold leading-5"
+          aria-hidden="true"
+        >
+          {{ testimonial.initials }}
+        </div>
+        <!-- Compañía como anchor de credibilidad (Linear/Vercel pattern) — la
+             persona es la voz, pero la empresa es la prueba. -->
+        <div class="text-sm leading-5">
+          <div class="font-medium">{{ testimonial.company }}</div>
+          <div class="opacity-80">
+            {{ testimonial.name }} · {{ testimonial.role }} ·
+            {{ testimonial.city }}
+          </div>
+        </div>
+      </figcaption>
+    </figure>
+
+    <!-- Stats strip: cifras agregadas que respaldan la voz individual -->
+    <dl
+      class="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-primary-contrast pt-4"
+      aria-label="Cifras de la plataforma"
+    >
+      @for (stat of stats; track stat.label) {
+        <div class="flex flex-col">
+          <dt class="text-sm leading-5 opacity-80 order-2">{{ stat.label }}</dt>
+          <dd class="text-2xl font-semibold leading-8 order-1">
+            {{ stat.value }}
+          </dd>
+        </div>
+      }
+    </dl>
+  </div>
+
+  <!-- Pie de panel: micro-badges de compliance -->
+  <div
+    class="relative z-10 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm leading-5 opacity-80"
+  >
+    <span>© 2026 Implementos</span>
+    <span class="flex items-center gap-2">
+      <i class="fa-sharp fa-regular fa-location-dot" aria-hidden="true"></i>
+      Chile
+    </span>
+  </div>
+</aside>
+
+<!-- Panel del formulario. `justify-center` centra el grupo form+soporte
+     verticalmente; `py-8` reserva padding simétrico con el aside (px-12 py-8)
+     y evita que el contenido toque los bordes en viewports cortos. -->
+<main
+  id="main-content"
+  class="flex-1 flex flex-col items-center justify-center py-8 px-6 relative"
+  aria-label="Formulario de acceso"
+>
+  <!-- Toggle de tema con crossfade entre iconos (Linear/Stripe pattern) -->
+  <p-button
+    (onClick)="toggleTheme()"
+    [pTooltip]="darkTheme() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    [attr.aria-label]="darkTheme() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+    [attr.aria-pressed]="darkTheme()"
+    rounded
+    text
+    severity="secondary"
+    class="absolute top-6 right-6"
+  >
+    <span
+      class="relative w-4 h-4 inline-flex items-center justify-center"
+      aria-hidden="true"
+    >
+      <i
+        class="fa-sharp fa-regular fa-moon absolute transition-opacity"
+        [class.opacity-0]="darkTheme()"
+        aria-hidden="true"
+      ></i>
+      <i
+        class="fa-sharp fa-regular fa-sun absolute transition-opacity"
+        [class.opacity-0]="!darkTheme()"
+        aria-hidden="true"
+      ></i>
+    </span>
+  </p-button>
+
+  <!-- Wrapper del grupo form+soporte. `gap-8` (32px) separa el soporte del CTA
+       — distancia intencional estilo "Don't have any account? Register" de
+       Realnest/Linear/Stripe: el link vive cerca del formulario (mismo grupo
+       visual), no pegado al footer. Dashboard interno, no buscamos capturar
+       registro por esta vía. -->
+  <div class="w-full max-w-md flex flex-col gap-8">
+    <div class="flex flex-col gap-6">
+    <!-- Cabecera móvil (desktop usa el panel izquierdo) -->
+    <div class="lg:hidden flex items-center gap-3">
+      <div
+        class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center"
+      >
+        <svg
+          width="20"
+          height="24"
+          viewBox="0 0 20 24"
+          fill="var(--p-primary-color)"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M14.65 11.0645L13.1283 10.7253L14.3119 12.4216V17.6803L18.3698 14.2876V8.52002L16.5099 9.19856L14.65 11.0645Z"
+          />
+          <path
+            d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
+          />
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
+          />
+        </svg>
+      </div>
+      <div class="text-2xl font-medium leading-8 text-color">Implementos</div>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <h1 class="text-3xl font-semibold leading-normal text-color">
+        Bienvenido de vuelta
+      </h1>
+      <p class="text-muted-color font-medium leading-normal">
+        Ingresa a tu cuenta para continuar.
+      </p>
+    </div>
+
+    <!-- Formulario -->
+    <form
+      #loginForm="ngForm"
+      (ngSubmit)="onSubmit()"
+      class="flex flex-col gap-5"
+      novalidate
+      [attr.aria-busy]="submitting()"
+    >
+      <!-- Correo -->
+      <div class="flex flex-col gap-2">
+        <label for="login-email" class="text-color font-medium leading-6">
+          Correo electrónico
+        </label>
+        <input
+          id="login-email"
+          name="email"
+          type="email"
+          inputmode="email"
+          enterkeyhint="next"
+          pInputText
+          class="w-full"
+          autocomplete="off webauthn"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          aria-required="true"
+          [invalid]="emailInvalid()"
+          [attr.aria-describedby]="emailInvalid() ? 'login-email-error' : null"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          (blur)="markEmailTouched()"
+          required
+        />
+        @if (emailInvalid()) {
+          <p-message
+            id="login-email-error"
+            severity="error"
+            variant="simple"
+            size="small"
+            icon="fa-sharp fa-solid fa-circle-exclamation text-lg"
+          >
+            {{ emailErrorMessage() }}
+          </p-message>
+        }
+      </div>
+
+      <!-- Contraseña -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <label for="login-password" class="text-color font-medium leading-6">
+            Contraseña
+          </label>
+          <!-- Link secundario — mismo tratamiento que "Contacta a soporte"
+               (muted + hover emphasis, no primary). Stripe/Linear/Vercel:
+               el único acento verde es el CTA. Hit area 44×44px vía negative
+               margin (patrón Uber): expande el tap target sin shiftear layout. -->
+          <button
+            type="button"
+            class="text-sm font-medium text-muted-color leading-5 cursor-pointer hover:text-muted-color-emphasis transition-colors select-none bg-transparent border-0 inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
+          >
+            Restablecer contraseña
+          </button>
+        </div>
+        <p-password
+          inputId="login-password"
+          name="password"
+          [feedback]="false"
+          [toggleMask]="true"
+          [fluid]="true"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+          (onBlur)="markPasswordTouched()"
+          [inputStyleClass]="passwordInvalid() ? 'ng-invalid ng-dirty' : ''"
+          [attr.aria-describedby]="passwordInvalid() ? 'login-password-error' : null"
+          autocomplete="off webauthn"
+        />
+        @if (passwordInvalid()) {
+          <p-message
+            id="login-password-error"
+            severity="error"
+            variant="simple"
+            size="small"
+            icon="fa-sharp fa-solid fa-circle-exclamation text-lg"
+          >
+            Ingresa tu contraseña para continuar.
+          </p-message>
+        }
+      </div>
+
+      <!-- Recordarme: solo label, sin caption. El patrón "mantener sesión"
+           es universalmente reconocido (Vercel, Linear, Supabase tampoco
+           lo explican). Default OFF en login.component.ts cubre el riesgo
+           del PC compartido sin añadir fricción al UI. -->
+      <div class="flex items-center gap-2">
+        <p-checkbox
+          inputId="login-remember"
+          name="remember"
+          [binary]="true"
+          [ngModel]="remember()"
+          (ngModelChange)="remember.set($event)"
+        />
+        <!-- Mismo peso (font-medium) y tamaño (16px) que "Correo electrónico"
+             y "Contraseña" — las 3 labels primarias del form comparten la
+             misma jerarquía tipográfica (Stripe/Linear pattern). -->
+        <label
+          for="login-remember"
+          class="text-color font-medium leading-6 hover:text-color-emphasis cursor-pointer select-none transition-colors"
+        >
+          Mantener sesión en este equipo
+        </label>
+      </div>
+
+      <!-- Submit: label/icon constantes — PrimeNG intercambia el ícono por el
+           spinner cuando [loading]=true. Evita que el texto del botón se
+           reflow entre "Iniciar sesión" y "Ingresando…" (Stripe/Linear). -->
+      <p-button
+        type="submit"
+        label="Iniciar sesión"
+        [loading]="submitting()"
+        [disabled]="!canSubmit()"
+        styleClass="w-full"
+      />
+
+      <!-- Estado en vivo para lectores de pantalla -->
+      <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        @if (submitting()) {
+          Iniciando sesión, por favor espera.
+        }
+      </div>
+    </form>
+    </div>
+
+    <!-- Link a soporte: solo la acción, sin frase envolvente. Stripe/Linear/
+         Notion: el usuario sabe por qué haría clic — la pregunta sobra.
+         Mismo tratamiento visual que "Restablecer contraseña" — coherencia
+         en todos los links secundarios de la vista. `self-center` lo centra
+         dentro del wrapper flex-col. -->
+    <button
+      type="button"
+      class="self-center text-sm font-medium text-muted-color leading-5 cursor-pointer hover:text-muted-color-emphasis transition-colors select-none bg-transparent border-0 inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
+    >
+      Contacta a soporte
+    </button>
+  </div>
+</main>

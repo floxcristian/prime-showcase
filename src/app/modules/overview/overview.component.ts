@@ -89,16 +89,17 @@ export class OverviewComponent {
   getCoinBadge(coin: string): CoinBadge {
     return this.coinBadges[coin as CoinKind];
   }
-  tableTokens = TRANSPARENT_TABLE_TOKENS;
+  readonly tableTokens = TRANSPARENT_TABLE_TOKENS;
 
   // Dependencies
   private platformId = inject(PLATFORM_ID);
   private configService = inject(AppConfigService);
 
   constructor() {
-    // Rebuild the chart once per completed dark-mode transition. The counter
-    // ticks post-View-Transition so CSS custom properties have flipped by the
-    // time Chart.js reads them via getComputedStyle.
+    // Rebuild the chart when either the time filter changes or a dark-mode
+    // transition completes. `themeChanged` ticks post-View-Transition so CSS
+    // custom properties have flipped by the time Chart.js reads them via
+    // getComputedStyle.
     //
     // `untracked` is load-bearing: setChartOptions() reads
     // `configService.darkTheme()` internally and we must NOT register that as
@@ -106,6 +107,7 @@ export class OverviewComponent {
     // transition callback applied `.p-dark`, and Chart.js would pick up the
     // previous theme's colors.
     effect(() => {
+      this.selectedTime();
       this.configService.themeChanged();
       untracked(() => this.initChart());
     });
@@ -414,10 +416,5 @@ export class OverviewComponent {
       data,
       labels,
     };
-  }
-
-  changeSelect(): void {
-    this.chartData.set(this.setChartData(this.selectedTime()));
-    this.chartOptions.set(this.setChartOptions());
   }
 }

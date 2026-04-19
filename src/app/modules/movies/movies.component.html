@@ -34,7 +34,7 @@
           <div class="flex items-center gap-2">
             <p-button
               [disabled]="page() === 0"
-              (click)="previousPage()"
+              (onClick)="previousPage()"
               icon="fa-sharp fa-regular fa-chevron-left"
               severity="secondary"
               outlined
@@ -44,7 +44,7 @@
               />
             <p-button
               [disabled]="page() >= maxPage()"
-              (click)="nextPage()"
+              (onClick)="nextPage()"
               icon="fa-sharp fa-regular fa-chevron-right"
               severity="secondary"
               outlined
@@ -108,7 +108,7 @@
                                 rounded
                                 pTooltip="Quitar de favoritos"
                                 tooltipPosition="bottom"
-                                (click)="$event.stopPropagation(); toggleCarouselBookmark(item)"
+                                (onClick)="$event.stopPropagation(); toggleCarouselBookmark(item)"
                                 />
                             }
                           </div>
@@ -186,7 +186,7 @@
                                 aria-label="Quitar de favoritos"
                                 pTooltip="Quitar de favoritos"
                                 tooltipPosition="bottom"
-                                (click)="$event.stopPropagation(); togglePopularBookmark(movie)"
+                                (onClick)="$event.stopPropagation(); togglePopularBookmark(movie)"
                                 />
                             }
                           </div>

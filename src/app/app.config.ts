@@ -31,8 +31,36 @@ import { AppConfigService } from './core/services/app-config/app-config.service'
 // Stripe, Vercel). Transiciones custom via Tailwind siguen funcionando.
 // Ref: ADR-001 §2
 const AppPreset = definePreset(Aura, {
+  // Error tone: Aura default usa {red.*} (Tailwind red) que se percibe como
+  // sangre. Preferimos rose (misma familia Tailwind, tono coral cercano a
+  // Apple HIG/iOS #FF3B30). Un solo shade para border + texto (Stripe/Linear/
+  // GitHub pattern): rose.500 light / rose.400 dark. No creamos colores —
+  // rose es una palette nativa del preset Aura.
+  components: {
+    message: {
+      colorScheme: {
+        light: {
+          error: {
+            simple: { color: '{rose.500}' },
+            color: '{rose.500}',
+            borderColor: '{rose.200}',
+          },
+        },
+        dark: {
+          error: {
+            simple: { color: '{rose.400}' },
+            color: '{rose.400}',
+          },
+        },
+      },
+    },
+  },
   semantic: {
     transitionDuration: '0s',
+    colorScheme: {
+      light: { formField: { invalidBorderColor: '{rose.500}' } },
+      dark: { formField: { invalidBorderColor: '{rose.400}' } },
+    },
     // Focus ring halo-only estilo Lara — single source of truth del design system.
     // Sobreescribe el default de Aura (outline + halo) por box-shadow puro, mas limpio
     // visualmente y alineado con Tailwind/Radix/Primer. Los tokens se emiten como CSS

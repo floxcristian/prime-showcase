@@ -190,7 +190,7 @@
                                 <div class="mt-2 text-color">Data Insights Ltd.</div>
                               </div>
                               <p-button
-                                (click)="jobApplication.set(!jobApplication())"
+                                (onClick)="jobApplication.set(!jobApplication())"
                                 [icon]="jobApplication() ? 'fa-sharp fa-solid fa-bookmark' : 'fa-sharp fa-regular fa-bookmark'"
                                 severity="secondary"
                                 outlined
@@ -309,7 +309,7 @@
                                                   >
                                                   <div class="flex gap-2">
                                                     <p-button
-                                                      (click)="chooseCallback()"
+                                                      (onClick)="chooseCallback()"
                                                       icon="fa-sharp fa-regular fa-images"
                                                       rounded
                                                       outlined
@@ -319,7 +319,7 @@
                                                       tooltipPosition="bottom"
                                                     ></p-button>
                                                     <p-button
-                                                      (click)="uploadEvent(uploadCallback)"
+                                                      (onClick)="uploadEvent(uploadCallback)"
                                                       icon="fa-sharp fa-regular fa-cloud-arrow-up"
                                                       rounded
                                                       outlined
@@ -330,7 +330,7 @@
                                                       tooltipPosition="bottom"
                                                     ></p-button>
                                                     <p-button
-                                                      (click)="clearCallback()"
+                                                      (onClick)="clearCallback()"
                                                       icon="fa-sharp fa-regular fa-xmark"
                                                       rounded
                                                       outlined
@@ -399,7 +399,7 @@
                                                               <p-badge value="Pendiente" severity="warn" />
                                                               <p-button
                                                                 icon="fa-sharp fa-regular fa-xmark text-sm leading-none"
-                                                                (click)="onRemoveTemplatingFile(file, removeCallback, i)"
+                                                                (onClick)="onRemoveTemplatingFile(file, removeCallback, i)"
                                                                 styleClass="!text-sm !leading-none"
                                                                 label="Cancelar"
                                                                 text
@@ -493,8 +493,8 @@
                                                             }
                                                           </div>
                                                           <div class="flex items-center gap-2">
-                                                            <button pButton label="Cancelar" outlined class="flex-1"></button>
-                                                            <button pButton label="Subir" class="flex-1"></button>
+                                                            <p-button label="Cancelar" outlined class="flex-1" styleClass="w-full" />
+                                                            <p-button label="Subir" class="flex-1" styleClass="w-full" />
                                                           </div>
                                                         </div>
                                                         } @placeholder {
@@ -768,7 +768,7 @@
                                                                                                     class="w-full [&>*]:flex-1 [&>*]:min-h-14 [&>*]:text-2xl"
                                                                                                     />
                                                                                                   </div>
-                                                                                                  <button pButton label="Cambiar contraseña" class="w-full"></button>
+                                                                                                  <p-button label="Cambiar contraseña" class="w-full" styleClass="w-full" />
                                                                                                 </div>
                                                                                                 <div class="border border-surface rounded-3xl p-6">
                                                                                                   <div class="text-color font-medium leading-6 mb-6">Rango de precio</div>
@@ -826,8 +826,8 @@
                                                                                                               </div>
                                                                                                             </div>
                                                                                                             <div class="flex items-center gap-3 flex-wrap [&>*]:flex-1 mt-6">
-                                                                                                              <button pButton label="Deshacer" outlined class="w-full"></button>
-                                                                                                              <button pButton label="Aleatorio" class="w-full"></button>
+                                                                                                              <p-button label="Deshacer" outlined styleClass="w-full" />
+                                                                                                              <p-button label="Aleatorio" styleClass="w-full" />
                                                                                                             </div>
                                                                                                           </div>
                                                                                                         </div>

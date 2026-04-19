@@ -7,6 +7,7 @@ import {
   computed,
   DestroyRef,
   inject,
+  linkedSignal,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -60,16 +61,15 @@ export class MoviesComponent {
   private destroyRef = inject(DestroyRef);
 
   search = signal<string | undefined>(undefined);
-  page = signal(0);
   value = signal('Inicio');
-  options: string[] = [
+  readonly options: string[] = [
     'Inicio',
     'Películas',
     'Series',
     'Recientes',
     'Mi Lista',
   ];
-  responsiveOptions: CarouselResponsiveOption[] = CAROUSEL_RESPONSIVE_OPTIONS;
+  readonly responsiveOptions: CarouselResponsiveOption[] = CAROUSEL_RESPONSIVE_OPTIONS;
   carouselData = signal<CarouselMovie[]>(CAROUSEL_MOVIES);
   popularMovies = signal<Movie[]>(POPULAR_MOVIES);
 
@@ -79,9 +79,18 @@ export class MoviesComponent {
   // Matches CAROUSEL_NUM_VISIBLE for visual parity with the hydrated state.
   protected readonly carouselSkeletonSlots = Array.from({ length: CAROUSEL_NUM_VISIBLE });
 
-  maxPage = computed(() =>
+  readonly maxPage = computed(() =>
     Math.max(0, Math.ceil((this.carouselData().length - this.numVisible()) / CAROUSEL_NUM_SCROLL))
   );
+
+  // linkedSignal auto-clamps `page` to [0, maxPage] whenever maxPage changes
+  // (viewport resize shrinks numVisible → maxPage drops → page clamps down).
+  // Writable, so prev/next can still mutate it directly.
+  readonly page = linkedSignal<number, number>({
+    source: this.maxPage,
+    computation: (max, previous) =>
+      Math.max(0, Math.min(previous?.value ?? 0, max)),
+  });
 
   constructor() {
     afterNextRender(() => this.initBreakpointListeners());
@@ -120,12 +129,7 @@ export class MoviesComponent {
     const update = () => {
       const match = mediaQueries.find(mq => mq.mql.matches);
       this.numVisible.set(match ? match.numVisible : CAROUSEL_NUM_VISIBLE);
-
-      // Clamp page if it exceeds the new maxPage after viewport change
-      const max = this.maxPage();
-      if (this.page() > max) {
-        this.page.set(max);
-      }
+      // `page` is a linkedSignal keyed on maxPage — no manual clamp needed.
     };
 
     mediaQueries.forEach(mq => mq.mql.addEventListener('change', update));

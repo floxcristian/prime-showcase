@@ -10,12 +10,13 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 // PrimeNG
 import { AvatarModule } from 'primeng/avatar';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 // App
+import { AuthService } from '../../core/services/auth/auth.service';
 import { SettingsDrawerComponent } from './settings-drawer/settings-drawer.component';
 // Models
 import { SidebarNavItem } from './models/sidebar-nav-item.interface';
@@ -37,14 +38,19 @@ const LOCAL_COMPONENTS = [SettingsDrawerComponent];
   },
 })
 export class SideMenuComponent {
-  isSlimMenu = signal(true);
-  sampleAppsSidebarNavs: SidebarNavItem[] = SIDEBAR_NAV_ITEMS;
-  settingsNavTitle = 'Configuración';
-  settingsNavIcon = 'fa-sharp fa-regular fa-gear';
+  // Constant layout mode. Promote to a signal if a toggle is added.
+  readonly isSlimMenu = true;
+  readonly sampleAppsSidebarNavs: SidebarNavItem[] = SIDEBAR_NAV_ITEMS;
+  readonly settingsNavTitle = 'Configuración';
+  readonly settingsNavIcon = 'fa-sharp fa-regular fa-gear';
+  readonly logoutNavTitle = 'Cerrar sesión';
+  readonly logoutNavIcon = 'fa-sharp fa-regular fa-arrow-right-from-bracket';
 
-  dashboardSidebarVisible = signal(false);
+  readonly dashboardSidebarVisible = signal(false);
 
   private injector = inject(Injector);
+  private auth = inject(AuthService);
+  private router = inject(Router);
   private settingsTriggerRef =
     viewChild<ElementRef<HTMLButtonElement>>('settingsTrigger');
 
@@ -55,5 +61,10 @@ export class SideMenuComponent {
       },
       { injector: this.injector },
     );
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigateByUrl('/login');
   }
 }
