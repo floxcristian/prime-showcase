@@ -587,34 +587,44 @@
 
 </aside>
 
-<!-- Panel del formulario. `justify-center` centra el grupo form+soporte
-     verticalmente; `py-8` reserva padding simétrico con el aside (px-12 py-8)
-     y evita que el contenido toque los bordes en viewports cortos. -->
+<!-- Panel del formulario. En desktop `lg:justify-center` centra el grupo
+     form+soporte verticalmente. En mobile el layout es top-aligned: hero
+     banner arriba + form debajo (no se centra verticalmente, fluye natural
+     desde el top como una landing page). -->
 <main
   id="main-content"
-  class="flex-1 flex flex-col items-center justify-center py-8 px-6 relative"
+  class="flex-1 flex flex-col items-center lg:justify-center relative"
   aria-label="Formulario de acceso"
 >
+  <!-- Hero banner mobile: fondo tornado + logo centrado + curva inferior
+       eliptica. Patron banking apps LATAM (Implementos/EPYSA, Mercado Pago,
+       Santander, BCI, Banco Estado): banner identity en top del form con un
+       borde inferior curvo sutil que suaviza la transicion primary → surface.
+       Oculto en desktop porque ahi el aside izquierdo ya cumple ese rol
+       (logo + marquee marketing). `h-48` (192px) da espacio proporcional al
+       logo `h-14` (56px ≈ 30% del banner). `shrink-0` evita que el banner
+       se comprima si el viewport es corto. -->
+  <div
+    class="login-mobile-hero lg:hidden w-full h-48 shrink-0 flex items-center justify-center"
+  >
+    <img
+      src="implementos-logo.svg"
+      alt="Implementos"
+      width="131"
+      height="44"
+      class="h-20 w-auto"
+    />
+  </div>
+
   <!-- Wrapper del grupo form+soporte. `gap-8` (32px) separa el soporte del CTA
        — distancia intencional estilo "Don't have any account? Register" de
        Realnest/Linear/Stripe: el link vive cerca del formulario (mismo grupo
        visual), no pegado al footer. Dashboard interno, no buscamos capturar
-       registro por esta vía. -->
-  <div class="w-full max-w-md flex flex-col gap-8">
+       registro por esta vía. `px-6 py-8` movido desde <main> a este wrapper:
+       el hero banner mobile necesita ser edge-to-edge (sin padding horizontal)
+       para que la curva se extienda de un borde al otro. -->
+  <div class="w-full max-w-md px-6 py-8 flex flex-col gap-8">
     <div class="flex flex-col gap-6">
-    <!-- Cabecera móvil (desktop usa el panel izquierdo). El logo ya contiene
-         el wordmark "Implementos" — mismo asset que el aside para consistencia
-         de marca cross-viewport. -->
-    <div class="lg:hidden flex items-center justify-center">
-      <img
-        src="implementos-logo.svg"
-        alt="Implementos"
-        width="131"
-        height="44"
-        class="h-20 w-auto"
-      />
-    </div>
-
     <div class="flex flex-col gap-1">
       <h1 class="text-3xl font-bold leading-normal text-color">
         Bienvenido 👋

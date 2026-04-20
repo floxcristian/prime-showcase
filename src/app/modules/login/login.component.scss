@@ -39,6 +39,33 @@
   background-repeat: no-repeat;
 }
 
+// Mobile hero banner: tornado-bg + logo centrado + curva inferior eliptica
+// que transiciona suavemente al area del form. Patron banking apps LATAM
+// (Mercado Pago, Santander, BCI, Banco Estado, la propia app Implementos
+// EPYSA): banner identity en top del form de login/signup en mobile, con
+// un borde inferior curvo sutil que suaviza la transicion de color primary
+// → surface.
+//
+// Radio eliptico: 50% horizontal (ambos corners se encuentran en el centro
+// del edge inferior) + 2rem vertical (altura de la curva). El resultado es
+// una curva MUY shallow (32px de profundidad sobre ~450px de ancho) — no un
+// semicirculo agresivo sino un "leve curvo" como dijo el usuario. Los tiles
+// convex vs concave: el banner es CONVEX down (extendido abajo en el centro,
+// mas corto en las esquinas), que es el patron mas comun en mobile banking
+// apps (Implementos/EPYSA, Mercado Pago).
+//
+// Waiver: Tailwind `rounded-b-[50%/2rem]` esta bloqueado por la regla lint
+// no-forbidden-rounded (`rounded-[*]` prohibido). No hay utility nativa
+// para radios elipticos en el design system → vive aqui como clase semantica.
+.login-mobile-hero {
+  background-image: url('/images/tornado.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-bottom-left-radius: 50% 2rem;
+  border-bottom-right-radius: 50% 2rem;
+}
+
 @keyframes login-scroll-up {
   from {
     transform: translateY(0);
