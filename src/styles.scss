@@ -207,6 +207,54 @@ input:-webkit-autofill:focus-visible {
 }
 
 /*
+ * Boton "tonal" — primario low-intensity.
+ *
+ * Patron Material 3 (tonal) / Mercado Libre (boton light): mismo hue primary
+ * llevado a menor intensidad. Uso tipico: CTA secundaria de peso similar al
+ * filled primary (Cancelar+Subir, Deshacer+Aleatorio, Mostrar todo, upgrade
+ * cards). Resuelve el caso "dos CTAs hermanas" donde outlined secondary se
+ * lee como chrome plomo y no como accion.
+ *
+ * Se aplica via `styleClass="p-button-tonal"` sobre <p-button> (PrimeNG 21
+ * sigue aceptando styleClass en p-button — esta exento de la regla lint
+ * no-deprecated-styleclass). NO se modifica severity="secondary" global
+ * porque secondary en el resto del app (notificaciones, paginadores,
+ * filtros, toolbars) funciona como chrome plomo que rima con los bordes
+ * de los inputs — teñirlo de primary rompia esa jerarquia.
+ *
+ * Tokens primary-100/900 del preset Aura. !important es necesario para
+ * ganar la especificidad del colorScheme.button del tema. Dark cascade
+ * estandar via `.p-dark`. Sin transition — transitionDuration: '0s' del
+ * preset aplica a cambios de color en hover (patron instant swap).
+ */
+.p-button-tonal {
+  background: var(--p-primary-100) !important;
+  color: var(--p-primary-color) !important;
+  border-color: var(--p-primary-100) !important;
+}
+.p-button-tonal:hover {
+  background: var(--p-primary-200) !important;
+  border-color: var(--p-primary-200) !important;
+}
+.p-button-tonal:active {
+  background: var(--p-primary-300) !important;
+  border-color: var(--p-primary-300) !important;
+}
+.p-dark .p-button-tonal {
+  background: var(--p-primary-900) !important;
+  color: var(--p-primary-100) !important;
+  border-color: var(--p-primary-900) !important;
+}
+.p-dark .p-button-tonal:hover {
+  background: var(--p-primary-800) !important;
+  border-color: var(--p-primary-800) !important;
+}
+.p-dark .p-button-tonal:active {
+  background: var(--p-primary-700) !important;
+  border-color: var(--p-primary-700) !important;
+}
+
+/*
  * p-message: desactivar animación de entrada/salida.
  *
  * PrimeNG 21 aplica `animation: p-animate-message-enter 0.3s ease-out` (y
