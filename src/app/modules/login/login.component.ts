@@ -7,16 +7,14 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
-import { TooltipModule } from 'primeng/tooltip';
 // App
-import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 // Constants
 import {
@@ -28,14 +26,13 @@ import {
   LoginTestimonial,
 } from './constants/login-features';
 
-const NG_MODULES = [FormsModule];
+const NG_MODULES = [FormsModule, RouterLink];
 const PRIME_MODULES = [
   ButtonModule,
   Checkbox,
   InputTextModule,
   Message,
   PasswordModule,
-  TooltipModule,
 ];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -58,9 +55,6 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
-  private configService = inject(AppConfigService);
-
-  readonly darkTheme = this.configService.darkTheme;
 
   readonly email = signal('');
   readonly password = signal('');
@@ -75,10 +69,6 @@ export class LoginComponent {
   readonly features: readonly LoginFeature[] = LOGIN_FEATURES;
   readonly stats: readonly LoginStat[] = LOGIN_STATS;
   readonly testimonial: LoginTestimonial = LOGIN_TESTIMONIAL;
-
-  readonly canSubmit = computed(
-    () => this.email().trim().length > 0 && this.password().length > 0,
-  );
 
   // Validación perezosa: solo tras blur, nunca durante tipeo. Evita interrumpir
   // al usuario mientras escribe (Smashing/NN-g: inline validation on blur).
@@ -98,10 +88,6 @@ export class LoginComponent {
     return this.passwordTouched() && this.password().length === 0;
   });
 
-  toggleTheme(): void {
-    this.configService.setDarkTheme(!this.darkTheme());
-  }
-
   markEmailTouched(): void {
     this.emailTouched.set(true);
   }
@@ -111,7 +97,15 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (!this.canSubmit() || this.submitting()) return;
+    if (this.submitting()) return;
+    // Boton siempre habilitado: al click forzamos ambos campos a "touched"
+    // para que los computed de validacion (emailInvalid/passwordInvalid) se
+    // destapen. Patron Stripe/Vercel/GitHub: el usuario descubre el estado
+    // de error al intentar submit, no antes. Si algo es invalido, bail —
+    // los p-message ya renderizaran via los signals.
+    this.emailTouched.set(true);
+    this.passwordTouched.set(true);
+    if (this.emailInvalid() || this.passwordInvalid()) return;
     this.submitting.set(true);
     // Delay corto para dar feedback visual del estado "cargando"; sin backend
     // que llamar, el timer es la única fuente de latencia. Ref: ADR-001 §8.

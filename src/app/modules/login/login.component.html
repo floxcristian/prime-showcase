@@ -5,7 +5,7 @@
      Ancho w-3/5 → w-7/12 (58% en xl) da protagonismo al marketing respetando
      max-w-md del form. Typography hero text-5xl/6xl registrada en EX-007. -->
 <aside
-  class="hidden lg:flex flex-col w-3/5 xl:w-7/12 bg-primary text-primary-contrast relative overflow-hidden"
+  class="login-aside-bg hidden lg:flex flex-col w-3/5 xl:w-7/12 text-primary-contrast relative overflow-hidden"
   aria-label="Acerca de Implementos"
 >
   <!-- Cabecera: logo oficial de Implementos sobre el fondo primary del aside. -->
@@ -15,7 +15,7 @@
       alt="Implementos"
       width="131"
       height="44"
-      class="h-11 w-auto"
+      class="h-12 w-auto"
     />
   </div>
 
@@ -595,34 +595,6 @@
   class="flex-1 flex flex-col items-center justify-center py-8 px-6 relative"
   aria-label="Formulario de acceso"
 >
-  <!-- Toggle de tema con crossfade entre iconos (Linear/Stripe pattern) -->
-  <p-button
-    (onClick)="toggleTheme()"
-    [pTooltip]="darkTheme() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
-    [attr.aria-label]="darkTheme() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
-    [attr.aria-pressed]="darkTheme()"
-    rounded
-    text
-    severity="secondary"
-    class="absolute top-6 right-6"
-  >
-    <span
-      class="relative w-4 h-4 inline-flex items-center justify-center"
-      aria-hidden="true"
-    >
-      <i
-        class="fa-sharp fa-regular fa-moon absolute transition-opacity"
-        [class.opacity-0]="darkTheme()"
-        aria-hidden="true"
-      ></i>
-      <i
-        class="fa-sharp fa-regular fa-sun absolute transition-opacity"
-        [class.opacity-0]="!darkTheme()"
-        aria-hidden="true"
-      ></i>
-    </span>
-  </p-button>
-
   <!-- Wrapper del grupo form+soporte. `gap-8` (32px) separa el soporte del CTA
        — distancia intencional estilo "Don't have any account? Register" de
        Realnest/Linear/Stripe: el link vive cerca del formulario (mismo grupo
@@ -633,26 +605,26 @@
     <!-- Cabecera móvil (desktop usa el panel izquierdo). El logo ya contiene
          el wordmark "Implementos" — mismo asset que el aside para consistencia
          de marca cross-viewport. -->
-    <div class="lg:hidden flex items-center">
+    <div class="lg:hidden flex items-center justify-center">
       <img
         src="implementos-logo.svg"
         alt="Implementos"
         width="131"
         height="44"
-        class="h-11 w-auto"
+        class="h-20 w-auto"
       />
     </div>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-1">
       <h1 class="text-3xl font-bold leading-normal text-color">
-        Bienvenido de vuelta 👋 
+        Bienvenido 👋
       </h1>
       <!-- Subtítulo: `text-muted-color` para no competir con el título hero
            ni con los labels del form. Patrón Stripe/Linear/Vercel/GitHub
            bajo hero titles: el subtítulo es contexto quiet, no contenido
            principal. 16px (leading-6) mantiene legibilidad sin subir peso. -->
       <p class="text-muted-color font-normal leading-6">
-        Ingresa a tu cuenta para continuar.
+        Ingresa tus credenciales para acceder a tu cuenta.
       </p>
     </div>
 
@@ -683,7 +655,7 @@
             enterkeyhint="next"
             pInputText
             class="w-full"
-            autocomplete="off webauthn"
+            autocomplete="username webauthn"
             autocapitalize="off"
             autocorrect="off"
             spellcheck="false"
@@ -723,20 +695,17 @@
             <label for="login-password" class="text-color font-semibold leading-6">
               Contraseña
             </label>
-            <!-- Link secundario — tratamiento link de texto (primary + underline).
-                 Mismo set visual que `<a>` (ver regla showcase/anchor-link-classes):
-                 text-primary + hover:text-primary-emphasis + underline +
-                 duration-150. Como es un <button> (dispara accion, no navegacion)
-                 la regla de <a> no aplica, pero replicamos el aspecto para que
-                 todos los "links" de la vista se lean iguales. Hit area 44x44px
-                 via negative margin (patron Uber): expande tap target sin
-                 shiftear layout. -->
-            <button
-              type="button"
-              class="text-sm font-medium text-primary hover:text-primary-emphasis underline leading-5 cursor-pointer transition-colors duration-150 select-none bg-transparent border-0 inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
+            <!-- Link secundario de navegacion a /forgot-password. `routerLink`
+                 exento de la regla anchor-link-classes (nav enrutado), pero
+                 replicamos el set visual de links del flujo de auth para que
+                 se lean iguales. Hit area 44x44px via negative margin (patron
+                 Uber): expande tap target sin shiftear layout. -->
+            <a
+              routerLink="/forgot-password"
+              class="text-sm font-medium text-primary hover:text-primary-emphasis underline leading-5 cursor-pointer transition-colors duration-150 select-none inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
             >
               Olvidé mi contraseña
-            </button>
+            </a>
           </div>
           <p-password
             inputId="login-password"
@@ -749,7 +718,7 @@
             (onBlur)="markPasswordTouched()"
             [invalid]="passwordInvalid()"
             [attr.aria-describedby]="passwordInvalid() ? 'login-password-error' : null"
-            autocomplete="off webauthn"
+            autocomplete="current-password webauthn"
           />
         </div>
         <!-- Slot de error con altura reservada (ver comentario en bloque
@@ -804,7 +773,6 @@
         type="submit"
         label="Iniciar sesión"
         [loading]="submitting()"
-        [disabled]="!canSubmit()"
         styleClass="w-full"
       />
 

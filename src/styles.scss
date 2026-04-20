@@ -10,9 +10,18 @@
  * para evitar la deprecación de `@import` en Dart Sass 3. Stack fallback prioriza
  * `system-ui` (Segoe/SF/Roboto) para render inmediato mientras carga el woff2.
  */
+
 html {
-  font-family: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    'Inter Variable',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
 }
 
 /*
@@ -109,24 +118,59 @@ html {
 }
 
 /*
- * Browser autofill override — Chrome/Edge/Safari pintan los inputs autofilled
- * con un amarillo/celeste (`-webkit-autofill`) que ignora todo el theming del
- * site. No se puede cambiar con `background` normal: el navegador fuerza el
- * color via `!important` interno. La única solución estándar es pintar un
- * `box-shadow inset` opaco del color del surface real + color de texto via
- * `-webkit-text-fill-color` (regular `color` también es sobrescrito).
+ * Browser autofill override — Chromium/WebKit aplican estilos UA `!important`
+ * sobre inputs en autofill que ninguna regla de página puede destronar. Dos
+ * sub-estados y ambos hay que cubrir:
  *
- * Referencia: chromium bug 953689 (wontfix), Stripe/Linear usan este patrón.
+ *   1. PREVIEW (`:-internal-autofill-previewed`) — navegación del usuario
+ *      por las sugerencias del Password Manager antes del commit.
+ *   2. COMMITTED (`:-webkit-autofill`) — tras click/enter sobre la
+ *      sugerencia. Amarillo clásico de autofill.
+ *
+ * Qué sí se puede override-ar:
+ *   - `-webkit-text-fill-color` (reemplaza al `color` ignorado)
+ *   - `box-shadow inset` opaco (reemplaza al `background` ignorado)
+ *   - `caret-color`
+ *
+ * Qué NO se puede override-ar (intentado, no funciona):
+ *   - `font-family` → Chromium pinea la fuente del preview a Arial local
+ *     vía UA `!important` no override-able (crbug 960918, WontFix por
+ *     seguridad anti-overlay-attack). Un `@font-face` con `src: local('Arial')`
+ *     + metric-overrides (truco de `next/font`) tampoco funciona: el preview
+ *     path de Chrome bypass-ea reglas `@font-face` declaradas por la página.
+ *     Toda la industria absorbe este bug como-es (Stripe, Linear, Vercel,
+ *     1Password, Bitwarden, Figma, Clerk) — no intentar re-solucionarlo.
+ *   - `font-size` → misma política.
+ *
  * Duración 5000s evita el fade-out amarillo que Chrome anima por defecto.
+ * Referencia: chromium bug 953689 + 960918 + 1173879. Patrón Stripe/Linear.
  */
+input:-internal-autofill-previewed,
+input:-internal-autofill-selected,
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--p-inputtext-background) inset;
-  -webkit-text-fill-color: var(--p-inputtext-color);
+  -webkit-box-shadow: 0 0 0 1000px var(--p-inputtext-background) inset !important;
+  -webkit-text-fill-color: var(--p-inputtext-color) !important;
   caret-color: var(--p-inputtext-color);
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/*
+ * Focus ring + autofill coexistiendo. El `-webkit-box-shadow !important` de
+ * arriba pisa el `box-shadow` del :focus-visible global — sin esta regla el
+ * halo desaparece al abrir el dropdown del Password Manager (el input sigue
+ * enfocado, pero el estado `-internal-autofill-previewed` gana la cascada).
+ * Solución: declarar AMBOS shadows en una sola propiedad (inset del autofill
+ * + outset del focus ring) cuando el input esté enfocado y en autofill.
+ * Patrón documentado por Stripe/Linear en sus utility classes de form.
+ */
+input:-internal-autofill-previewed:focus-visible,
+input:-internal-autofill-selected:focus-visible,
+input:-webkit-autofill:focus-visible {
+  -webkit-box-shadow:
+    0 0 0 1000px var(--p-inputtext-background) inset,
+    var(--p-focus-ring-shadow) !important;
 }
 
 /*

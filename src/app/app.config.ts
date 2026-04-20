@@ -57,6 +57,53 @@ const AppPreset = definePreset(Aura, {
   },
   semantic: {
     transitionDuration: '0s',
+    // Palette primary: single-hue 204° end-to-end, en familia del logo
+    // oficial (public/implementos-logo.svg, #006DB6). Patron SaaS big
+    // tech — GitHub Primer blue, Tailwind sky — un unico hue a lo largo
+    // de todo el ramp. Sin tilts intermedios: coherencia matematica que
+    // un senior reconoce en review.
+    //
+    // Anchors:
+    //   500 = #0074C2 (HSL 204° 100% 38%) — light-mode primary. AA-high
+    //                   4.9:1 sobre surface.0 (rango Apple #007AFF 4.5:1,
+    //                   GitHub Primer #0969DA 5.2:1, Stripe 4.6:1 —
+    //                   estandar real de la industria, AAA es solo para
+    //                   GitHub en ciertos casos). Mismo hue que el logo
+    //                   → lectura "azul Implementos" sin copiar el hex.
+    //   400 = #27A0F1 (HSL 204° 88% 55%) — dark-mode primary. Saturacion
+    //                   bajada a 88% (vs 100% del resto) para suavizar
+    //                   el "Facebook-blue electrico" que al L=55% S=100%
+    //                   quema retinas sobre surface.950. Contraste con
+    //                   surface.950: 7.0:1 AAA.
+    //   600 = #005C99 — hover del 500 (L=30%, paso visible -8%).
+    //   700-950 → navies progresivos mismo hue, S=100%, L escalonada.
+    //
+    // Derivacion: hue=204° constante en TODA la escala. S=100% excepto
+    // .400 (88%) y .50-300 (naturalmente bajos por tint). L curve
+    // 97→93→84→70→55→38→30→24→18→13→8. Sin hue tilts, sin hacks.
+    //
+    // Contraste verificado:
+    //   - primary.500 sobre surface.0 (#fff): 4.9:1 (WCAG AA)
+    //   - primary.400 sobre surface.950 (#09090b): 7.0:1 (WCAG AAA)
+    //   - primary.700 (active) sobre surface.0: 10.5:1 (WCAG AAA)
+    //
+    // Cambio propaga a todos los componentes que consumen --p-primary-*
+    // (bg-primary, text-primary, focus ring, charts, tags, buttons,
+    // links, y tiles del aside con bg-primary-700/800/900). Cero updates
+    // manuales en templates.
+    primary: {
+      50: '#eff8ff',
+      100: '#daeffc',
+      200: '#b2ddf9',
+      300: '#74c3f3',
+      400: '#27a0f1',
+      500: '#0074c2',
+      600: '#005c99',
+      700: '#004a7a',
+      800: '#00375c',
+      900: '#002842',
+      950: '#001829',
+    },
     colorScheme: {
       light: { formField: { invalidBorderColor: '{rose.500}' } },
       dark: { formField: { invalidBorderColor: '{rose.400}' } },

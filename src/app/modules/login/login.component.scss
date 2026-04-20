@@ -26,6 +26,19 @@
 // Accesibilidad: `prefers-reduced-motion: reduce` desactiva el movimiento —
 // WCAG 2.3.3 (animaciones de desplazamiento continuo > 5s deben poder pausarse).
 
+// Background del aside marketing: SVG radial/tornado en azules (#005DB9 → #0089D6)
+// reemplaza el `bg-primary` verde. El svg ya trae su propio rect fill de 2000x1500
+// → con `cover` + `center` cubre cualquier ratio del panel sin huecos. La regla
+// "no arbitrary bg values" de CLAUDE.md aplica a color (`bg-[#hex]`); para
+// `background-image: url(...)` no hay utility Tailwind equivalente, así que
+// vive aquí como clase semantica. Mismo waiver que los keyframes del marquee.
+.login-aside-bg {
+  background-image: url('/images/tornado.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 @keyframes login-scroll-up {
   from {
     transform: translateY(0);
