@@ -66,6 +66,9 @@ module.exports = tseslint.config(
       'showcase/no-duotone-inline-icon': 'error',
       'showcase/no-decorative-icon-without-aria-hidden': 'error',
       'showcase/no-deprecated-styleclass': 'error',
+      'showcase/text-3xl-requires-bold': 'error',
+      'showcase/label-requires-semibold': 'error',
+      'showcase/anchor-link-classes': 'error',
 
       // ── Angular template best practices ───────────────────────────
       // Prefer @if/@for over *ngIf/*ngFor

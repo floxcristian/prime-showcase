@@ -274,7 +274,7 @@
                                         <p-button icon="fa-sharp fa-regular fa-xmark" text rounded severity="secondary" aria-label="Cerrar" pTooltip="Cerrar" tooltipPosition="bottom" />
                                       </div>
                                       <div>
-                                        <label for="document-name" class="text-color font-medium leading-6"
+                                        <label for="document-name" class="text-color font-semibold leading-6"
                                           >Nombre del documento
                                         </label>
                                         <input
@@ -460,7 +460,7 @@
                                                         </p-fileupload>
                                                       </div>
                                                       <div>
-                                                        <label class="text-color font-medium leading-6" for="file-tags-ac">Etiqueta (Opcional)</label>
+                                                        <label class="text-color font-semibold leading-6" for="file-tags-ac">Etiqueta (Opcional)</label>
                                                         <p-autocomplete
                                                           [ngModel]="filesTag()"
                                                           (ngModelChange)="filesTag.set($event)"
@@ -475,7 +475,7 @@
                                                           @for (permission of permissions; track permission.key) {
                                                             <label
                                                               [for]="permission.key"
-                                                              class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-lg border border-surface hover:bg-emphasis transition-colors select-none"
+                                                              class="cursor-pointer flex-1 flex items-center gap-1 p-2 rounded-lg border border-surface hover:bg-emphasis transition-colors select-none font-normal"
                                                               >
                                                               <i class="text-color" [ngClass]="permission.icon" aria-hidden="true"></i>
                                                               <div class="flex-1 text-sm leading-5 text-color">
@@ -777,7 +777,7 @@
                                                                                                   </div>
                                                                                                   <div class="mt-4 flex gap-2">
                                                                                                     <div class="flex-1">
-                                                                                                      <label for="price-min-val" class="text-color font-medium leading-6"
+                                                                                                      <label for="price-min-val" class="text-color font-semibold leading-6"
                                                                                                         >Valor mínimo</label
                                                                                                         >
                                                                                                         <p-inputnumber
@@ -792,7 +792,7 @@
                                                                                                           />
                                                                                                         </div>
                                                                                                         <div class="flex-1">
-                                                                                                          <label for="price-max-val" class="text-color font-medium leading-6"
+                                                                                                          <label for="price-max-val" class="text-color font-semibold leading-6"
                                                                                                             >Valor máximo</label
                                                                                                             >
                                                                                                             <p-inputnumber
@@ -820,7 +820,7 @@
                                                                                                                     [name]="data.value"
                                                                                                                     [value]="data.value"
                                                                                                                     />
-                                                                                                                    <label [for]="data.value" class="ml-2">{{ data.value }}</label>
+                                                                                                                    <label [for]="data.value" class="ml-2 font-normal">{{ data.value }}</label>
                                                                                                                   </div>
                                                                                                                 }
                                                                                                               </div>

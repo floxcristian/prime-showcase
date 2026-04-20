@@ -9,12 +9,15 @@
  *
  * Allowed text sizes:  text-xs | text-sm | text-base | text-lg | text-xl | text-2xl | text-3xl
  * Allowed leading:     leading-5 | leading-6 | leading-7 | leading-8 | leading-normal | leading-none | leading-tight
- * Allowed font-weight: font-normal | font-medium | font-semibold
+ * Allowed font-weight: font-normal | font-medium | font-semibold | font-bold
  *
  * Forbidden:           text-4xl+ (except icons/stats via exception list)
  *                      leading-snug | leading-relaxed | leading-loose | leading-[*]
- *                      font-thin | font-extralight | font-light | font-bold | font-extrabold | font-black
+ *                      font-thin | font-extralight | font-light | font-extrabold | font-black
  *                      Arbitrary text sizes: text-[18px] etc.
+ *
+ * Pairing: `text-3xl` must be paired with `font-bold` on the same element —
+ * enforced by the separate rule `showcase/text-3xl-requires-bold`.
  *
  * Scans: class, styleClass, [ngClass], [class], and all PrimeNG *StyleClass attributes.
  */
@@ -48,13 +51,20 @@ const ALLOWED_FONT_WEIGHT = new Set([
   'font-normal',
   'font-medium',
   'font-semibold',
+  // font-bold reservado para titulos hero (text-3xl) — ver showcase/text-3xl-requires-bold.
+  'font-bold',
 ]);
 
 // ── Exceptions ──────────────────────────────────────────────────────────
 
 // text-4xl is used for large icons and stat numbers (side-menu drawers, file upload)
+// text-5xl/6xl: hero typography in login bento grid marketing panel.
+// AUDIT_BASELINE EX-007. Restringido al panel marketing del login — dashboards
+// y cards de datos siguen limitados a text-3xl (marketing vs product UI).
 const ALLOWED_TEXT_SIZE_EXCEPTIONS = new Set([
   'text-4xl',
+  'text-5xl',
+  'text-6xl',
 ]);
 
 // ── Regex patterns ──────────────────────────────────────────────────────
@@ -85,7 +95,7 @@ module.exports = {
       forbiddenLeading:
         '"{{className}}" is not in the allowed line-height scale. Allowed: leading-5 through leading-8, leading-normal, leading-none, leading-tight.',
       forbiddenFontWeight:
-        '"{{className}}" is not in the allowed font-weight scale. Allowed: font-normal, font-medium, font-semibold.',
+        '"{{className}}" is not in the allowed font-weight scale. Allowed: font-normal, font-medium, font-semibold, font-bold.',
     },
   },
   create(context) {

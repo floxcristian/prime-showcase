@@ -163,6 +163,31 @@ input:-webkit-autofill:active {
 }
 
 /*
+ * p-message: desactivar animación de entrada/salida.
+ *
+ * PrimeNG 21 aplica `animation: p-animate-message-enter 0.3s ease-out` (y
+ * `p-animate-message-leave 0.15s` al salir) via las clases que Angular
+ * inyecta con `animate.enter` / `animate.leave`. El keyframe anima
+ * `grid-template-rows: 0fr → 1fr` + opacidad — efecto slide-down sutil
+ * pero visible al mostrar un error de validación.
+ *
+ * En este proyecto reservamos espacio fijo para el error (ver bloques
+ * min-h-6 en login.component.html). Con espacio reservado, la animación
+ * es contraproducente: el layout ya no se desplaza, pero el usuario ve
+ * un "telón" desplegándose dentro del slot. Stripe/Linear/GitHub muestran
+ * errores de forma instantánea — la inmediatez comunica "tu input activó
+ * esto" mejor que una animación de 300ms.
+ *
+ * Override puntual: bloquea solo las dos clases que disparan el keyframe.
+ * El resto del componente (hover del close, transiciones de color) queda
+ * intacto.
+ */
+.p-message-enter-active,
+.p-message-leave-active {
+  animation: none !important;
+}
+
+/*
  * Respeta prefers-reduced-motion (WCAG 2.3.3, MDN: prefers-reduced-motion).
  * PrimeNG aplica transitionDuration inline desde tokens → un media query global es la
  * forma mas limpia de neutralizar animaciones sin tocar cada componente. 0.01ms (no 0)

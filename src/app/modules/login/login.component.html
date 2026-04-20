@@ -1,145 +1,590 @@
-<!-- Panel de marca (solo desktop) -->
+<!-- Panel de marca (solo desktop). Marquee vertical infinito tipo Jobsly/Orbit:
+     3 columnas con scroll autónomo (up/down/up) a distintas velocidades. Cada
+     columna renderiza sus tiles 2× y anima translateY entre 0 y -50% para loop
+     seamless. `prefers-reduced-motion` desactiva el movimiento (ver scss).
+     Ancho w-3/5 → w-7/12 (58% en xl) da protagonismo al marketing respetando
+     max-w-md del form. Typography hero text-5xl/6xl registrada en EX-007. -->
 <aside
-  class="hidden lg:flex flex-col justify-between w-1/2 xl:w-5/12 px-12 py-8 bg-primary text-primary-contrast relative overflow-hidden"
+  class="hidden lg:flex flex-col w-3/5 xl:w-7/12 bg-primary text-primary-contrast relative overflow-hidden"
   aria-label="Acerca de Implementos"
 >
-  <!-- Patrón decorativo: círculos concéntricos sutiles -->
+  <!-- Cabecera: logo oficial de Implementos sobre el fondo primary del aside. -->
+  <div class="px-6 pt-5 pb-4 flex items-center shrink-0 relative z-10">
+    <img
+      src="implementos-logo.svg"
+      alt="Implementos"
+      width="131"
+      height="44"
+      class="h-11 w-auto"
+    />
+  </div>
+
+  <!-- Marquee 3-col: scroll autónomo con velocidades normalizadas en px/s.
+       Los keyframes definen translateY 0 ↔ -50% sobre un track que renderiza
+       sus tiles 2× — el wrap coincide pixel-perfect. Duraciones derivadas del
+       alto real de cada columna para que las 3 se muevan a ~17-19 px/s (ver
+       login.component.scss). Direcciones opuestas (up/down/up) + spread del
+       10% evitan sincronización perceptible sin romper el feel uniforme.
+
+       aria-hidden="true": el contenido se renderiza 2× → screen readers leerían
+       todo duplicado. La info real accesible vive en `aria-label` del aside
+       ("Acerca de Implementos") y en el form de la derecha. El marquee es
+       puramente decorativo/marketing. -->
   <div
-    class="absolute inset-0 opacity-10 pointer-events-none select-none"
+    class="flex gap-2 px-6 pb-5 flex-1 min-h-0 relative"
     aria-hidden="true"
   >
-    <svg
-      class="absolute -top-20 -right-20 w-96 h-96"
-      viewBox="0 0 200 200"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="1" />
-      <circle cx="100" cy="100" r="60" stroke="currentColor" stroke-width="1" />
-      <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="1" />
-      <circle cx="100" cy="100" r="100" stroke="currentColor" stroke-width="1" />
-    </svg>
-    <svg
-      class="absolute -bottom-32 -left-16 w-96 h-96"
-      viewBox="0 0 200 200"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle cx="100" cy="100" r="40" stroke="currentColor" stroke-width="1" />
-      <circle cx="100" cy="100" r="70" stroke="currentColor" stroke-width="1" />
-      <circle cx="100" cy="100" r="100" stroke="currentColor" stroke-width="1" />
-    </svg>
-  </div>
-
-  <!-- Cabecera: logo + nombre -->
-  <div class="relative z-10 flex items-center gap-3">
-    <div
-      class="w-11 h-11 border border-primary-contrast rounded-xl flex items-center justify-center"
-    >
-      <svg
-        width="20"
-        height="24"
-        viewBox="0 0 20 24"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <path
-          d="M14.65 11.0645L13.1283 10.7253L14.3119 12.4216V17.6803L18.3698 14.2876V8.52002L16.5099 9.19856L14.65 11.0645Z"
-        />
-        <path
-          d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
-        />
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
-        />
-        <path d="M14.311 20.9058L16.5091 18.7005V16.4952L14.311 18.3612V20.9058Z" />
-        <path d="M5.51868 20.9058L3.32062 18.7005V16.4952L5.51868 18.3612V20.9058Z" />
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
-        />
-        <path
-          d="M8.56283 10.5575L1.29232 7.84329L0.277832 3.60242L6.53385 4.11132L8.73191 10.5575H8.56283Z"
-        />
-        <path
-          d="M11.4372 10.5575L18.7077 7.84329L19.7222 3.60242L13.2971 4.11132L11.2681 10.5575H11.4372Z"
-        />
-        <path d="M13.8041 3.60283L17.3548 3.26356L14.9876 0.888672H12.6205L13.8041 3.60283Z" />
-        <path d="M6.02676 3.60283L2.47604 3.26356L4.84318 0.888672H7.21033L6.02676 3.60283Z" />
-      </svg>
-    </div>
-    <div class="text-3xl font-semibold leading-normal">Implementos</div>
-  </div>
-
-  <!-- Hero: copy + testimonial (reducido de 7 a 4 bloques: Linear/Supabase pattern) -->
-  <div class="relative z-10 flex flex-col gap-8">
-    <div class="flex flex-col gap-3">
-      <h2 class="text-3xl font-semibold leading-normal">
-        Mueve repuestos por todo Chile<br />sin perder de vista un pedido.
-      </h2>
-      <p class="leading-6 opacity-80 max-w-md">
-        Desde la cotización del mecánico hasta el DTE en el SII, sin saltar
-        entre sistemas.
-      </p>
-    </div>
-
-    <!-- Testimonial: una voz real reemplaza el grid de acrónimos (Retool/Linear pattern) -->
-    <figure class="flex flex-col gap-4">
-      <blockquote
-        class="text-xl font-medium leading-7 max-w-md relative pl-4 border-l-2 border-primary-contrast"
-      >
-        «{{ testimonial.quote }}»
-      </blockquote>
-      <figcaption class="flex items-center gap-3">
+    <!-- ═══ COLUMNA A (sube, 52s — 930px @ 17.9 px/s) ═══ -->
+    <div class="flex-1 login-marquee-col">
+      <div class="flex flex-col gap-2 login-marquee login-marquee--up-52">
+        <!-- ── SET 1 ── -->
+        <!-- Hero: foto + pill "En vivo" + título overlay. -->
         <div
-          class="w-10 h-10 rounded-full border border-primary-contrast flex items-center justify-center shrink-0 text-sm font-semibold leading-5"
-          aria-hidden="true"
+          class="relative rounded-2xl overflow-hidden aspect-[4/5] shrink-0"
         >
-          {{ testimonial.initials }}
-        </div>
-        <!-- Compañía como anchor de credibilidad (Linear/Vercel pattern) — la
-             persona es la voz, pero la empresa es la prueba. -->
-        <div class="text-sm leading-5">
-          <div class="font-medium">{{ testimonial.company }}</div>
-          <div class="opacity-80">
-            {{ testimonial.name }} · {{ testimonial.role }} ·
-            {{ testimonial.city }}
+          <img
+            src="https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=1200&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-primary-950/90 via-primary-950/30 to-transparent"
+          ></div>
+          <!-- eslint-disable showcase/no-missing-dark-pair -->
+          <div
+            class="absolute top-4 left-4 bg-surface-0/95 backdrop-blur-sm text-primary-950 text-xs font-semibold leading-5 px-3 py-1 rounded-full flex items-center gap-2"
+          >
+          <!-- eslint-enable showcase/no-missing-dark-pair -->
+            <span class="relative flex w-2 h-2">
+              <span
+                class="absolute inset-0 rounded-full bg-primary opacity-75 animate-ping"
+              ></span>
+              <span class="relative w-2 h-2 rounded-full bg-primary"></span>
+            </span>
+            En vivo
+          </div>
+          <div class="absolute inset-0 flex flex-col justify-end p-4 text-surface-0">
+            <h2 class="text-2xl font-semibold leading-tight">
+              Mueve repuestos<br />por todo Chile.
+            </h2>
           </div>
         </div>
-      </figcaption>
-    </figure>
 
-    <!-- Stats strip: cifras agregadas que respaldan la voz individual -->
-    <dl
-      class="flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-primary-contrast pt-4"
-      aria-label="Cifras de la plataforma"
-    >
-      @for (stat of stats; track stat.label) {
-        <div class="flex flex-col">
-          <dt class="text-sm leading-5 opacity-80 order-2">{{ stat.label }}</dt>
-          <dd class="text-2xl font-semibold leading-8 order-1">
-            {{ stat.value }}
-          </dd>
+        <!-- Feature card factura (vertical, stack icon + texto). -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-file-invoice text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">
+              Factura electrónica
+            </div>
+            <div class="text-sm leading-5 opacity-80">
+              DTE, boleta y guía listos para el SII.
+            </div>
+          </div>
         </div>
-      }
-    </dl>
+
+        <!-- Foto horizontal -->
+        <div class="rounded-2xl overflow-hidden relative aspect-[4/3] shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+
+        <!-- Stat Entrega (primary-900) -->
+        <div
+          class="bg-primary-900 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-clock text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Entrega</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">24</span>
+            <span class="text-2xl font-semibold leading-none">h</span>
+          </div>
+        </div>
+
+        <!-- Feature Inventario -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-boxes-stacked text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">
+              Stock en tiempo real
+            </div>
+            <div class="text-sm leading-5 opacity-80">
+              Disponibilidad por sucursal, al instante.
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SET 2 (duplicado para loop seamless) ── -->
+        <div
+          class="relative rounded-2xl overflow-hidden aspect-[4/5] shrink-0"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1530124566582-a618bc2615dc?w=1200&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-primary-950/90 via-primary-950/30 to-transparent"
+          ></div>
+          <!-- eslint-disable showcase/no-missing-dark-pair -->
+          <div
+            class="absolute top-4 left-4 bg-surface-0/95 backdrop-blur-sm text-primary-950 text-xs font-semibold leading-5 px-3 py-1 rounded-full flex items-center gap-2"
+          >
+          <!-- eslint-enable showcase/no-missing-dark-pair -->
+            <span class="relative flex w-2 h-2">
+              <span
+                class="absolute inset-0 rounded-full bg-primary opacity-75 animate-ping"
+              ></span>
+              <span class="relative w-2 h-2 rounded-full bg-primary"></span>
+            </span>
+            En vivo
+          </div>
+          <div class="absolute inset-0 flex flex-col justify-end p-4 text-surface-0">
+            <h2 class="text-2xl font-semibold leading-tight">
+              Mueve repuestos<br />por todo Chile.
+            </h2>
+          </div>
+        </div>
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-file-invoice text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">
+              Factura electrónica
+            </div>
+            <div class="text-sm leading-5 opacity-80">
+              DTE, boleta y guía listos para el SII.
+            </div>
+          </div>
+        </div>
+        <div class="rounded-2xl overflow-hidden relative aspect-[4/3] shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <div
+          class="bg-primary-900 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-clock text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Entrega</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">24</span>
+            <span class="text-2xl font-semibold leading-none">h</span>
+          </div>
+        </div>
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-boxes-stacked text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">
+              Stock en tiempo real
+            </div>
+            <div class="text-sm leading-5 opacity-80">
+              Disponibilidad por sucursal, al instante.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COLUMNA B (baja, 48s — 814px @ 17.0 px/s) ═══ -->
+    <div class="flex-1 login-marquee-col">
+      <div class="flex flex-col gap-2 login-marquee login-marquee--down-48">
+        <!-- ── SET 1 ── -->
+        <!-- Stat Uptime -->
+        <div
+          class="bg-primary-700 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-arrow-trend-up text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Uptime</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">99,2</span>
+            <span class="text-2xl font-semibold leading-none">%</span>
+          </div>
+        </div>
+
+        <!-- Testimonial vertical -->
+        <figure
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <blockquote class="text-sm font-medium leading-5">
+            «{{ testimonial.quote }}»
+          </blockquote>
+          <figcaption class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-full border border-primary-contrast flex items-center justify-center shrink-0 text-xs font-semibold leading-4"
+            >
+              {{ testimonial.initials }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-semibold leading-4 truncate">
+                {{ testimonial.name }}
+              </div>
+              <div class="text-xs leading-4 opacity-80 truncate">
+                {{ testimonial.company }}
+              </div>
+            </div>
+          </figcaption>
+        </figure>
+
+        <!-- Foto auto rojo -->
+        <div class="rounded-2xl overflow-hidden relative aspect-[4/3] shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?w=500&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+
+        <!-- Stat Pedidos -->
+        <div
+          class="bg-primary-800 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-truck-fast text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Pedidos/mes</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">38</span>
+            <span class="text-2xl font-semibold leading-none">K</span>
+          </div>
+        </div>
+
+        <!-- Feature Pagos -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-credit-card text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">Pagos Transbank</div>
+            <div class="text-sm leading-5 opacity-80">
+              Webpay, OnePay y transferencia.
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SET 2 (duplicado) ── -->
+        <div
+          class="bg-primary-700 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-arrow-trend-up text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Uptime</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">99,2</span>
+            <span class="text-2xl font-semibold leading-none">%</span>
+          </div>
+        </div>
+        <figure
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <blockquote class="text-sm font-medium leading-5">
+            «{{ testimonial.quote }}»
+          </blockquote>
+          <figcaption class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-full border border-primary-contrast flex items-center justify-center shrink-0 text-xs font-semibold leading-4"
+            >
+              {{ testimonial.initials }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-semibold leading-4 truncate">
+                {{ testimonial.name }}
+              </div>
+              <div class="text-xs leading-4 opacity-80 truncate">
+                {{ testimonial.company }}
+              </div>
+            </div>
+          </figcaption>
+        </figure>
+        <div class="rounded-2xl overflow-hidden relative aspect-[4/3] shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1597404294360-feeeda04612e?w=500&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <div
+          class="bg-primary-800 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-truck-fast text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Pedidos/mes</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">38</span>
+            <span class="text-2xl font-semibold leading-none">K</span>
+          </div>
+        </div>
+
+        <!-- Feature Pagos -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-credit-card text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">Pagos Transbank</div>
+            <div class="text-sm leading-5 opacity-80">
+              Webpay, OnePay y transferencia.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COLUMNA C (sube, 45s — 845px @ 18.8 px/s) ═══ -->
+    <div class="flex-1 login-marquee-col">
+      <div class="flex flex-col gap-2 login-marquee login-marquee--up-45">
+        <!-- ── SET 1 ── -->
+        <!-- Stat Ciudades -->
+        <div
+          class="bg-primary-900 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-location-dot text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Ciudades</div>
+          <div class="text-5xl font-semibold leading-none">+120</div>
+        </div>
+
+        <!-- Rating -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-2 shrink-0"
+        >
+          <div class="flex items-center gap-1 text-lg">
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-semibold leading-8">
+              4,8<span class="text-sm font-medium opacity-80">/5</span>
+            </div>
+            <div class="text-xs leading-4 opacity-80">G2 + Capterra</div>
+          </div>
+        </div>
+
+        <!-- Brand badges -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-2 shrink-0"
+        >
+          <div class="text-xs font-medium leading-4 opacity-80 uppercase">
+            Integrado con
+          </div>
+          <div class="flex flex-wrap items-center gap-1">
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >SII</span
+            >
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >DTE</span
+            >
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >Transbank</span
+            >
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >WMS</span
+            >
+          </div>
+        </div>
+
+        <!-- Stat Soporte -->
+        <div
+          class="bg-primary-700 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-headset text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Soporte</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">24</span>
+            <span class="text-2xl font-semibold leading-none">/7</span>
+          </div>
+        </div>
+
+        <!-- Foto bodega -->
+        <div class="rounded-2xl overflow-hidden relative aspect-[4/3] shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+
+        <!-- Feature Categorías -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-gears text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">
+              +50 mil repuestos
+            </div>
+            <div class="text-sm leading-5 opacity-80">
+              Filtros, frenos, suspensión y más.
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SET 2 (duplicado) ── -->
+        <div
+          class="bg-primary-900 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-location-dot text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Ciudades</div>
+          <div class="text-5xl font-semibold leading-none">+120</div>
+        </div>
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-2 shrink-0"
+        >
+          <div class="flex items-center gap-1 text-lg">
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star" aria-hidden="true"></i>
+            <i class="fa-sharp fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-semibold leading-8">
+              4,8<span class="text-sm font-medium opacity-80">/5</span>
+            </div>
+            <div class="text-xs leading-4 opacity-80">G2 + Capterra</div>
+          </div>
+        </div>
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-2 shrink-0"
+        >
+          <div class="text-xs font-medium leading-4 opacity-80 uppercase">
+            Integrado con
+          </div>
+          <div class="flex flex-wrap items-center gap-1">
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >SII</span
+            >
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >DTE</span
+            >
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >Transbank</span
+            >
+            <span
+              class="text-xs font-semibold leading-4 px-2 py-1 rounded-lg border border-primary-contrast/30"
+              >WMS</span
+            >
+          </div>
+        </div>
+
+        <!-- Stat Soporte -->
+        <div
+          class="bg-primary-700 text-surface-0 rounded-2xl p-4 flex flex-col justify-between relative overflow-hidden min-h-32 shrink-0"
+        >
+          <i
+            class="fa-sharp-duotone fa-regular fa-headset text-2xl !absolute top-3 right-3 opacity-30"
+            aria-hidden="true"
+          ></i>
+          <div class="text-sm font-medium leading-5 opacity-80">Soporte</div>
+          <div class="flex items-baseline gap-1">
+            <span class="text-5xl font-semibold leading-none">24</span>
+            <span class="text-2xl font-semibold leading-none">/7</span>
+          </div>
+        </div>
+
+        <!-- Foto bodega -->
+        <div class="rounded-2xl overflow-hidden relative aspect-[4/3] shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop"
+            alt=""
+            class="w-full h-full object-cover"
+          />
+        </div>
+
+        <!-- Feature Categorías -->
+        <div
+          class="bg-primary-contrast/10 border border-primary-contrast/20 backdrop-blur-sm rounded-2xl p-4 flex flex-col gap-3 shrink-0"
+        >
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+          >
+            <i class="fa-sharp-duotone fa-regular fa-gears text-2xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="text-base font-semibold leading-6">
+              +50 mil repuestos
+            </div>
+            <div class="text-sm leading-5 opacity-80">
+              Filtros, frenos, suspensión y más.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Pie de panel: micro-badges de compliance -->
-  <div
-    class="relative z-10 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm leading-5 opacity-80"
-  >
-    <span>© 2026 Implementos</span>
-    <span class="flex items-center gap-2">
-      <i class="fa-sharp fa-regular fa-location-dot" aria-hidden="true"></i>
-      Chile
-    </span>
-  </div>
 </aside>
 
 <!-- Panel del formulario. `justify-center` centra el grupo form+soporte
@@ -185,46 +630,28 @@
        registro por esta vía. -->
   <div class="w-full max-w-md flex flex-col gap-8">
     <div class="flex flex-col gap-6">
-    <!-- Cabecera móvil (desktop usa el panel izquierdo) -->
-    <div class="lg:hidden flex items-center gap-3">
-      <div
-        class="w-11 h-11 border border-primary rounded-xl flex items-center justify-center"
-      >
-        <svg
-          width="20"
-          height="24"
-          viewBox="0 0 20 24"
-          fill="var(--p-primary-color)"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <path
-            d="M14.65 11.0645L13.1283 10.7253L14.3119 12.4216V17.6803L18.3698 14.2876V8.52002L16.5099 9.19856L14.65 11.0645Z"
-          />
-          <path
-            d="M5.18078 11.0645L6.70251 10.7253L5.51894 12.4216V17.6803L1.46098 14.2876V8.52002L3.32088 9.19856L5.18078 11.0645Z"
-          />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M6.02649 12.7634L7.37914 10.7278L8.22455 11.2367H11.6062L12.4516 10.7278L13.8042 12.7634V20.397L12.7898 21.9237L11.6062 23.1111H8.22455L7.04098 21.9237L6.02649 20.397V12.7634Z"
-          />
-          <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
-            d="M9.578 0.888672H7.7177L6.36505 4.11174L8.56311 10.5579H11.4375L13.4665 4.11174L12.1138 0.888672H10.2543V10.5578H9.578V0.888672Z"
-          />
-        </svg>
-      </div>
-      <div class="text-2xl font-medium leading-8 text-color">Implementos</div>
+    <!-- Cabecera móvil (desktop usa el panel izquierdo). El logo ya contiene
+         el wordmark "Implementos" — mismo asset que el aside para consistencia
+         de marca cross-viewport. -->
+    <div class="lg:hidden flex items-center">
+      <img
+        src="implementos-logo.svg"
+        alt="Implementos"
+        width="131"
+        height="44"
+        class="h-11 w-auto"
+      />
     </div>
 
     <div class="flex flex-col gap-2">
-      <h1 class="text-3xl font-semibold leading-normal text-color">
-        Bienvenido de vuelta
+      <h1 class="text-3xl font-bold leading-normal text-color">
+        Bienvenido de vuelta 👋 
       </h1>
-      <p class="text-muted-color font-medium leading-normal">
+      <!-- Subtítulo: `text-muted-color` para no competir con el título hero
+           ni con los labels del form. Patrón Stripe/Linear/Vercel/GitHub
+           bajo hero titles: el subtítulo es contexto quiet, no contenido
+           principal. 16px (leading-6) mantiene legibilidad sin subir peso. -->
+      <p class="text-muted-color font-normal leading-6">
         Ingresa a tu cuenta para continuar.
       </p>
     </div>
@@ -233,89 +660,113 @@
     <form
       #loginForm="ngForm"
       (ngSubmit)="onSubmit()"
-      class="flex flex-col gap-5"
+      class="flex flex-col gap-4"
       novalidate
       [attr.aria-busy]="submitting()"
     >
       <!-- Correo -->
-      <div class="flex flex-col gap-2">
-        <label for="login-email" class="text-color font-medium leading-6">
-          Correo electrónico
-        </label>
-        <input
-          id="login-email"
-          name="email"
-          type="email"
-          inputmode="email"
-          enterkeyhint="next"
-          pInputText
-          class="w-full"
-          autocomplete="off webauthn"
-          autocapitalize="off"
-          autocorrect="off"
-          spellcheck="false"
-          aria-required="true"
-          [invalid]="emailInvalid()"
-          [attr.aria-describedby]="emailInvalid() ? 'login-email-error' : null"
-          [ngModel]="email()"
-          (ngModelChange)="email.set($event)"
-          (blur)="markEmailTouched()"
-          required
-        />
-        @if (emailInvalid()) {
-          <p-message
-            id="login-email-error"
-            severity="error"
-            variant="simple"
-            size="small"
-            icon="fa-sharp fa-solid fa-circle-exclamation text-lg"
-          >
-            {{ emailErrorMessage() }}
-          </p-message>
-        }
+      <!-- Div externo sin flex: el error slot (min-h-6 = 24px) es hermano
+           directo del grupo label+input, sin gap adicional entre ellos.
+           La altura reservada del slot ya da el breathing necesario; un
+           gap extra haría que la distancia input→siguiente-campo se sintiera
+           excesiva (vs patrón compacto Vercel/Supabase). -->
+      <div>
+        <div class="flex flex-col gap-2">
+          <label for="login-email" class="text-color font-semibold leading-6">
+            Correo electrónico
+          </label>
+          <input
+            id="login-email"
+            name="email"
+            type="email"
+            inputmode="email"
+            enterkeyhint="next"
+            pInputText
+            class="w-full"
+            autocomplete="off webauthn"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-required="true"
+            [invalid]="emailInvalid()"
+            [attr.aria-describedby]="emailInvalid() ? 'login-email-error' : null"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            (blur)="markEmailTouched()"
+            required
+          />
+        </div>
+        <!-- Slot de error con altura reservada (min-h-6 = 24px, alto natural
+             del p-message simple size=small). Evita CLS: el form queda
+             igual de alto haya o no error, sin saltos al tipear/blur. -->
+        <div class="min-h-6 mt-1">
+          @if (emailInvalid()) {
+            <p-message
+              id="login-email-error"
+              severity="error"
+              variant="simple"
+              size="small"
+              icon="fa-sharp fa-solid fa-circle-exclamation text-lg"
+            >
+              {{ emailErrorMessage() }}
+            </p-message>
+          }
+        </div>
       </div>
 
       <!-- Contraseña -->
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center justify-between">
-          <label for="login-password" class="text-color font-medium leading-6">
-            Contraseña
-          </label>
-          <!-- Link secundario — mismo tratamiento que "Contacta a soporte"
-               (muted + hover emphasis, no primary). Stripe/Linear/Vercel:
-               el único acento verde es el CTA. Hit area 44×44px vía negative
-               margin (patrón Uber): expande el tap target sin shiftear layout. -->
-          <button
-            type="button"
-            class="text-sm font-medium text-muted-color leading-5 cursor-pointer hover:text-muted-color-emphasis transition-colors select-none bg-transparent border-0 inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
-          >
-            Restablecer contraseña
-          </button>
+      <!-- Misma estructura que el bloque email (ver comentario arriba):
+           div sin flex + inner gap-2 + error slot sibling. -->
+      <div>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label for="login-password" class="text-color font-semibold leading-6">
+              Contraseña
+            </label>
+            <!-- Link secundario — tratamiento link de texto (primary + underline).
+                 Mismo set visual que `<a>` (ver regla showcase/anchor-link-classes):
+                 text-primary + hover:text-primary-emphasis + underline +
+                 duration-150. Como es un <button> (dispara accion, no navegacion)
+                 la regla de <a> no aplica, pero replicamos el aspecto para que
+                 todos los "links" de la vista se lean iguales. Hit area 44x44px
+                 via negative margin (patron Uber): expande tap target sin
+                 shiftear layout. -->
+            <button
+              type="button"
+              class="text-sm font-medium text-primary hover:text-primary-emphasis underline leading-5 cursor-pointer transition-colors duration-150 select-none bg-transparent border-0 inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
+            >
+              Olvidé mi contraseña
+            </button>
+          </div>
+          <p-password
+            inputId="login-password"
+            name="password"
+            [feedback]="false"
+            [toggleMask]="true"
+            [fluid]="true"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            (onBlur)="markPasswordTouched()"
+            [invalid]="passwordInvalid()"
+            [attr.aria-describedby]="passwordInvalid() ? 'login-password-error' : null"
+            autocomplete="off webauthn"
+          />
         </div>
-        <p-password
-          inputId="login-password"
-          name="password"
-          [feedback]="false"
-          [toggleMask]="true"
-          [fluid]="true"
-          [ngModel]="password()"
-          (ngModelChange)="password.set($event)"
-          (onBlur)="markPasswordTouched()"
-          [inputStyleClass]="passwordInvalid() ? 'ng-invalid ng-dirty' : ''"
-          [attr.aria-describedby]="passwordInvalid() ? 'login-password-error' : null"
-          autocomplete="off webauthn"
-        />
-        @if (passwordInvalid()) {
-          <p-message
-            id="login-password-error"
-            severity="error"
-            variant="simple"
-            size="small"
-            icon="fa-sharp fa-solid fa-circle-exclamation text-lg"
-          >
-            Ingresa tu contraseña para continuar.
-          </p-message>
-        }
+        <!-- Slot de error con altura reservada (ver comentario en bloque
+             email). Mismo patrón aplicado a contraseña: sin CLS al validar. -->
+        <div class="min-h-6 mt-1">
+          @if (passwordInvalid()) {
+            <p-message
+              id="login-password-error"
+              severity="error"
+              variant="simple"
+              size="small"
+              icon="fa-sharp fa-solid fa-circle-exclamation text-lg"
+            >
+              Ingresa tu contraseña para continuar.
+            </p-message>
+          }
+        </div>
       </div>
 
       <!-- Recordarme: solo label, sin caption. El patrón "mantener sesión"
@@ -330,12 +781,17 @@
           [ngModel]="remember()"
           (ngModelChange)="remember.set($event)"
         />
-        <!-- Mismo peso (font-medium) y tamaño (16px) que "Correo electrónico"
-             y "Contraseña" — las 3 labels primarias del form comparten la
-             misma jerarquía tipográfica (Stripe/Linear pattern). -->
+        <!-- Label de checkbox: peso regular (font-normal), NO semibold. Vive
+             al lado del control, no encima — funciona como body text que
+             describe la acción, no como título de campo. GitHub "Keep me
+             signed in", Stripe "Remember this device", Linear/Google usan
+             este patrón. Si compartiera peso con "Correo electrónico" y
+             "Contraseña", competiría visualmente con los titulares reales
+             del form. Enforced por showcase/label-requires-semibold (rama
+             checkbox/radio). -->
         <label
           for="login-remember"
-          class="text-color font-medium leading-6 hover:text-color-emphasis cursor-pointer select-none transition-colors"
+          class="text-color font-normal leading-6 hover:text-color-emphasis cursor-pointer select-none transition-colors"
         >
           Mantener sesión en este equipo
         </label>
@@ -361,16 +817,22 @@
     </form>
     </div>
 
-    <!-- Link a soporte: solo la acción, sin frase envolvente. Stripe/Linear/
-         Notion: el usuario sabe por qué haría clic — la pregunta sobra.
-         Mismo tratamiento visual que "Restablecer contraseña" — coherencia
-         en todos los links secundarios de la vista. `self-center` lo centra
-         dentro del wrapper flex-col. -->
-    <button
-      type="button"
-      class="self-center text-sm font-medium text-muted-color leading-5 cursor-pointer hover:text-muted-color-emphasis transition-colors select-none bg-transparent border-0 inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
-    >
-      Contacta a soporte
-    </button>
+    <!-- Bloque soporte: pregunta neutra (text-muted-color) + CTA link
+         (text-primary). Patron Google/Stripe/GitHub al final de formularios
+         de auth: "¿Tienes problema? -> Accion". La pregunta contextualiza
+         la accion; sin ella, el link primary se lee solo y pierde el "por
+         que haria clic". `self-center` centra el bloque dentro del flex-col;
+         el <p> y el <button> se apilan con gap natural de leading. -->
+    <div class="self-center text-center">
+      <p class="text-muted-color font-normal leading-6">
+        ¿Tienes problemas para ingresar?
+      </p>
+      <button
+        type="button"
+        class="text-sm font-medium text-primary hover:text-primary-emphasis underline leading-5 cursor-pointer transition-colors duration-150 select-none bg-transparent border-0 inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
+      >
+        Contactar a soporte
+      </button>
+    </div>
   </div>
 </main>

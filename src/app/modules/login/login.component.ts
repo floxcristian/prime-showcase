@@ -47,8 +47,12 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    // min-h-screen en mobile (form crece si el viewport es bajo); lg:h-screen
+    // fija altura a 100vh desde lg en adelante para que el bento del aside no
+    // haga crecer el body fuera del viewport (overflow-hidden solo clipea
+    // hijos, no al host mismo).
     class:
-      'flex w-full min-h-screen bg-surface-0 dark:bg-surface-950 overflow-hidden',
+      'flex w-full min-h-screen lg:h-screen bg-surface-0 dark:bg-surface-950 overflow-hidden',
   },
 })
 export class LoginComponent {

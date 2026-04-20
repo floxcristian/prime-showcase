@@ -5,8 +5,8 @@
  * RuleTester suite for showcase/no-duotone-inline-icon.
  *
  * Covers:
- *   - Valid: fa-sharp-duotone + text-4xl / text-5xl / etc.
- *   - Invalid: fa-sharp-duotone without hero size; with text-sm, text-base, text-xl, text-3xl
+ *   - Valid: fa-sharp-duotone + text-2xl / text-3xl / text-4xl / text-5xl / etc.
+ *   - Invalid: fa-sharp-duotone without safe size; with text-sm, text-base, text-lg, text-xl
  *   - Bound attributes: ternary, object literal, string literal
  *   - Multiple duotone tokens in one class (single error per string — same source)
  */
@@ -23,16 +23,18 @@ const ruleTester = new RuleTester({
 test('no-duotone-inline-icon', () => {
   ruleTester.run('no-duotone-inline-icon', rule, {
     valid: [
-      // Hero sizes in same class string
+      // Safe sizes in same class string — text-2xl is the lower bound
+      { code: '<i class="fa-sharp-duotone fa-regular fa-file-invoice text-2xl"></i>' },
+      { code: '<i class="fa-sharp-duotone fa-regular fa-bell text-3xl"></i>' },
       { code: '<i class="fa-sharp-duotone fa-regular fa-cloud text-4xl"></i>' },
       { code: '<i class="fa-sharp-duotone fa-regular fa-shield text-5xl"></i>' },
       { code: '<i class="fa-sharp-duotone fa-regular fa-star text-6xl"></i>' },
       { code: '<i class="fa-sharp-duotone fa-regular fa-star text-9xl"></i>' },
       // Size before the duotone token — order doesn't matter
-      { code: '<i class="text-4xl fa-sharp-duotone fa-regular fa-x"></i>' },
+      { code: '<i class="text-2xl fa-sharp-duotone fa-regular fa-x"></i>' },
       // Size and duotone split across class + [class] on same element
       {
-        code: `<i class="fa-sharp-duotone fa-regular fa-x" [class]="'text-4xl'"></i>`,
+        code: `<i class="fa-sharp-duotone fa-regular fa-x" [class]="'text-2xl'"></i>`,
       },
       // Size and duotone split across class + [ngClass] object key
       {
@@ -42,9 +44,9 @@ test('no-duotone-inline-icon', () => {
       { code: '<i class="fa-sharp fa-regular fa-bell"></i>' },
       // No FA at all
       { code: '<div class="flex items-center gap-2"></div>' },
-      // Bound: duotone WITH hero size
+      // Bound: duotone WITH safe size
       {
-        code: `<i [ngClass]="{ 'fa-sharp-duotone fa-regular fa-x text-4xl': cond }"></i>`,
+        code: `<i [ngClass]="{ 'fa-sharp-duotone fa-regular fa-x text-2xl': cond }"></i>`,
       },
     ],
 
@@ -54,7 +56,7 @@ test('no-duotone-inline-icon', () => {
         code: '<i class="fa-sharp-duotone fa-regular fa-bell"></i>',
         errors: [{ messageId: 'duotoneTooSmall' }],
       },
-      // With small size — still below hero
+      // text-sm — muddy
       {
         code: '<i class="fa-sharp-duotone fa-regular fa-bell text-sm"></i>',
         errors: [{ messageId: 'duotoneTooSmall' }],
@@ -64,14 +66,14 @@ test('no-duotone-inline-icon', () => {
         code: '<i class="fa-sharp-duotone fa-regular fa-bell text-base"></i>',
         errors: [{ messageId: 'duotoneTooSmall' }],
       },
-      // text-xl — below 4xl
+      // text-lg — still below 2xl threshold
       {
-        code: '<i class="fa-sharp-duotone fa-regular fa-bell text-xl"></i>',
+        code: '<i class="fa-sharp-duotone fa-regular fa-bell text-lg"></i>',
         errors: [{ messageId: 'duotoneTooSmall' }],
       },
-      // text-3xl — still below 4xl
+      // text-xl — 20px, still below 2xl threshold
       {
-        code: '<i class="fa-sharp-duotone fa-regular fa-bell text-3xl"></i>',
+        code: '<i class="fa-sharp-duotone fa-regular fa-bell text-xl"></i>',
         errors: [{ messageId: 'duotoneTooSmall' }],
       },
       // Bound object literal

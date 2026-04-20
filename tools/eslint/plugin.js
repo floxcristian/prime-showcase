@@ -19,6 +19,9 @@
  *   showcase/no-duotone-inline-icon — Restricts fa-sharp-duotone to hero sizes (text-4xl+)
  *   showcase/no-decorative-icon-without-aria-hidden — Requires aria-hidden on <i> icons
  *   showcase/no-deprecated-styleclass — Forbids styleClass (deprecated in PrimeNG v20, use `class` instead)
+ *   showcase/text-3xl-requires-bold — Requires font-bold on any element with text-3xl (hero titles)
+ *   showcase/label-requires-semibold — Requires font-semibold on every <label> element (input labels)
+ *   showcase/anchor-link-classes — Requires canonical link class set on <a> (exempt: routerLink, href="#", wraps p-button)
  */
 
 /** @type {import('eslint').ESLint.Plugin} */
@@ -39,5 +42,8 @@ module.exports = {
     'no-duotone-inline-icon': require('./rules/no-duotone-inline-icon'),
     'no-decorative-icon-without-aria-hidden': require('./rules/no-decorative-icon-without-aria-hidden'),
     'no-deprecated-styleclass': require('./rules/no-deprecated-styleclass'),
+    'text-3xl-requires-bold': require('./rules/text-3xl-requires-bold'),
+    'label-requires-semibold': require('./rules/label-requires-semibold'),
+    'anchor-link-classes': require('./rules/anchor-link-classes'),
   },
 };

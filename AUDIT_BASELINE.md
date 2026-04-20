@@ -150,6 +150,18 @@ El panel izquierdo del login ocupa toda la altura de la pantalla (100vh) y ~40% 
 
 ---
 
+### EX-007: Hero typography `text-5xl`/`text-6xl` en bento grid del login
+
+| Campo          | Valor                                                                   |
+|----------------|-------------------------------------------------------------------------|
+| **Donde**      | `login.component.html` (`<aside>` panel de marketing, tiles de stats)  |
+| **Patrón**     | `text-5xl`, `text-6xl` en cifras hero (ej: `99,2%`, `+120`, `38K`)     |
+| **Estado**     | Excepción aceptada — restringida al panel de marketing del login       |
+
+El panel izquierdo del login es una **marketing-page full-height**, no una card de datos. Stripe, Linear, Vercel y Jobsly usan hero typography 48-72px para anclar jerarquía visual en bento grids de landing — text-3xl (30px) se lee como "número más" en lugar de "cifra destacada". La excepción está registrada en `tools/eslint/rules/no-forbidden-typography.js` → `ALLOWED_TEXT_SIZE_EXCEPTIONS`. **Scope explícito:** solo el panel de marketing del login puede usar text-5xl/6xl. Dashboards, cards de datos, overview, customers y todo el resto del producto siguen limitados a text-3xl como máximo (enforcement vía `ALLOWED_TEXT_SIZES`). La distinción marketing-vs-product UI es la misma que justifica `px-12` en EX-006.
+
+---
+
 ## Limitaciones del Análisis Estático (ESLint)
 
 ### LINT-001: Expresiones dinámicas en `[ngClass]` y `[class]` no se escanean

@@ -180,7 +180,8 @@ TEXTO
   text-color-emphasis                 → Texto principal hover (CTA cards, links destacados)
   text-muted-color                    → Texto secundario (labels, ayuda, metadata)
   text-muted-color-emphasis           → Texto secundario hover
-  text-primary                        → Texto con color de acento
+  text-primary                        → Texto con color de acento (links de texto + color accent)
+  text-primary-emphasis               → Hover de text-primary (links de texto al hover)
   text-primary-contrast               → Texto sobre fondo primary
   text-surface-0 / text-surface-950   → Texto invertido (dark/light mode)
 
@@ -288,11 +289,14 @@ NO USAR: rounded, rounded-sm, rounded-md, rounded-none ni rounded-[value].
 Combinaciones aprobadas — usar estas recetas, no inventar combinaciones nuevas:
 
 ```text
-TÍTULOS:    text-3xl font-semibold leading-normal (principal)
+TÍTULOS:    text-3xl font-bold leading-normal (principal) ← text-3xl SIEMPRE va con font-bold (regla enforced)
             text-2xl font-medium leading-8 (sección)
             text-xl font-medium leading-7 (subsección, inbox/movies headers)
 SUBTÍTULOS: text-muted-color font-medium leading-normal ← SUBTÍTULO DE PÁGINA
             text-color font-semibold leading-6 ← TÍTULO DE CARD
+LABELS:     text-color font-semibold leading-6 ← LABEL DE INPUT (encima del control: email, password, select, textarea)
+            text-color font-normal leading-6 ← LABEL DE CHECKBOX/RADIO (al lado del control, body text no título)
+LINKS:      font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 ← <a> de texto (enforced)
 BODY:       text-color leading-6 (base)
             text-color font-medium leading-6 (énfasis)
             text-sm leading-5 (compacto)
@@ -304,10 +308,10 @@ PEQUEÑO:    text-xs font-medium (badges, contadores)
 ESPECIAL:   text-base font-medium leading-5 (nav items side-menu)
             text-sm font-medium leading-tight (movie titles — contenedores estrechos)
 
-PESO: font-medium = default (90%) | font-semibold = solo títulos card/sección | font-normal = casi nunca
+PESO: font-medium = default (90%) | font-semibold = solo títulos card/sección | font-bold = reservado para text-3xl (títulos hero) | font-normal = casi nunca
 ```
 
-> **Nota:** ESLint valida valores individuales (text sizes, leading, font-weight) contra la escala aprobada. Las combinaciones se validan por code review contra estas recetas.
+> **Nota:** ESLint valida valores individuales (text sizes, leading, font-weight) contra la escala aprobada. Las combinaciones se validan por code review contra estas recetas, **excepto** la pareja `text-3xl` ↔ `font-bold` que está enforcement vía `showcase/text-3xl-requires-bold` — todo elemento con `text-3xl` debe tener `font-bold` en la misma pila de clases.
 
 ### Sombras
 
@@ -485,7 +489,7 @@ Estados:
   <!-- Título -->
   <div class="flex-1">
     <div class="text-muted-color font-medium leading-normal">Subtítulo</div>
-    <div class="text-color text-3xl font-semibold leading-normal">Título</div>
+    <div class="text-color text-3xl font-bold leading-normal">Título</div>
   </div>
   <!-- Acciones -->
   <div class="flex gap-2 whitespace-nowrap flex-nowrap">
@@ -658,7 +662,7 @@ Reglas multi-panel:
 ```html
 <div class="border border-surface rounded-3xl p-6 flex flex-col gap-6">
   <div>
-    <label class="text-color font-medium leading-6" for="id">Label</label>
+    <label class="text-color font-semibold leading-6" for="id">Label</label>
     <input pInputText id="id" class="mt-2 w-full" />
   </div>
   <div class="flex items-center gap-3">
@@ -673,7 +677,7 @@ Reglas multi-panel:
 </div>
 ```
 
-Reglas: `rounded-3xl` para form cards (vs `rounded-2xl` para data cards) | Label encima con `mt-2` | `p-divider` entre secciones | Botones `flex-1` al final | Multi-columna: `flex flex-wrap items-start gap-6` con `flex-1` por columna
+Reglas: `rounded-3xl` para form cards (vs `rounded-2xl` para data cards) | Label encima con `mt-2` | Labels de input (arriba del control) llevan `font-semibold`; labels de checkbox/radio (al lado del control) llevan `font-normal` — ambas ramas enforced por `showcase/label-requires-semibold` | `p-divider` entre secciones | Botones `flex-1` al final | Multi-columna: `flex flex-wrap items-start gap-6` con `flex-1` por columna
 
 ---
 
@@ -950,7 +954,7 @@ El proyecto usa **Font Awesome Pro 7** self-hosted desde `public/fontawesome/`, 
 
 - `sharp-regular.css` → familia principal de UI (default inline)
 - `sharp-solid.min.css` → estado activo de toggles binarios (outline vs filled)
-- `sharp-duotone-regular.css` → hero icons a ≥text-4xl (empty states, onboarding)
+- `sharp-duotone-regular.css` → iconos decorativos ≥text-2xl (feature cards, hero tiles, empty states, onboarding)
 - `brands.min.css` → solo para logos de marca reales (Bitcoin, Ethereum, etc.)
 
 ### Sintaxis
@@ -966,7 +970,8 @@ Sharp requiere TRES clases: **familia** + **estilo** + **nombre**:
 <!-- Sharp solid (estado activo de toggles binarios) -->
 <i class="fa-sharp fa-solid fa-bookmark"></i>
 
-<!-- Sharp duotone (hero icons ≥text-4xl: empty states, onboarding) -->
+<!-- Sharp duotone (≥text-2xl: feature cards, hero tiles, empty states) -->
+<i class="fa-sharp-duotone fa-regular fa-file-invoice text-2xl"></i>
 <i class="fa-sharp-duotone fa-regular fa-cloud-arrow-up text-4xl"></i>
 
 <!-- Brands (solo logos reales) -->
@@ -982,10 +987,11 @@ Sharp requiere TRES clases: **familia** + **estilo** + **nombre**:
 | Tamaño / Rol | Familia | Por qué |
 |---|---|---|
 | **Inline (16-20px) junto a texto** — list items, metadata, labels, nav, toolbars | `fa-sharp fa-regular` siempre | Consistencia de ritmo visual al escanear |
-| **Mediano (24-32px) standalone** — botones de acción, indicadores | `fa-sharp fa-regular` | Default consistente |
+| **Standalone 20px (`text-xl`)** — botones de acción, indicadores | `fa-sharp fa-regular` | 20px aún muy chico para duotone, los dos tonos se embarran |
 | **Estado activo de toggle binario** (bookmark, like, favorito, notif on/off) | `fa-sharp fa-solid` (mismo nombre que el inactivo) | Outline ↔ filled es el estándar universal de toggle — lectura inmediata |
 | **Indicador de estado fijo activo** (solo visible cuando true, sin contraparte inactiva) | `fa-sharp fa-solid` | Mismo vocabulario visual que un toggle activo, sin ambigüedad |
-| **Grande (≥48px / `text-4xl`+)** — empty states, hero feature cards, onboarding | `fa-sharp-duotone fa-regular` | A escala grande, los dos tonos crean profundidad |
+| **Decorativo standalone (≥24px / `text-2xl`+)** — feature cards, hero tiles | `fa-sharp-duotone fa-regular` | A partir de 24px los dos tonos se separan lo suficiente como para leer "profundidad" |
+| **Hero / empty state (≥48px / `text-4xl`+)** — onboarding, drop zones | `fa-sharp-duotone fa-regular` | Mismo criterio, más aún a escala grande |
 | **Brand logos** (Bitcoin, Ethereum, GitHub, Google) | `fa-brands` | Iconos de marca reales — sharp brands no existe |
 
 **Toggle pairs** — mismo nombre, sharp regular (off) ↔ sharp solid (on):
@@ -999,15 +1005,15 @@ El contraste outline/fill es el que los usuarios reconocen instantáneamente (iO
 **Sharp Duotone — cuándo SÍ y cuándo NO:**
 
 ✅ **SÍ funciona en:**
-- Empty states grandes (`<app-empty-state>` ya lo aplica a `text-4xl`)
-- Feature cards con icono hero (e.g., "Plan Premium" con shield 48px)
-- Onboarding screens
-- File upload drop zones (ej: `fa-cloud-arrow-up text-4xl`)
+- Feature cards con icono en box (e.g., factura, inventario, pagos — `text-2xl` dentro de box 48px)
+- Hero tiles con icono grande (`text-4xl`+)
+- Empty states (`<app-empty-state>` ya lo aplica a `text-4xl`)
+- Onboarding screens, file upload drop zones
 
 ❌ **NO usar sharp-duotone en:**
 - Iconos inline junto a texto en filas de listas/metadata
 - Estado activo de toggles binarios (usar `fa-sharp fa-solid`)
-- Cualquier icono < text-4xl (48px)
+- Cualquier icono < text-2xl (24px) — los dos tonos se embarran
 - Mezclado con sharp regular del mismo tamaño SIN diferenciación clara de rol
 
 **Por qué importa:** la mezcla sharp/sharp-duotone inline sin propósito (estado, emphasis) crea "saltos" visuales al escanear. Tu ojo espera ritmo consistente. Cuando hay un cambio de familia debe HABER UN PORQUÉ semántico (toggle activo, hero, etc.).
@@ -1027,7 +1033,7 @@ El contraste outline/fill es el que los usuarios reconocen instantáneamente (iO
 - **No** usar `pi pi-*` (PrimeIcons fue removido del proyecto, ya no existe).
 - **No** usar `fa-regular`, `fa-solid`, `fa-light` o `fa-duotone` SIN el prefijo `fa-sharp` o `fa-sharp-duotone`. La familia base no está cargada — solo sharp.
 - **No** importar otras librerías de íconos (Heroicons, Lucide, Material Icons).
-- **No** usar `fa-sharp-duotone` para iconos inline ni como estado activo de toggles. Solo a ≥text-4xl (hero icons en empty states/onboarding). Para toggles usar `fa-sharp fa-solid`.
+- **No** usar `fa-sharp-duotone` para iconos inline ni como estado activo de toggles. Solo a ≥text-2xl (feature cards, hero tiles, empty states). Para toggles usar `fa-sharp fa-solid`.
 - **No** usar `fa-brands` para iconos genéricos de UI — solo para logos de marca reales (crypto, redes sociales, plataformas).
 
 ### Otros componentes PrimeNG usados en el proyecto
@@ -1284,6 +1290,9 @@ tools/eslint/
     hover-requires-cursor-pointer.js  ← hover:* ↔ cursor-pointer deben ir en pareja
     no-icon-button-without-tooltip.js ← Icon-only <p-button> requiere pTooltip
     no-deprecated-styleclass.js       ← `styleClass` deprecated en PrimeNG v20 — usar `class`
+    text-3xl-requires-bold.js         ← text-3xl debe ir con font-bold en el mismo elemento
+    label-requires-semibold.js        ← <label> de input → font-semibold; <label> de checkbox/radio → font-normal
+    anchor-link-classes.js            ← <a> de texto debe llevar el set canónico de link (exempt: routerLink, href="#", wrapper de p-button)
   rules/__tests__/                    ← node:test suites por regla (RuleTester + invariantes del set)
 ```
 
@@ -1311,7 +1320,10 @@ CI (`.github/workflows/ci.yml`) corre el equivalente de `verify` en cada push a 
 | `showcase/no-inline-styles` | `style="..."` estático | `[style.*]="expr"` y `[ngStyle]` para valores dinámicos |
 | `showcase/no-forbidden-spacing` | `gap-9`, `p-8`, `m-3`, `m-5`, `gap-[13px]`, etc. | Escala aprobada (gap 1-6,8 / p 1-4,6 / m 0,1,2,4,6) + excepciones documentadas |
 | `showcase/no-missing-dark-pair` | `bg-surface-100` sin `dark:bg-surface-800` | Pares completos, shades oscuros sin par (900, 950) |
-| `showcase/no-forbidden-typography` | `text-4xl+`, `leading-snug`, `leading-relaxed`, `font-bold`, `font-black`, `text-[18px]` | Escala aprobada (text-xs a text-3xl, leading-4 a leading-8, font-normal/medium/semibold) + `text-4xl` para iconos/stats |
+| `showcase/no-forbidden-typography` | `text-4xl+`, `leading-snug`, `leading-relaxed`, `font-black`, `font-extrabold`, `text-[18px]` | Escala aprobada (text-xs a text-3xl, leading-4 a leading-8, font-normal/medium/semibold/bold) + `text-4xl` para iconos/stats |
+| `showcase/text-3xl-requires-bold` | `text-3xl` sin `font-bold` en el mismo elemento (p.ej. `text-3xl font-semibold`, `text-3xl` bare) | `text-3xl font-bold` (en cualquier combinación de class/ngClass/[class] del mismo elemento). Reserva `font-bold` al hero title para dar jerarquía visual inmediata |
+| `showcase/label-requires-semibold` | Dos ramas por rol: **(1) Label de input** (encima del control, ej. email, password, select) sin `font-semibold`. **(2) Label de checkbox/radio** (al lado del control, detectado por wrap o sibling de `<p-checkbox>` / `<p-radiobutton>` / `<input type="checkbox\|radio">`) sin `font-normal`, o con `font-semibold` presente | Input label con `font-semibold` (Stripe/Linear/Polaris) **o** checkbox/radio label con `font-normal` y sin pesos mayores (GitHub/Stripe/Google pattern: label al lado del control lee como body text, no como título de campo). Ambos pesos pueden declararse via class / `[ngClass]` / `[class]` |
+| `showcase/anchor-link-classes` | `<a>` de texto sin el set canónico (falta `font-medium`, `cursor-pointer`, `transition-colors`, `duration-150`, `underline`, `text-primary`, o `hover:text-primary-emphasis`). Detecta también el anti-pattern `text-blue-500 hover:text-blue-700` (hardcoded a paleta) | `<a>` con los 7 tokens requeridos (en cualquier combinación de class/ngClass/[class]). Exenciones: `[routerLink]`/`routerLink` (nav item enrutado), `href="#..."` (skip link / ancla in-page), `<a>` que contiene `<p-button>` o `<button pButton>` como hijo (wrapper semántico). Color vía `text-primary`/`hover:text-primary-emphasis` → cambiar la paleta primary en `app.config.ts` propaga a todos los links sin updates manuales |
 | `showcase/no-forbidden-transitions` | `transition-all`, bare `transition`, `transition-[all]` arbitrary values | `transition-colors`, `transition-opacity`, `transition-transform`, `transition-none`, `transition-shadow`, `transition-[transform]` |
 | `showcase/hover-requires-cursor-pointer` | Elementos con `hover:*` pero sin `cursor-pointer`, o viceversa (plain HTML, `<div>`, `<button>` sin pButton) | Mismo elemento con el par correspondiente; `group-hover:*` y `peer-hover:*` NO se flaggean; `<p-*>` y `[pButton]` están exentos |
 | `showcase/no-icon-button-without-tooltip` | `<p-button [icon]="..." aria-label="..."/>` sin `pTooltip` (icon-only buttons sin hint en hover) | Botones con `label` visible, o con `pTooltip` |
@@ -1364,7 +1376,11 @@ Las reglas escanean atributos estáticos y dinámicos:
 - No inventar combinaciones de tipografía fuera de las recetas definidas.
 - No usar `bg-surface-*` sin su par `dark:bg-surface-*`.
 
-**Excepción documentada:** `shadow-[...]` aplicado en runtime vía `classList.add()` sobre el tooltip custom de Chart.js (`src/app/modules/overview/overview.component.ts:191`). Chart.js dibuja el tooltip fuera del árbol de componentes Angular, por lo que no hereda el vocabulario de design tokens del preset y el elevation no se puede expresar con `border border-surface` (rompería el layout del tooltip). Es la única excepción aprobada — agregar otra requiere justificación en code review. ESLint no la detecta porque vive en una string concatenada en TS, fuera del scope del visitor HTML.
+**Excepciones documentadas** (agregar una nueva requiere justificación en code review):
+
+1. **`shadow-[...]` sobre tooltip custom de Chart.js** (`src/app/modules/overview/overview.component.ts:191`, aplicado en runtime vía `classList.add()`). Chart.js dibuja el tooltip fuera del árbol de componentes Angular, por lo que no hereda el vocabulario de design tokens del preset y el elevation no se puede expresar con `border border-surface` (rompería el layout del tooltip). ESLint no la detecta porque vive en una string concatenada en TS, fuera del scope del visitor HTML.
+
+2. **`!absolute` sobre `<i class="fa-sharp-duotone ...">`** (corner stat icons del panel marketing del login, `src/app/modules/login/login.component.html`). Font Awesome declara `position: relative` en `.fa-sharp-duotone` para anclar los dos layers (primary + secondary) vía pseudo-elementos. Esa regla gana por cascade order sobre la utility `absolute` de Tailwind, así que el ícono cae a flow normal en vez de a la esquina. El `!` prefix de Tailwind v4 emite `!important` y restaura el posicionamiento. Solo aplica cuando se combina `fa-sharp-duotone` con `absolute` en el mismo elemento — casos muy contados (decoración en esquina de tile). Si se multiplican, extraer a utility semántica.
 
 ### Componentes
 - No crear componentes custom si PrimeNG ya tiene uno equivalente.

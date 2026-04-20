@@ -1,0 +1,114 @@
+// Marquee vertical infinito para el aside marketing — patrón Jobsly/Orbit/Linear:
+// 3 columnas con scroll autónomo (up/down/up). El truco del loop seamless:
+// renderizamos el set de tiles 2× y animamos translateY de 0 a -50% (up) o de
+// -50% a 0 (down). En el instante del wrap el set duplicado coincide
+// pixel-perfect con el original → sin jump visible.
+//
+// Velocidades NORMALIZADAS en px/s, no en duración. Con columnas de alturas
+// distintas (930 / 814 / 845px), una duración uniforme daría velocidades
+// lineales distintas y el ojo leería "una columna va rápido, otra lenta". Lo
+// que hacemos es fijar una velocidad objetivo de ~17-19 px/s (patrón Linear /
+// Stripe / Vercel para marquees decorativos) y derivar la duración de cada
+// columna desde su altura real:
+//   Col A (930px, up):   52s → 17.9 px/s
+//   Col B (814px, down): 48s → 17.0 px/s
+//   Col C (845px, up):   45s → 18.8 px/s
+// Spread de 10% mantiene el feel "tres flujos paralelos" sin sincronizarse.
+// Si se agregan/quitan tiles, medir en DevTools y recalcular duration =
+// setHeight / targetVelocity. Evitar números redondos que coincidan con
+// múltiplos obvios — refuerzan la percepción de sync.
+//
+// Regla "todo con Tailwind, scss vacío" está waived para el panel marketing del
+// login (dashboard mantiene la regla). Los keyframes no se pueden expresar como
+// utility Tailwind v4 sin configurar theme.extend — mantenerlo local aquí es
+// más honesto que contaminar styles.scss global.
+//
+// Accesibilidad: `prefers-reduced-motion: reduce` desactiva el movimiento —
+// WCAG 2.3.3 (animaciones de desplazamiento continuo > 5s deben poder pausarse).
+
+@keyframes login-scroll-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes login-scroll-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.login-marquee {
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  // `will-change: transform` sube el track a su propia capa compositor — evita
+  // repaints del body durante la animación (cheap en GPU moderno).
+  will-change: transform;
+
+  // Col A: up, 930px @ ~17.9 px/s
+  &--up-52 {
+    animation-name: login-scroll-up;
+    animation-duration: 52s;
+  }
+
+  // Col B: down, 814px @ ~17.0 px/s
+  &--down-48 {
+    animation-name: login-scroll-down;
+    animation-duration: 48s;
+  }
+
+  // Col C: up, 845px @ ~18.8 px/s
+  &--up-45 {
+    animation-name: login-scroll-up;
+    animation-duration: 45s;
+  }
+}
+
+// Pause-on-hover por columna — si el usuario descansa el cursor sobre una
+// columna (ej. leyendo el testimonial), solo esa pausa; las otras dos siguen
+// moviéndose. Patrón Jobsly / Linear / Vercel para marquees con texto real.
+// Cumple WCAG 2.2.2 "Pause, Stop, Hide": contenido que se mueve >5s junto a
+// otro contenido debe tener control de pausa accesible al usuario.
+// No es un hover-afordance de "clic aquí" (no hay scale/lift/shadow); es
+// legibilidad — compatible con la regla "sin animaciones que sugieran
+// interactividad pre-login".
+.login-marquee-col:hover .login-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-marquee {
+    animation: none;
+  }
+}
+
+// Clipping de la columna: el track `.login-marquee` se anima con translateY
+// de 0 a -50% y no tiene height constraint → sin esto, los tiles que suben
+// más allá del top de la columna se ven detrás del logo (el aside tiene
+// overflow-hidden pero el logo header es hermano del marquee, no padre).
+// Con `overflow: hidden` aquí el contenido queda estrictamente dentro del
+// box de cada columna. Los tiles entran/salen con hard-clip por el borde de
+// la columna — aceptable porque el tile mismo tiene `rounded-2xl` + bg
+// propio, así el recorte se lee como "borde del tile", no como corte raro.
+//
+// Soft edge vía `border-radius` + `overflow: hidden` en la columna.
+// Patrón Jobsly (ref: diseño del usuario): la columna es un contenedor con
+// esquinas redondeadas y los tiles en el top/bottom se recortan contra la
+// CURVA del contenedor en vez de una línea recta horizontal. El ojo ya no
+// lee "corte abrupto" sino "borde del contenedor", y el efecto funciona sin
+// importar el color del tile (a diferencia de mask-image alpha o gradient
+// bg-primary, que fallaban porque los tiles son más oscuros que bg-primary).
+//
+// `rounded-2xl` (= 1rem) matchea el design token estándar del proyecto para
+// cards. `overflow: hidden` es lo que recorta efectivamente contra la curva.
+.login-marquee-col {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+}
