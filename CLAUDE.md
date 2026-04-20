@@ -286,6 +286,10 @@ NO USAR: rounded, rounded-sm, rounded-md, rounded-none ni rounded-[value].
 
 ### Escala de tipografía
 
+**REGLA BASE — 16px en todo el chrome de producto.** Body, nav, inputs, buttons, menús, labels, breadcrumb, list items: **todos a 16px default (text-base, i.e. omitir `text-*`)**. El único texto más chico es metadata pura (badges, timestamps, counters, emails en listas): `text-xs` (12px). **No usar `text-sm` (14px) para body/nav/label** — queda reservado sólo para casos narrowly-scoped documentados abajo (avatar overlays, movie titles estrechos).
+
+Rationale: Dominio ERP con usuarios 25-60+, sesiones de 8h, español (palabras más largas que inglés). Legibilidad > densidad. Patrón alineado con SAP Fiori 3+, ServiceNow moderno, Oracle forms. Bigtechs tech-forward (Linear/Stripe/Vercel) usan 14px pero su target/contexto es distinto. Consistency interna > alineación con SaaS tech-forward.
+
 Combinaciones aprobadas — usar estas recetas, no inventar combinaciones nuevas:
 
 ```text
@@ -297,21 +301,20 @@ SUBTÍTULOS: text-muted-color font-medium leading-normal ← SUBTÍTULO DE PÁGI
 LABELS:     text-color font-semibold leading-6 ← LABEL DE INPUT (encima del control: email, password, select, textarea)
             text-color font-normal leading-6 ← LABEL DE CHECKBOX/RADIO (al lado del control, body text no título)
 LINKS:      font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 ← <a> de texto (enforced)
-BODY:       text-color leading-6 (base)
+BODY:       text-color leading-6 (base — DEFAULT para todo el texto de body)
             text-color font-medium leading-6 (énfasis)
-            text-sm leading-5 (compacto)
-            text-sm font-medium leading-5 (compacto con énfasis — labels, stats, nav items)
-SECUNDARIO: text-muted-color leading-6 (metadata)
-            text-sm text-muted-color leading-5 (labels)
-PEQUEÑO:    text-xs font-medium (badges, contadores)
-            text-xs leading-4 (emails, sub-labels compactos)
-ESPECIAL:   text-base font-medium leading-5 (nav items side-menu)
-            text-sm font-medium leading-tight (movie titles — contenedores estrechos)
+NAV:        font-medium leading-6 ← NAV ITEM (L1 modules, L2 section header, L3 leaf, breadcrumb)
+            font-semibold leading-6 ← NAV ITEM ACTIVO / TRIGGER ("Categorías", breadcrumb último crumb)
+SECUNDARIO: text-muted-color leading-6 (metadata inline dentro de body)
+PEQUEÑO:    text-xs font-medium (badges, contadores, pills)
+            text-xs leading-4 (emails, sub-labels compactos, timestamps dentro de list items)
+ESPECIAL:   text-sm font-medium leading-tight (movie titles — contenedores estrechos, showcase-specific)
+            text-sm font-medium leading-none (avatar overlay labels sobre imagen/color — encaja dentro de la bounding box del avatar)
 
-PESO: font-medium = default (90%) | font-semibold = solo títulos card/sección | font-bold = reservado para text-3xl (títulos hero) | font-normal = casi nunca
+PESO: font-medium = default (90%) | font-semibold = solo títulos card/sección + nav activo + triggers | font-bold = reservado para text-3xl (títulos hero) | font-normal = casi nunca (sólo checkbox/radio labels)
 ```
 
-> **Nota:** ESLint valida valores individuales (text sizes, leading, font-weight) contra la escala aprobada. Las combinaciones se validan por code review contra estas recetas, **excepto** la pareja `text-3xl` ↔ `font-bold` que está enforcement vía `showcase/text-3xl-requires-bold` — todo elemento con `text-3xl` debe tener `font-bold` en la misma pila de clases.
+> **Nota:** ESLint valida valores individuales (text sizes, leading, font-weight) contra la escala aprobada — `text-sm` sigue siendo válido porque hay casos legítimos (ESPECIAL arriba). Las combinaciones se validan por code review contra estas recetas, **excepto** la pareja `text-3xl` ↔ `font-bold` que está enforcement vía `showcase/text-3xl-requires-bold` — todo elemento con `text-3xl` debe tener `font-bold` en la misma pila de clases.
 
 ### Sombras
 

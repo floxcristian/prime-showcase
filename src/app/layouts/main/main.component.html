@@ -1,8 +1,17 @@
 <div
-  class="bg-surface-0 border border-black/10 dark:border-white/20 dark:bg-surface-950 w-full h-[100vh] flex flex-col lg:flex-row items-start gap-2 lg:gap-6 p-2 lg:p-6 overflow-hidden"
+  class="bg-surface-0 border border-black/10 dark:border-white/20 dark:bg-surface-950 w-full h-[100vh] flex flex-col overflow-hidden"
 >
-  <app-side-menu class="hidden lg:block" />
-  <main #mainContent id="main-content" tabindex="-1" class="flex flex-col flex-1 w-full h-full overflow-hidden">
-    <router-outlet />
-  </main>
+  <app-toolbar />
+  <app-breadcrumb-bar />
+  <div class="flex-1 flex overflow-hidden relative">
+    <main
+      #mainContent
+      id="main-content"
+      tabindex="-1"
+      class="flex flex-col flex-1 w-full h-full overflow-hidden p-2 lg:p-6"
+    >
+      <router-outlet />
+    </main>
+  </div>
+  <app-nav-overlay />
 </div>

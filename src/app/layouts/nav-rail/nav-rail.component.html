@@ -1,0 +1,20 @@
+<nav aria-label="Módulos" class="flex flex-col items-center gap-2 w-full">
+  @for (module of nav.modules; track module.id) {
+    @let isActive = nav.activeModuleId() === module.id;
+    <button
+      type="button"
+      [attr.aria-label]="module.title"
+      [attr.aria-current]="isActive ? 'page' : null"
+      (click)="nav.setActiveModule(module.id)"
+      (mouseenter)="nav.openHoverModule(module.id)"
+      (focus)="nav.openHoverModule(module.id)"
+      [ngClass]="{
+        'text-primary bg-primary-100 dark:bg-primary-900': isActive,
+        'text-muted-color hover:text-color hover:bg-emphasis bg-transparent': !isActive
+      }"
+      class="w-10 h-10 flex items-center justify-center rounded-lg cursor-pointer transition-colors select-none text-lg"
+    >
+      <i [class]="module.icon" aria-hidden="true"></i>
+    </button>
+  }
+</nav>

@@ -1,0 +1,114 @@
+<!-- Left: logo + hamburger -->
+<div class="flex-1 flex items-center gap-3 min-w-0">
+  <!-- Logo + brand -->
+  <a
+    routerLink="/"
+    aria-label="Ir al inicio"
+    class="shrink-0 flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
+  >
+    <img
+      src="implementos-logo.svg"
+      alt="Implementos"
+      height="48"
+      class="h-12 w-auto"
+    />
+  </a>
+
+  <!-- Sidebar toggle -->
+  <button
+    #navTrigger
+    data-nav-trigger
+    type="button"
+    (click)="nav.toggleSidebar()"
+    [attr.aria-label]="nav.sidebarOpen() ? 'Cerrar menú' : 'Abrir menú'"
+    [attr.aria-pressed]="nav.sidebarOpen()"
+    [ngClass]="{
+      'text-color bg-emphasis': nav.sidebarOpen(),
+      'text-muted-color bg-transparent hover:bg-emphasis hover:text-color':
+        !nav.sidebarOpen(),
+    }"
+    class="h-10 px-3 gap-2 rounded-lg flex items-center cursor-pointer transition-colors select-none shrink-0"
+  >
+    <i class="fa-sharp fa-regular fa-bars-staggered" aria-hidden="true"></i>
+    <span class="font-semibold leading-6">Categorías</span>
+  </button>
+</div>
+
+<!-- Center: global search (command palette trigger placeholder) -->
+<p-iconfield iconPosition="left" class="hidden md:block flex-1 max-w-xl">
+  <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
+  <input
+    type="text"
+    pInputText
+    placeholder="Buscar módulos, pantallas, acciones..."
+    class="w-full"
+  />
+</p-iconfield>
+
+<!-- Right actions -->
+<div class="flex-1 flex items-center gap-1 justify-end min-w-0">
+  <button
+    type="button"
+    (click)="toggleTheme()"
+    [attr.aria-label]="
+      darkTheme() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
+    "
+    [pTooltip]="darkTheme() ? 'Tema claro' : 'Tema oscuro'"
+    tooltipPosition="bottom"
+    class="w-10 h-10 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis hover:text-color bg-transparent cursor-pointer transition-colors select-none"
+  >
+    <i
+      [ngClass]="darkTheme() ? 'fa-sun' : 'fa-moon'"
+      class="fa-sharp fa-regular"
+      aria-hidden="true"
+    ></i>
+  </button>
+  <button
+    type="button"
+    aria-label="Notificaciones"
+    pTooltip="Notificaciones"
+    tooltipPosition="bottom"
+    class="relative w-10 h-10 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis hover:text-color bg-transparent cursor-pointer transition-colors select-none"
+  >
+    <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
+    <span
+      aria-hidden="true"
+      class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[var(--p-red-500)] ring-2 ring-surface-0 dark:ring-surface-950"
+    ></span>
+  </button>
+  <button
+    #settingsTrigger
+    type="button"
+    (click)="settingsVisible.set(true)"
+    aria-label="Configuración"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="settingsVisible()"
+    pTooltip="Configuración"
+    tooltipPosition="bottom"
+    class="w-10 h-10 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis hover:text-color bg-transparent cursor-pointer transition-colors select-none"
+  >
+    <i class="fa-sharp fa-regular fa-gear" aria-hidden="true"></i>
+  </button>
+  <button
+    type="button"
+    (click)="userMenuRef.toggle($event)"
+    aria-label="Cuenta"
+    aria-haspopup="menu"
+    class="ml-1 rounded-full cursor-pointer hover:opacity-70 transition-opacity select-none"
+  >
+    <p-avatar
+      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+      shape="circle"
+      size="normal"
+      class="flex"
+    />
+  </button>
+  <p-menu #userMenuRef [model]="userMenu" [popup]="true" appendTo="body" />
+</div>
+
+@defer (on interaction(settingsTrigger); prefetch on hover(settingsTrigger)) {
+  <app-settings-drawer
+    [(visible)]="settingsVisible"
+    (hidden)="restoreSettingsTriggerFocus()"
+  />
+}

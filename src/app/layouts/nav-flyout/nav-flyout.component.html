@@ -1,0 +1,14 @@
+@let module = nav.flyoutModule();
+@if (module) {
+  <div class="flex items-center px-4 h-14 shrink-0 border-b border-surface">
+    <div class="text-color font-semibold leading-6 truncate flex-1">
+      {{ module.title }}
+    </div>
+  </div>
+  <nav
+    [attr.aria-label]="'Vista previa: ' + module.title"
+    class="flex-1 flex flex-col overflow-hidden"
+  >
+    <app-nav-sections [module]="module" (leafClicked)="onLeafClicked()" />
+  </nav>
+}

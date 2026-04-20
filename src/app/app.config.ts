@@ -105,8 +105,19 @@ const AppPreset = definePreset(Aura, {
       950: '#001829',
     },
     colorScheme: {
-      light: { formField: { invalidBorderColor: '{rose.500}' } },
-      dark: { formField: { invalidBorderColor: '{rose.400}' } },
+      light: {
+        formField: { invalidBorderColor: '{rose.500}' },
+        // Hover por default (bg-emphasis) en Aura es surface.100 — casi
+        // invisible sobre blanco y completamente invisible sobre columnas
+        // grises (surface.50/100). Subimos un step a surface.200 para que
+        // el feedback sea perceptible en CUALQUIER superficie. Patron Linear/
+        // Stripe: hover visible pero no agresivo.
+        content: { hoverBackground: '{surface.200}' },
+      },
+      dark: {
+        formField: { invalidBorderColor: '{rose.400}' },
+        content: { hoverBackground: '{surface.700}' },
+      },
     },
     // Focus ring halo-only estilo Lara — single source of truth del design system.
     // Sobreescribe el default de Aura (outline + halo) por box-shadow puro, mas limpio

@@ -1,0 +1,28 @@
+<nav
+  aria-label="Ruta de navegación"
+  class="flex-1 min-w-0 flex items-center gap-2"
+>
+  @for (crumb of nav.breadcrumb(); track $index; let last = $last) {
+    <div class="flex items-center gap-2 min-w-0">
+      <span
+        [ngClass]="{
+          'text-color font-semibold leading-6': last,
+          'text-muted-color font-medium leading-6': !last
+        }"
+        class="truncate"
+      >
+        {{ crumb.title }}
+      </span>
+      @if (!last) {
+        <i
+          class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs"
+          aria-hidden="true"
+        ></i>
+      }
+    </div>
+  }
+</nav>
+
+<div class="shrink-0 flex items-center gap-2">
+  <ng-content />
+</div>

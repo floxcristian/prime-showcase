@@ -14,7 +14,7 @@
       @for (navData of inboxNavs; track navData.title) {
         <div class="flex flex-col gap-2">
           <div
-            class="text-sm font-medium leading-5 text-muted-color"
+            class="font-medium leading-6 text-muted-color"
             >
             {{ navData.title }}
           </div>
@@ -42,7 +42,7 @@
         <p-progressbar [value]="75">
           <ng-template #content let-value>
             <span
-              class="absolute inset-0 flex items-center justify-center text-sm font-medium text-primary-contrast leading-none"
+              class="absolute inset-0 flex items-center justify-center font-medium text-primary-contrast leading-none"
               >4 días restantes</span
               >
             </ng-template>
@@ -170,7 +170,7 @@
                       <td class="min-w-56 max-w-80">
                         <div class="truncate">
                           <span class="text-color leading-6 mr-2">{{ data.title }}</span>
-                          <span class="text-muted-color leading-5 text-sm">{{
+                          <span class="text-muted-color leading-6">{{
                             data.message
                           }}</span>
                         </div>
@@ -188,7 +188,7 @@
 
                       <td class="w-28 relative">
                         <div
-                          class="text-right text-sm leading-5 text-muted-color transition-opacity opacity-100 group-hover:opacity-0 group-focus-within:opacity-0 pointer-coarse:opacity-0"
+                          class="text-right leading-6 text-muted-color transition-opacity opacity-100 group-hover:opacity-0 group-focus-within:opacity-0 pointer-coarse:opacity-0"
                         >
                           {{ data.time }}
                         </div>

@@ -1,0 +1,74 @@
+@if (nav.sidebarOpen()) {
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-label="Menú de navegación"
+    class="fixed inset-x-0 bottom-0 top-16 z-30"
+  >
+    <!-- Backdrop: click fuera del panel cierra el overlay -->
+    <div
+      class="absolute inset-0 bg-[var(--p-mask-background)]"
+      (click)="close()"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Panel: anclado al x del botón "Categorías", altura = contenido (cap max-h-full) -->
+    <div
+      #panelEl
+      [style.left.px]="nav.triggerLeft()"
+      class="absolute top-0 max-h-full flex bg-surface-50 dark:bg-surface-900 border border-surface rounded-b-2xl overflow-hidden"
+    >
+      <!-- Col 1: L1 modules (icon + label) -->
+      <nav
+        aria-label="Módulos"
+        class="w-64 shrink-0 border-r border-surface flex flex-col overflow-hidden"
+      >
+        <div class="overflow-y-auto p-2 flex flex-col gap-1">
+          @for (mod of nav.modules; track mod.id) {
+            @let isActive = nav.activeModuleId() === mod.id;
+            @let isPreview = nav.hoveredModuleId() === mod.id && !isActive;
+            <button
+              type="button"
+              (mouseenter)="preview(mod.id)"
+              (focus)="preview(mod.id)"
+              [ngClass]="{
+                'text-primary bg-primary-100 dark:bg-primary-900': isActive,
+                'text-color bg-emphasis': isPreview,
+                'text-color hover:bg-emphasis bg-transparent': !isActive && !isPreview
+              }"
+              class="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors select-none text-left"
+            >
+              <i
+                [class]="mod.icon"
+                class="w-5 text-center text-base shrink-0"
+                aria-hidden="true"
+              ></i>
+              <span class="flex-1 font-medium leading-6 truncate">{{
+                mod.title
+              }}</span>
+            </button>
+          }
+        </div>
+      </nav>
+
+      <!-- Col 2: L2/L3 of selected module (mega-menu con columnas auto) -->
+      @if (selectedModule(); as mod) {
+        <section
+          aria-label="Secciones"
+          [ngClass]="{
+            'w-72': columnCount() === 1,
+            'w-[36rem]': columnCount() === 2,
+            'w-[54rem]': columnCount() === 3
+          }"
+          class="shrink-0 flex flex-col overflow-hidden bg-surface-100 dark:bg-surface-800"
+        >
+          <app-nav-sections
+            [module]="mod"
+            [columns]="columnCount()"
+            (leafClicked)="onLeafClicked()"
+          />
+        </section>
+      }
+    </div>
+  </div>
+}

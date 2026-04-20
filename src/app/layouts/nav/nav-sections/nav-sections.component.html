@@ -1,0 +1,44 @@
+<ul
+  [ngClass]="{
+    'columns-1': columns() === 1,
+    'columns-2': columns() === 2,
+    'columns-3': columns() === 3
+  }"
+  class="gap-x-6"
+>
+  @for (section of module().sections; track section.id) {
+    <li class="break-inside-avoid mb-3">
+      <div class="flex items-center gap-3 px-3 py-2">
+        <i
+          [class]="section.icon"
+          class="w-5 text-center text-base shrink-0 text-color"
+          aria-hidden="true"
+        ></i>
+        <h3 class="flex-1 font-medium leading-6 text-color truncate">
+          {{ section.title }}
+        </h3>
+      </div>
+      <ul class="flex flex-col gap-0.5">
+        @for (leaf of section.children; track leaf.title + leaf.url) {
+          <li>
+            <a
+              [routerLink]="leaf.url"
+              (click)="leafClicked.emit()"
+              routerLinkActive="text-primary bg-primary-100 dark:bg-primary-900"
+              [routerLinkActiveOptions]="{ exact: true }"
+              #rla="routerLinkActive"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
+              [ngClass]="{
+                'text-muted-color hover:text-color': !rla.isActive
+              }"
+              class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-emphasis cursor-pointer transition-colors select-none font-medium leading-6"
+            >
+              <span class="w-5 shrink-0" aria-hidden="true"></span>
+              <span class="flex-1 truncate">{{ leaf.title }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </li>
+  }
+</ul>

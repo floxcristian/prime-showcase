@@ -3,23 +3,9 @@
     <!-- Start::Header -->
     <div class="flex-1">
       <div class="text-muted-color font-medium leading-normal">Resumen</div>
-      <h1 class="text-color text-3xl font-bold leading-normal">
-        Bienvenido a PrimeNG
-      </h1>
+      <h1 class="text-color text-3xl font-bold leading-normal">Bienvenido</h1>
     </div>
     <!-- End::Header -->
-
-    <div class="flex gap-2 whitespace-nowrap flex-nowrap">
-      <p-iconfield iconPosition="left">
-        <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
-        <input type="text" pInputText placeholder="Buscar" aria-label="Buscar" />
-      </p-iconfield>
-      <p-button severity="secondary" outlined aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom">
-        <p-overlayBadge severity="danger" styleClass="!min-w-0 !w-2.5 !h-2.5">
-          <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
-        </p-overlayBadge>
-      </p-button>
-    </div>
   </div>
 
   <div class="mt-4 flex flex-wrap gap-6 items-center justify-between p-1">
@@ -31,7 +17,11 @@
       [allowEmpty]="false"
     />
     <div class="flex items-center gap-2">
-      <p-button label="Descargar" icon="fa-sharp fa-regular fa-download" iconPos="right" />
+      <p-button
+        label="Descargar"
+        icon="fa-sharp fa-regular fa-download"
+        iconPos="right"
+      />
       <p-datepicker
         ngSkipHydration
         [ngModel]="dates()"
@@ -49,7 +39,9 @@
   <div class="flex flex-col gap-6 mt-6">
     <!-- Start::Crypto Analytics -->
     @defer (hydrate on viewport) {
-      <div class="w-full border border-surface rounded-2xl py-5 px-7 flex flex-col justify-between">
+      <div
+        class="w-full border border-surface rounded-2xl py-5 px-7 flex flex-col justify-between"
+      >
         <div class="flex items-center gap-6 mb-6">
           <h2 class="flex-1 text-color font-semibold leading-6">
             Análisis Cripto
@@ -61,7 +53,9 @@
                   class="w-3 h-3 rounded-full"
                   [style.backgroundColor]="item.backgroundColor"
                 ></div>
-                <span class="font-medium text-color leading-6">{{ item.label }}</span>
+                <span class="font-medium text-color leading-6">{{
+                  item.label
+                }}</span>
               </div>
             }
           </div>
@@ -103,7 +97,12 @@
               aria-haspopup="true"
               aria-controls="overlay_menu_transactions"
             />
-            <p-menu #transactionsMenu id="overlay_menu_transactions" [model]="menuItems" [popup]="true" />
+            <p-menu
+              #transactionsMenu
+              id="overlay_menu_transactions"
+              [model]="menuItems"
+              [popup]="true"
+            />
           </div>
           <p-table
             dataKey="id"
@@ -119,10 +118,20 @@
             paginatorStyleClass="!bg-transparent"
           >
             <ng-template #paginatorpreviouspagelinkicon>
-              <i class="fa-sharp fa-regular fa-chevron-left" aria-hidden="true" pTooltip="Página anterior" tooltipPosition="bottom"></i>
+              <i
+                class="fa-sharp fa-regular fa-chevron-left"
+                aria-hidden="true"
+                pTooltip="Página anterior"
+                tooltipPosition="bottom"
+              ></i>
             </ng-template>
             <ng-template #paginatornextpagelinkicon>
-              <i class="fa-sharp fa-regular fa-chevron-right" aria-hidden="true" pTooltip="Página siguiente" tooltipPosition="bottom"></i>
+              <i
+                class="fa-sharp fa-regular fa-chevron-right"
+                aria-hidden="true"
+                pTooltip="Página siguiente"
+                tooltipPosition="bottom"
+              ></i>
             </ng-template>
             <ng-template #header>
               <tr>
@@ -175,14 +184,19 @@
                   ></p-tag>
                 </td>
                 <td class="w-1/6">
-                  <div class="text-muted-color text-right">{{ item.amount }}</div>
+                  <div class="text-muted-color text-right">
+                    {{ item.amount }}
+                  </div>
                 </td>
               </tr>
             </ng-template>
           </p-table>
         </div>
       } @placeholder {
-        <div class="flex-1 border border-surface rounded-2xl py-5 px-7" aria-busy="true">
+        <div
+          class="flex-1 border border-surface rounded-2xl py-5 px-7"
+          aria-busy="true"
+        >
           <div class="flex items-center justify-between mb-6">
             <p-skeleton width="10rem" height="1.5rem" />
             <p-skeleton shape="circle" size="2rem" />
@@ -196,7 +210,9 @@
       }
 
       <!-- Start::My Wallet -->
-      <div class="xl:w-96 border border-surface rounded-2xl py-5 px-7 flex flex-col justify-between">
+      <div
+        class="xl:w-96 border border-surface rounded-2xl py-5 px-7 flex flex-col justify-between"
+      >
         <div>
           <div class="flex items-center mb-6">
             <h2 class="flex-1 text-color font-semibold leading-6">
@@ -231,7 +247,9 @@
                       class="w-2 h-2 rounded-full"
                       [style.background-color]="val.color"
                     ></div>
-                    <div class="text-color uppercase font-medium leading-6 flex-1">
+                    <div
+                      class="text-color uppercase font-medium leading-6 flex-1"
+                    >
                       {{ val.label }}
                       <span class="text-muted-color">({{ val.value }}%)</span>
                     </div>

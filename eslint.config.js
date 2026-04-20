@@ -82,4 +82,22 @@ module.exports = tseslint.config(
       '@angular-eslint/template/label-has-associated-control': 'warn',
     },
   },
+
+  // ─── Nav shell duotone exception ───────────────────────────────────
+  // Scoped exception documented in CLAUDE.md: module iconography in the
+  // navigation shell (rail, contextual sidebar, toolbar breadcrumb) is the
+  // app's primary wayfinding affordance. Duotone at text-base/lg gives the
+  // rail enough visual weight to read as "brand icons" instead of a bank of
+  // undifferentiated UI controls. The micro-embarrado risk (two-tone bleed
+  // below text-2xl) is accepted in this narrow surface only.
+  {
+    files: [
+      'src/app/layouts/nav-rail/**/*.html',
+      'src/app/layouts/side-menu/**/*.html',
+      'src/app/layouts/toolbar/**/*.html',
+    ],
+    rules: {
+      'showcase/no-duotone-inline-icon': 'off',
+    },
+  },
 );

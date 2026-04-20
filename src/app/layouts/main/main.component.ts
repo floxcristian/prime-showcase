@@ -10,10 +10,18 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { SideMenuComponent } from '../side-menu/side-menu.component';
+
+import { BreadcrumbBarComponent } from '../breadcrumb-bar/breadcrumb-bar.component';
+import { NavOverlayComponent } from '../nav-overlay/nav-overlay.component';
+import { NavStateService } from '../nav/nav-state.service';
+import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 const NG_MODULES = [RouterOutlet];
-const COMPONENTS = [SideMenuComponent];
+const COMPONENTS = [
+  BreadcrumbBarComponent,
+  NavOverlayComponent,
+  ToolbarComponent,
+];
 
 @Component({
   selector: 'app-main',
@@ -29,6 +37,8 @@ export class MainComponent {
   private router = inject(Router);
   private injector = inject(Injector);
   private mainRef = viewChild<ElementRef<HTMLElement>>('mainContent');
+
+  protected nav = inject(NavStateService);
 
   constructor() {
     // Gestion de foco SPA (patron WCAG): mover foco a <main> en cada navegacion.
