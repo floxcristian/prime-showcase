@@ -194,6 +194,47 @@ input:-webkit-autofill:focus-visible {
 }
 
 /*
+ * Card background — aplicación global al patrón del design system.
+ *
+ * CLAUDE.md define cards como `.border.border-surface.rounded-2xl` (data cards)
+ * y `.rounded-3xl` (form cards). Con el canvas (main) ahora en `surface-50`
+ * en light / `surface-900` en dark, los cards necesitan bg explícito para
+ * "flotar" sobre el gris del canvas. En vez de tocar cada template por
+ * módulo, el selector global garantiza consistencia y cubre cualquier card
+ * futuro sin requerir actualización manual.
+ *
+ * Patrón big-tech: canvas ligeramente gris + cards blancos = jerarquía
+ * visual clara (Linear, Dropbox, Gmail, Stripe Dashboard).
+ */
+.border.border-surface.rounded-2xl,
+.border.border-surface.rounded-3xl {
+  background-color: var(--p-surface-0);
+}
+.p-dark .border.border-surface.rounded-2xl,
+.p-dark .border.border-surface.rounded-3xl {
+  background-color: var(--p-surface-950);
+}
+
+/*
+ * ToggleButton — outer bg uniforme (track gris) en todos los estados. La
+ * diferenciación visual del checked viene del .p-togglebutton-content interno
+ * que el preset Aura ya estiliza con bg blanco — no necesita override.
+ * Pattern: outer "track" + inner "thumb" para el seleccionado.
+ *
+ * border-color igualado al bg para neutralizar los separadores blancos
+ * del preset (border default = surface-0 = blanco) que sobre el gris del
+ * track se veían como líneas verticales rotas entre buttons.
+ */
+.p-togglebutton {
+  background-color: var(--p-surface-200);
+  border-color: var(--p-surface-200);
+}
+.p-dark .p-togglebutton {
+  background-color: var(--p-surface-700);
+  border-color: var(--p-surface-700);
+}
+
+/*
  * Dark-mode focus ring tuning.
  * El preset emite `shadow: 0 0 0 0.2rem {primary.200}` que da buen contraste sobre
  * surface-0 (light) pero queda lavado sobre surface-950 (dark). En dark mode pasamos

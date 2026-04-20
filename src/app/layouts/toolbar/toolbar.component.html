@@ -1,6 +1,6 @@
 <!-- Left: logo + hamburger -->
-<div class="flex-1 flex items-center gap-3 min-w-0">
-  <!-- Logo + brand -->
+<div class="flex-1 flex items-center gap-6 min-w-0">
+  <!-- Logo — hover limitado al logo mismo, no al bloque completo -->
   <a
     routerLink="/"
     aria-label="Ir al inicio"
@@ -23,13 +23,28 @@
     [attr.aria-label]="nav.sidebarOpen() ? 'Cerrar menú' : 'Abrir menú'"
     [attr.aria-pressed]="nav.sidebarOpen()"
     [ngClass]="{
-      'text-color bg-emphasis': nav.sidebarOpen(),
-      'text-muted-color bg-transparent hover:bg-emphasis hover:text-color':
+      'bg-primary-700 dark:bg-primary-800': nav.sidebarOpen(),
+      'bg-primary-600 dark:bg-primary-700 hover:bg-primary-700 dark:hover:bg-primary-800':
         !nav.sidebarOpen(),
     }"
-    class="h-10 px-3 gap-2 rounded-lg flex items-center cursor-pointer transition-colors select-none shrink-0"
+    class="text-surface-0 h-10 px-3 gap-3 rounded-lg flex items-center cursor-pointer transition-colors select-none shrink-0"
   >
-    <i class="fa-sharp fa-regular fa-bars-staggered" aria-hidden="true"></i>
+    <span class="relative w-4 h-4 shrink-0">
+      <i
+        class="fa-sharp fa-regular fa-bars-staggered absolute inset-0 transition-[transform,opacity] duration-200"
+        [ngClass]="
+          nav.sidebarOpen() ? 'opacity-0 scale-50' : 'opacity-100 scale-100'
+        "
+        aria-hidden="true"
+      ></i>
+      <i
+        class="fa-sharp fa-regular fa-xmark absolute inset-0 transition-[transform,opacity] duration-200"
+        [ngClass]="
+          nav.sidebarOpen() ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+        "
+        aria-hidden="true"
+      ></i>
+    </span>
     <span class="font-semibold leading-6">Categorías</span>
   </button>
 </div>
@@ -55,7 +70,7 @@
     "
     [pTooltip]="darkTheme() ? 'Tema claro' : 'Tema oscuro'"
     tooltipPosition="bottom"
-    class="w-10 h-10 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis hover:text-color bg-transparent cursor-pointer transition-colors select-none"
+    class="w-10 h-10 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
   >
     <i
       [ngClass]="darkTheme() ? 'fa-sun' : 'fa-moon'"
@@ -68,7 +83,7 @@
     aria-label="Notificaciones"
     pTooltip="Notificaciones"
     tooltipPosition="bottom"
-    class="relative w-10 h-10 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis hover:text-color bg-transparent cursor-pointer transition-colors select-none"
+    class="relative w-10 h-10 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
   >
     <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
     <span
@@ -85,7 +100,7 @@
     [attr.aria-expanded]="settingsVisible()"
     pTooltip="Configuración"
     tooltipPosition="bottom"
-    class="w-10 h-10 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis hover:text-color bg-transparent cursor-pointer transition-colors select-none"
+    class="w-10 h-10 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
   >
     <i class="fa-sharp fa-regular fa-gear" aria-hidden="true"></i>
   </button>

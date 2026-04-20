@@ -44,7 +44,7 @@ const LOCAL_COMPONENTS = [SettingsDrawerComponent];
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'h-16 shrink-0 border-b border-surface bg-surface-0 dark:bg-surface-950 flex items-center gap-3 px-4 w-full',
+      'toolbar-brand-bg h-16 shrink-0 border-b border-surface flex items-center gap-3 px-4 w-full',
     '(window:resize)': 'measureTrigger()',
   },
 })
