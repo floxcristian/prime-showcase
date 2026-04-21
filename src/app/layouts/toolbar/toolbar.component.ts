@@ -6,6 +6,7 @@ import {
   ElementRef,
   inject,
   Injector,
+  input,
   signal,
   viewChild,
 } from '@angular/core';
@@ -44,7 +45,8 @@ const LOCAL_COMPONENTS = [SettingsDrawerComponent];
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'toolbar-brand-bg h-16 shrink-0 border-b border-surface flex items-center gap-3 px-4 w-full',
+      'toolbar-brand-bg relative z-20 h-16 shrink-0 flex items-center gap-3 px-4 w-full transition-shadow duration-200',
+    '[class.toolbar-elevated]': 'elevated()',
     '(window:resize)': 'measureTrigger()',
   },
 })
@@ -58,6 +60,13 @@ export class ToolbarComponent {
   protected readonly darkTheme = this.config.darkTheme;
   protected readonly settingsVisible = signal(false);
   private navTriggerRef = viewChild<ElementRef<HTMLButtonElement>>('navTrigger');
+
+  /**
+   * Eleva el toolbar con un box-shadow sutil cuando el breadcrumb bar está
+   * colapsado (hide-on-scroll-down). Sin el ancla del breadcrumb debajo, el
+   * toolbar necesita separación visual del canvas — el shadow ocupa ese rol.
+   */
+  readonly elevated = input<boolean>(false);
 
   constructor() {
     afterNextRender(

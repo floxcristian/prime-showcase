@@ -10,3 +10,14 @@
   background-size: cover;
   background-position: center;
 }
+
+// Elevación sutil cuando se hace scroll en main — el toolbar es sticky top,
+// el breadcrumb scrollea dentro del flow de contenido (patrón sticky top de
+// Linear, Gmail, Stripe, ecommerce). El shadow aparece cuando hay contenido
+// "detrás" del toolbar para dar el efecto de elevación. Vive aquí como CSS
+// directo porque Tailwind shadow utilities están bloqueadas por design
+// system (ver `showcase/no-shadow-classes` rule). Mismo waiver que el
+// tooltip Chart.js.
+:host(.toolbar-elevated) {
+  box-shadow: hsla(0 0% 0% / 0.1) 0 0.5rem 1rem;
+}

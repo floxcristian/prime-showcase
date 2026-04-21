@@ -1,10 +1,13 @@
 <!-- Left: logo + hamburger -->
 <div class="flex-1 flex items-center gap-6 min-w-0">
   <!-- Logo — hover limitado al logo mismo, no al bloque completo -->
+  <!-- Oculto en mobile: pantallas <md ya tienen el hamburger "Categorías" y
+       búsqueda, el logo compite por espacio horizontal. Patrón e-commerce
+       (Lider mobile, Santa Isabel mobile, Mercado Libre app). -->
   <a
     routerLink="/"
     aria-label="Ir al inicio"
-    class="shrink-0 flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
+    class="shrink-0 hidden md:flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
   >
     <img
       src="implementos-logo.svg"

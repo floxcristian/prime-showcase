@@ -1,8 +1,7 @@
 <div
-  class="bg-surface-50 border border-black/10 dark:border-white/20 dark:bg-surface-900 w-full h-[100vh] flex flex-col overflow-hidden"
+  class="bg-surface-50 dark:bg-surface-900 w-full h-[100vh] flex flex-col overflow-hidden"
 >
-  <app-toolbar />
-  <app-breadcrumb-bar />
+  <app-toolbar [elevated]="isScrolled()" />
   <div class="flex-1 flex overflow-hidden relative">
     <main
       #mainContent
@@ -10,6 +9,7 @@
       tabindex="-1"
       class="flex flex-col flex-1 w-full h-full overflow-y-auto bg-surface-50 dark:bg-surface-900"
     >
+      <app-breadcrumb-bar />
       <div class="flex flex-col flex-1 min-h-full p-2 lg:p-6">
         <router-outlet />
       </div>

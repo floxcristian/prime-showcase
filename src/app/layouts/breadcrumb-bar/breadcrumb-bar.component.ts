@@ -26,7 +26,7 @@ const NG_MODULES = [NgClass];
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'h-12 shrink-0 border-b border-surface bg-surface-200 dark:bg-surface-700 flex items-center gap-3 px-6 w-full',
+      'h-12 shrink-0 bg-surface-200 dark:bg-surface-700 flex items-center gap-3 px-6 w-full',
   },
 })
 export class BreadcrumbBarComponent {
