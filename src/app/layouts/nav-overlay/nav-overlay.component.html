@@ -38,10 +38,10 @@
               (click)="drillIntoModule(mod.id)"
               [attr.aria-current]="isCurrent ? 'page' : null"
               [ngClass]="{
-                'text-primary': isCurrent,
-                'text-color': !isCurrent
+                'text-primary bg-primary-100 dark:bg-primary-900': isCurrent,
+                'text-color hover:bg-emphasis bg-transparent': !isCurrent
               }"
-              class="w-full h-12 flex items-center gap-3 px-4 bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none text-left"
+              class="w-full h-12 flex items-center gap-3 px-4 cursor-pointer transition-colors select-none text-left"
             >
               <i
                 [class]="mod.icon"
