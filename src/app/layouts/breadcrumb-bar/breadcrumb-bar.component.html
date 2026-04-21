@@ -1,15 +1,15 @@
 <nav
   aria-label="Ruta de navegación"
-  class="flex-1 min-w-0 flex items-center gap-2"
+  class="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto md:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
 >
   @for (crumb of nav.breadcrumb(); track $index; let last = $last) {
-    <div class="flex items-center gap-2 min-w-0">
+    <div class="flex items-center gap-2 md:min-w-0">
       <span
         [ngClass]="{
           'text-color font-semibold leading-6': last,
           'text-muted-color font-medium leading-6': !last
         }"
-        class="truncate"
+        class="whitespace-nowrap md:truncate"
       >
         {{ crumb.title }}
       </span>

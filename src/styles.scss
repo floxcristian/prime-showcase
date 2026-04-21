@@ -260,16 +260,17 @@ input:-webkit-autofill:focus-visible {
     flex-wrap: nowrap;
     scroll-snap-type: x mandatory;
     // scroll-padding asegura que cuando el browser haga snap al primer tab,
-    // lo posicione a 1rem del borde izquierdo del viewport (no al borde 0).
-    // 1rem = 16px = px-4 = gutter mobile bigtech (iOS HIG, Material, Tailwind).
-    scroll-padding-inline: 1rem;
+    // lo posicione a 0.5rem del borde izquierdo del viewport (no al borde 0).
+    // 0.5rem = 8px — gutter mobile consistente con el resto del drawer (p-2)
+    // y con el main route wrapper de la app.
+    scroll-padding-inline: 0.5rem;
     scrollbar-width: none;
     // Padding propio del scroll container: genera aire en los extremos.
-    // !important requerido porque el `px-4` del template en el host de
+    // !important requerido porque el `px-2` del template en el host de
     // <p-selectbutton> no se aplica al inner `.p-selectbutton` div donde
     // vive el flex / scroll.
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
 
     &::-webkit-scrollbar {
       display: none;
@@ -278,24 +279,14 @@ input:-webkit-autofill:focus-visible {
     // !important requerido: PrimeNG aplica flex:1 / width:100% internamente
     // en los togglebuttons para distribución equitativa. En mobile queremos
     // content-width para que los labels completos se muestren sin truncar
-    // y los tabs sean scrolleables. min-width garantiza que incluso labels
-    // cortos tengan un área visible generosa (el bg "pill" del checked
-    // rellena el botón entero, no queda apretado contra el texto).
-    //
-    // Sin padding custom: el bg del checked vive en `.p-togglebutton-content`
-    // (inner) con su propio padding del preset Aura. Agregar padding a la
-    // outer `.p-togglebutton` creaba un borde gris alrededor del contenido
-    // blanco, rompiendo la analogía con desktop donde todo el tab es blanco.
+    // y los tabs sean scrolleables. No forzamos min-width ni padding custom
+    // — el tamaño/padding queda idéntico al default de Aura (mismo que el
+    // selectbutton de overview) para consistencia visual cross-app.
     .p-togglebutton {
       flex: 0 0 auto !important;
-      min-width: 10rem !important;
       width: auto !important;
       scroll-snap-align: start;
       white-space: nowrap;
-    }
-    .p-togglebutton .p-togglebutton-content {
-      width: 100%;
-      padding: 0.5rem 1rem !important;
     }
   }
 }
