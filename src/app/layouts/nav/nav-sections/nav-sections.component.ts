@@ -40,6 +40,5 @@ export class NavSectionsComponent {
   protected nav = inject(NavStateService);
 
   readonly module = input.required<NavModule>();
-  readonly columns = input<number>(1);
   readonly leafClicked = output<void>();
 }

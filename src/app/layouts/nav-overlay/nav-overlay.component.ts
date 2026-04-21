@@ -65,17 +65,6 @@ export class NavOverlayComponent {
     return this.nav.modules.find((m) => m.id === id);
   });
 
-  /**
-   * Mega-menu column count: 1-3 según cantidad de secciones L2 del módulo
-   * previsualizado. Pattern Lider / Google Cloud. Solo aplica a desktop.
-   */
-  protected readonly columnCount = computed<number>(() => {
-    const len = this.selectedModule()?.sections.length ?? 0;
-    if (len <= 3) return 1;
-    if (len <= 8) return 2;
-    return 3;
-  });
-
   // ─── Mobile state ────────────────────────────────────────────────────────
   /** Vista activa del drill mobile. Arranca en 'modules', drill pone 'sections'. */
   protected readonly mobileView = signal<MobileView>('modules');

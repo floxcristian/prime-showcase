@@ -81,13 +81,21 @@
           </h2>
           <div class="w-10 shrink-0" aria-hidden="true"></div>
         </div>
-        <ul
-          class="flex-1 overflow-y-auto overflow-x-hidden pb-3 divide-y divide-surface-200 dark:divide-surface-800"
-        >
-          @for (section of mod.sections; track section.id) {
+        <ul class="flex-1 overflow-y-auto overflow-x-hidden pb-3">
+          @for (
+            section of mod.sections;
+            track section.id;
+            let sectionIdx = $index
+          ) {
             <li>
+              <!-- L2 header: border-t absorbido dentro del h-12. sectionIdx>0
+                   evita la línea encima del primer header. -->
               <div
                 class="flex items-center gap-3 px-4 h-12 bg-surface-100 dark:bg-surface-800"
+                [ngClass]="{
+                  'border-t border-surface-200 dark:border-surface-800':
+                    sectionIdx > 0
+                }"
               >
                 <i
                   [class]="section.icon"
@@ -98,9 +106,7 @@
                   {{ section.title }}
                 </h3>
               </div>
-              <ul
-                class="flex flex-col divide-y border-t divide-surface-200 border-surface-200 dark:divide-surface-800 dark:border-surface-800"
-              >
+              <ul>
                 @for (
                   leaf of section.children;
                   track leaf.title + leaf.url
@@ -109,14 +115,14 @@
                     <a
                       [routerLink]="leaf.url"
                       (click)="onMobileLeafClicked()"
-                      routerLinkActive="text-primary bg-primary-100 dark:bg-primary-900"
+                      routerLinkActive="!text-primary !bg-primary-100 dark:!bg-primary-900"
                       [routerLinkActiveOptions]="{ exact: true }"
                       #rla="routerLinkActive"
                       [attr.aria-current]="rla.isActive ? 'page' : null"
                       [ngClass]="{
                         'text-muted-color hover:text-color': !rla.isActive
                       }"
-                      class="flex items-center gap-3 px-4 h-12 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium"
+                      class="flex items-center gap-3 px-4 h-12 bg-surface-0 dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium"
                     >
                       <span class="w-5 shrink-0" aria-hidden="true"></span>
                       <span class="flex-1 leading-6">{{ leaf.title }}</span>
@@ -136,7 +142,7 @@
     <div
       data-nav-panel
       [style.left.px]="nav.triggerLeft()"
-      class="hidden md:flex absolute top-0 right-0 md:right-auto max-h-full flex-row bg-surface-50 dark:bg-surface-900 border border-surface rounded-b-2xl overflow-hidden"
+      class="hidden md:flex absolute top-0 right-0 md:right-auto max-h-full flex-row bg-surface-0 dark:bg-surface-950 border border-surface rounded-b-2xl overflow-hidden"
     >
       <nav
         aria-label="Módulos"
@@ -168,6 +174,10 @@
               <span class="flex-1 font-semibold leading-6 truncate">{{
                 mod.title
               }}</span>
+              <i
+                class="fa-sharp fa-regular fa-chevron-right text-muted-color text-base shrink-0"
+                aria-hidden="true"
+              ></i>
             </button>
           }
         </div>
@@ -176,18 +186,9 @@
       @if (selectedModule(); as mod) {
         <section
           aria-label="Secciones"
-          [ngClass]="{
-            'w-72': columnCount() === 1,
-            'w-[36rem]': columnCount() === 2,
-            'w-[54rem]': columnCount() === 3
-          }"
-          class="shrink-0 flex flex-col overflow-hidden bg-surface-100 dark:bg-surface-800"
+          class="w-80 shrink-0 flex flex-col overflow-hidden bg-surface-0 dark:bg-surface-950"
         >
-          <app-nav-sections
-            [module]="mod"
-            [columns]="columnCount()"
-            (leafClicked)="onLeafClicked()"
-          />
+          <app-nav-sections [module]="mod" (leafClicked)="onLeafClicked()" />
         </section>
       }
     </div>
