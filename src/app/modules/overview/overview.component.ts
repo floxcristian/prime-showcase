@@ -64,7 +64,7 @@ const PRIME_MODULES = [
   styleUrl: './overview.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex-1 h-full overflow-y-auto pb-0.5',
+    class: 'flex-1 flex flex-col pb-0.5',
   },
 })
 export class OverviewComponent {
