@@ -48,7 +48,7 @@
         aria-hidden="true"
       ></i>
     </span>
-    <span class="font-semibold leading-6">Categorías</span>
+    <span class="font-semibold leading-6">Menú</span>
   </button>
 </div>
 
@@ -114,7 +114,11 @@
   <p-menu #userMenuRef [model]="userMenu" [popup]="true" appendTo="body" />
 </div>
 
-@defer (on interaction(settingsTrigger); prefetch on hover(settingsTrigger); when nav.accountDrawerOpen()) {
+@defer (
+  on interaction(settingsTrigger);
+  prefetch on hover(settingsTrigger);
+  when nav.accountDrawerOpen()
+) {
   <app-settings-drawer
     [visible]="nav.accountDrawerOpen()"
     (visibleChange)="nav.accountDrawerOpen.set($event)"
