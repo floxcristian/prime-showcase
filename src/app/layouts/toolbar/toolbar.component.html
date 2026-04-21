@@ -26,11 +26,11 @@
     [attr.aria-label]="nav.sidebarOpen() ? 'Cerrar menú' : 'Abrir menú'"
     [attr.aria-pressed]="nav.sidebarOpen()"
     [ngClass]="{
-      'bg-primary-700 dark:bg-primary-800': nav.sidebarOpen(),
-      'bg-primary-600 dark:bg-primary-700 hover:bg-primary-700 dark:hover:bg-primary-800':
+      'bg-primary-800 dark:bg-primary-900': nav.sidebarOpen(),
+      'bg-primary-700 dark:bg-primary-800 hover:bg-primary-800 dark:hover:bg-primary-900':
         !nav.sidebarOpen(),
     }"
-    class="text-surface-0 h-10 px-3 gap-3 rounded-lg flex items-center cursor-pointer transition-colors select-none shrink-0"
+    class="text-surface-0 h-11 px-3 gap-3 rounded-lg flex items-center cursor-pointer transition-colors select-none shrink-0"
   >
     <span class="relative w-4 h-4 shrink-0">
       <i
@@ -59,7 +59,7 @@
     type="text"
     pInputText
     placeholder="Buscar módulos, pantallas, acciones..."
-    class="w-full"
+    class="w-full h-11"
   />
 </p-iconfield>
 
@@ -73,7 +73,7 @@
     "
     [pTooltip]="darkTheme() ? 'Tema claro' : 'Tema oscuro'"
     tooltipPosition="bottom"
-    class="w-10 h-10 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
+    class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
   >
     <i
       [ngClass]="darkTheme() ? 'fa-sun' : 'fa-moon'"
@@ -86,7 +86,7 @@
     aria-label="Notificaciones"
     pTooltip="Notificaciones"
     tooltipPosition="bottom"
-    class="relative w-10 h-10 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
+    class="relative w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
   >
     <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
     <span
@@ -100,16 +100,26 @@
     (click)="userMenuRef.toggle($event)"
     aria-label="Mi cuenta"
     aria-haspopup="menu"
-    pTooltip="Mi cuenta"
-    tooltipPosition="bottom"
-    class="ml-1 rounded-full cursor-pointer hover:opacity-70 transition-opacity select-none"
+    [ngClass]="{
+      'bg-primary-800 dark:bg-primary-900': nav.accountDrawerOpen(),
+      'bg-primary-700 dark:bg-primary-800 hover:bg-primary-800 dark:hover:bg-primary-900':
+        !nav.accountDrawerOpen(),
+    }"
+    class="ml-1 h-11 w-40 pl-1 pr-3 gap-2 rounded-lg flex items-center text-left cursor-pointer transition-colors select-none text-surface-0"
   >
     <p-avatar
       image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
-      shape="circle"
       size="normal"
-      class="flex"
+      class="rounded-lg overflow-hidden flex shrink-0"
     />
+    <div class="flex-1 min-w-0 flex flex-col">
+      <span class="font-semibold leading-none truncate">Brook</span>
+      <span class="text-xs font-medium leading-4 truncate">Ejecutivo</span>
+    </div>
+    <i
+      class="fa-sharp fa-regular fa-chevron-down text-xs shrink-0"
+      aria-hidden="true"
+    ></i>
   </button>
   <p-menu #userMenuRef [model]="userMenu" [popup]="true" appendTo="body" />
 </div>
