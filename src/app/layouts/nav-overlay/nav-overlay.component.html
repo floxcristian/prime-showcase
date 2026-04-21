@@ -82,11 +82,13 @@
           <div class="w-10 shrink-0" aria-hidden="true"></div>
         </div>
         <ul
-          class="flex-1 overflow-y-auto overflow-x-hidden py-3 divide-y divide-surface-200 dark:divide-surface-800"
+          class="flex-1 overflow-y-auto overflow-x-hidden pb-3 divide-y divide-surface-200 dark:divide-surface-800"
         >
           @for (section of mod.sections; track section.id) {
-            <li class="pt-4 first:pt-0">
-              <div class="flex items-center gap-3 px-4 h-12">
+            <li>
+              <div
+                class="flex items-center gap-3 px-4 h-12 bg-surface-100 dark:bg-surface-800"
+              >
                 <i
                   [class]="section.icon"
                   class="w-5 text-center text-base shrink-0 text-color"
