@@ -61,9 +61,22 @@ export class MobileFooterComponent {
     () => this.nav.sidebarOpen() || this.nav.accountDrawerOpen(),
   );
 
+  /**
+   * Toggle semantics — tap en la misma acción cierra el overlay abierto, y
+   * abrir una acción cierra la otra (mutex). Sin el toggle, el usuario queda
+   * sin forma de cerrar el overlay sin seleccionar algo. Sin el mutex, los
+   * dos overlays podrían abrirse a la vez apilándose visualmente.
+   */
   handleAction(action: MobileFooterAction): void {
-    if (action === 'nav') this.nav.sidebarOpen.set(true);
-    else if (action === 'account') this.nav.accountDrawerOpen.set(true);
+    if (action === 'nav') {
+      const willOpen = !this.nav.sidebarOpen();
+      this.nav.sidebarOpen.set(willOpen);
+      if (willOpen) this.nav.accountDrawerOpen.set(false);
+    } else if (action === 'account') {
+      const willOpen = !this.nav.accountDrawerOpen();
+      this.nav.accountDrawerOpen.set(willOpen);
+      if (willOpen) this.nav.sidebarOpen.set(false);
+    }
   }
 
   /**

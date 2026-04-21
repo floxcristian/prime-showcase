@@ -3,27 +3,43 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ElementRef,
+  effect,
   inject,
-  viewChild,
+  signal,
+  untracked,
 } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 import type { NavModule } from '../nav/models/nav-module.interface';
 import { NavSectionsComponent } from '../nav/nav-sections/nav-sections.component';
 import { NavStateService } from '../nav/nav-state.service';
 
-const NG_MODULES = [NgClass];
+const NG_MODULES = [NgClass, RouterModule];
 const LOCAL_COMPONENTS = [NavSectionsComponent];
 
+type MobileView = 'modules' | 'sections';
+
 /**
- * Left-anchored overlay mega-menu (ServiceNow / SAP Fiori pattern — variant
- * that keeps the top global chrome visible). Two columns:
- *   1. L1 modules (icon + label)
- *   2. L2/L3 of the previewed module (hover on L1) or active module (no hover)
+ * Mega-menu de navegación con dos surfaces:
  *
- * Positioned below the toolbar + breadcrumb bar via `top-28` (h-16 + h-12 = 7rem).
- * Click an L3 leaf → commit that module, navigate, close overlay.
- * ESC / backdrop click → close.
+ * **Desktop (≥md):** panel flotante anclado al botón "Categorías" (ServiceNow /
+ * SAP Fiori pattern). Columna 1 de L1 modules con hover preview, columna 2 con
+ * el layout L2/L3 del módulo previsualizado (mega-menu multi-columna).
+ *
+ * **Mobile (<md):** pantalla completa, single-column con drill-in de 1 paso.
+ * Patrón Notion / Linear / SAP Fiori / Shopify Admin mobile — probado para
+ * árboles de navegación profundos con labels largos:
+ *   - Vista `modules`: lista full-width de L1 modules, cada uno como fila
+ *     táctil con chevron `›`. Tap → drill a `sections`.
+ *   - Vista `sections`: header `‹ [Module Name]` con back. Contenido
+ *     full-width: L2 como headers no interactivos + todas las L3 como
+ *     routerLinks. Tap leaf → commit del módulo, navegar, cerrar.
+ *
+ * Rationale de NO usar 2 columnas en mobile: labels como "Canal de Denuncias",
+ * "Contactabilidad Clientes", "Adm. Clientes" en viewport <430px condenan
+ * ambas columnas al truncado. Single-col aprovecha los ~375px completos.
+ * Tradeoff: pierdes visibilidad simultánea de L1 (requiere back para cambiar
+ * módulo), pero sigues en 2 taps a destino.
  */
 @Component({
   selector: 'app-nav-overlay',
@@ -38,8 +54,8 @@ const LOCAL_COMPONENTS = [NavSectionsComponent];
 })
 export class NavOverlayComponent {
   protected nav = inject(NavStateService);
-  private panelRef = viewChild<ElementRef<HTMLElement>>('panelEl');
 
+  // ─── Desktop state (hover preview) ───────────────────────────────────────
   protected readonly selectedId = computed(
     () => this.nav.hoveredModuleId() ?? this.nav.activeModuleId(),
   );
@@ -50,11 +66,8 @@ export class NavOverlayComponent {
   });
 
   /**
-   * Mega-menu column count: se reparte L2/L3 en varias columnas cuando hay
-   * muchas secciones (patrón Lider / Santa Isabel / Google Cloud mega-menu).
-   * Umbrales conservadores — 1-5 secciones entran cómodas en una sola
-   * columna; pasa a 2 en 6-10; 3 si excede. Scroll vertical como último
-   * recurso cuando ni 3 columnas caben.
+   * Mega-menu column count: 1-3 según cantidad de secciones L2 del módulo
+   * previsualizado. Pattern Lider / Google Cloud. Solo aplica a desktop.
    */
   protected readonly columnCount = computed<number>(() => {
     const len = this.selectedModule()?.sections.length ?? 0;
@@ -63,6 +76,34 @@ export class NavOverlayComponent {
     return 3;
   });
 
+  // ─── Mobile state ────────────────────────────────────────────────────────
+  /** Vista activa del drill mobile. Arranca en 'modules', drill pone 'sections'. */
+  protected readonly mobileView = signal<MobileView>('modules');
+
+  /** Módulo sobre el que se drilleó (undefined mientras la vista es 'modules'). */
+  protected readonly mobileDrilledModuleId = signal<string | null>(null);
+
+  protected readonly mobileDrilledModule = computed<NavModule | undefined>(
+    () =>
+      this.nav.modules.find((m) => m.id === this.mobileDrilledModuleId()),
+  );
+
+  constructor() {
+    // Reset del drill state cuando el overlay cierra — próxima apertura
+    // siempre arranca en la lista de módulos. Sin esto, el usuario reabre
+    // el menú y aparece dentro de un módulo random que visitó antes.
+    effect(() => {
+      const isOpen = this.nav.sidebarOpen();
+      if (!isOpen) {
+        untracked(() => {
+          this.mobileView.set('modules');
+          this.mobileDrilledModuleId.set(null);
+        });
+      }
+    });
+  }
+
+  // ─── Desktop handlers ────────────────────────────────────────────────────
   preview(id: string): void {
     this.nav.hoveredModuleId.set(id);
   }
@@ -73,6 +114,24 @@ export class NavOverlayComponent {
     this.close();
   }
 
+  // ─── Mobile handlers ─────────────────────────────────────────────────────
+  drillIntoModule(id: string): void {
+    this.mobileDrilledModuleId.set(id);
+    this.mobileView.set('sections');
+  }
+
+  backToModules(): void {
+    this.mobileView.set('modules');
+    this.mobileDrilledModuleId.set(null);
+  }
+
+  onMobileLeafClicked(): void {
+    const id = this.mobileDrilledModuleId();
+    if (id) this.nav.setActiveModule(id);
+    this.close();
+  }
+
+  // ─── Shared ──────────────────────────────────────────────────────────────
   close(): void {
     this.nav.clearHoverImmediate();
     this.nav.sidebarOpen.set(false);
@@ -83,19 +142,24 @@ export class NavOverlayComponent {
   }
 
   /**
-   * Click-outside handler. El backdrop nativo solo cubre desde top-16 hacia
-   * abajo (para no tapar el toolbar), así que los clicks en el toolbar no lo
-   * activan. Este listener global cierra el overlay cuando el target está
-   * fuera del panel Y fuera del trigger (el botón "Categorías" tiene su
-   * propio (click) que hace toggle — no queremos que el click ahí cierre y
-   * luego el toggle re-abra).
+   * Click-outside handler — solo relevante en desktop (el backdrop con mask
+   * cubre el viewport debajo del toolbar). En mobile el panel es full-screen
+   * y no hay "fuera del panel" visible, así que este handler es idle.
+   *
+   * Usa `[data-nav-panel]` como marker en ambos paneles (mobile y desktop)
+   * porque un `viewChild('panelEl')` solo habría capturado uno — al estar
+   * los dos siempre en el DOM (ocultos con `hidden`/`md:hidden`), el click
+   * en el panel mobile contaría como "fuera" del ref desktop y cerraría.
+   *
+   * El trigger (`[data-nav-trigger]`) es excluido porque tiene su propio
+   * (click) que hace toggle — sin este guard, el click primero cerraría el
+   * overlay y luego el toggle lo reabriría.
    */
   onDocumentClick(event: MouseEvent): void {
     if (!this.nav.sidebarOpen()) return;
     const target = event.target as HTMLElement | null;
     if (!target) return;
-    const panel = this.panelRef()?.nativeElement;
-    if (panel && panel.contains(target)) return;
+    if (target.closest('[data-nav-panel]')) return;
     if (target.closest('[data-nav-trigger]')) return;
     this.close();
   }

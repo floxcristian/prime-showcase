@@ -7,14 +7,14 @@
   class="gap-x-6"
 >
   @for (section of module().sections; track section.id) {
-    <li class="break-inside-avoid mb-3">
+    <li class="break-inside-avoid mb-4">
       <div class="flex items-center gap-3 px-3 py-2">
         <i
           [class]="section.icon"
           class="w-5 text-center text-base shrink-0 text-color"
           aria-hidden="true"
         ></i>
-        <h3 class="flex-1 font-medium leading-6 text-color truncate">
+        <h3 class="flex-1 font-semibold leading-6 text-color truncate">
           {{ section.title }}
         </h3>
       </div>

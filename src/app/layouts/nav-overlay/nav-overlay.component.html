@@ -5,24 +5,140 @@
     aria-label="Menú de navegación"
     class="fixed inset-x-0 bottom-16 md:bottom-0 top-16 z-30"
   >
-    <!-- Backdrop: click fuera del panel cierra el overlay -->
+    <!-- Backdrop: solo desktop. Mobile el panel ocupa todo el viewport
+         disponible (entre toolbar y footer) así que no hay "fuera". -->
     <div
-      class="absolute inset-0 bg-[var(--p-mask-background)]"
+      class="absolute inset-0 bg-[var(--p-mask-background)] hidden md:block"
       (click)="close()"
       aria-hidden="true"
     ></div>
 
-    <!-- Panel: anclado al x del botón "Categorías" en desktop, full width en mobile.
-         Mobile stack vertical L1/L2+L3, desktop side-by-side. -->
+    <!-- ──────────────────────── Mobile (<md) ────────────────────────
+         Full-screen single-column con drill-in de 1 paso. Patrón Notion /
+         Linear / SAP Fiori / Shopify Admin mobile. -->
     <div
-      #panelEl
-      [style.left.px]="nav.triggerLeft()"
-      class="absolute top-0 right-0 md:right-auto max-h-full flex flex-col md:flex-row bg-surface-50 dark:bg-surface-900 border border-surface rounded-b-2xl overflow-hidden"
+      data-nav-panel
+      class="md:hidden absolute inset-0 bg-surface-0 dark:bg-surface-950 flex flex-col overflow-hidden"
     >
-      <!-- Col 1: L1 modules (icon + label) -->
+      @if (mobileView() === 'modules') {
+        <!-- Vista 1: lista de módulos L1 full-width -->
+        <div
+          class="h-12 shrink-0 flex items-center justify-center border-b border-surface"
+        >
+          <h2 class="text-color font-semibold leading-6">Navegación</h2>
+        </div>
+        <nav
+          aria-label="Módulos"
+          class="flex-1 overflow-y-auto divide-y divide-surface-200 dark:divide-surface-800"
+        >
+          @for (mod of nav.modules; track mod.id) {
+            @let isCurrent = nav.activeModuleId() === mod.id;
+            <button
+              type="button"
+              (click)="drillIntoModule(mod.id)"
+              [attr.aria-current]="isCurrent ? 'page' : null"
+              [ngClass]="{
+                'text-primary': isCurrent,
+                'text-color': !isCurrent
+              }"
+              class="w-full h-12 flex items-center gap-3 px-4 bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none text-left"
+            >
+              <i
+                [class]="mod.icon"
+                class="w-5 text-center text-base shrink-0"
+                aria-hidden="true"
+              ></i>
+              <span class="flex-1 font-semibold leading-6 truncate">{{
+                mod.title
+              }}</span>
+              <i
+                class="fa-sharp fa-regular fa-chevron-right text-muted-color text-base shrink-0"
+                aria-hidden="true"
+              ></i>
+            </button>
+          }
+        </nav>
+      } @else if (mobileDrilledModule(); as mod) {
+        <!-- Vista 2: L2+L3 del módulo drilleado, full-width -->
+        <div
+          class="h-12 shrink-0 flex items-center gap-1 px-2 border-b border-surface"
+        >
+          <button
+            type="button"
+            (click)="backToModules()"
+            aria-label="Volver a módulos"
+            class="w-10 h-10 flex items-center justify-center rounded-lg bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none shrink-0"
+          >
+            <i
+              class="fa-sharp fa-regular fa-chevron-left text-color text-base"
+              aria-hidden="true"
+            ></i>
+          </button>
+          <h2
+            class="flex-1 text-color font-semibold leading-6 truncate text-center"
+          >
+            {{ mod.title }}
+          </h2>
+          <div class="w-10 shrink-0" aria-hidden="true"></div>
+        </div>
+        <ul
+          class="flex-1 overflow-y-auto overflow-x-hidden py-3 divide-y divide-surface-200 dark:divide-surface-800"
+        >
+          @for (section of mod.sections; track section.id) {
+            <li class="pt-4 first:pt-0">
+              <div class="flex items-center gap-3 px-4 h-12">
+                <i
+                  [class]="section.icon"
+                  class="w-5 text-center text-base shrink-0 text-color"
+                  aria-hidden="true"
+                ></i>
+                <h3 class="flex-1 font-semibold leading-6 text-color">
+                  {{ section.title }}
+                </h3>
+              </div>
+              <ul
+                class="flex flex-col divide-y border-t divide-surface-200 border-surface-200 dark:divide-surface-800 dark:border-surface-800"
+              >
+                @for (
+                  leaf of section.children;
+                  track leaf.title + leaf.url
+                ) {
+                  <li>
+                    <a
+                      [routerLink]="leaf.url"
+                      (click)="onMobileLeafClicked()"
+                      routerLinkActive="text-primary bg-primary-100 dark:bg-primary-900"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      #rla="routerLinkActive"
+                      [attr.aria-current]="rla.isActive ? 'page' : null"
+                      [ngClass]="{
+                        'text-muted-color hover:text-color': !rla.isActive
+                      }"
+                      class="flex items-center gap-3 px-4 h-12 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium"
+                    >
+                      <span class="w-5 shrink-0" aria-hidden="true"></span>
+                      <span class="flex-1 leading-6">{{ leaf.title }}</span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- ──────────────────────── Desktop (≥md) ────────────────────────
+         Panel flotante anclado al trigger, mega-menu multi-columna con
+         hover-preview. Idéntico al diseño previo. -->
+    <div
+      data-nav-panel
+      [style.left.px]="nav.triggerLeft()"
+      class="hidden md:flex absolute top-0 right-0 md:right-auto max-h-full flex-row bg-surface-50 dark:bg-surface-900 border border-surface rounded-b-2xl overflow-hidden"
+    >
       <nav
         aria-label="Módulos"
-        class="w-full flex-1 border-b border-surface md:w-64 md:flex-initial md:shrink-0 md:border-b-0 md:border-r flex flex-col overflow-hidden"
+        class="w-64 shrink-0 border-r border-surface flex flex-col overflow-hidden"
       >
         <div class="overflow-y-auto p-2 flex flex-col gap-1">
           @for (mod of nav.modules; track mod.id) {
@@ -35,7 +151,8 @@
               [ngClass]="{
                 'text-primary bg-primary-100 dark:bg-primary-900': isActive,
                 'text-color bg-emphasis': isPreview,
-                'text-color hover:bg-emphasis bg-transparent': !isActive && !isPreview
+                'text-color hover:bg-emphasis bg-transparent':
+                  !isActive && !isPreview
               }"
               class="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors select-none text-left"
             >
@@ -44,7 +161,7 @@
                 class="w-5 text-center text-base shrink-0"
                 aria-hidden="true"
               ></i>
-              <span class="flex-1 font-medium leading-6 truncate">{{
+              <span class="flex-1 font-semibold leading-6 truncate">{{
                 mod.title
               }}</span>
             </button>
@@ -52,16 +169,15 @@
         </div>
       </nav>
 
-      <!-- Col 2: L2/L3 of selected module (mega-menu con columnas auto) -->
       @if (selectedModule(); as mod) {
         <section
           aria-label="Secciones"
           [ngClass]="{
-            'md:w-72': columnCount() === 1,
-            'md:w-[36rem]': columnCount() === 2,
-            'md:w-[54rem]': columnCount() === 3
+            'w-72': columnCount() === 1,
+            'w-[36rem]': columnCount() === 2,
+            'w-[54rem]': columnCount() === 3
           }"
-          class="w-full flex-1 md:flex-initial md:shrink-0 flex flex-col overflow-hidden bg-surface-100 dark:bg-surface-800"
+          class="shrink-0 flex flex-col overflow-hidden bg-surface-100 dark:bg-surface-800"
         >
           <app-nav-sections
             [module]="mod"
