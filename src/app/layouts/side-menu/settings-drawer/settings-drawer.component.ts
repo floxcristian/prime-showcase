@@ -101,7 +101,7 @@ export class SettingsDrawerComponent {
     root: {
       role: 'dialog',
       'aria-modal': 'true',
-      'aria-label': 'Panel de configuración',
+      'aria-label': 'Mi cuenta',
     },
   };
 

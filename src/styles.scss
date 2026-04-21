@@ -235,6 +235,72 @@ input:-webkit-autofill:focus-visible {
 }
 
 /*
+ * SelectButton dentro de un drawer en mobile — tabs horizontalmente
+ * scrolleables con scroll-snap. Patrón big-tech (Linear, Stripe, Twitter
+ * settings, Spotify): labels completos siempre legibles, swipe lateral para
+ * revelar el resto, scroll-snap para que cada tab encaje al soltar.
+ *
+ * Scope:
+ *   - `.p-drawer .p-selectbutton` — solo selectbuttons dentro de drawers,
+ *     no afecta otros del app (ej. overview "Semanal/Mensual/Anual", que con
+ *     3 items no se trunca).
+ *   - `@media (max-width: 767.98px)` — solo <md. Arriba de md el layout
+ *     distribuye flex:1 normal (buttons con igual ancho).
+ *
+ * Comportamiento mobile:
+ *   - overflow-x: auto con scroll-snap-type: x mandatory
+ *   - scrollbar oculto (cross-browser: scrollbar-width + webkit-scrollbar)
+ *   - cada togglebutton flex: 0 0 auto (content-width, no grow, no shrink)
+ *   - white-space: nowrap previene wrap interno del label
+ */
+@media (max-width: 767.98px) {
+  .p-drawer .p-selectbutton {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    // scroll-padding asegura que cuando el browser haga snap al primer tab,
+    // lo posicione a 1rem del borde izquierdo del viewport (no al borde 0).
+    // 1rem = 16px = px-4 = gutter mobile bigtech (iOS HIG, Material, Tailwind).
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+    // Padding propio del scroll container: genera aire en los extremos.
+    // !important requerido porque el `px-4` del template en el host de
+    // <p-selectbutton> no se aplica al inner `.p-selectbutton` div donde
+    // vive el flex / scroll.
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    // !important requerido: PrimeNG aplica flex:1 / width:100% internamente
+    // en los togglebuttons para distribución equitativa. En mobile queremos
+    // content-width para que los labels completos se muestren sin truncar
+    // y los tabs sean scrolleables. min-width garantiza que incluso labels
+    // cortos tengan un área visible generosa (el bg "pill" del checked
+    // rellena el botón entero, no queda apretado contra el texto).
+    //
+    // Sin padding custom: el bg del checked vive en `.p-togglebutton-content`
+    // (inner) con su propio padding del preset Aura. Agregar padding a la
+    // outer `.p-togglebutton` creaba un borde gris alrededor del contenido
+    // blanco, rompiendo la analogía con desktop donde todo el tab es blanco.
+    .p-togglebutton {
+      flex: 0 0 auto !important;
+      min-width: 10rem !important;
+      width: auto !important;
+      scroll-snap-align: start;
+      white-space: nowrap;
+    }
+    .p-togglebutton .p-togglebutton-content {
+      width: 100%;
+      padding: 0.5rem 1rem !important;
+    }
+  }
+}
+
+/*
  * Dark-mode focus ring tuning.
  * El preset emite `shadow: 0 0 0 0.2rem {primary.200}` que da buen contraste sobre
  * surface-0 (light) pero queda lavado sobre surface-950 (dark). En dark mode pasamos
@@ -318,6 +384,68 @@ input:-webkit-autofill:focus-visible {
 .p-message-enter-active,
 .p-message-leave-active {
   animation: none !important;
+}
+
+/*
+ * p-drawer mobile — el mask (backdrop semi-transparente) tiene sentido en
+ * desktop (drawer de w-2xl desde la derecha, resto del canvas dimmed indica
+ * modalidad). En mobile el drawer ocupa todo el ancho: no hay "outside"
+ * visible que dimear, el mask solo crea franjas fantasma arriba del footer.
+ *
+ * Patrón bigtech mobile: full-screen modal sin mask (Instagram settings,
+ * WhatsApp config, Gmail compose). El panel solid-bg crea la modalidad
+ * visual por sí mismo.
+ *
+ * El panel sigue constrained a `calc(100vh-4rem)` via styleClass para dejar
+ * espacio al mobile footer.
+ */
+@media (max-width: 767.98px) {
+  .p-drawer-mask {
+    display: none !important;
+  }
+  // Border-left del drawer position=right tiene sentido en desktop (separa
+  // del canvas dimmed detrás), no en mobile donde el drawer es full-width.
+  .p-drawer {
+    border: none !important;
+  }
+}
+
+/*
+ * Paginator en mobile — stack "Mostrando X de Y" arriba en fila propia,
+ * controles (prev/pages/next) abajo en una sola fila. Patrón bigtech
+ * (Stripe Dashboard mobile, Notion table mobile) — el text report se trata
+ * como label informativo separado, los controles como action row.
+ *
+ * Sin esta regla el paginator wrappea desordenado (report + prev arriba,
+ * pages + next abajo) porque su flex-wrap no controla dónde parten los items.
+ * `order: -1` en .p-paginator-current lo empuja al inicio del flex;
+ * `flex-basis: 100%` lo hace ocupar toda la primera fila.
+ */
+@media (max-width: 767.98px) {
+  .p-paginator {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.5rem;
+  }
+  .p-paginator .p-paginator-current {
+    order: -1;
+    flex-basis: 100%;
+    text-align: center;
+  }
+}
+
+/*
+ * Tooltips solo en dispositivos con hover real (desktop con mouse/trackpad).
+ * En mobile/tablet los taps momentáneamente disparan pTooltip creando ruido
+ * visual — el tap ya ejecutó la acción del botón, el tooltip es redundante.
+ * Patrón bigtech (GitHub, Linear, Stripe mobile) de esconder tooltips donde
+ * el input primario no soporta hover.
+ * `@media (hover: none)` = semántica oficial CSS4 para "sin hover disponible".
+ */
+@media (hover: none) {
+  .p-tooltip {
+    display: none !important;
+  }
 }
 
 /*

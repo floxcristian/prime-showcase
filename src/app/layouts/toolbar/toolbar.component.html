@@ -1,5 +1,5 @@
-<!-- Left: logo + hamburger -->
-<div class="flex-1 flex items-center gap-6 min-w-0">
+<!-- Left: logo + hamburger (oculto en mobile — menú via footer nav) -->
+<div class="flex-1 hidden md:flex items-center gap-6 min-w-0">
   <!-- Logo — hover limitado al logo mismo, no al bloque completo -->
   <!-- Oculto en mobile: pantallas <md ya tienen el hamburger "Categorías" y
        búsqueda, el logo compite por espacio horizontal. Patrón e-commerce
@@ -52,8 +52,8 @@
   </button>
 </div>
 
-<!-- Center: global search (command palette trigger placeholder) -->
-<p-iconfield iconPosition="left" class="hidden md:block flex-1 max-w-xl">
+<!-- Center: global search — único control visible en mobile, full width -->
+<p-iconfield iconPosition="left" class="block flex-1 md:max-w-xl">
   <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
   <input
     type="text"
@@ -63,8 +63,8 @@
   />
 </p-iconfield>
 
-<!-- Right actions -->
-<div class="flex-1 flex items-center gap-1 justify-end min-w-0">
+<!-- Right actions (oculto en mobile — theme/bell/cuenta via drawer + footer) -->
+<div class="flex-1 hidden md:flex items-center gap-1 justify-end min-w-0">
   <button
     type="button"
     (click)="toggleTheme()"
@@ -97,21 +97,11 @@
   <button
     #settingsTrigger
     type="button"
-    (click)="settingsVisible.set(true)"
-    aria-label="Configuración"
-    aria-haspopup="dialog"
-    [attr.aria-expanded]="settingsVisible()"
-    pTooltip="Configuración"
-    tooltipPosition="bottom"
-    class="w-10 h-10 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
-  >
-    <i class="fa-sharp fa-regular fa-gear" aria-hidden="true"></i>
-  </button>
-  <button
-    type="button"
     (click)="userMenuRef.toggle($event)"
-    aria-label="Cuenta"
+    aria-label="Mi cuenta"
     aria-haspopup="menu"
+    pTooltip="Mi cuenta"
+    tooltipPosition="bottom"
     class="ml-1 rounded-full cursor-pointer hover:opacity-70 transition-opacity select-none"
   >
     <p-avatar
@@ -124,9 +114,10 @@
   <p-menu #userMenuRef [model]="userMenu" [popup]="true" appendTo="body" />
 </div>
 
-@defer (on interaction(settingsTrigger); prefetch on hover(settingsTrigger)) {
+@defer (on interaction(settingsTrigger); prefetch on hover(settingsTrigger); when nav.accountDrawerOpen()) {
   <app-settings-drawer
-    [(visible)]="settingsVisible"
+    [visible]="nav.accountDrawerOpen()"
+    (visibleChange)="nav.accountDrawerOpen.set($event)"
     (hidden)="restoreSettingsTriggerFocus()"
   />
 }

@@ -297,7 +297,7 @@ TÍTULOS:    text-3xl font-bold leading-normal (principal) ← text-3xl SIEMPRE 
             text-2xl font-medium leading-8 (sección)
             text-xl font-medium leading-7 (subsección, inbox/movies headers)
 SUBTÍTULOS: text-muted-color font-medium leading-normal ← SUBTÍTULO DE PÁGINA
-            text-color font-semibold leading-6 ← TÍTULO DE CARD
+            text-color font-bold leading-6 ← TÍTULO DE CARD (font-bold, no font-semibold — decisión de diseño enforced 2026-04-21)
 LABELS:     text-color font-semibold leading-6 ← LABEL DE INPUT (encima del control: email, password, select, textarea)
             text-color font-normal leading-6 ← LABEL DE CHECKBOX/RADIO (al lado del control, body text no título)
 LINKS:      font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 ← <a> de texto (enforced)
@@ -311,7 +311,7 @@ PEQUEÑO:    text-xs font-medium (badges, contadores, pills)
 ESPECIAL:   text-sm font-medium leading-tight (movie titles — contenedores estrechos, showcase-specific)
             text-sm font-medium leading-none (avatar overlay labels sobre imagen/color — encaja dentro de la bounding box del avatar)
 
-PESO: font-medium = default (90%) | font-semibold = solo títulos card/sección + nav activo + triggers | font-bold = reservado para text-3xl (títulos hero) | font-normal = casi nunca (sólo checkbox/radio labels)
+PESO: font-medium = default (90%) | font-semibold = solo LABEL DE INPUT + nav activo + triggers + último crumb del breadcrumb | font-bold = TÍTULO DE CARD + text-3xl (títulos hero) | font-normal = casi nunca (sólo checkbox/radio labels)
 ```
 
 > **Nota:** ESLint valida valores individuales (text sizes, leading, font-weight) contra la escala aprobada — `text-sm` sigue siendo válido porque hay casos legítimos (ESPECIAL arriba). Las combinaciones se validan por code review contra estas recetas, **excepto** la pareja `text-3xl` ↔ `font-bold` que está enforcement vía `showcase/text-3xl-requires-bold` — todo elemento con `text-3xl` debe tener `font-bold` en la misma pila de clases.

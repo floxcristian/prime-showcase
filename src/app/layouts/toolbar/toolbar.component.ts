@@ -58,7 +58,6 @@ export class ToolbarComponent {
   protected nav = inject(NavStateService);
 
   protected readonly darkTheme = this.config.darkTheme;
-  protected readonly settingsVisible = signal(false);
   private navTriggerRef = viewChild<ElementRef<HTMLButtonElement>>('navTrigger');
 
   /**
@@ -84,13 +83,9 @@ export class ToolbarComponent {
   }
   protected readonly userMenu: MenuItem[] = [
     {
-      label: 'Mi perfil',
+      label: 'Mi cuenta',
       icon: 'fa-sharp fa-regular fa-user',
-    },
-    {
-      label: 'Preferencias',
-      icon: 'fa-sharp fa-regular fa-sliders',
-      command: () => this.settingsVisible.set(true),
+      command: () => this.nav.accountDrawerOpen.set(true),
     },
     { separator: true },
     {

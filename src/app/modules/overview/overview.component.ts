@@ -16,9 +16,6 @@ import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { DatePickerModule } from 'primeng/datepicker';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { MeterGroupModule } from 'primeng/metergroup';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
@@ -44,12 +41,9 @@ const PRIME_MODULES = [
   SelectButton,
   AvatarModule,
   TooltipModule,
-  IconField,
-  InputIcon,
   ButtonModule,
   TableModule,
   MeterGroupModule,
-  InputTextModule,
   MenuModule,
   Tag,
   OverlayBadgeModule,
@@ -137,7 +131,9 @@ export class OverviewComponent {
           backgroundColor: primary400,
           hoverBackgroundColor: primary600,
           data: (datasets.data ?? [])[0] ?? [],
-          barThickness: 32,
+          maxBarThickness: 32,
+          categoryPercentage: 0.75,
+          barPercentage: 0.85,
         },
         {
           type: 'bar',
@@ -145,7 +141,9 @@ export class OverviewComponent {
           backgroundColor: primary300,
           hoverBackgroundColor: primary500,
           data: (datasets.data ?? [])[1] ?? [],
-          barThickness: 32,
+          maxBarThickness: 32,
+          categoryPercentage: 0.75,
+          barPercentage: 0.85,
         },
         {
           type: 'bar',
@@ -154,11 +152,13 @@ export class OverviewComponent {
           hoverBackgroundColor: primary400,
           data: (datasets.data ?? [])[2] ?? [],
           borderRadius: {
-            topLeft: 8,
-            topRight: 8,
+            topLeft: 4,
+            topRight: 4,
           },
           borderSkipped: false,
-          barThickness: 32,
+          maxBarThickness: 32,
+          categoryPercentage: 0.75,
+          barPercentage: 0.85,
         },
       ],
     };

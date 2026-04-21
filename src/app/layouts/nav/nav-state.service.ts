@@ -40,6 +40,8 @@ export class NavStateService {
 
   readonly activeModuleId = signal<string>('crm');
   readonly sidebarOpen = signal<boolean>(false);
+  /** Drawer "Mi cuenta" — datos personales del usuario (registros, preferencias, stats, oportunidades). */
+  readonly accountDrawerOpen = signal<boolean>(false);
   readonly expandedSectionIds = signal<ReadonlySet<string>>(
     new Set(['crm.adm-clientes']),
   );
@@ -93,6 +95,11 @@ export class NavStateService {
         this.currentUrl.set(url);
         this.syncActiveModuleFromUrl(url);
         this.clearHoverImmediate();
+        // Cerrar overlays al navegar — en mobile el bottom tab bar se
+        // comporta como page navigation: tap "Inicio" debería cerrar el
+        // drawer/overlay y mostrar home.
+        this.accountDrawerOpen.set(false);
+        this.sidebarOpen.set(false);
       });
 
     this.destroyRef.onDestroy(() => this.cancelHoverTimer());

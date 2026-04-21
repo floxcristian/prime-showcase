@@ -3,14 +3,15 @@
   (onShow)="onDrawerShow()"
   (onHide)="onDrawerHide()"
   position="right"
-  closeIcon="fa-sharp fa-regular fa-arrow-right-from-bracket"
-  styleClass="!max-w-2xl !w-full !h-screen rounded-l-2xl"
+  appendTo="body"
+  closeIcon="fa-sharp fa-regular fa-xmark"
+  styleClass="!max-w-2xl !w-full !h-[calc(100vh-4rem)] md:!h-screen"
   [pt]="drawerPt"
 >
   <ng-template #headless>
-    <div class="flex flex-col h-screen overflow-auto">
+    <div class="flex flex-col h-full overflow-auto">
       <div>
-        <div class="flex items-center gap-3 p-6">
+        <div class="flex items-center gap-3 p-4 md:p-6">
           <p-avatar
             image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
             size="large"
@@ -23,20 +24,21 @@
           <p-button
             #drawerCloseBtn
             (onClick)="close()"
-            icon="fa-sharp fa-regular fa-arrow-right-from-bracket"
+            icon="fa-sharp fa-regular fa-xmark"
             text
             rounded
             severity="secondary"
             aria-label="Cerrar panel"
             pTooltip="Cerrar panel"
             tooltipPosition="bottom"
+            class="hidden md:inline-flex"
           />
         </div>
         <p-selectbutton
           [ngModel]="selectedSidebarOption()"
           (ngModelChange)="selectedSidebarOption.set($event)"
           [options]="sidebarOptions"
-          class="w-full px-6 py-3 flex-1"
+          class="w-full px-4 py-3 md:px-6 flex-1"
           styleClass="flex-1 w-full"
         >
           <ng-template #item let-item>
@@ -47,10 +49,10 @@
 
       <!-- Registros de interacción -->
       @if (selectedSidebarOption() === 'Registros') {
-        <div class="h-[calc(100%-172px)] flex flex-col gap-4 p-6">
+        <div class="flex flex-col gap-4 p-4 md:p-6">
           <div class="h-1/3 flex flex-col p-3 rounded-xl bg-emphasis">
-            <div class="flex items-start justify-between">
-              <div class="leading-6 font-medium text-color">Registro de llamadas</div>
+            <div class="flex items-center justify-between">
+              <div class="leading-6 font-medium text-color py-1 px-2">Registro de llamadas</div>
               <p-button
                 icon="fa-sharp fa-regular fa-download text-sm"
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
@@ -90,8 +92,8 @@
             </div>
           </div>
           <div class="h-1/3 flex flex-col p-3 rounded-xl bg-emphasis">
-            <div class="flex items-start justify-between">
-              <div class="leading-6 font-medium text-color">Registro de correos</div>
+            <div class="flex items-center justify-between">
+              <div class="leading-6 font-medium text-color py-1 px-2">Registro de correos</div>
               <p-button
                 icon="fa-sharp fa-regular fa-download text-sm"
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
@@ -127,8 +129,8 @@
             </div>
           </div>
           <div class="h-1/3 flex flex-col p-3 rounded-xl bg-emphasis">
-            <div class="flex items-start justify-between">
-              <div class="leading-6 font-medium text-color">Notas de reunión</div>
+            <div class="flex items-center justify-between">
+              <div class="leading-6 font-medium text-color py-1 px-2">Notas de reunión</div>
               <p-button
                 icon="fa-sharp fa-regular fa-download text-sm"
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity leading-none"
@@ -172,10 +174,10 @@
 
       <!-- Preferencias -->
       @if (selectedSidebarOption() === 'Preferencias') {
-        <div class="h-[calc(100%-72px)] flex flex-col gap-4 p-6">
+        <div class="h-[calc(100%-72px)] flex flex-col gap-4 p-4 md:p-6">
           @for (data of preferences(); track data.title) {
             <div class="h-1/4 flex flex-col p-3 rounded-xl bg-emphasis">
-              <div class="leading-6 font-medium text-color p-2">{{ data.title }}</div>
+              <div class="leading-6 font-medium text-color py-1 px-2">{{ data.title }}</div>
               <div
                 class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col gap-3 rounded-lg"
               >
@@ -198,11 +200,11 @@
 
       <!-- Oportunidades -->
       @if (selectedSidebarOption() === 'Oportunidades') {
-        <div class="grid grid-cols-2 gap-6 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 md:p-6">
           @for (data of opportunities; track data.title) {
             <div class="flex flex-col p-3 rounded-xl bg-emphasis">
-              <div class="flex items-start justify-between gap-2">
-                <div class="font-medium text-color mt-0.5">{{ data.title }}</div>
+              <div class="flex items-center justify-between gap-2">
+                <div class="leading-6 font-medium text-color py-1 px-2">{{ data.title }}</div>
                 <a [href]="data.link" target="_blank" rel="noopener">
                   <p-button
                     icon="fa-sharp fa-regular fa-arrow-up-right text-sm !leading-none"
@@ -227,12 +229,12 @@
       <!-- Estadísticas -->
       @if (selectedSidebarOption() === 'Estadísticas') {
         @let c = charts();
-        <div class="h-[calc(100%-160px)] p-6">
-          <div class="grid grid-cols-2 gap-4">
+        <div class="p-4 md:p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @if (c?.gauges?.[0]; as satisfaction) {
               <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
                 <div class="flex items-center justify-between gap-2">
-                  <div class="font-medium text-color p-2">{{ satisfaction.label }}</div>
+                  <div class="leading-6 font-medium text-color py-1 px-2">{{ satisfaction.label }}</div>
                 </div>
                 <div
                   class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
@@ -254,7 +256,7 @@
             }
             <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
               <div class="flex items-center justify-between gap-2">
-                <div class="font-medium text-color p-2">Valor estimado de vida</div>
+                <div class="leading-6 font-medium text-color py-1 px-2">Valor estimado de vida</div>
               </div>
               <div
                 class="flex-1 flex items-center gap-2 justify-center mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
@@ -268,7 +270,7 @@
             @if (c?.productUsage; as productUsage) {
               <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
                 <div class="flex items-center justify-between gap-2">
-                  <div class="font-medium text-color p-2">{{ productUsage.label }}</div>
+                  <div class="leading-6 font-medium text-color py-1 px-2">{{ productUsage.label }}</div>
                 </div>
                 <div
                   class="flex-1 mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
@@ -284,7 +286,7 @@
             }
             @if (c?.gauges?.[1]; as churn) {
               <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
-                <div class="font-medium text-color p-2">{{ churn.label }}</div>
+                <div class="leading-6 font-medium text-color py-1 px-2">{{ churn.label }}</div>
                 <div
                   class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
                 >
@@ -306,7 +308,7 @@
           </div>
           @if (c?.totalPurchases; as totalPurchases) {
             <div class="mt-4 w-full flex flex-col p-3 rounded-xl bg-emphasis">
-              <div class="font-medium text-color p-2">{{ totalPurchases.label }}</div>
+              <div class="leading-6 font-medium text-color py-1 px-2">{{ totalPurchases.label }}</div>
               <div
                 class="flex-1 p-2 w-full mt-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
               >

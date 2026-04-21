@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
     <div class="flex flex-col items-center justify-center text-center gap-4 py-8 px-6">
       <i [class]="iconClass()" aria-hidden="true"></i>
       <div class="flex flex-col gap-1 max-w-sm">
-        <h3 class="text-color font-semibold leading-6">{{ title() }}</h3>
+        <h3 class="text-color font-bold leading-6">{{ title() }}</h3>
         @if (description()) {
           <p class="text-muted-color leading-6">{{ description() }}</p>
         }

@@ -3,7 +3,7 @@
     role="dialog"
     aria-modal="true"
     aria-label="Menú de navegación"
-    class="fixed inset-x-0 bottom-0 top-16 z-30"
+    class="fixed inset-x-0 bottom-16 md:bottom-0 top-16 z-30"
   >
     <!-- Backdrop: click fuera del panel cierra el overlay -->
     <div
@@ -12,16 +12,17 @@
       aria-hidden="true"
     ></div>
 
-    <!-- Panel: anclado al x del botón "Categorías", altura = contenido (cap max-h-full) -->
+    <!-- Panel: anclado al x del botón "Categorías" en desktop, full width en mobile.
+         Mobile stack vertical L1/L2+L3, desktop side-by-side. -->
     <div
       #panelEl
       [style.left.px]="nav.triggerLeft()"
-      class="absolute top-0 max-h-full flex bg-surface-50 dark:bg-surface-900 border border-surface rounded-b-2xl overflow-hidden"
+      class="absolute top-0 right-0 md:right-auto max-h-full flex flex-col md:flex-row bg-surface-50 dark:bg-surface-900 border border-surface rounded-b-2xl overflow-hidden"
     >
       <!-- Col 1: L1 modules (icon + label) -->
       <nav
         aria-label="Módulos"
-        class="w-64 shrink-0 border-r border-surface flex flex-col overflow-hidden"
+        class="w-full flex-1 border-b border-surface md:w-64 md:flex-initial md:shrink-0 md:border-b-0 md:border-r flex flex-col overflow-hidden"
       >
         <div class="overflow-y-auto p-2 flex flex-col gap-1">
           @for (mod of nav.modules; track mod.id) {
@@ -56,11 +57,11 @@
         <section
           aria-label="Secciones"
           [ngClass]="{
-            'w-72': columnCount() === 1,
-            'w-[36rem]': columnCount() === 2,
-            'w-[54rem]': columnCount() === 3
+            'md:w-72': columnCount() === 1,
+            'md:w-[36rem]': columnCount() === 2,
+            'md:w-[54rem]': columnCount() === 3
           }"
-          class="shrink-0 flex flex-col overflow-hidden bg-surface-100 dark:bg-surface-800"
+          class="w-full flex-1 md:flex-initial md:shrink-0 flex flex-col overflow-hidden bg-surface-100 dark:bg-surface-800"
         >
           <app-nav-sections
             [module]="mod"

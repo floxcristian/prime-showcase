@@ -14,6 +14,7 @@ import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
 import { BreadcrumbBarComponent } from '../breadcrumb-bar/breadcrumb-bar.component';
+import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
 import { NavOverlayComponent } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
@@ -21,6 +22,7 @@ import { ToolbarComponent } from '../toolbar/toolbar.component';
 const NG_MODULES = [RouterOutlet];
 const COMPONENTS = [
   BreadcrumbBarComponent,
+  MobileFooterComponent,
   NavOverlayComponent,
   ToolbarComponent,
 ];
