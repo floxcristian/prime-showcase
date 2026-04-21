@@ -33,7 +33,7 @@ const NG_MODULES = [NgClass, RouterModule];
   styleUrl: './nav-sections.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex-1 overflow-y-auto overflow-x-hidden px-2 py-3 w-full',
+    class: 'flex-1 overflow-y-auto overflow-x-hidden pb-3 w-full',
   },
 })
 export class NavSectionsComponent {

@@ -7,8 +7,10 @@
   class="gap-x-6"
 >
   @for (section of module().sections; track section.id) {
-    <li class="break-inside-avoid mb-4">
-      <div class="flex items-center gap-3 px-3 py-2">
+    <li class="break-inside-avoid">
+      <div
+        class="flex items-center gap-3 px-4 h-12 bg-surface-100 dark:bg-surface-800"
+      >
         <i
           [class]="section.icon"
           class="w-5 text-center text-base shrink-0 text-color"
@@ -18,7 +20,9 @@
           {{ section.title }}
         </h3>
       </div>
-      <ul class="flex flex-col gap-0.5">
+      <ul
+        class="flex flex-col divide-y border-t divide-surface-200 border-surface-200 dark:divide-surface-800 dark:border-surface-800"
+      >
         @for (leaf of section.children; track leaf.title + leaf.url) {
           <li>
             <a
@@ -31,7 +35,7 @@
               [ngClass]="{
                 'text-muted-color hover:text-color': !rla.isActive
               }"
-              class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-emphasis cursor-pointer transition-colors select-none font-medium leading-6"
+              class="flex items-center gap-3 px-4 h-12 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium leading-6"
             >
               <span class="w-5 shrink-0" aria-hidden="true"></span>
               <span class="flex-1 truncate">{{ leaf.title }}</span>
