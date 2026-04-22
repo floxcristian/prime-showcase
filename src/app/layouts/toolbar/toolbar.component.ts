@@ -3,12 +3,10 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   ElementRef,
   inject,
   Injector,
   input,
-  signal,
   viewChild,
 } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
@@ -53,17 +51,12 @@ const LOCAL_COMPONENTS = [SettingsDrawerComponent];
 })
 export class ToolbarComponent {
   private injector = inject(Injector);
-  private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
   private router = inject(Router);
   private config = inject(AppConfigService);
   protected nav = inject(NavStateService);
 
   protected readonly darkTheme = this.config.darkTheme;
-  /** True cuando viewport es <md (768px). Usado para placeholder corto del
-   * input de búsqueda. Se hidrata en afterNextRender para evitar acceder a
-   * window durante SSR. */
-  protected readonly isMobile = signal(false);
   private navTriggerRef = viewChild<ElementRef<HTMLButtonElement>>('navTrigger');
 
   /**
@@ -77,18 +70,9 @@ export class ToolbarComponent {
     afterNextRender(
       () => {
         this.measureTrigger();
-        this.initMobileListener();
       },
       { injector: this.injector },
     );
-  }
-
-  private initMobileListener(): void {
-    const mql = window.matchMedia('(max-width: 767.98px)');
-    const update = () => this.isMobile.set(mql.matches);
-    mql.addEventListener('change', update);
-    this.destroyRef.onDestroy(() => mql.removeEventListener('change', update));
-    update();
   }
 
   measureTrigger(): void {
