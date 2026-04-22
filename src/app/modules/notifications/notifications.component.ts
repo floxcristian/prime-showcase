@@ -1,9 +1,11 @@
+import { NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   signal,
 } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 import {
   Notification,
@@ -27,7 +29,7 @@ import { NOTIFICATIONS } from './mocks/notifications';
  */
 @Component({
   selector: 'app-notifications',
-  imports: [],
+  imports: [NgClass, RouterModule],
   templateUrl: './notifications.component.html',
   styleUrl: './notifications.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

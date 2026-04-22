@@ -6,7 +6,7 @@
 @for (group of groups(); track group.label) {
   <section>
     <div
-      class="sticky top-12 z-10 flex items-center px-4 h-10 bg-surface-100 dark:bg-surface-800"
+      class="sticky top-12 z-10 flex items-center px-4 h-10 bg-surface-200 dark:bg-surface-700"
     >
       <h2 class="text-color font-semibold leading-6">{{ group.label }}</h2>
     </div>
@@ -15,44 +15,75 @@
     >
       @for (n of group.notifications; track n.id) {
         <li>
-          <article
-            class="flex items-start gap-3 p-4"
-            [attr.aria-label]="n.read ? n.title : n.title + ' (sin leer)'"
-          >
-            <div
-              class="w-10 h-10 shrink-0 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary"
-              aria-hidden="true"
+          @if (n.url) {
+            <a
+              [routerLink]="n.url"
+              [attr.aria-label]="n.read ? n.title : n.title + ' (sin leer)'"
+              [ngClass]="{ 'bg-primary-50 dark:bg-primary-950': !n.read }"
+              class="flex items-start gap-3 p-4 hover:bg-emphasis cursor-pointer transition-colors"
             >
-              <i [class]="n.icon" class="text-2xl"></i>
-            </div>
-            <div class="flex-1 min-w-0 flex flex-col gap-1">
-              <div class="flex items-start gap-2 justify-between">
-                <div class="flex-1 flex items-center gap-2 min-w-0">
-                  @if (!n.read) {
-                    <span
-                      class="w-2 h-2 shrink-0 rounded-full bg-primary"
-                      aria-hidden="true"
-                    ></span>
-                  }
+              <div
+                class="w-10 h-10 shrink-0 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary transition-opacity"
+                [class.opacity-60]="n.read"
+                aria-hidden="true"
+              >
+                <i [class]="n.icon" class="text-2xl"></i>
+              </div>
+              <div class="flex-1 min-w-0 flex flex-col gap-1">
+                <div class="flex items-start gap-2 justify-between">
                   <span
-                    class="leading-6 text-color truncate"
+                    class="flex-1 min-w-0 leading-6 text-color"
                     [class.font-semibold]="!n.read"
                     [class.font-medium]="n.read"
                   >
                     {{ n.title }}
                   </span>
+                  <span
+                    class="text-muted-color text-xs leading-4 shrink-0 mt-1"
+                  >
+                    {{ formatTime(n.timestamp) }}
+                  </span>
                 </div>
-                <span
-                  class="text-muted-color text-xs leading-4 shrink-0 mt-0.5"
-                >
-                  {{ formatTime(n.timestamp) }}
-                </span>
+                <p class="text-muted-color leading-6">
+                  {{ n.description }}
+                </p>
               </div>
-              <p class="text-muted-color leading-6 line-clamp-2">
-                {{ n.description }}
-              </p>
+            </a>
+          } @else {
+            <!-- Sin url (ej: eventos puros del sistema) → read-only, no
+                 interactivo. Sin hover ni cursor-pointer. -->
+            <div
+              class="flex items-start gap-3 p-4"
+              [attr.aria-label]="n.read ? n.title : n.title + ' (sin leer)'"
+            >
+              <div
+                class="w-10 h-10 shrink-0 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary transition-opacity"
+                [class.opacity-60]="n.read"
+                aria-hidden="true"
+              >
+                <i [class]="n.icon" class="text-2xl"></i>
+              </div>
+              <div class="flex-1 min-w-0 flex flex-col gap-1">
+                <div class="flex items-start gap-2 justify-between">
+                  <span
+                    class="flex-1 min-w-0 leading-6 text-color"
+                    [class.font-semibold]="!n.read"
+                    [class.font-medium]="n.read"
+                  >
+                    {{ n.title }}
+                  </span>
+                  <span
+                    class="text-muted-color text-xs leading-4 shrink-0 mt-1"
+                  >
+                    {{ formatTime(n.timestamp) }}
+                  </span>
+                </div>
+                <p class="text-muted-color leading-6">
+                  {{ n.description }}
+                </p>
+              </div>
             </div>
-          </article>
+          }
         </li>
       }
     </ul>

@@ -15,6 +15,10 @@ export interface Notification {
   category: NotificationCategory;
   /** FontAwesome sharp icon. Derivado de la categoría por convención. */
   icon: string;
+  /** URL del recurso relacionado. Si existe, la notificación es tappeable y
+   * navega al detalle (factura, OC, cliente, etc). Si no, se renderiza
+   * como read-only (ej: eventos puros del sistema tipo "backup completado"). */
+  url?: string;
 }
 
 export interface NotificationGroup {
