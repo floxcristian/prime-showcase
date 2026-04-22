@@ -58,7 +58,10 @@ export class MobileFooterComponent {
    * activos simultáneamente.
    */
   protected readonly anyActionOpen = computed(
-    () => this.nav.sidebarOpen() || this.nav.accountDrawerOpen(),
+    () =>
+      this.nav.sidebarOpen() ||
+      this.nav.accountDrawerOpen() ||
+      this.nav.moreOverlayOpen(),
   );
 
   /**
@@ -71,15 +74,25 @@ export class MobileFooterComponent {
     if (action === 'nav') {
       const willOpen = !this.nav.sidebarOpen();
       this.nav.sidebarOpen.set(willOpen);
-      if (willOpen) this.nav.accountDrawerOpen.set(false);
+      if (willOpen) {
+        this.nav.accountDrawerOpen.set(false);
+        this.nav.moreOverlayOpen.set(false);
+      }
     } else if (action === 'account') {
       const willOpen = !this.nav.accountDrawerOpen();
       this.nav.accountDrawerOpen.set(willOpen);
-      if (willOpen) this.nav.sidebarOpen.set(false);
+      if (willOpen) {
+        this.nav.sidebarOpen.set(false);
+        this.nav.moreOverlayOpen.set(false);
+      }
+    } else if (action === 'more') {
+      const willOpen = !this.nav.moreOverlayOpen();
+      this.nav.moreOverlayOpen.set(willOpen);
+      if (willOpen) {
+        this.nav.sidebarOpen.set(false);
+        this.nav.accountDrawerOpen.set(false);
+      }
     }
-    // 'more' es placeholder — pensado para abrir un bottom-sheet con el
-    // overflow de acciones (notificaciones, configuración, ayuda). Sin
-    // handler activo aún para no generar side effects invisibles.
   }
 
   /**
@@ -94,12 +107,13 @@ export class MobileFooterComponent {
   closeOverlays(): void {
     this.nav.accountDrawerOpen.set(false);
     this.nav.sidebarOpen.set(false);
+    this.nav.moreOverlayOpen.set(false);
   }
 
   isActionActive(action: MobileFooterAction): boolean {
     if (action === 'nav') return this.nav.sidebarOpen();
     if (action === 'account') return this.nav.accountDrawerOpen();
-    // 'more': sin estado de activo mientras no exista el sheet.
+    if (action === 'more') return this.nav.moreOverlayOpen();
     return false;
   }
 }

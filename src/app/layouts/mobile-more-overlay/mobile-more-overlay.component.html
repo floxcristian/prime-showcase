@@ -1,0 +1,97 @@
+@if (nav.moreOverlayOpen()) {
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-label="Más"
+    class="md:hidden fixed inset-x-0 bottom-16 top-16 z-30 bg-surface-0 dark:bg-surface-950 flex flex-col"
+  >
+    <!-- Header: "Más" centrado. Mismo patrón que el nav-overlay (Menú /
+         Navegación) — el toolbar real queda visible arriba (top-16 offset)
+         y acá solo un subheader compacto para contextualizar la subvista.
+         Semántica "overlay de navegación secundaria" consistente con Menú. -->
+    <div
+      class="h-12 shrink-0 flex items-center justify-center border-b border-surface"
+    >
+      <h2 class="text-color font-bold leading-6">Más</h2>
+    </div>
+
+    <!-- Lista principal: items clickeables. Cada row: icon + label (+ valueLabel opcional) + chevron.
+         `divide-y` entre items, `border-t` arriba para que el primer row tenga separador con el header. -->
+    <ul class="flex-1 overflow-y-auto">
+      @for (item of items; track item.id) {
+        <li>
+          @if (item.url) {
+            <a
+              [routerLink]="item.url"
+              class="flex items-center gap-3 px-4 h-14 border-t border-surface-200 dark:border-surface-800 hover:bg-emphasis cursor-pointer transition-colors select-none"
+            >
+              <i
+                [class]="item.icon"
+                class="w-5 text-center text-base shrink-0 text-color"
+                aria-hidden="true"
+              ></i>
+              <span class="flex-1 font-medium leading-6 text-color truncate">
+                {{ item.label }}
+              </span>
+              <i
+                class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs shrink-0"
+                aria-hidden="true"
+              ></i>
+            </a>
+          } @else {
+            <button
+              type="button"
+              (click)="onItemClicked(item)"
+              class="w-full flex items-center gap-3 px-4 h-14 border-t border-surface-200 dark:border-surface-800 bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none text-left"
+            >
+              <i
+                [class]="item.icon"
+                class="w-5 text-center text-base shrink-0 text-color"
+                aria-hidden="true"
+              ></i>
+              <span class="flex-1 font-medium leading-6 text-color truncate">
+                {{ item.label }}
+              </span>
+              @if (item.valueLabel) {
+                <span
+                  class="text-muted-color font-medium leading-6 shrink-0"
+                  >{{ item.valueLabel() }}</span
+                >
+              }
+              <i
+                class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs shrink-0"
+                aria-hidden="true"
+              ></i>
+            </button>
+          }
+        </li>
+      }
+
+      <!-- Separator + Cerrar sesión — destructive action aislada visualmente
+           con un gap grande antes. Pattern Apple HIG / Google Material:
+           destructive actions siempre fuera del grupo principal. -->
+      <li>
+        <button
+          type="button"
+          (click)="logout()"
+          class="w-full flex items-center gap-3 px-4 h-14 border-y border-surface-200 dark:border-surface-800 bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none text-left"
+        >
+          <i
+            class="fa-sharp fa-regular fa-arrow-right-from-bracket w-5 text-center text-base shrink-0 text-color"
+            aria-hidden="true"
+          ></i>
+          <span class="flex-1 font-medium leading-6 text-color truncate">
+            Cerrar sesión
+          </span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- Footer: version — centrada, muted. Pattern retail LATAM (Paris/Falabella). -->
+    <div
+      class="shrink-0 px-4 py-4 text-center text-muted-color text-xs leading-4"
+    >
+      Versión {{ appVersion }}
+    </div>
+  </div>
+}

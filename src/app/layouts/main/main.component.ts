@@ -15,6 +15,7 @@ import { filter } from 'rxjs';
 
 import { BreadcrumbBarComponent } from '../breadcrumb-bar/breadcrumb-bar.component';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
+import { MobileMoreOverlayComponent } from '../mobile-more-overlay/mobile-more-overlay.component';
 import { MobileSearchOverlayComponent } from '../mobile-search-overlay/mobile-search-overlay.component';
 import { NavOverlayComponent } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
@@ -24,6 +25,7 @@ const NG_MODULES = [RouterOutlet];
 const COMPONENTS = [
   BreadcrumbBarComponent,
   MobileFooterComponent,
+  MobileMoreOverlayComponent,
   MobileSearchOverlayComponent,
   NavOverlayComponent,
   ToolbarComponent,

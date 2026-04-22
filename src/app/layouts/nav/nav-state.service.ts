@@ -44,6 +44,8 @@ export class NavStateService {
   readonly accountDrawerOpen = signal<boolean>(false);
   /** Full-screen search overlay mobile — búsquedas recientes + vistos recientemente. */
   readonly searchOverlayOpen = signal<boolean>(false);
+  /** Full-screen "Más" overlay mobile — links secundarios (ayuda, legal, logout). */
+  readonly moreOverlayOpen = signal<boolean>(false);
   readonly expandedSectionIds = signal<ReadonlySet<string>>(
     new Set(['crm.adm-clientes']),
   );
@@ -103,6 +105,7 @@ export class NavStateService {
         this.accountDrawerOpen.set(false);
         this.sidebarOpen.set(false);
         this.searchOverlayOpen.set(false);
+        this.moreOverlayOpen.set(false);
       });
 
     this.destroyRef.onDestroy(() => this.cancelHoverTimer());
