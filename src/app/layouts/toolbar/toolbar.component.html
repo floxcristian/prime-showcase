@@ -26,8 +26,8 @@
     [attr.aria-label]="nav.sidebarOpen() ? 'Cerrar menú' : 'Abrir menú'"
     [attr.aria-pressed]="nav.sidebarOpen()"
     [ngClass]="{
-      'bg-primary-800 dark:bg-primary-900': nav.sidebarOpen(),
-      'bg-primary-700 dark:bg-primary-800 hover:bg-primary-800 dark:hover:bg-primary-900':
+      'bg-primary-700 dark:bg-primary-800': nav.sidebarOpen(),
+      'bg-primary-600 dark:bg-primary-700 hover:bg-primary-700 dark:hover:bg-primary-800':
         !nav.sidebarOpen(),
     }"
     class="text-surface-0 h-11 px-3 gap-3 rounded-lg flex items-center cursor-pointer transition-colors select-none shrink-0"
@@ -94,18 +94,17 @@
       class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[var(--p-red-500)] ring-2 ring-surface-0 dark:ring-surface-950"
     ></span>
   </button>
+  <div
+    class="w-px h-6 mx-2 bg-primary-50 shrink-0"
+    aria-hidden="true"
+  ></div>
   <button
     #settingsTrigger
     type="button"
     (click)="userMenuRef.toggle($event)"
     aria-label="Mi cuenta"
     aria-haspopup="menu"
-    [ngClass]="{
-      'bg-primary-800 dark:bg-primary-900': nav.accountDrawerOpen(),
-      'bg-primary-700 dark:bg-primary-800 hover:bg-primary-800 dark:hover:bg-primary-900':
-        !nav.accountDrawerOpen(),
-    }"
-    class="ml-1 h-11 w-40 pl-1 pr-3 gap-2 rounded-lg flex items-center text-left cursor-pointer transition-colors select-none text-surface-0"
+    class="h-11 w-40 pl-1 pr-3 gap-2 rounded-lg flex items-center text-left bg-transparent hover:bg-primary-700 dark:hover:bg-primary-800 cursor-pointer transition-colors select-none text-surface-0"
   >
     <p-avatar
       image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
@@ -116,10 +115,6 @@
       <span class="font-semibold leading-none truncate">Brook</span>
       <span class="text-xs font-medium leading-4 truncate">Ejecutivo</span>
     </div>
-    <i
-      class="fa-sharp fa-regular fa-chevron-down text-xs shrink-0"
-      aria-hidden="true"
-    ></i>
   </button>
   <p-menu
     #userMenuRef
