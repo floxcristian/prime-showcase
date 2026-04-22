@@ -3,6 +3,7 @@ import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   inject,
   Injector,
@@ -45,19 +46,24 @@ const LOCAL_COMPONENTS = [SettingsDrawerComponent];
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'toolbar-brand-bg relative z-20 h-16 shrink-0 flex items-center gap-3 px-4 w-full transition-shadow duration-200',
+      'toolbar-brand-bg relative z-20 h-16 shrink-0 flex items-center gap-2 px-2 md:gap-3 md:px-4 w-full transition-shadow duration-200',
     '[class.toolbar-elevated]': 'elevated()',
     '(window:resize)': 'measureTrigger()',
   },
 })
 export class ToolbarComponent {
   private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
   private auth = inject(AuthService);
   private router = inject(Router);
   private config = inject(AppConfigService);
   protected nav = inject(NavStateService);
 
   protected readonly darkTheme = this.config.darkTheme;
+  /** True cuando viewport es <md (768px). Usado para placeholder corto del
+   * input de búsqueda. Se hidrata en afterNextRender para evitar acceder a
+   * window durante SSR. */
+  protected readonly isMobile = signal(false);
   private navTriggerRef = viewChild<ElementRef<HTMLButtonElement>>('navTrigger');
 
   /**
@@ -71,9 +77,18 @@ export class ToolbarComponent {
     afterNextRender(
       () => {
         this.measureTrigger();
+        this.initMobileListener();
       },
       { injector: this.injector },
     );
+  }
+
+  private initMobileListener(): void {
+    const mql = window.matchMedia('(max-width: 767.98px)');
+    const update = () => this.isMobile.set(mql.matches);
+    mql.addEventListener('change', update);
+    this.destroyRef.onDestroy(() => mql.removeEventListener('change', update));
+    update();
   }
 
   measureTrigger(): void {

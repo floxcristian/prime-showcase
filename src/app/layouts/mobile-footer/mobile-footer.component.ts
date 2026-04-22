@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
 
 import { NavStateService } from '../nav/nav-state.service';
 
-type MobileFooterAction = 'nav' | 'account';
+type MobileFooterAction = 'nav' | 'account' | 'more';
 
 interface MobileFooterItem {
   label: string;
@@ -47,8 +47,8 @@ export class MobileFooterComponent {
   readonly items: MobileFooterItem[] = [
     { label: 'Inicio', icon: 'fa-house', routerLink: '/' },
     { label: 'Mi cuenta', icon: 'fa-user', action: 'account' },
-    { label: 'Notificaciones', icon: 'fa-bell', routerLink: '/inbox' },
     { label: 'Menú', icon: 'fa-bars-staggered', action: 'nav' },
+    { label: 'Más', icon: 'fa-ellipsis', action: 'more' },
   ];
 
   /**
@@ -77,6 +77,9 @@ export class MobileFooterComponent {
       this.nav.accountDrawerOpen.set(willOpen);
       if (willOpen) this.nav.sidebarOpen.set(false);
     }
+    // 'more' es placeholder — pensado para abrir un bottom-sheet con el
+    // overflow de acciones (notificaciones, configuración, ayuda). Sin
+    // handler activo aún para no generar side effects invisibles.
   }
 
   /**
@@ -96,6 +99,7 @@ export class MobileFooterComponent {
   isActionActive(action: MobileFooterAction): boolean {
     if (action === 'nav') return this.nav.sidebarOpen();
     if (action === 'account') return this.nav.accountDrawerOpen();
+    // 'more': sin estado de activo mientras no exista el sheet.
     return false;
   }
 }
