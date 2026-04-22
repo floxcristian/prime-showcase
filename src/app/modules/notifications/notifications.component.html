@@ -3,7 +3,7 @@
      para quedarse fijo al tope del scroll mientras su section está en
      vista, y naturalmente ser reemplazado por el label de la siguiente
      section cuando se hace scroll (patrón iOS Contacts / WhatsApp list). -->
-@for (group of groups(); track group.label) {
+@for (group of notifications.groups(); track group.label) {
   <section>
     <div
       class="sticky top-12 z-10 flex items-center px-4 h-10 bg-surface-200 dark:bg-surface-700"
@@ -20,7 +20,7 @@
               [routerLink]="n.url"
               [attr.aria-label]="n.read ? n.title : n.title + ' (sin leer)'"
               [ngClass]="{ 'bg-primary-50 dark:bg-primary-950': !n.read }"
-              class="flex items-start gap-3 p-4 hover:bg-emphasis cursor-pointer transition-colors"
+              class="flex items-start gap-3 p-4 hover:bg-primary-100 dark:hover:bg-primary-900 cursor-pointer transition-colors"
             >
               <div
                 class="w-10 h-10 shrink-0 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary"
@@ -40,7 +40,7 @@
                   <span
                     class="text-muted-color text-xs leading-4 shrink-0 mt-1"
                   >
-                    {{ formatTime(n.timestamp) }}
+                    {{ notifications.formatTime(n.timestamp) }}
                   </span>
                 </div>
                 <p class="text-muted-color leading-5">
@@ -73,7 +73,7 @@
                   <span
                     class="text-muted-color text-xs leading-4 shrink-0 mt-1"
                   >
-                    {{ formatTime(n.timestamp) }}
+                    {{ notifications.formatTime(n.timestamp) }}
                   </span>
                 </div>
                 <p class="text-muted-color leading-5">
@@ -88,7 +88,7 @@
   </section>
 }
 
-@if (groups().length === 0) {
+@if (notifications.groups().length === 0) {
   <div
     class="flex flex-col items-center justify-center gap-4 p-6 text-center"
   >

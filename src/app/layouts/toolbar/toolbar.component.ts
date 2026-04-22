@@ -7,6 +7,7 @@ import {
   inject,
   Injector,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
@@ -17,10 +18,12 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
+import { Popover } from 'primeng/popover';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { NotificationsService } from '../../modules/notifications/services/notifications.service';
 import { NavStateService } from '../nav/nav-state.service';
 import { SettingsDrawerComponent } from '../side-menu/settings-drawer/settings-drawer.component';
 
@@ -32,6 +35,7 @@ const PRIME_MODULES = [
   InputIcon,
   InputTextModule,
   MenuModule,
+  Popover,
   TooltipModule,
 ];
 const LOCAL_COMPONENTS = [SettingsDrawerComponent];
@@ -55,8 +59,13 @@ export class ToolbarComponent {
   private router = inject(Router);
   private config = inject(AppConfigService);
   protected nav = inject(NavStateService);
+  protected notifications = inject(NotificationsService);
 
   protected readonly darkTheme = this.config.darkTheme;
+  /** Estado visual del bell: true mientras el popover de notificaciones está
+   * abierto. Bindeado a los eventos onShow/onHide del popover para que el
+   * bell quede "pressed" como feedback consistente con el Menú button. */
+  protected readonly notifOpen = signal(false);
   private navTriggerRef = viewChild<ElementRef<HTMLButtonElement>>('navTrigger');
 
   /**

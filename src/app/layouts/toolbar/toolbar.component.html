@@ -135,11 +135,16 @@
   </button>
   <button
     type="button"
-    [routerLink]="'/notifications'"
-    aria-label="Notificaciones, 3 nuevas"
+    (click)="notifPopover.toggle($event)"
+    aria-label="Notificaciones"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="notifOpen()"
     pTooltip="Notificaciones"
     tooltipPosition="bottom"
-    class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
+    [ngClass]="{
+      '!bg-surface-950/25': notifOpen(),
+    }"
+    class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 hover:bg-surface-950/40 bg-transparent cursor-pointer transition-colors select-none"
   >
     <span class="relative inline-flex mt-1">
       <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
@@ -184,6 +189,129 @@
     styleClass="menu-with-arrow"
   />
 </div>
+
+<!-- Popover de notificaciones desktop — anclado al bell button. Patrón
+     Gmail / Slack / GitHub / LinkedIn desktop: popover con el list scrollable
+     y footer "Ver todas" que navega al route full. Mobile sigue navegando
+     directo al route (el mobile bell tiene routerLink, no dispara esto). -->
+<p-popover
+  #notifPopover
+  appendTo="body"
+  styleClass="notif-popover"
+  (onShow)="notifOpen.set(true)"
+  (onHide)="notifOpen.set(false)"
+>
+  <div class="w-96 flex flex-col max-h-96">
+    <!-- Header -->
+    <div
+      class="flex items-center justify-between gap-4 px-4 h-12 border-b border-surface shrink-0"
+    >
+      <h3 class="text-color font-bold leading-6">Notificaciones</h3>
+      @if (notifications.unreadCount() > 0) {
+        <span class="text-muted-color text-xs leading-4">
+          {{ notifications.unreadCount() }} sin leer
+        </span>
+      }
+    </div>
+    <!-- Lista scrollable -->
+    <div class="flex-1 overflow-y-auto">
+      @for (group of notifications.groups(); track group.label) {
+        <section>
+          <div
+            class="flex items-center px-4 h-8 bg-surface-200 dark:bg-surface-700"
+          >
+            <h4 class="text-color font-semibold leading-5 text-xs">
+              {{ group.label }}
+            </h4>
+          </div>
+          <ul
+            class="flex flex-col divide-y divide-surface-200 dark:divide-surface-800"
+          >
+            @for (n of group.notifications; track n.id) {
+              <li>
+                @if (n.url) {
+                  <a
+                    [routerLink]="n.url"
+                    (click)="notifPopover.hide()"
+                    [attr.aria-label]="
+                      n.read ? n.title : n.title + ' (sin leer)'
+                    "
+                    [ngClass]="{
+                      'bg-primary-50 dark:bg-primary-950': !n.read,
+                    }"
+                    class="flex items-start gap-3 p-3 hover:bg-primary-100 dark:hover:bg-primary-900 cursor-pointer transition-colors"
+                  >
+                    <div
+                      class="w-8 h-8 shrink-0 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary"
+                      aria-hidden="true"
+                    >
+                      <i [class]="n.icon" class="text-base"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 flex flex-col gap-1">
+                      <div class="flex items-start gap-2 justify-between">
+                        <span
+                          class="flex-1 min-w-0 leading-5 text-color"
+                          [class.font-semibold]="!n.read"
+                          [class.font-medium]="n.read"
+                        >
+                          {{ n.title }}
+                        </span>
+                        <span
+                          class="text-muted-color text-xs leading-4 shrink-0 mt-1"
+                        >
+                          {{ notifications.formatTime(n.timestamp) }}
+                        </span>
+                      </div>
+                      <p class="text-muted-color text-xs leading-5 line-clamp-2">
+                        {{ n.description }}
+                      </p>
+                    </div>
+                  </a>
+                } @else {
+                  <div class="flex items-start gap-3 p-3">
+                    <div
+                      class="w-8 h-8 shrink-0 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary"
+                      aria-hidden="true"
+                    >
+                      <i [class]="n.icon" class="text-base"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 flex flex-col gap-1">
+                      <div class="flex items-start gap-2 justify-between">
+                        <span
+                          class="flex-1 min-w-0 leading-5 text-color"
+                          [class.font-semibold]="!n.read"
+                          [class.font-medium]="n.read"
+                        >
+                          {{ n.title }}
+                        </span>
+                        <span
+                          class="text-muted-color text-xs leading-4 shrink-0 mt-1"
+                        >
+                          {{ notifications.formatTime(n.timestamp) }}
+                        </span>
+                      </div>
+                      <p class="text-muted-color text-xs leading-5 line-clamp-2">
+                        {{ n.description }}
+                      </p>
+                    </div>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+      }
+    </div>
+    <!-- Footer: Ver todas → route full -->
+    <a
+      routerLink="/notifications"
+      (click)="notifPopover.hide()"
+      class="flex items-center justify-center h-10 border-t border-surface text-primary font-medium leading-6 hover:text-primary-emphasis cursor-pointer transition-colors shrink-0"
+    >
+      Ver todas las notificaciones
+    </a>
+  </div>
+</p-popover>
 
 @defer (
   on interaction(settingsTrigger);

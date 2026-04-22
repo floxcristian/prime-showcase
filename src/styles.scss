@@ -468,6 +468,45 @@ app-settings-drawer > p-drawer {
 }
 
 /*
+ * Fix para arrow misalignment del p-popover. PrimeNG v21 setea
+ * `--p-popover-arrow-left` dinámicamente pero cuando el trigger está cerca
+ * del borde derecho del viewport el cálculo queda ~48px desplazado
+ * (verificado en runtime con getBoundingClientRect). Issues #18566, #17972.
+ *
+ * En nuestro caso el único popover es el de notificaciones, anclado al bell
+ * que siempre está en el extremo derecho del toolbar. La relación geométrica
+ * es constante: el arrow debe quedar cerca del borde derecho del popover
+ * porque ese es donde cae el center del bell. Con right: 0.5rem y left: auto
+ * forzamos posición fija desde la derecha que sí coincide con el bell.
+ * Ref: https://github.com/primefaces/primeng/issues/18566
+ */
+.p-popover::before,
+.p-popover::after {
+  left: auto !important;
+  right: -3px;
+}
+
+/* Notificaciones popover:
+ *  1. `margin-left: 1rem` → shift horizontal para breathing room del arrow
+ *     (no usamos transform porque PrimeNG lo anima, ver punto 2).
+ *  2. `transform-origin: top right` → el popover es ancho (w-96) y el
+ *     trigger (bell) está al borde derecho. PrimeNG usa `center top` por
+ *     default, así que el scale-animation colapsa hacia el centro del
+ *     popover — 183px a la IZQUIERDA del bell, creando un efecto visual
+ *     "slide-left on close". Forzando origin top-right, el scale colapsa
+ *     hacia el lado donde está el bell, mimicking el feel del <p-menu>
+ *     (Mi cuenta) cuyo centro sí coincide con su trigger.
+ *  3. Arrow `right: 13px` → compensa el shift para quedarse sobre el bell. */
+.p-popover.notif-popover {
+  margin-left: 1rem;
+  transform-origin: top right !important;
+}
+.p-popover.notif-popover::before,
+.p-popover.notif-popover::after {
+  right: 13px;
+}
+
+/*
  * Arrow pointer en el user menu del toolbar — patron bigtech (GitHub, Slack,
  * Google Workspace). PrimeNG p-menu no trae arrow built-in, se hace con un
  * ::before rotated 45deg: las borders top + left del cuadrado rotado forman
