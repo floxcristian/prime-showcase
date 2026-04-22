@@ -396,8 +396,21 @@ input:-webkit-autofill:focus-visible {
   }
   // Border-left del drawer position=right tiene sentido en desktop (separa
   // del canvas dimmed detrás), no en mobile donde el drawer es full-width.
+  // Top: 4rem deja visible el toolbar real (h-16) para consistencia con los
+  // otros overlays mobile (Menú, Más) que mantienen el toolbar como anchor
+  // de navegación. La altura calc(100dvh-8rem) del styleClass ya contempla
+  // los 4rem superiores + 4rem del mobile-footer inferior.
+  //
+  // Quitamos también la slide-in animation de PrimeNG en mobile para que el
+  // drawer aparezca instantáneamente, consistente con los otros overlays
+  // (Menú, Más usan @if render sin animación). El `!important` vence los
+  // inline styles que @angular/animations inyecta en el elemento.
   .p-drawer {
     border: none !important;
+    top: 4rem !important;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
   }
 }
 
