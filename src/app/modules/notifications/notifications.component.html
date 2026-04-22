@@ -1,0 +1,78 @@
+<!-- Lista de notificaciones agrupadas por día. El host ya es el scroll
+     container (overflow-y-auto). Cada label de fecha usa `sticky top-0`
+     para quedarse fijo al tope del scroll mientras su section está en
+     vista, y naturalmente ser reemplazado por el label de la siguiente
+     section cuando se hace scroll (patrón iOS Contacts / WhatsApp list). -->
+@for (group of groups(); track group.label) {
+  <section>
+    <div
+      class="sticky top-12 z-10 flex items-center px-4 h-10 bg-surface-100 dark:bg-surface-800"
+    >
+      <h2 class="text-color font-semibold leading-6">{{ group.label }}</h2>
+    </div>
+    <ul
+      class="flex flex-col divide-y divide-surface-200 dark:divide-surface-800 border-b border-surface-200 dark:border-surface-800"
+    >
+      @for (n of group.notifications; track n.id) {
+        <li>
+          <article
+            class="flex items-start gap-3 p-4"
+            [attr.aria-label]="n.read ? n.title : n.title + ' (sin leer)'"
+          >
+            <div
+              class="w-10 h-10 shrink-0 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary"
+              aria-hidden="true"
+            >
+              <i [class]="n.icon" class="text-2xl"></i>
+            </div>
+            <div class="flex-1 min-w-0 flex flex-col gap-1">
+              <div class="flex items-start gap-2 justify-between">
+                <div class="flex-1 flex items-center gap-2 min-w-0">
+                  @if (!n.read) {
+                    <span
+                      class="w-2 h-2 shrink-0 rounded-full bg-primary"
+                      aria-hidden="true"
+                    ></span>
+                  }
+                  <span
+                    class="leading-6 text-color truncate"
+                    [class.font-semibold]="!n.read"
+                    [class.font-medium]="n.read"
+                  >
+                    {{ n.title }}
+                  </span>
+                </div>
+                <span
+                  class="text-muted-color text-xs leading-4 shrink-0 mt-0.5"
+                >
+                  {{ formatTime(n.timestamp) }}
+                </span>
+              </div>
+              <p class="text-muted-color leading-6 line-clamp-2">
+                {{ n.description }}
+              </p>
+            </div>
+          </article>
+        </li>
+      }
+    </ul>
+  </section>
+}
+
+@if (groups().length === 0) {
+  <div
+    class="flex flex-col items-center justify-center gap-4 p-6 text-center"
+  >
+    <i
+      class="fa-sharp-duotone fa-regular fa-bell text-4xl text-muted-color"
+      aria-hidden="true"
+    ></i>
+    <div class="text-color font-semibold leading-6">
+      Sin notificaciones por ahora
+    </div>
+    <div class="text-muted-color leading-6">
+      Aquí aparecerán las alertas del sistema y actualizaciones de tus
+      operaciones.
+    </div>
+  </div>
+}

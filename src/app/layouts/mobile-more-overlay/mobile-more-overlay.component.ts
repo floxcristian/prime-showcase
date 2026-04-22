@@ -8,6 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NavStateService } from '../nav/nav-state.service';
+import { PageTitleBarComponent } from '../page-title-bar/page-title-bar.component';
 
 interface MoreItem {
   id: string;
@@ -22,6 +23,7 @@ interface MoreItem {
 }
 
 const NG_MODULES = [RouterModule];
+const LOCAL_COMPONENTS = [PageTitleBarComponent];
 
 /**
  * Full-screen "Más" overlay mobile. Triggereado por el botón "Más" del
@@ -41,7 +43,7 @@ const NG_MODULES = [RouterModule];
  */
 @Component({
   selector: 'app-mobile-more-overlay',
-  imports: [NG_MODULES],
+  imports: [NG_MODULES, LOCAL_COMPONENTS],
   templateUrl: './mobile-more-overlay.component.html',
   styleUrl: './mobile-more-overlay.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,10 +64,10 @@ export class MobileMoreOverlayComponent {
 
   protected readonly items: MoreItem[] = [
     {
-      id: 'inbox',
+      id: 'notifications',
       label: 'Notificaciones',
       icon: 'fa-sharp fa-regular fa-bell',
-      url: '/inbox',
+      url: '/notifications',
     },
     {
       id: 'theme',

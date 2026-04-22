@@ -19,6 +19,7 @@ import { MobileMoreOverlayComponent } from '../mobile-more-overlay/mobile-more-o
 import { MobileSearchOverlayComponent } from '../mobile-search-overlay/mobile-search-overlay.component';
 import { NavOverlayComponent } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
+import { PageTitleBarComponent } from '../page-title-bar/page-title-bar.component';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 const NG_MODULES = [RouterOutlet];
@@ -28,6 +29,7 @@ const COMPONENTS = [
   MobileMoreOverlayComponent,
   MobileSearchOverlayComponent,
   NavOverlayComponent,
+  PageTitleBarComponent,
   ToolbarComponent,
 ];
 

@@ -13,9 +13,10 @@ import { RouterModule } from '@angular/router';
 import type { NavModule } from '../nav/models/nav-module.interface';
 import { NavSectionsComponent } from '../nav/nav-sections/nav-sections.component';
 import { NavStateService } from '../nav/nav-state.service';
+import { PageTitleBarComponent } from '../page-title-bar/page-title-bar.component';
 
 const NG_MODULES = [NgClass, RouterModule];
-const LOCAL_COMPONENTS = [NavSectionsComponent];
+const LOCAL_COMPONENTS = [NavSectionsComponent, PageTitleBarComponent];
 
 type MobileView = 'modules' | 'sections';
 

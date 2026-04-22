@@ -43,6 +43,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./modules/notifications/notifications.component').then(
+            (m) => m.NotificationsComponent
+          ),
+      },
+      {
         path: 'cards',
         loadComponent: () =>
           import('./modules/cards/cards.component').then(

@@ -5,15 +5,10 @@
     aria-label="Más"
     class="md:hidden fixed inset-x-0 bottom-16 top-16 z-30 bg-surface-0 dark:bg-surface-950 flex flex-col"
   >
-    <!-- Header: "Más" centrado. Mismo patrón que el nav-overlay (Menú /
-         Navegación) — el toolbar real queda visible arriba (top-16 offset)
-         y acá solo un subheader compacto para contextualizar la subvista.
-         Semántica "overlay de navegación secundaria" consistente con Menú. -->
-    <div
-      class="h-12 shrink-0 flex items-center justify-center border-b border-surface"
-    >
-      <h2 class="text-color font-bold leading-6">Más</h2>
-    </div>
+    <!-- Title bar — componente compartido con Menú y Notificaciones. El
+         toolbar real queda visible arriba (top-16 offset) y este subheader
+         contextualiza la subvista. -->
+    <app-page-title-bar title="Más" />
 
     <!-- Lista principal: items clickeables. Cada row: icon + label (+ valueLabel opcional) + chevron.
          `divide-y` entre items, `border-t` arriba para que el primer row tenga separador con el header. -->
