@@ -79,11 +79,11 @@
   />
 </p-iconfield>
 
-<!-- Búsqueda mobile — reemplaza al input (que ahora vive solo en desktop).
-     Dispararía un overlay/drawer de búsqueda al taparlo. Mismo styling
-     tonal que el botón de notificaciones para consistencia visual. -->
+<!-- Búsqueda mobile — dispara el search overlay full-screen con búsquedas
+     recientes + vistos recientemente. Mismo styling ghost que el bell. -->
 <button
   type="button"
+  (click)="nav.searchOverlayOpen.set(true)"
   aria-label="Buscar"
   class="md:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
 >
