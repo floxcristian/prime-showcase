@@ -121,7 +121,13 @@
       aria-hidden="true"
     ></i>
   </button>
-  <p-menu #userMenuRef [model]="userMenu" [popup]="true" appendTo="body" />
+  <p-menu
+    #userMenuRef
+    [model]="userMenu"
+    [popup]="true"
+    appendTo="body"
+    styleClass="menu-with-arrow"
+  />
 </div>
 
 @defer (

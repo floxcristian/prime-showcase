@@ -68,6 +68,13 @@ const PRIME_MODULES = [
   templateUrl: './settings-drawer.component.html',
   styleUrl: './settings-drawer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // `display: contents` hace el host transparente al layout del padre. El
+  // p-drawer real se mueve a <body> vía appendTo="body", así que este host
+  // tag no debería contribuir al flujo. Sin esto, cuando el @defer del
+  // toolbar resuelve (on interaction del avatar), el host aparece como
+  // nuevo flex-child → añade un gap-3 (12px) entre los bloques del toolbar
+  // → center + right shrinken 4px y avatar shifts 12px izquierda.
+  host: { class: 'contents' },
 })
 export class SettingsDrawerComponent {
   // Two-way with parent — drawer open state.

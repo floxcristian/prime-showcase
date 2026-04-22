@@ -440,6 +440,47 @@ input:-webkit-autofill:focus-visible {
 }
 
 /*
+ * app-settings-drawer > p-drawer host transparente al layout. El content
+ * real del drawer se mueve a <body> via appendTo="body", asi que ninguno
+ * de los dos hosts deberia participar del flujo flex del toolbar. El
+ * componente app-settings-drawer ya declara `host: { class: 'contents' }`,
+ * pero su hijo <p-drawer> mantiene display:block por default y pasa a ser
+ * flex-child directo cuando el host padre es contents → introduce un gap-3
+ * extra en el toolbar al renderizarse (cuando el @defer interaction resuelve),
+ * encogiendo cada flex-1 en 4px y desplazando el avatar 12px a la izquierda.
+ * Ref: debug 2026-04-21 con getBoundingClientRect.
+ */
+app-settings-drawer > p-drawer {
+  display: contents;
+}
+
+/*
+ * Arrow pointer en el user menu del toolbar — patron bigtech (GitHub, Slack,
+ * Google Workspace). PrimeNG p-menu no trae arrow built-in, se hace con un
+ * ::before rotated 45deg: las borders top + left del cuadrado rotado forman
+ * los dos lados visibles del arrow. overflow: visible necesario para que el
+ * arrow pueda sobresalir del overlay. margin-top crea la separacion del
+ * trigger para que el arrow tenga espacio.
+ */
+.p-menu.menu-with-arrow {
+  overflow: visible;
+  margin-top: 0.5rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -0.4375rem; /* -7px — medio fuera, medio dentro del overlay */
+    right: 1rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--p-menu-background);
+    border-top: 1px solid var(--p-menu-border-color);
+    border-left: 1px solid var(--p-menu-border-color);
+    transform: rotate(45deg);
+  }
+}
+
+/*
  * Respeta prefers-reduced-motion (WCAG 2.3.3, MDN: prefers-reduced-motion).
  * PrimeNG aplica transitionDuration inline desde tokens → un media query global es la
  * forma mas limpia de neutralizar animaciones sin tocar cada componente. 0.01ms (no 0)
