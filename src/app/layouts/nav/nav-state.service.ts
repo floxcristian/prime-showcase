@@ -1,4 +1,4 @@
-import { DOCUMENT, isPlatformBrowser, Location } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   computed,
   DestroyRef,
@@ -60,7 +60,6 @@ export interface BreadcrumbCrumb {
 @Injectable({ providedIn: 'root' })
 export class NavStateService {
   private router = inject(Router);
-  private location = inject(Location);
   private destroyRef = inject(DestroyRef);
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
@@ -95,22 +94,31 @@ export class NavStateService {
   );
 
   /**
-   * Contador de navegaciones internas (NavigationEnd). Se usa para saber si
-   * hay history propia dentro de la SPA al que retroceder — importante
-   * cuando el usuario entra vía deep-link desde fuera: `history.back()` en
-   * ese caso lo sacaría de la app entera, no es lo que queremos.
+   * URL visitada antes de `currentUrl`. Rellenada en cada NavigationEnd
+   * ANTES de pisar `currentUrl` — así `goBack()` puede ejecutar una
+   * navegación Angular-native hacia ella, sin tocar `history.back()`.
    *
-   *   navCount = 1  → solo la carga inicial; sin back posible → fallback a /
-   *   navCount ≥ 2  → al menos una navegación in-app completada → back seguro
+   * Por qué NO usar `Location.back()` / `history.back()`:
+   *   Chrome Android dispara su gesto de back nativo (preview de la página
+   *   anterior, scroll-restoration) al detectar el pop del history stack. Si
+   *   la app es SPA-routed, eso entra en carrera con el swap del
+   *   `router-outlet` + el re-eval del @if del toolbar → un frame de
+   *   contenido inconsistente que se percibe como lag/flash. Navegar vía
+   *   `router.navigateByUrl(previousUrl)` mantiene la transición 100%
+   *   controlada por Angular (mismo frame de CD que el route commit) y
+   *   elimina el efecto visual.
    *
-   * Nota: un `location.back()` también dispara un NavigationEnd, así que el
-   * counter sigue creciendo en back-nav. Eso está bien — solo nos importa el
-   * flag boolean derivado. Patrón Angular estándar (ver Angular docs · Location).
+   * Tradeoff: el history stack crece en lugar de ir back-forward. Para un
+   * ERP es aceptable — los usuarios no usan el history del browser como
+   * mecanismo primario de navegación.
    */
-  private readonly navCount = signal(0);
+  private readonly previousUrl = signal<string | null>(null);
 
-  /** True cuando el back button debe aplicar `history.back()`; false → fallback a /. */
-  readonly canGoBack = computed(() => this.navCount() >= 2);
+  /**
+   * True cuando hay URL previa dentro de la SPA a la que volver. Falso en
+   * deep-link inicial (único estado) — el back cae al fallback `/`.
+   */
+  readonly canGoBack = computed(() => this.previousUrl() !== null);
   readonly expandedSectionIds = signal<ReadonlySet<string>>(
     new Set(['crm.adm-clientes']),
   );
@@ -161,6 +169,14 @@ export class NavStateService {
       )
       .subscribe((e) => {
         const url = this.normalizeUrl(e.urlAfterRedirects);
+        // Actualiza previousUrl ANTES de pisar currentUrl — así goBack()
+        // conoce el target. Se ignora si la nueva URL es idéntica a la
+        // actual (same-URL navigation, ej. click en el mismo tab del
+        // footer) para evitar que el back redirija a sí mismo.
+        const prev = this.currentUrl();
+        if (prev && prev !== url) {
+          this.previousUrl.set(prev);
+        }
         this.currentUrl.set(url);
         this.syncActiveModuleFromUrl(url);
         this.clearHoverImmediate();
@@ -168,10 +184,6 @@ export class NavStateService {
         // comporta como page navigation: tap "Inicio" debería cerrar el
         // drawer/overlay y mostrar home.
         this.closeAllOverlays();
-        // Incrementa el tracker de history — habilita canGoBack tras la
-        // primera navegación in-app real. Ref: goBack() y el comentario de
-        // `navCount`.
-        this.navCount.update((n) => n + 1);
       });
 
     // Scroll lock: togglea `.overlay-open` en <html> cuando cualquier overlay
@@ -250,21 +262,20 @@ export class NavStateService {
   }
 
   /**
-   * Back navigation mobile-first. Si hay history propia in-app, usa
-   * `Location.back()` (equivalent a `history.back()`, pero vía la
-   * abstracción de Angular que respeta PlatformLocation en SSR). Si no hay
-   * history — caso típico de deep-link desde fuera de la SPA — cae a `/` en
-   * lugar de dejar que el browser saque al usuario de la app.
+   * Back navigation Angular-native. Navega hacia `previousUrl` vía
+   * `router.navigateByUrl()` en lugar de `history.back()`, para eliminar el
+   * efecto visual de back-gesture nativo del browser (Chrome Android
+   * animation + scroll-restoration) que entra en carrera con el swap del
+   * `router-outlet` y produce flash/lag percibido. Fallback a `/` si no hay
+   * URL previa (deep-link inicial).
    *
    * Patrón iOS/Android nativo + Gmail/Linear/Salesforce mobile: toda ruta
-   * no-root tiene back, y back siempre aterriza dentro de la app.
+   * no-root tiene back, y back siempre aterriza dentro de la app sin
+   * animaciones que compitan con la transición del framework.
    */
   goBack(): void {
-    if (this.canGoBack()) {
-      this.location.back();
-    } else {
-      this.router.navigateByUrl('/');
-    }
+    const prev = this.previousUrl();
+    this.router.navigateByUrl(prev ?? '/');
   }
 
   setActiveModule(id: string): void {
