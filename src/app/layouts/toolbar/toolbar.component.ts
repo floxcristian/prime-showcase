@@ -93,7 +93,7 @@ export class ToolbarComponent {
     {
       label: 'Mi cuenta',
       icon: 'fa-sharp fa-regular fa-user',
-      command: () => this.nav.accountDrawerOpen.set(true),
+      command: () => this.nav.openAccount(),
     },
     { separator: true },
     {

@@ -1,8 +1,4 @@
-// Tornado SVG bg aplicado al host element. Con encapsulación default de
-// Angular, `.toolbar-brand-bg {}` solo matchea descendientes del template,
-// no el host; usamos `:host` para apuntar al element raíz directamente.
-:host {
-  background-image: url('/images/tornado.svg');
-  background-size: cover;
-  background-position: center;
-}
+// Vacío por convención: el fondo tornado se aplica via clase global
+// `.toolbar-brand-bg` declarada en styles.scss — el host la recibe a través
+// del array de host.class. Todo el resto del estilizado se resuelve con
+// Tailwind en el template.

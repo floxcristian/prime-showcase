@@ -1,9 +1,2 @@
-// Mismo brand bg que el toolbar (tornado SVG). Duplicado acá porque Angular
-// encapsula los styles del toolbar component y esta class no cascade fuera.
-// Mantiene la sensación de "el overlay es una extensión del topbar", no un
-// modal desconectado.
-.toolbar-brand-bg {
-  background-image: url('/images/tornado.svg');
-  background-size: cover;
-  background-position: center;
-}
+// Vacío por convención: el fondo tornado (`.toolbar-brand-bg` en el header del
+// overlay) se aplica vía la clase global declarada en styles.scss.

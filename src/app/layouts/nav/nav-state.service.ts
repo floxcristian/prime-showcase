@@ -1,10 +1,36 @@
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import {
+  computed,
+  DestroyRef,
+  effect,
+  inject,
+  Injectable,
+  PLATFORM_ID,
+  Renderer2,
+  RendererFactory2,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
 import { NAV_MODULES } from './constants/nav-modules';
 import { NavModule } from './models/nav-module.interface';
+
+/**
+ * Tipo de overlay/drawer — fuente de verdad para el mutex. Cualquier surface
+ * full-viewport (mobile) o full-screen-blocking (desktop mega-menu, drawer)
+ * debe ser mutuamente exclusiva con las demás para evitar stacking visual.
+ */
+export type OverlayKind = 'nav' | 'account' | 'search' | 'more';
+
+/**
+ * Clase toggled en <html> cuando hay cualquier overlay abierto — permite al
+ * CSS lockear el scroll del canvas de fondo. Nombre semántico (no Tailwind
+ * utility) porque la regla convive con las de PrimeNG en styles.scss y el
+ * escaneo visual es mejor con una clase descriptiva.
+ */
+const OVERLAY_OPEN_CLASS = 'overlay-open';
 
 export interface BreadcrumbCrumb {
   title: string;
@@ -35,6 +61,12 @@ export interface BreadcrumbCrumb {
 export class NavStateService {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
+  private renderer: Renderer2 = inject(RendererFactory2).createRenderer(
+    null,
+    null,
+  );
 
   readonly modules: readonly NavModule[] = NAV_MODULES;
 
@@ -46,6 +78,20 @@ export class NavStateService {
   readonly searchOverlayOpen = signal<boolean>(false);
   /** Full-screen "Más" overlay mobile — links secundarios (ayuda, legal, logout). */
   readonly moreOverlayOpen = signal<boolean>(false);
+
+  /**
+   * True si CUALQUIERA de los 4 overlays/drawers globales está abierto. Usado
+   * para: (1) scroll lock del canvas de fondo, (2) el active-state del bottom
+   * tab bar mobile — si un action overlay toma el control, los tabs de
+   * routerLink no deben seguir pintados como activos aunque la URL coincida.
+   */
+  readonly anyOverlayOpen = computed(
+    () =>
+      this.sidebarOpen() ||
+      this.accountDrawerOpen() ||
+      this.searchOverlayOpen() ||
+      this.moreOverlayOpen(),
+  );
   readonly expandedSectionIds = signal<ReadonlySet<string>>(
     new Set(['crm.adm-clientes']),
   );
@@ -102,13 +148,82 @@ export class NavStateService {
         // Cerrar overlays al navegar — en mobile el bottom tab bar se
         // comporta como page navigation: tap "Inicio" debería cerrar el
         // drawer/overlay y mostrar home.
-        this.accountDrawerOpen.set(false);
-        this.sidebarOpen.set(false);
-        this.searchOverlayOpen.set(false);
-        this.moreOverlayOpen.set(false);
+        this.closeAllOverlays();
       });
 
+    // Scroll lock: togglea `.overlay-open` en <html> cuando cualquier overlay
+    // está abierto. Un effect reactivo garantiza que el lock se aplique
+    // sincrónicamente con el cambio de estado y se libere al cerrar (o al
+    // navegar, porque NavigationEnd dispara closeAllOverlays). Platform guard
+    // porque RendererFactory funciona en SSR pero documentElement no existe
+    // en todos los runners server-side. Ref: ADR-001 §Scroll lock + overlays.
+    if (isPlatformBrowser(this.platformId)) {
+      effect(() => {
+        const locked = this.anyOverlayOpen();
+        const html = this.document.documentElement;
+        if (locked) {
+          this.renderer.addClass(html, OVERLAY_OPEN_CLASS);
+        } else {
+          this.renderer.removeClass(html, OVERLAY_OPEN_CLASS);
+        }
+      });
+    }
+
     this.destroyRef.onDestroy(() => this.cancelHoverTimer());
+  }
+
+  // ─── Overlay mutex API ───────────────────────────────────────────────────
+  //
+  // Los overlays globales (nav, account, search, more) son mutuamente
+  // exclusivos. Abrir uno implica cerrar los otros tres. Centralizamos la
+  // lógica aquí (single source of truth) en vez de replicar el mutex en cada
+  // consumer — patrón Linear / Stripe Dashboard donde un UIStateService
+  // coordina los surfaces globales. Los consumers solo expresan la intención
+  // (`nav.openSearch()`), el service decide qué más cerrar.
+
+  openOverlay(kind: OverlayKind): void {
+    if (kind !== 'nav') this.sidebarOpen.set(false);
+    if (kind !== 'account') this.accountDrawerOpen.set(false);
+    if (kind !== 'search') this.searchOverlayOpen.set(false);
+    if (kind !== 'more') this.moreOverlayOpen.set(false);
+
+    switch (kind) {
+      case 'nav':
+        this.sidebarOpen.set(true);
+        break;
+      case 'account':
+        this.accountDrawerOpen.set(true);
+        break;
+      case 'search':
+        this.searchOverlayOpen.set(true);
+        break;
+      case 'more':
+        this.moreOverlayOpen.set(true);
+        break;
+    }
+  }
+
+  openNav(): void {
+    this.openOverlay('nav');
+  }
+
+  openAccount(): void {
+    this.openOverlay('account');
+  }
+
+  openSearch(): void {
+    this.openOverlay('search');
+  }
+
+  openMore(): void {
+    this.openOverlay('more');
+  }
+
+  closeAllOverlays(): void {
+    this.sidebarOpen.set(false);
+    this.accountDrawerOpen.set(false);
+    this.searchOverlayOpen.set(false);
+    this.moreOverlayOpen.set(false);
   }
 
   setActiveModule(id: string): void {
@@ -120,7 +235,11 @@ export class NavStateService {
   }
 
   toggleSidebar(): void {
-    this.sidebarOpen.update((v) => !v);
+    if (this.sidebarOpen()) {
+      this.sidebarOpen.set(false);
+    } else {
+      this.openNav();
+    }
   }
 
   toggleSection(id: string): void {

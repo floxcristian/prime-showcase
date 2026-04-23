@@ -14,7 +14,13 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   selector: 'app-primary-title-toolbar',
   template: `
     <h1 class="text-surface-0 text-lg font-bold leading-7">{{ title() }}</h1>
-    <div class="absolute right-2 inset-y-0 flex items-center">
+    <!-- empty:hidden — cuando el consumer no proyecta un trailing action, el
+         wrapper pasa a :empty (ng-content vacío no crea element children) y
+         se colapsa. Evita ocupar un hit-target fantasma a la derecha del
+         título en surfaces sin action (Mi cuenta, Más, Notificaciones). -->
+    <div
+      class="absolute right-2 inset-y-0 flex items-center empty:hidden"
+    >
       <ng-content></ng-content>
     </div>
   `,
@@ -22,7 +28,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'relative h-16 shrink-0 flex items-center justify-center px-2 w-full',
+      'toolbar-brand-bg relative h-16 shrink-0 flex items-center justify-center px-2 w-full',
   },
 })
 export class PrimaryTitleToolbarComponent {

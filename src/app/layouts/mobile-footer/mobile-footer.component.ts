@@ -1,15 +1,10 @@
 import { NgClass } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-import { NavStateService } from '../nav/nav-state.service';
+import { NavStateService, OverlayKind } from '../nav/nav-state.service';
 
-type MobileFooterAction = 'nav' | 'account' | 'more';
+type MobileFooterAction = Extract<OverlayKind, 'nav' | 'account' | 'more'>;
 
 interface MobileFooterItem {
   label: string;
@@ -52,68 +47,41 @@ export class MobileFooterComponent {
   ];
 
   /**
-   * True si cualquier action overlay está abierto (nav-overlay o account drawer).
-   * Usado para desactivar el active state de los routerLink tabs cuando un
-   * action tab toma el control visual — evita el bug de 2 tabs marcados
-   * activos simultáneamente.
-   */
-  protected readonly anyActionOpen = computed(
-    () =>
-      this.nav.sidebarOpen() ||
-      this.nav.accountDrawerOpen() ||
-      this.nav.moreOverlayOpen(),
-  );
-
-  /**
-   * Toggle semantics — tap en la misma acción cierra el overlay abierto, y
-   * abrir una acción cierra la otra (mutex). Sin el toggle, el usuario queda
-   * sin forma de cerrar el overlay sin seleccionar algo. Sin el mutex, los
-   * dos overlays podrían abrirse a la vez apilándose visualmente.
+   * Toggle semantics — tap en el mismo tab cierra el overlay abierto. Abrir
+   * un overlay nuevo delega el mutex a `nav.openOverlay()` (cerrar los otros
+   * tres está garantizado ahí). El search overlay también entra en el mutex
+   * vía `anyOverlayOpen` / `closeAllOverlays`, aunque no tiene tab propio:
+   * evita que el usuario deje search abierto detrás de un nuevo tap "Menú".
    */
   handleAction(action: MobileFooterAction): void {
-    if (action === 'nav') {
-      const willOpen = !this.nav.sidebarOpen();
-      this.nav.sidebarOpen.set(willOpen);
-      if (willOpen) {
-        this.nav.accountDrawerOpen.set(false);
-        this.nav.moreOverlayOpen.set(false);
-      }
-    } else if (action === 'account') {
-      const willOpen = !this.nav.accountDrawerOpen();
-      this.nav.accountDrawerOpen.set(willOpen);
-      if (willOpen) {
-        this.nav.sidebarOpen.set(false);
-        this.nav.moreOverlayOpen.set(false);
-      }
-    } else if (action === 'more') {
-      const willOpen = !this.nav.moreOverlayOpen();
-      this.nav.moreOverlayOpen.set(willOpen);
-      if (willOpen) {
-        this.nav.sidebarOpen.set(false);
-        this.nav.accountDrawerOpen.set(false);
-      }
+    if (this.isActionActive(action)) {
+      this.nav.closeAllOverlays();
+    } else {
+      this.nav.openOverlay(action);
     }
   }
 
   /**
-   * Cierra cualquier overlay abierto al tocar un routerLink tab. Necesario
-   * porque Angular Router NO dispara `NavigationEnd` cuando el URL destino
-   * es el mismo que el actual (same-URL navigation), y el listener en
+   * Cierra cualquier overlay al tocar un routerLink tab. Necesario porque
+   * Angular Router NO dispara `NavigationEnd` cuando el URL destino es el
+   * mismo que el actual (same-URL navigation), y el listener en
    * NavStateService que cierra overlays depende de ese evento.
    *
    * Ej: user en `/`, abre "Mi cuenta", toca "Inicio" → no hay nav, el
    * drawer se quedaría abierto. Este handler lo resuelve.
    */
   closeOverlays(): void {
-    this.nav.accountDrawerOpen.set(false);
-    this.nav.sidebarOpen.set(false);
-    this.nav.moreOverlayOpen.set(false);
+    this.nav.closeAllOverlays();
   }
 
   isActionActive(action: MobileFooterAction): boolean {
-    if (action === 'nav') return this.nav.sidebarOpen();
-    if (action === 'account') return this.nav.accountDrawerOpen();
-    if (action === 'more') return this.nav.moreOverlayOpen();
-    return false;
+    switch (action) {
+      case 'nav':
+        return this.nav.sidebarOpen();
+      case 'account':
+        return this.nav.accountDrawerOpen();
+      case 'more':
+        return this.nav.moreOverlayOpen();
+    }
   }
 }

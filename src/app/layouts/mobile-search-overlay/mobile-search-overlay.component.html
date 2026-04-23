@@ -3,6 +3,8 @@
     role="dialog"
     aria-modal="true"
     aria-label="Búsqueda"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
     class="md:hidden fixed inset-0 z-40 bg-surface-0 dark:bg-surface-950 flex flex-col"
   >
     <!-- Header sticky: back + search input. Misma altura h-16 que el toolbar
@@ -25,7 +27,7 @@
       <p-iconfield iconPosition="left" class="block flex-1">
         <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
         <input
-          #searchInput
+          cdkFocusInitial
           type="text"
           pInputText
           placeholder="¿Qué estás buscando?"

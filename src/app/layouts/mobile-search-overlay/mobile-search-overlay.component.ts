@@ -1,14 +1,9 @@
+import { A11yModule } from '@angular/cdk/a11y';
 import {
-  afterNextRender,
   ChangeDetectionStrategy,
   Component,
-  effect,
-  ElementRef,
   inject,
-  Injector,
   signal,
-  untracked,
-  viewChild,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { IconField } from 'primeng/iconfield';
@@ -30,7 +25,7 @@ interface RecentView {
   url: string;
 }
 
-const NG_MODULES = [RouterModule];
+const NG_MODULES = [A11yModule, RouterModule];
 const PRIME_MODULES = [IconField, InputIcon, InputTextModule];
 
 /**
@@ -62,8 +57,6 @@ const PRIME_MODULES = [IconField, InputIcon, InputTextModule];
 })
 export class MobileSearchOverlayComponent {
   protected nav = inject(NavStateService);
-  private injector = inject(Injector);
-  private inputRef = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 
   // ─── Mock data ──────────────────────────────────────────────────────────
   // Queries típicos de operación ERP — "facturas pendientes", "cliente X",
@@ -108,24 +101,13 @@ export class MobileSearchOverlayComponent {
     },
   ]);
 
-  constructor() {
-    // Autofocus del input cuando el overlay se abre. En mobile el keyboard
-    // aparece de inmediato — patrón Google app. Usamos `afterNextRender` con
-    // injector para asegurar que el viewChild esté disponible.
-    effect(() => {
-      const isOpen = this.nav.searchOverlayOpen();
-      if (isOpen) {
-        untracked(() => {
-          afterNextRender(
-            () => {
-              this.inputRef()?.nativeElement.focus();
-            },
-            { injector: this.injector },
-          );
-        });
-      }
-    });
-  }
+  // Focus management delegado a CDK:
+  //   - `cdkTrapFocus` en el root del dialog instala el trap.
+  //   - `[cdkTrapFocusAutoCapture]="true"` captura el activeElement previo al
+  //     abrir y lo restaura al cerrar (patrón WAI-ARIA APG dialog).
+  //   - `cdkFocusInitial` en el <input> indica al trap cuál elemento enfocar
+  //     al capturar — evita la race vs un `afterNextRender` manual y garantiza
+  //     que el keyboard mobile aparezca inmediatamente (patrón Google app).
 
   close(): void {
     this.nav.searchOverlayOpen.set(false);

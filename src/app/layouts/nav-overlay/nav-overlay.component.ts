@@ -1,12 +1,18 @@
-import { NgClass } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
+import { isPlatformBrowser, NgClass } from '@angular/common';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
+  ElementRef,
   inject,
+  Injector,
+  PLATFORM_ID,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
@@ -15,7 +21,7 @@ import { NavSectionsComponent } from '../nav/nav-sections/nav-sections.component
 import { NavStateService } from '../nav/nav-state.service';
 import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
-const NG_MODULES = [NgClass, RouterModule];
+const NG_MODULES = [A11yModule, NgClass, RouterModule];
 const LOCAL_COMPONENTS = [NavSectionsComponent, PrimaryTitleToolbarComponent];
 
 type MobileView = 'modules' | 'sections';
@@ -55,6 +61,19 @@ type MobileView = 'modules' | 'sections';
 })
 export class NavOverlayComponent {
   protected nav = inject(NavStateService);
+  private injector = inject(Injector);
+  private platformId = inject(PLATFORM_ID);
+
+  /** Ref al botón "back" del drill en sections — para enfocar al drill-in. */
+  private backButtonRef = viewChild<ElementRef<HTMLButtonElement>>('backBtn');
+
+  /**
+   * Element desde donde el usuario drilleó (el botón L1 de módulo). Lo
+   * guardamos para restaurar el foco al hacer back. Sin esto, cerrar el drill
+   * con teclado deja el foco flotante (el botón origen se re-monta pero el
+   * browser no recuerda).
+   */
+  private drilledFromElement: HTMLElement | null = null;
 
   // ─── Desktop state (hover preview) ───────────────────────────────────────
   protected readonly selectedId = computed(
@@ -106,13 +125,43 @@ export class NavOverlayComponent {
 
   // ─── Mobile handlers ─────────────────────────────────────────────────────
   drillIntoModule(id: string): void {
+    // Guardamos el element origen ANTES de cambiar de vista — el botón del
+    // módulo está por desaparecer del DOM cuando mobileView conmute.
+    if (isPlatformBrowser(this.platformId)) {
+      const active = document.activeElement;
+      this.drilledFromElement =
+        active instanceof HTMLElement ? active : null;
+    }
     this.mobileDrilledModuleId.set(id);
     this.mobileView.set('sections');
+    // Tras el swap de vista, enfocamos el botón back — entry point natural
+    // para keyboard-only users (Escape/Enter). Sin esto el foco queda en
+    // <body> y Tab arranca desde cero.
+    afterNextRender(
+      () => {
+        this.backButtonRef()?.nativeElement.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   backToModules(): void {
     this.mobileView.set('modules');
     this.mobileDrilledModuleId.set(null);
+    // Restauramos el foco al botón del módulo origen — preserva el ritmo
+    // visual "estoy exactamente donde estaba antes de drillear" (patrón
+    // iOS Settings, Android nested list).
+    const origin = this.drilledFromElement;
+    this.drilledFromElement = null;
+    if (!origin) return;
+    afterNextRender(
+      () => {
+        // El nodo puede haber sido re-creado por el render del @if — si
+        // aún es conexión live del DOM, enfocar; si no, fallback neutro.
+        if (origin.isConnected) origin.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   onMobileLeafClicked(): void {
@@ -122,13 +171,13 @@ export class NavOverlayComponent {
   }
 
   /**
-   * Transición del overlay de navegación al overlay de búsqueda — mutex con
-   * el mismo patrón que el mobile-footer: cerrar el actual antes de abrir el
-   * siguiente para evitar stacking visual de overlays.
+   * Transición al search overlay — delega el mutex a NavStateService. El
+   * método `openSearch` del service cierra los otros 3 overlays (incluido el
+   * propio nav) antes de abrir search; consumer solo expresa la intención.
    */
   openSearch(): void {
-    this.close();
-    this.nav.searchOverlayOpen.set(true);
+    this.nav.clearHoverImmediate();
+    this.nav.openSearch();
   }
 
   // ─── Shared ──────────────────────────────────────────────────────────────
@@ -137,23 +186,34 @@ export class NavOverlayComponent {
     this.nav.sidebarOpen.set(false);
   }
 
+  /**
+   * Escape desde la vista `sections` → back al listado de módulos (drill
+   * gradual, pattern Gmail/Shopify); desde `modules` → cierra el overlay
+   * completo. Evita que el usuario pierda el contexto con una sola pulsación.
+   */
   onEscape(): void {
-    if (this.nav.sidebarOpen()) this.close();
+    if (!this.nav.sidebarOpen()) return;
+    if (this.mobileView() === 'sections') {
+      this.backToModules();
+    } else {
+      this.close();
+    }
   }
 
   /**
-   * Click-outside handler — solo relevante en desktop (el backdrop con mask
-   * cubre el viewport debajo del toolbar). En mobile el panel es full-screen
-   * y no hay "fuera del panel" visible, así que este handler es idle.
+   * Click-outside handler — relevante solo en desktop (el backdrop con mask
+   * del mega-menu cubre el resto del viewport). En mobile el panel es
+   * full-viewport desde `top-0` y no hay "fuera del panel" tocable, así que
+   * este handler queda idle ahí.
    *
-   * Usa `[data-nav-panel]` como marker en ambos paneles (mobile y desktop)
-   * porque un `viewChild('panelEl')` solo habría capturado uno — al estar
-   * los dos siempre en el DOM (ocultos con `hidden`/`md:hidden`), el click
-   * en el panel mobile contaría como "fuera" del ref desktop y cerraría.
+   * `[data-nav-panel]` marker está en ambos paneles (mobile + desktop) porque
+   * coexisten en el DOM, aunque solo uno renderice vía `md:hidden` /
+   * `hidden md:flex`. Un `viewChild` habría capturado solo uno y el click
+   * sobre el otro contaría como "fuera" cerrando el overlay.
    *
-   * El trigger (`[data-nav-trigger]`) es excluido porque tiene su propio
-   * (click) que hace toggle — sin este guard, el click primero cerraría el
-   * overlay y luego el toggle lo reabriría.
+   * `[data-nav-trigger]` se excluye porque tiene su propio (click) toggle —
+   * sin este guard el click primero cerraría el overlay y el toggle lo
+   * reabriría.
    */
   onDocumentClick(event: MouseEvent): void {
     if (!this.nav.sidebarOpen()) return;

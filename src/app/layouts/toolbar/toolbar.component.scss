@@ -1,15 +1,7 @@
-// Brand block background: SVG tornado/radial azul (#005DB9 → #0089D6), mismo
-// asset que el aside del login (login.component.scss). Tailwind no tiene
-// utility para url() backgrounds en el design system → clase semántica aquí,
-// mismo waiver que las keyframes del marquee/login-aside-bg. El svg trae su
-// propio rect fill 2000x1500 → cover + center encuadra cualquier ratio del
-// bloque sin huecos.
-.toolbar-brand-bg,
-:host(.toolbar-brand-bg) {
-  background-image: url('/images/tornado.svg');
-  background-size: cover;
-  background-position: center;
-}
+// El fondo tornado (.toolbar-brand-bg) vive como clase global en styles.scss
+// para que los 3 consumidores (toolbar, primary-title-toolbar, search-overlay
+// header) compartan una única declaración. El host de este componente ya
+// lleva la clase → el bg se aplica sin CSS local.
 
 // Elevación sutil cuando se hace scroll en main — el toolbar es sticky top,
 // el breadcrumb scrollea dentro del flow de contenido (patrón sticky top de

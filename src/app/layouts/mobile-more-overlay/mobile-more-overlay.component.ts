@@ -1,8 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
@@ -22,7 +19,7 @@ interface MoreItem {
   valueLabel?: () => string;
 }
 
-const NG_MODULES = [RouterModule];
+const NG_MODULES = [A11yModule, RouterModule];
 const LOCAL_COMPONENTS = [PrimaryTitleToolbarComponent];
 
 /**

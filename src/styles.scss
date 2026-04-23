@@ -40,6 +40,34 @@ html {
 @custom-variant dark (&:where(.p-dark, .p-dark *));
 
 /*
+ * Brand block background: SVG tornado/radial azul mismo asset que el aside del
+ * login. Declarado global (antes vivía duplicado en toolbar.component.scss +
+ * primary-title-toolbar.component.scss + mobile-search-overlay.component.scss).
+ * Centralizar evita drift de URLs/sizing cuando cambia el asset. Tailwind no
+ * tiene utility para url() backgrounds en el design system → clase semántica.
+ * El svg trae su propio rect fill 2000x1500 → cover + center encuadra
+ * cualquier ratio del bloque sin huecos.
+ */
+.toolbar-brand-bg {
+  background-image: url('/images/tornado.svg');
+  background-size: cover;
+  background-position: center;
+}
+
+/*
+ * Scroll lock global — aplicado cuando NavStateService.anyOverlayOpen() es true.
+ * Todos los overlays del app (nav, account, search, more) son full-viewport en
+ * mobile y modales blocking en desktop; bloquear el scroll del canvas detrás
+ * evita doble-superficie scrolleable, rubber-band iOS bleed-through y la
+ * sensación de "dos páginas abiertas" (patrón Gmail/Stripe/Linear). Aplica a
+ * <html> — body sigue siendo scrolleable si algún surface interno lo necesita,
+ * pero el viewport raíz queda fijo. Ref: ADR-001 §Scroll lock + overlays.
+ */
+html.overlay-open {
+  overflow: hidden;
+}
+
+/*
  * Focus ring global — consume los tokens del preset (app.config.ts → semantic.focusRing).
  * Para cambiar color/width/offset/shadow editar el preset, no este archivo.
  * Ref: CLAUDE.md §Transiciones, ADR-001 §5 + §9

@@ -7,9 +7,9 @@
         #rla="routerLinkActive"
         [routerLinkActiveOptions]="{ exact: true }"
         (click)="closeOverlays()"
-        [attr.aria-current]="rla.isActive && !anyActionOpen() ? 'page' : null"
+        [attr.aria-current]="rla.isActive && !nav.anyOverlayOpen() ? 'page' : null"
         [ngClass]="
-          rla.isActive && !anyActionOpen()
+          rla.isActive && !nav.anyOverlayOpen()
             ? 'text-primary'
             : 'text-muted-color'
         "
@@ -19,7 +19,7 @@
           class="text-2xl"
           [class]="item.icon"
           [ngClass]="
-            rla.isActive && !anyActionOpen()
+            rla.isActive && !nav.anyOverlayOpen()
               ? 'fa-sharp fa-solid'
               : 'fa-sharp fa-regular'
           "
