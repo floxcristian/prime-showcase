@@ -16,6 +16,7 @@ import { filter } from 'rxjs';
 import { BreadcrumbBarComponent } from '../breadcrumb-bar/breadcrumb-bar.component';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
 import { MobileMoreOverlayComponent } from '../mobile-more-overlay/mobile-more-overlay.component';
+import { MobileNotificationsOverlayComponent } from '../mobile-notifications-overlay/mobile-notifications-overlay.component';
 import { MobileSearchOverlayComponent } from '../mobile-search-overlay/mobile-search-overlay.component';
 import { NavOverlayComponent } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
@@ -28,6 +29,7 @@ const COMPONENTS = [
   BreadcrumbBarComponent,
   MobileFooterComponent,
   MobileMoreOverlayComponent,
+  MobileNotificationsOverlayComponent,
   MobileSearchOverlayComponent,
   NavOverlayComponent,
   PageTitleBarComponent,

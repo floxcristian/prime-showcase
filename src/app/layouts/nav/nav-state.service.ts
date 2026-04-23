@@ -22,7 +22,12 @@ import { NavModule } from './models/nav-module.interface';
  * full-viewport (mobile) o full-screen-blocking (desktop mega-menu, drawer)
  * debe ser mutuamente exclusiva con las demás para evitar stacking visual.
  */
-export type OverlayKind = 'nav' | 'account' | 'search' | 'more';
+export type OverlayKind =
+  | 'nav'
+  | 'account'
+  | 'search'
+  | 'more'
+  | 'notifications';
 
 /**
  * Clase toggled en <html> cuando hay cualquier overlay abierto — permite al
@@ -78,6 +83,14 @@ export class NavStateService {
   readonly searchOverlayOpen = signal<boolean>(false);
   /** Full-screen "Más" overlay mobile — links secundarios (ayuda, legal, logout). */
   readonly moreOverlayOpen = signal<boolean>(false);
+  /**
+   * Full-screen notifications overlay mobile. En desktop las notificaciones
+   * se ven vía popover + la ruta /notifications; en mobile este overlay
+   * reemplaza a la ruta para evitar que el route swap desmonte la view de
+   * fondo (p.ej. Overview) y re-dispare su ciclo de animación de charts.
+   * La ruta /notifications sigue existiendo como deep-link fallback.
+   */
+  readonly notificationsOverlayOpen = signal<boolean>(false);
 
   /**
    * True si CUALQUIERA de los 4 overlays/drawers globales está abierto. Usado
@@ -90,7 +103,8 @@ export class NavStateService {
       this.sidebarOpen() ||
       this.accountDrawerOpen() ||
       this.searchOverlayOpen() ||
-      this.moreOverlayOpen(),
+      this.moreOverlayOpen() ||
+      this.notificationsOverlayOpen(),
   );
 
   /**
@@ -221,6 +235,7 @@ export class NavStateService {
     if (kind !== 'account') this.accountDrawerOpen.set(false);
     if (kind !== 'search') this.searchOverlayOpen.set(false);
     if (kind !== 'more') this.moreOverlayOpen.set(false);
+    if (kind !== 'notifications') this.notificationsOverlayOpen.set(false);
 
     switch (kind) {
       case 'nav':
@@ -234,6 +249,9 @@ export class NavStateService {
         break;
       case 'more':
         this.moreOverlayOpen.set(true);
+        break;
+      case 'notifications':
+        this.notificationsOverlayOpen.set(true);
         break;
     }
   }
@@ -254,11 +272,16 @@ export class NavStateService {
     this.openOverlay('more');
   }
 
+  openNotifications(): void {
+    this.openOverlay('notifications');
+  }
+
   closeAllOverlays(): void {
     this.sidebarOpen.set(false);
     this.accountDrawerOpen.set(false);
     this.searchOverlayOpen.set(false);
     this.moreOverlayOpen.set(false);
+    this.notificationsOverlayOpen.set(false);
   }
 
   /**
