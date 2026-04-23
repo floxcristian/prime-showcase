@@ -5,11 +5,18 @@
   position="right"
   appendTo="body"
   closeIcon="fa-sharp fa-regular fa-xmark"
-  styleClass="!max-w-2xl !w-full !h-[calc(100dvh-8rem)] md:!h-screen"
+  styleClass="!max-w-2xl !w-full !h-[calc(100dvh-4rem)] md:!h-screen"
   [pt]="drawerPt"
 >
   <ng-template #headless>
     <div class="flex flex-col h-full overflow-auto">
+      <!-- Primary title toolbar — solo mobile. Reemplaza el toolbar principal
+           (que fue ocultado bajando el drawer a top: 0) con el mismo look
+           visual (tornado bg, h-16, blanco bold) pero mostrando "Mi cuenta". -->
+      <app-primary-title-toolbar
+        title="Mi cuenta"
+        class="md:hidden"
+      />
       <div>
         <div class="flex items-center gap-3 p-2 pt-4 md:p-6">
           <p-avatar

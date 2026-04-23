@@ -13,10 +13,10 @@ import { RouterModule } from '@angular/router';
 import type { NavModule } from '../nav/models/nav-module.interface';
 import { NavSectionsComponent } from '../nav/nav-sections/nav-sections.component';
 import { NavStateService } from '../nav/nav-state.service';
-import { PageTitleBarComponent } from '../page-title-bar/page-title-bar.component';
+import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
 const NG_MODULES = [NgClass, RouterModule];
-const LOCAL_COMPONENTS = [NavSectionsComponent, PageTitleBarComponent];
+const LOCAL_COMPONENTS = [NavSectionsComponent, PrimaryTitleToolbarComponent];
 
 type MobileView = 'modules' | 'sections';
 
@@ -119,6 +119,16 @@ export class NavOverlayComponent {
     const id = this.mobileDrilledModuleId();
     if (id) this.nav.setActiveModule(id);
     this.close();
+  }
+
+  /**
+   * Transición del overlay de navegación al overlay de búsqueda — mutex con
+   * el mismo patrón que el mobile-footer: cerrar el actual antes de abrir el
+   * siguiente para evitar stacking visual de overlays.
+   */
+  openSearch(): void {
+    this.close();
+    this.nav.searchOverlayOpen.set(true);
   }
 
   // ─── Shared ──────────────────────────────────────────────────────────────

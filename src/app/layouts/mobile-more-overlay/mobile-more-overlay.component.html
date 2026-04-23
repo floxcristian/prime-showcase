@@ -3,12 +3,12 @@
     role="dialog"
     aria-modal="true"
     aria-label="Más"
-    class="md:hidden fixed inset-x-0 bottom-16 top-16 z-30 bg-surface-0 dark:bg-surface-950 flex flex-col"
+    class="md:hidden fixed inset-x-0 bottom-16 top-0 z-30 bg-surface-0 dark:bg-surface-950 flex flex-col"
   >
-    <!-- Title bar — componente compartido con Menú y Notificaciones. El
-         toolbar real queda visible arriba (top-16 offset) y este subheader
-         contextualiza la subvista. -->
-    <app-page-title-bar title="Más" />
+    <!-- Primary title toolbar — reemplaza completamente al toolbar principal
+         (cover-top desde top-0). Mismo look (tornado bg, h-16, blanco bold)
+         pero con el título "Más" en lugar de logo/search/bell. -->
+    <app-primary-title-toolbar title="Más" />
 
     <!-- Lista principal: items clickeables. Cada row: icon + label (+ valueLabel opcional) + chevron.
          `divide-y` entre items, `border-t` arriba para que el primer row tenga separador con el header. -->

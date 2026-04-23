@@ -396,10 +396,10 @@ input:-webkit-autofill:focus-visible {
   }
   // Border-left del drawer position=right tiene sentido en desktop (separa
   // del canvas dimmed detrás), no en mobile donde el drawer es full-width.
-  // Top: 4rem deja visible el toolbar real (h-16) para consistencia con los
-  // otros overlays mobile (Menú, Más) que mantienen el toolbar como anchor
-  // de navegación. La altura calc(100dvh-8rem) del styleClass ya contempla
-  // los 4rem superiores + 4rem del mobile-footer inferior.
+  // Top: 0 → el drawer cubre el viewport completo (incluyendo el espacio del
+  // toolbar principal). El drawer monta su propio primary-title-toolbar con
+  // la misma identidad visual (tornado bg + "Mi cuenta"). La altura
+  // calc(100dvh-4rem) del styleClass deja espacio solo para el mobile-footer.
   //
   // Quitamos también la slide-in animation de PrimeNG en mobile para que el
   // drawer aparezca instantáneamente, consistente con los otros overlays
@@ -407,7 +407,7 @@ input:-webkit-autofill:focus-visible {
   // inline styles que @angular/animations inyecta en el elemento.
   .p-drawer {
     border: none !important;
-    top: 4rem !important;
+    top: 0 !important;
     transition: none !important;
     animation: none !important;
     transform: none !important;

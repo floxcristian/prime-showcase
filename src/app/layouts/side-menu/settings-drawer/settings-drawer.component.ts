@@ -27,6 +27,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 // App
 import { AppConfigService } from '../../../core/services/app-config/app-config.service';
+import { PrimaryTitleToolbarComponent } from '../../primary-title-toolbar/primary-title-toolbar.component';
 // Models
 import type {
   CallLog,
@@ -64,7 +65,7 @@ const PRIME_MODULES = [
 
 @Component({
   selector: 'app-settings-drawer',
-  imports: [NG_MODULES, PRIME_MODULES],
+  imports: [NG_MODULES, PRIME_MODULES, PrimaryTitleToolbarComponent],
   templateUrl: './settings-drawer.component.html',
   styleUrl: './settings-drawer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

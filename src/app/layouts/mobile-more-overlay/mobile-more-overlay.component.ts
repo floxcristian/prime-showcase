@@ -8,7 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NavStateService } from '../nav/nav-state.service';
-import { PageTitleBarComponent } from '../page-title-bar/page-title-bar.component';
+import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
 interface MoreItem {
   id: string;
@@ -23,7 +23,7 @@ interface MoreItem {
 }
 
 const NG_MODULES = [RouterModule];
-const LOCAL_COMPONENTS = [PageTitleBarComponent];
+const LOCAL_COMPONENTS = [PrimaryTitleToolbarComponent];
 
 /**
  * Full-screen "Más" overlay mobile. Triggereado por el botón "Más" del

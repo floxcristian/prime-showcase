@@ -3,7 +3,7 @@
     role="dialog"
     aria-modal="true"
     aria-label="Menú de navegación"
-    class="fixed inset-x-0 bottom-16 md:bottom-0 top-16 z-30"
+    class="fixed inset-x-0 bottom-16 md:bottom-0 top-0 md:top-16 z-30"
   >
     <!-- Backdrop: solo desktop. Mobile el panel ocupa todo el viewport
          disponible (entre toolbar y footer) así que no hay "fuera". -->
@@ -22,7 +22,19 @@
     >
       @if (mobileView() === 'modules') {
         <!-- Vista 1: lista de módulos L1 full-width -->
-        <app-page-title-bar title="Navegación" />
+        <app-primary-title-toolbar title="Navegación">
+          <button
+            type="button"
+            (click)="openSearch()"
+            aria-label="Buscar"
+            class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
+          >
+            <i
+              class="fa-sharp fa-regular fa-magnifying-glass text-xl"
+              aria-hidden="true"
+            ></i>
+          </button>
+        </app-primary-title-toolbar>
         <nav
           aria-label="Módulos"
           class="flex-1 overflow-y-auto divide-y divide-surface-200 dark:divide-surface-800"

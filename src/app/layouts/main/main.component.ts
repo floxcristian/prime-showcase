@@ -20,6 +20,7 @@ import { MobileSearchOverlayComponent } from '../mobile-search-overlay/mobile-se
 import { NavOverlayComponent } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { PageTitleBarComponent } from '../page-title-bar/page-title-bar.component';
+import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 const NG_MODULES = [RouterOutlet];
@@ -30,6 +31,7 @@ const COMPONENTS = [
   MobileSearchOverlayComponent,
   NavOverlayComponent,
   PageTitleBarComponent,
+  PrimaryTitleToolbarComponent,
   ToolbarComponent,
 ];
 
