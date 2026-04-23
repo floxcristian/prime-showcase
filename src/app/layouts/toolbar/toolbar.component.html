@@ -51,22 +51,39 @@
   </button>
 </div>
 
-<!-- Mobile logo: reemplaza el search input en <md. Misma imagen que el logo
-     del aside del login (implementos-logo.svg) para reforzar brand identity
-     en el topbar mobile donde no hay left block (logo + hamburger ocultos).
-     flex-1 para que el bell quede pegado al borde derecho via justify via gap. -->
-<a
-  routerLink="/"
-  aria-label="Ir al inicio"
-  class="md:hidden flex-1 flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
->
-  <img
-    src="implementos-logo.svg"
-    alt="Implementos"
-    height="48"
-    class="h-12 w-auto"
-  />
-</a>
+<!-- Mobile top-left: el slot cambia según la ruta. En `/` muestra el logo
+     (brand identity en la tab root); en cualquier otra ruta muestra un back
+     arrow + spacer para reforzar la jerarquía de navegación. Patrón Gmail /
+     Linear / Salesforce mobile: tab roots con logo, pushed views con back. -->
+@if (nav.currentUrl() === '/') {
+  <a
+    routerLink="/"
+    aria-label="Ir al inicio"
+    class="md:hidden flex-1 flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
+  >
+    <img
+      src="implementos-logo.svg"
+      alt="Implementos"
+      height="48"
+      class="h-12 w-auto"
+    />
+  </a>
+} @else {
+  <button
+    type="button"
+    (click)="nav.goBack()"
+    aria-label="Volver"
+    class="md:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
+  >
+    <i
+      class="fa-sharp fa-regular fa-arrow-left text-xl"
+      aria-hidden="true"
+    ></i>
+  </button>
+  <!-- Spacer: sustituye al flex-1 del logo link para que bell + search
+       queden anclados al borde derecho (no se cuelguen a la izquierda). -->
+  <div class="md:hidden flex-1" aria-hidden="true"></div>
+}
 
 <!-- Desktop search — oculto en mobile porque ahí el logo toma su lugar. -->
 <p-iconfield iconPosition="left" class="hidden md:block flex-1 md:max-w-xl">

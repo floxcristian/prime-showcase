@@ -1,4 +1,4 @@
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser, Location } from '@angular/common';
 import {
   computed,
   DestroyRef,
@@ -60,6 +60,7 @@ export interface BreadcrumbCrumb {
 @Injectable({ providedIn: 'root' })
 export class NavStateService {
   private router = inject(Router);
+  private location = inject(Location);
   private destroyRef = inject(DestroyRef);
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
@@ -92,6 +93,24 @@ export class NavStateService {
       this.searchOverlayOpen() ||
       this.moreOverlayOpen(),
   );
+
+  /**
+   * Contador de navegaciones internas (NavigationEnd). Se usa para saber si
+   * hay history propia dentro de la SPA al que retroceder — importante
+   * cuando el usuario entra vía deep-link desde fuera: `history.back()` en
+   * ese caso lo sacaría de la app entera, no es lo que queremos.
+   *
+   *   navCount = 1  → solo la carga inicial; sin back posible → fallback a /
+   *   navCount ≥ 2  → al menos una navegación in-app completada → back seguro
+   *
+   * Nota: un `location.back()` también dispara un NavigationEnd, así que el
+   * counter sigue creciendo en back-nav. Eso está bien — solo nos importa el
+   * flag boolean derivado. Patrón Angular estándar (ver Angular docs · Location).
+   */
+  private readonly navCount = signal(0);
+
+  /** True cuando el back button debe aplicar `history.back()`; false → fallback a /. */
+  readonly canGoBack = computed(() => this.navCount() >= 2);
   readonly expandedSectionIds = signal<ReadonlySet<string>>(
     new Set(['crm.adm-clientes']),
   );
@@ -149,6 +168,10 @@ export class NavStateService {
         // comporta como page navigation: tap "Inicio" debería cerrar el
         // drawer/overlay y mostrar home.
         this.closeAllOverlays();
+        // Incrementa el tracker de history — habilita canGoBack tras la
+        // primera navegación in-app real. Ref: goBack() y el comentario de
+        // `navCount`.
+        this.navCount.update((n) => n + 1);
       });
 
     // Scroll lock: togglea `.overlay-open` en <html> cuando cualquier overlay
@@ -224,6 +247,24 @@ export class NavStateService {
     this.accountDrawerOpen.set(false);
     this.searchOverlayOpen.set(false);
     this.moreOverlayOpen.set(false);
+  }
+
+  /**
+   * Back navigation mobile-first. Si hay history propia in-app, usa
+   * `Location.back()` (equivalent a `history.back()`, pero vía la
+   * abstracción de Angular que respeta PlatformLocation en SSR). Si no hay
+   * history — caso típico de deep-link desde fuera de la SPA — cae a `/` en
+   * lugar de dejar que el browser saque al usuario de la app.
+   *
+   * Patrón iOS/Android nativo + Gmail/Linear/Salesforce mobile: toda ruta
+   * no-root tiene back, y back siempre aterriza dentro de la app.
+   */
+  goBack(): void {
+    if (this.canGoBack()) {
+      this.location.back();
+    } else {
+      this.router.navigateByUrl('/');
+    }
   }
 
   setActiveModule(id: string): void {
