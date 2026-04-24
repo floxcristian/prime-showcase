@@ -14,7 +14,6 @@ import { FormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { ChartModule } from 'primeng/chart';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MenuModule } from 'primeng/menu';
 import { MeterGroupModule } from 'primeng/metergroup';
@@ -26,6 +25,7 @@ import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import type { CanvasFontSpec, Chart, ChartOptions, TooltipModel, TooltipItem } from 'chart.js';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
+import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { TRANSPARENT_TABLE_TOKENS } from '../../shared/tokens/table-tokens';
 import { CoinBadge, CoinKind, Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
 import {
@@ -37,7 +37,6 @@ import {
 
 const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
-  ChartModule,
   SelectButton,
   AvatarModule,
   TooltipModule,
@@ -53,7 +52,7 @@ const PRIME_MODULES = [
 
 @Component({
   selector: 'app-overview',
-  imports: [NG_MODULES, PRIME_MODULES],
+  imports: [NG_MODULES, PRIME_MODULES, ChartComponent],
   templateUrl: './overview.component.html',
   styleUrl: './overview.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-04-24T02:05:35.735Z",
+  "generatedAt": "2026-04-24T02:50:39.950Z",
   "initial": {
     "raw": 742204,
-    "gzip": 195483,
+    "gzip": 195482,
     "files": [
       {
         "type": "chunk",
@@ -37,7 +37,7 @@
       {
         "type": "main",
         "raw": 113346,
-        "gzip": 16770
+        "gzip": 16769
       },
       {
         "type": "styles",
@@ -45,5 +45,9 @@
         "gzip": 52065
       }
     ]
+  },
+  "totalJs": {
+    "raw": 1830522,
+    "fileCount": 40
   }
 }

@@ -250,7 +250,7 @@
                   class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
                 >
                   <div class="w-40 h-40 relative">
-                    <p-chart
+                    <app-chart
                       type="doughnut"
                       [data]="satisfaction.data"
                       [options]="satisfaction.options"
@@ -285,7 +285,7 @@
                 <div
                   class="flex-1 mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
                 >
-                  <p-chart
+                  <app-chart
                     type="line"
                     [data]="productUsage.data"
                     [options]="productUsage.options"
@@ -301,7 +301,7 @@
                   class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
                 >
                   <div class="w-40 h-40 relative">
-                    <p-chart
+                    <app-chart
                       type="doughnut"
                       [data]="churn.data"
                       [options]="churn.options"
@@ -322,7 +322,7 @@
               <div
                 class="flex-1 p-2 w-full mt-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
               >
-                <p-chart
+                <app-chart
                   type="bar"
                   [data]="totalPurchases.data"
                   [options]="totalPurchases.options"

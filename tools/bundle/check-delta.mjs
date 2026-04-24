@@ -8,27 +8,34 @@
  * lejos del techo. Sin este gate, 50 PRs de +5 kB cada uno suben el bundle
  * 250 kB sin que nadie se entere hasta que toca renegociar el budget.
  *
- * Cómo funciona:
- *   1. Lee `dist/prime-showcase/browser/index.csr.html` (producido por el
- *      build). Extrae los archivos referenciados — esos SON el initial bundle
- *      real por definición (los hashes cambian cada build, no se pueden
- *      hardcodear).
- *   2. Suma `rawBytes` y calcula `gzipBytes` (gzip nivel 9) por archivo.
- *   3. Compara contra `tools/bundle/baseline.json`.
- *   4. Sale con exit code 1 si initial crece > `GROWTH_THRESHOLD_PCT` vs
- *      baseline.
+ * **Qué mide:**
+ *   - `initial`: lo que el browser descarga antes del primer paint (JS+CSS
+ *     referenciados en `index.csr.html`). Captura tiempo al primer render.
+ *   - `totalJs`: sum de TODOS los `.js` en dist/browser. Captura bloat en
+ *     lazy chunks — cambios que mueven kBs desde initial a lazy, o que
+ *     empujan kBs nuevos a rutas lazy, se verían acá aunque initial no se
+ *     mueva. Chart.js vive en lazy chunks, por ejemplo.
  *
- * Flags:
- *   --update-baseline    Escribe el size actual al baseline.json.
+ * **Cómo funciona:**
+ *   1. Lee `dist/prime-showcase/browser/index.csr.html` (producido por el
+ *      build). Extrae archivos referenciados — esos SON el initial bundle
+ *      por definición (hashes cambian cada build, no se pueden hardcodear).
+ *   2. Para `initial`: suma raw + gzip level-9 de esos archivos.
+ *   3. Para `totalJs`: glob todos los `*.js` del dist y suma raw.
+ *   4. Compara contra `baseline.json`.
+ *   5. Sale con exit 1 si cualquiera de los dos creció > threshold.
+ *
+ * **Flags:**
+ *   --update-baseline    Escribe sizes actuales al baseline.json.
  *                        Usar SOLO cuando hay justificación aprobada en PR.
  *   --dist-path=<path>   Override del path al dist (default:
  *                        dist/prime-showcase/browser).
  *
- * Output formato CI-friendly (GitHub Actions annotations + human table).
+ * Output: formato CI-friendly (GitHub Actions annotations + human table).
  */
 
 import { gzipSync } from 'node:zlib';
-import { readFileSync, existsSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -95,20 +102,38 @@ function parseInitialBundleFiles(distPath) {
   return [...files].sort();
 }
 
-function measureFile(distPath, fileName) {
+/**
+ * Lista todos los `.js` del browser dist (initial + lazy). Excluye maps.
+ * No gzippea (sería lento + el número relevante acá es el JS shipped total,
+ * no el transfer exacto que varía por CDN).
+ */
+function listAllJsFiles(distPath) {
+  return readdirSync(distPath)
+    .filter((name) => name.endsWith('.js'))
+    .sort();
+}
+
+function measureFile(distPath, fileName, { withGzip = false } = {}) {
   const fullPath = join(distPath, fileName);
   if (!existsSync(fullPath)) {
     throw new Error(`archivo referenciado en index pero no existe: ${fullPath}`);
   }
   const buf = readFileSync(fullPath);
-  const gz = gzipSync(buf, { level: 9 });
-  return { fileName, raw: buf.length, gzip: gz.length };
+  const result = { fileName, raw: buf.length };
+  if (withGzip) result.gzip = gzipSync(buf, { level: 9 }).length;
+  return result;
 }
 
-function sumSizes(measurements) {
+function sumSizes(measurements, { withGzip = false } = {}) {
+  if (withGzip) {
+    return measurements.reduce(
+      (acc, m) => ({ raw: acc.raw + m.raw, gzip: acc.gzip + (m.gzip ?? 0) }),
+      { raw: 0, gzip: 0 },
+    );
+  }
   return measurements.reduce(
-    (acc, m) => ({ raw: acc.raw + m.raw, gzip: acc.gzip + m.gzip }),
-    { raw: 0, gzip: 0 },
+    (acc, m) => ({ raw: acc.raw + m.raw }),
+    { raw: 0 },
   );
 }
 
@@ -117,19 +142,30 @@ function sumSizes(measurements) {
 function main() {
   console.log('Bundle delta check');
   console.log(`  dist: ${DIST_PATH}`);
-  console.log(`  threshold: +${GROWTH_THRESHOLD_PCT}% (raw initial)`);
+  console.log(
+    `  threshold: +${GROWTH_THRESHOLD_PCT}% on each of {initial raw, totalJs raw}`,
+  );
   console.log('');
 
-  const files = parseInitialBundleFiles(DIST_PATH);
-  const measurements = files.map((f) => measureFile(DIST_PATH, f));
-  const initial = sumSizes(measurements);
+  // Initial bundle (with gzip — it's the user-facing metric for first paint).
+  const initialFiles = parseInitialBundleFiles(DIST_PATH);
+  const initialMeasurements = initialFiles.map((f) =>
+    measureFile(DIST_PATH, f, { withGzip: true }),
+  );
+  const initial = sumSizes(initialMeasurements, { withGzip: true });
+
+  // Total JS shipped (raw only — gzip on every chunk is expensive and the
+  // metric we care about is byte-weight discipline, not CDN transfer).
+  const allJsFiles = listAllJsFiles(DIST_PATH);
+  const allJsMeasurements = allJsFiles.map((f) => measureFile(DIST_PATH, f));
+  const totalJs = sumSizes(allJsMeasurements);
 
   const current = {
     generatedAt: new Date().toISOString(),
     initial: {
       raw: initial.raw,
       gzip: initial.gzip,
-      files: measurements.map(({ fileName, raw, gzip }) => ({
+      files: initialMeasurements.map(({ fileName, raw, gzip }) => ({
         // Los nombres llevan hash — los reportamos por tipo genérico para que
         // el baseline sea comparable entre builds (sino cada build rompería
         // todos los nombres). El raw/gzip SÍ son comparables build-to-build.
@@ -142,6 +178,10 @@ function main() {
         gzip,
       })),
     },
+    totalJs: {
+      raw: totalJs.raw,
+      fileCount: allJsFiles.length,
+    },
   };
 
   if (UPDATE_BASELINE) {
@@ -149,6 +189,9 @@ function main() {
     console.log(`✔ baseline.json actualizado:`);
     console.log(`  initial raw:  ${humanSize(initial.raw)}`);
     console.log(`  initial gzip: ${humanSize(initial.gzip)}`);
+    console.log(
+      `  totalJs raw:  ${humanSize(totalJs.raw)} (${allJsFiles.length} chunks)`,
+    );
     return;
   }
 
@@ -162,27 +205,50 @@ function main() {
 
   const baseline = JSON.parse(readFileSync(BASELINE_PATH, 'utf8'));
   const baseInitial = baseline.initial;
+  const baseTotalJs = baseline.totalJs ?? { raw: 0, fileCount: 0 };
 
-  const rawDelta = initial.raw - baseInitial.raw;
-  const gzipDelta = initial.gzip - baseInitial.gzip;
-  const rawDeltaPct = pct(initial.raw, baseInitial.raw);
-  const gzipDeltaPct = pct(initial.gzip, baseInitial.gzip);
+  const initialRawDelta = initial.raw - baseInitial.raw;
+  const initialGzipDelta = initial.gzip - baseInitial.gzip;
+  const initialRawPct = pct(initial.raw, baseInitial.raw);
+  const initialGzipPct = pct(initial.gzip, baseInitial.gzip);
+  const totalRawDelta = totalJs.raw - baseTotalJs.raw;
+  const totalRawPct = pct(totalJs.raw, baseTotalJs.raw);
 
-  const pass = rawDeltaPct <= GROWTH_THRESHOLD_PCT;
-  const statusIcon = pass ? '✔' : '✘';
+  const initialPass = initialRawPct <= GROWTH_THRESHOLD_PCT;
+  const totalPass = totalRawPct <= GROWTH_THRESHOLD_PCT;
+  const pass = initialPass && totalPass;
 
-  console.log('Initial bundle:');
+  console.log('Initial bundle (first paint):');
   console.log(
-    `  raw:  ${humanSize(baseInitial.raw).padStart(10)} → ${humanSize(initial.raw).padStart(10)}  (${humanDelta(rawDelta).padStart(8)} / ${rawDeltaPct >= 0 ? '+' : ''}${rawDeltaPct.toFixed(2)}%)  ${statusIcon}`,
+    `  raw:  ${humanSize(baseInitial.raw).padStart(10)} → ${humanSize(initial.raw).padStart(10)}  (${humanDelta(initialRawDelta).padStart(8)} / ${initialRawPct >= 0 ? '+' : ''}${initialRawPct.toFixed(2)}%)  ${initialPass ? '✔' : '✘'}`,
   );
   console.log(
-    `  gzip: ${humanSize(baseInitial.gzip).padStart(10)} → ${humanSize(initial.gzip).padStart(10)}  (${humanDelta(gzipDelta).padStart(8)} / ${gzipDeltaPct >= 0 ? '+' : ''}${gzipDeltaPct.toFixed(2)}%)`,
+    `  gzip: ${humanSize(baseInitial.gzip).padStart(10)} → ${humanSize(initial.gzip).padStart(10)}  (${humanDelta(initialGzipDelta).padStart(8)} / ${initialGzipPct >= 0 ? '+' : ''}${initialGzipPct.toFixed(2)}%)`,
+  );
+  console.log('');
+  console.log('Total JS shipped (initial + lazy chunks):');
+  console.log(
+    `  raw:  ${humanSize(baseTotalJs.raw).padStart(10)} → ${humanSize(totalJs.raw).padStart(10)}  (${humanDelta(totalRawDelta).padStart(8)} / ${totalRawPct >= 0 ? '+' : ''}${totalRawPct.toFixed(2)}%)  ${totalPass ? '✔' : '✘'}`,
+  );
+  console.log(
+    `  chunks: ${baseTotalJs.fileCount} → ${allJsFiles.length}`,
   );
   console.log('');
 
   if (!pass) {
+    const failures = [];
+    if (!initialPass) {
+      failures.push(
+        `initial raw +${initialRawPct.toFixed(2)}% (${humanDelta(initialRawDelta)})`,
+      );
+    }
+    if (!totalPass) {
+      failures.push(
+        `totalJs raw +${totalRawPct.toFixed(2)}% (${humanDelta(totalRawDelta)})`,
+      );
+    }
     console.error(
-      `✘ FAIL: initial bundle creció ${rawDeltaPct.toFixed(2)}% (> ${GROWTH_THRESHOLD_PCT}% threshold).`,
+      `✘ FAIL: bundle creció más allá del threshold — ${failures.join(', ')}.`,
     );
     console.error('');
     console.error('  Opciones:');
@@ -190,19 +256,19 @@ function main() {
     console.error('       `npm run build` y buscar chunks nuevos o más grandes.');
     console.error('    2. Si es justificado, documentar en PR description y correr:');
     console.error(
-      '       `node tools/bundle/check-delta.mjs --update-baseline`',
+      '       `npm run bundle:baseline`',
     );
     console.error('       (commit el nuevo baseline.json junto con el PR).');
     console.error('    3. Si no es justificado, optimizar antes de mergear.');
     console.error('');
     // GitHub Actions annotation — aparece como error en el PR file view.
     console.error(
-      `::error file=tools/bundle/baseline.json::Bundle initial creció ${rawDeltaPct.toFixed(2)}% (${humanDelta(rawDelta)}) — excede threshold de ${GROWTH_THRESHOLD_PCT}%`,
+      `::error file=tools/bundle/baseline.json::Bundle delta excede threshold — ${failures.join(', ')}`,
     );
     process.exit(1);
   }
 
-  console.log('✔ Bundle delta dentro del threshold.');
+  console.log('✔ Bundle delta dentro del threshold (initial + totalJs).');
 }
 
 main();

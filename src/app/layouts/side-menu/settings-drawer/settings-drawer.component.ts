@@ -19,7 +19,6 @@ import { FormsModule } from '@angular/forms';
 // PrimeNG
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
-import { ChartModule } from 'primeng/chart';
 import { DrawerModule } from 'primeng/drawer';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { SelectButton } from 'primeng/selectbutton';
@@ -28,6 +27,7 @@ import { TooltipModule } from 'primeng/tooltip';
 // App
 import { AppConfigService } from '../../../core/services/app-config/app-config.service';
 import { BackButtonComponent } from '../../../shared/back-button/back-button.component';
+import { ChartComponent } from '../../../shared/components/chart/chart.component';
 import { PrimaryTitleToolbarComponent } from '../../primary-title-toolbar/primary-title-toolbar.component';
 // Models
 import type {
@@ -56,7 +56,6 @@ const NG_MODULES = [FormsModule];
 const PRIME_MODULES = [
   AvatarModule,
   ButtonModule,
-  ChartModule,
   DrawerModule,
   OverlayBadgeModule,
   SelectButton,
@@ -70,6 +69,7 @@ const PRIME_MODULES = [
     NG_MODULES,
     PRIME_MODULES,
     BackButtonComponent,
+    ChartComponent,
     PrimaryTitleToolbarComponent,
   ],
   templateUrl: './settings-drawer.component.html',

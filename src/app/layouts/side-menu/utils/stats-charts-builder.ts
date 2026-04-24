@@ -191,7 +191,7 @@ function buildBar(
 
 /**
  * Deterministic, DOM-free builder. Given domain data + a resolved palette,
- * returns Chart.js configs ready to bind to `<p-chart>`. The output is a
+ * returns Chart.js configs ready to bind to `<app-chart>`. The output is a
  * pure function of the inputs — no hidden theme reads, no global state —
  * which makes every option easy to assert in unit tests.
  */
