@@ -8,9 +8,13 @@
 #   3. Unit tests — `ng test` (vitest) across every *.spec.ts. Catches
 #      regressions in services/components (NavStateService mutex, config
 #      service, etc.) before they reach main.
-#   4. Production build — confirms bundle budgets (750kB warn / 1MB error)
+#   4. Production build — confirms bundle budgets (760kB warn / 820kB error)
 #      and produces dist/prime-showcase/server/server.mjs used by the smoke.
-#   5. SSR smoke — boots the SSR server in the background, waits for it to
+#   5. Bundle delta check — compares initial bundle size against
+#      tools/bundle/baseline.json; fails if raw initial grew > 3% without
+#      an updated baseline. This is the per-PR enforcer against silent
+#      bundle creep. Budget limits are the ceiling; delta is the gate.
+#   6. SSR smoke — boots the SSR server in the background, waits for it to
 #      accept traffic on :4000, runs the theme-cookie smoke suite, and
 #      always stops the server (even on smoke failure) so the job cleans up.
 #
@@ -61,6 +65,16 @@ jobs:
       # Production build. Fails the job if any budget is exceeded (angular.json).
       - name: Build (production)
         run: npm run build
+
+      # Per-PR bundle delta check. Reads dist/prime-showcase/browser/index.csr.html,
+      # sums initial-bundle sizes (raw + gzip), compares against
+      # tools/bundle/baseline.json. Fails if raw initial grew > 3%.
+      #
+      # If the growth is intentional, the contributor updates the baseline
+      # via `npm run bundle:baseline` and commits it. That way every bundle
+      # increase leaves a visible commit in history — no silent creep.
+      - name: Bundle delta check
+        run: npm run bundle:check
 
       # Start the SSR server produced by the previous step, detached so the
       # step can continue. PORT=4000 matches tools/smoke/ssr-theme.smoke.mjs

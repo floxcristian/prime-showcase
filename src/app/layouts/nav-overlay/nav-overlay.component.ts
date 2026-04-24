@@ -211,9 +211,9 @@ export class NavOverlayComponent {
    * full-viewport desde `top-0` y no hay "fuera del panel" tocable, así que
    * este handler queda idle ahí.
    *
-   * `[data-nav-panel]` marker está en ambos paneles (mobile + desktop) porque
-   * coexisten en el DOM, aunque solo uno renderice vía `md:hidden` /
-   * `hidden md:flex`. Un `viewChild` habría capturado solo uno y el click
+   * `[data-nav-panel]` marker está en ambos paneles (mobile/tablet + desktop)
+   * porque coexisten en el DOM, aunque solo uno renderice vía `lg:hidden` /
+   * `hidden lg:flex`. Un `viewChild` habría capturado solo uno y el click
    * sobre el otro contaría como "fuera" cerrando el overlay.
    *
    * `[data-nav-trigger]` se excluye porque tiene su propio (click) toggle —

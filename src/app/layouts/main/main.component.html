@@ -2,10 +2,10 @@
   class="bg-surface-50 dark:bg-surface-900 w-full h-dvh flex flex-col overflow-hidden"
 >
   @if (nav.currentUrl() === '/notifications') {
-    <app-primary-title-toolbar title="Notificaciones" class="md:hidden">
+    <app-primary-title-toolbar title="Notificaciones" class="lg:hidden">
       <app-back-button leading (pressed)="nav.goBack()" />
     </app-primary-title-toolbar>
-    <app-toolbar [elevated]="isScrolled()" class="hidden md:flex" />
+    <app-toolbar [elevated]="isScrolled()" class="hidden lg:flex" />
   } @else {
     <app-toolbar [elevated]="isScrolled()" />
   }
@@ -17,7 +17,7 @@
       class="flex flex-col flex-1 w-full h-full overflow-y-auto bg-surface-50 dark:bg-surface-900"
     >
       @if (nav.currentUrl() === '/notifications') {
-        <app-page-title-bar title="Notificaciones" class="hidden md:flex" />
+        <app-page-title-bar title="Notificaciones" class="hidden lg:flex" />
       } @else {
         <app-breadcrumb-bar />
       }
@@ -53,7 +53,7 @@
       aria-modal="true"
       aria-label="Cargando notificaciones"
       aria-busy="true"
-      class="md:hidden fixed inset-x-0 bottom-16 top-0 z-30 bg-surface-0 dark:bg-surface-950 flex flex-col"
+      class="lg:hidden fixed inset-x-0 bottom-16 top-0 z-30 bg-surface-0 dark:bg-surface-950 flex flex-col"
     >
       <app-primary-title-toolbar title="Notificaciones">
         <app-back-button

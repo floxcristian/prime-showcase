@@ -16,12 +16,12 @@
       aria-label="Período de tiempo"
       [allowEmpty]="false"
     />
-    <!-- Mobile <md: group toma w-full y el datepicker flex-1 para llenar el
-         espacio sobrante después del botón Descargar. Sin esto, el
+    <!-- Mobile + tablet (<lg): group toma w-full y el datepicker flex-1 para
+         llenar el espacio sobrante después del botón Descargar. Sin esto, el
          placeholder `06/11/2024 - 06/22/2024` (180px) + botón (110px) + gap
          supera 375px y el datepicker se trunca al borde derecho. Desktop
-         conserva el comportamiento natural side-by-side (md:w-auto). -->
-    <div class="flex items-center gap-2 w-full md:w-auto">
+         (lg+) conserva el comportamiento natural side-by-side (lg:w-auto). -->
+    <div class="flex items-center gap-2 w-full lg:w-auto">
       <p-button
         label="Descargar"
         icon="fa-sharp fa-regular fa-download"
@@ -39,7 +39,7 @@
         iconDisplay="input"
         placeholder="06/11/2024 - 06/22/2024"
         inputStyleClass="!h-10"
-        class="flex-1 md:flex-initial"
+        class="flex-1 lg:flex-initial"
       />
     </div>
   </div>
@@ -48,15 +48,15 @@
     <!-- Start::Crypto Analytics -->
     @defer (hydrate on viewport) {
       <div
-        class="w-full border border-surface rounded-2xl p-4 md:py-5 md:px-7 flex flex-col justify-between"
+        class="w-full border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col justify-between"
       >
         <div
-          class="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 mb-6"
+          class="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 mb-6"
         >
-          <h2 class="md:flex-1 text-color font-bold leading-6">
+          <h2 class="lg:flex-1 text-color font-bold leading-6">
             Análisis Cripto
           </h2>
-          <div class="flex flex-wrap items-center gap-x-4 gap-y-2 md:gap-5">
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2 lg:gap-5">
             @for (item of chartData()?.datasets; track item.label) {
               <div class="flex items-center gap-2">
                 <div
@@ -80,7 +80,7 @@
       </div>
     } @placeholder {
       <div
-        class="w-full border border-surface rounded-2xl p-4 md:py-5 md:px-7 flex flex-col"
+        class="w-full border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col"
         aria-busy="true"
       >
         <p-skeleton width="12rem" height="1.5rem" class="mb-6" />
@@ -91,7 +91,7 @@
     <div class="flex gap-6 xl:flex-row flex-col">
       <!-- Start::Transactions -->
       @defer (hydrate on viewport) {
-        <div class="flex-1 border border-surface rounded-2xl p-4 md:py-5 md:px-7">
+        <div class="flex-1 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7">
           <div class="flex items-center gap-6 mb-4">
             <h2 class="flex-1 text-color font-bold leading-6">
               Transacciones
@@ -206,7 +206,7 @@
         </div>
       } @placeholder {
         <div
-          class="flex-1 border border-surface rounded-2xl p-4 md:py-5 md:px-7"
+          class="flex-1 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7"
           aria-busy="true"
         >
           <div class="flex items-center justify-between mb-6">
@@ -223,7 +223,7 @@
 
       <!-- Start::My Wallet -->
       <div
-        class="xl:w-96 border border-surface rounded-2xl p-4 md:py-5 md:px-7 flex flex-col justify-between"
+        class="xl:w-96 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col justify-between"
       >
         <div>
           <div class="flex items-center mb-6">
@@ -287,7 +287,7 @@
         </div>
         <p-button
           label="Mostrar todo"
-          class="mt-4 md:mt-6"
+          class="mt-4 lg:mt-6"
           styleClass="w-full p-button-tonal"
         />
       </div>

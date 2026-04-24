@@ -49,7 +49,7 @@ const LOCAL_COMPONENTS = [BackButtonComponent, SettingsDrawerComponent];
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'toolbar-brand-bg relative z-20 h-16 shrink-0 flex items-center gap-2 px-2 md:gap-3 md:pl-4 md:pr-0 w-full transition-shadow duration-200',
+      'toolbar-brand-bg relative z-20 h-16 shrink-0 flex items-center gap-2 px-2 lg:gap-3 lg:pl-4 lg:pr-0 w-full transition-shadow duration-200',
     '[class.toolbar-elevated]': 'elevated()',
     '(window:resize)': 'measureTrigger()',
   },

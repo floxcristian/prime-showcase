@@ -5,12 +5,12 @@
     aria-label="Menú"
     cdkTrapFocus
     [cdkTrapFocusAutoCapture]="true"
-    class="fixed inset-x-0 bottom-16 md:bottom-0 top-0 md:top-16 z-30"
+    class="fixed inset-x-0 bottom-16 lg:bottom-0 top-0 lg:top-16 z-30"
   >
     <!-- Backdrop: solo desktop. Mobile el panel ocupa todo el viewport
          disponible (entre toolbar y footer) así que no hay "fuera". -->
     <div
-      class="absolute inset-0 bg-[var(--p-mask-background)] hidden md:block"
+      class="absolute inset-0 bg-[var(--p-mask-background)] hidden lg:block"
       (click)="close()"
       aria-hidden="true"
     ></div>
@@ -20,7 +20,7 @@
          Linear / SAP Fiori / Shopify Admin mobile. -->
     <div
       data-nav-panel
-      class="md:hidden absolute inset-0 bg-surface-0 dark:bg-surface-950 flex flex-col overflow-hidden"
+      class="lg:hidden absolute inset-0 bg-surface-0 dark:bg-surface-950 flex flex-col overflow-hidden"
     >
       @if (mobileView() === 'modules') {
         <!-- Vista 1: lista de módulos L1 full-width -->
@@ -156,7 +156,7 @@
     <div
       data-nav-panel
       [style.left.px]="nav.triggerLeft()"
-      class="hidden md:flex absolute top-0 right-0 md:right-auto max-h-full flex-row bg-surface-0 dark:bg-surface-950 border border-surface rounded-b-2xl overflow-hidden"
+      class="hidden lg:flex absolute top-0 right-0 lg:right-auto max-h-full flex-row bg-surface-0 dark:bg-surface-950 border border-surface rounded-b-2xl overflow-hidden"
     >
       <nav
         aria-label="Módulos"

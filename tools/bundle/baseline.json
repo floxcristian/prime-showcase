@@ -1,0 +1,49 @@
+{
+  "generatedAt": "2026-04-24T02:05:35.735Z",
+  "initial": {
+    "raw": 742204,
+    "gzip": 195483,
+    "files": [
+      {
+        "type": "chunk",
+        "raw": 36858,
+        "gzip": 11777
+      },
+      {
+        "type": "chunk",
+        "raw": 47386,
+        "gzip": 15626
+      },
+      {
+        "type": "chunk",
+        "raw": 1263,
+        "gzip": 708
+      },
+      {
+        "type": "chunk",
+        "raw": 83521,
+        "gzip": 22984
+      },
+      {
+        "type": "chunk",
+        "raw": 228143,
+        "gzip": 74728
+      },
+      {
+        "type": "chunk",
+        "raw": 1740,
+        "gzip": 825
+      },
+      {
+        "type": "main",
+        "raw": 113346,
+        "gzip": 16770
+      },
+      {
+        "type": "styles",
+        "raw": 229947,
+        "gzip": 52065
+      }
+    ]
+  }
+}

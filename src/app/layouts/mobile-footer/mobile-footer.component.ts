@@ -33,7 +33,7 @@ const NG_MODULES = [NgClass, RouterModule];
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'relative z-[1200] h-16 shrink-0 md:hidden w-full border-t border-surface bg-surface-0 dark:bg-surface-950',
+      'relative z-[1200] h-16 shrink-0 lg:hidden w-full border-t border-surface bg-surface-0 dark:bg-surface-950',
   },
 })
 export class MobileFooterComponent {

@@ -6,6 +6,7 @@ import {
 } from '@angular/ssr/node';
 import compression from 'compression';
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,9 +49,51 @@ const allowedHosts = ((): string[] => {
 const angularApp = new AngularNodeAppEngine({ allowedHosts });
 
 /**
+ * Trust proxy — Express necesita este flag cuando se despliega tras un LB /
+ * CDN (Cloudflare, Fastly, nginx, AWS ALB). Sin `trust proxy`, `req.ip` es la
+ * IP del LB → todos los usuarios parecen el mismo → rate-limiter bloquea a
+ * todos al llegar al primer límite. Con `trust proxy: 1` Express lee
+ * `X-Forwarded-For` (el último hop) que inyecta el LB con la IP real del
+ * cliente. Value `1` = trust 1 hop (el LB inmediato); nunca usar `true` sin
+ * LB conocido (riesgo de IP spoofing).
+ * Ref: https://expressjs.com/en/guide/behind-proxies.html
+ */
+app.set('trust proxy', 1);
+
+/**
  * Compression and security middleware
  */
 app.use(compression());
+
+/**
+ * Rate limiting — defensa de profundidad contra flood de requests (DoS, brute
+ * force login, scraping). Generoso para SSR: una carga de página típica
+ * dispara ~10-50 requests (document + chunks + fonts + images + hydration).
+ * 300/minuto permite ~6 page-loads/min por IP antes de throttle — muy por
+ * encima del uso humano real. Para APIs propias (cuando haya backend) crear
+ * un limiter específico `/api/*` con 30/min y retornar 429 + Retry-After.
+ *
+ * **Cuando desactivar:** si hay LB/CDN que ya rate-limita (Cloudflare, AWS
+ * WAF, Fastly), este limiter es redundant. Mantenerlo como defense-in-depth
+ * es barato (~5μs por request) y protege si el LB falla.
+ *
+ * `standardHeaders: 'draft-8'` emite `RateLimit` + `RateLimit-Policy` headers
+ * per IETF draft (https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers)
+ * — legibles por clients automatizados. `legacyHeaders: false` apaga los
+ * antiguos `X-RateLimit-*` que no están estandarizados.
+ *
+ * `keyGenerator`: por defecto usa `req.ip` (ya corregido vía trust proxy).
+ * IPv6 normalization con `ipKeyGenerator` para prevenir bypass de rate limit
+ * vía sub-prefixes IPv6 (cada usuario tiene /64 rango en ISP típico).
+ */
+app.use(
+  rateLimit({
+    windowMs: 60 * 1000,
+    limit: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+  }),
+);
 
 /**
  * CSP (Content Security Policy) via Helmet.

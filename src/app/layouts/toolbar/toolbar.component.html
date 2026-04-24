@@ -1,5 +1,5 @@
 <!-- Left: logo + hamburger (oculto en mobile — menú via footer nav) -->
-<div class="flex-1 hidden md:flex items-center gap-6 min-w-0">
+<div class="flex-1 hidden lg:flex items-center gap-6 min-w-0">
   <!-- Logo — hover limitado al logo mismo, no al bloque completo -->
   <!-- Oculto en mobile: pantallas <md ya tienen el hamburger "Categorías" y
        búsqueda, el logo compite por espacio horizontal. Patrón e-commerce
@@ -7,7 +7,7 @@
   <a
     routerLink="/"
     aria-label="Ir al inicio"
-    class="shrink-0 hidden md:flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
+    class="shrink-0 hidden lg:flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
   >
     <img
       src="implementos-logo.svg"
@@ -59,7 +59,7 @@
   <a
     routerLink="/"
     aria-label="Ir al inicio"
-    class="md:hidden flex-1 flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
+    class="lg:hidden flex-1 flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
   >
     <img
       src="implementos-logo.svg"
@@ -69,14 +69,14 @@
     />
   </a>
 } @else {
-  <app-back-button class="md:hidden" (pressed)="nav.goBack()" />
+  <app-back-button class="lg:hidden" (pressed)="nav.goBack()" />
   <!-- Spacer: sustituye al flex-1 del logo link para que bell + search
        queden anclados al borde derecho (no se cuelguen a la izquierda). -->
-  <div class="md:hidden flex-1" aria-hidden="true"></div>
+  <div class="lg:hidden flex-1" aria-hidden="true"></div>
 }
 
 <!-- Desktop search — oculto en mobile porque ahí el logo toma su lugar. -->
-<p-iconfield iconPosition="left" class="hidden md:block flex-1 md:max-w-xl">
+<p-iconfield iconPosition="left" class="hidden lg:block flex-1 lg:max-w-xl">
   <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
   <input
     type="text"
@@ -94,7 +94,7 @@
   aria-label="Buscar"
   aria-haspopup="dialog"
   [attr.aria-expanded]="nav.searchOverlayOpen()"
-  class="md:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
+  class="lg:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
 >
   <i
     class="fa-sharp fa-regular fa-magnifying-glass text-xl"
@@ -116,7 +116,7 @@
   "
   aria-haspopup="dialog"
   [attr.aria-expanded]="nav.notificationsOverlayOpen()"
-  class="md:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
+  class="lg:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
 >
   <span class="relative inline-flex mt-1">
     <i class="fa-sharp fa-regular fa-bell text-xl" aria-hidden="true"></i>
@@ -131,7 +131,7 @@
 </button>
 
 <!-- Right actions (oculto en mobile — theme/bell/cuenta via drawer + footer) -->
-<div class="flex-1 hidden md:flex items-center gap-1 justify-end min-w-0">
+<div class="flex-1 hidden lg:flex items-center gap-1 justify-end min-w-0">
   <button
     type="button"
     (click)="toggleTheme()"

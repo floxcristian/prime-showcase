@@ -5,7 +5,7 @@
   position="right"
   appendTo="body"
   closeIcon="fa-sharp fa-regular fa-xmark"
-  styleClass="!max-w-2xl !w-full !h-[calc(100dvh-4rem)] md:!h-screen"
+  styleClass="!max-w-2xl !w-full !h-[calc(100dvh-4rem)] lg:!h-screen"
   [pt]="drawerPt"
 >
   <ng-template #headless>
@@ -15,12 +15,12 @@
            visual (tornado bg, h-16, blanco bold) pero mostrando "Mi cuenta". -->
       <app-primary-title-toolbar
         title="Mi cuenta"
-        class="md:hidden"
+        class="lg:hidden"
       >
         <app-back-button leading (pressed)="close()" />
       </app-primary-title-toolbar>
       <div>
-        <div class="flex items-center gap-3 p-2 pt-4 md:p-6">
+        <div class="flex items-center gap-3 p-2 pt-4 lg:p-6">
           <p-avatar
             image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
             size="large"
@@ -40,7 +40,7 @@
             ariaLabel="Cerrar panel"
             pTooltip="Cerrar panel"
             tooltipPosition="bottom"
-            class="hidden md:inline-flex"
+            class="hidden lg:inline-flex"
           />
         </div>
         <p-selectbutton
@@ -48,7 +48,7 @@
           (ngModelChange)="selectedSidebarOption.set($event)"
           [options]="sidebarOptions"
           [allowEmpty]="false"
-          class="w-full px-2 py-3 md:px-6 flex-1"
+          class="w-full px-2 py-3 lg:px-6 flex-1"
           styleClass="flex-1 w-full"
         >
           <ng-template #item let-item>
@@ -59,7 +59,7 @@
 
       <!-- Registros de interacción -->
       @if (selectedSidebarOption() === 'Registros') {
-        <div class="flex flex-col gap-4 p-2 md:p-6">
+        <div class="flex flex-col gap-4 p-2 lg:p-6">
           <div class="h-1/3 flex flex-col p-3 rounded-xl bg-emphasis">
             <div class="flex items-center justify-between">
               <div class="leading-6 font-medium text-color py-1 px-2">Registro de llamadas</div>
@@ -184,7 +184,7 @@
 
       <!-- Preferencias -->
       @if (selectedSidebarOption() === 'Preferencias') {
-        <div class="h-[calc(100%-72px)] flex flex-col gap-4 p-2 md:p-6">
+        <div class="h-[calc(100%-72px)] flex flex-col gap-4 p-2 lg:p-6">
           @for (data of preferences(); track data.title) {
             <div class="h-1/4 flex flex-col p-3 rounded-xl bg-emphasis">
               <div class="leading-6 font-medium text-color py-1 px-2">{{ data.title }}</div>
@@ -210,7 +210,7 @@
 
       <!-- Oportunidades -->
       @if (selectedSidebarOption() === 'Oportunidades') {
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-2 md:p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-2 lg:p-6">
           @for (data of opportunities; track data.title) {
             <div class="flex flex-col p-3 rounded-xl bg-emphasis">
               <div class="flex items-center justify-between gap-2">
@@ -239,7 +239,7 @@
       <!-- Estadísticas -->
       @if (selectedSidebarOption() === 'Estadísticas') {
         @let c = charts();
-        <div class="p-2 md:p-6">
+        <div class="p-2 lg:p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @if (c?.gauges?.[0]; as satisfaction) {
               <div class="w-full h-full flex flex-col p-3 rounded-xl bg-emphasis">
