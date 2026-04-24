@@ -1,10 +1,35 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, InjectionToken, Injectable, signal } from '@angular/core';
 
 import { NOTIFICATIONS } from '../mocks/notifications';
 import {
   Notification,
   NotificationGroup,
 } from '../models/notification.interface';
+
+/**
+ * Reference date del showcase — los mocks en `mocks/notifications.ts` tienen
+ * timestamps fijados al 2026-04-22; este token hace que el grouping
+ * ("Hoy"/"Ayer"/fecha) se calcule relativo a esa fecha y no a `new Date()`,
+ * evitando que el demo degrade con el paso del tiempo ("todas hace 300 días").
+ *
+ * Expuesto como `InjectionToken` (no constante hardcoded en el service) por 2
+ * razones bigtech:
+ *   1. Override en tests: `TestBed.configureTestingModule({ providers: [
+ *      { provide: NOTIFICATIONS_REFERENCE_DATE, useValue: new Date('YYYY-MM-DD') } ] })`
+ *      sin necesidad de `vi.setSystemTime()` o spying.
+ *   2. Override runtime: producción inyectará `{ useFactory: () => new Date() }`
+ *      para leer `now` real; el showcase mantiene la fecha del mock para
+ *      estabilidad visual sin tocar el service.
+ *
+ * Ref: Angular DI tokens — https://angular.dev/guide/di/dependency-injection-providers
+ */
+export const NOTIFICATIONS_REFERENCE_DATE = new InjectionToken<Date>(
+  'NotificationsReferenceDate',
+  {
+    providedIn: 'root',
+    factory: () => new Date('2026-04-22'),
+  },
+);
 
 /**
  * Single source of truth de notificaciones. Compartido entre la vista full
@@ -16,6 +41,7 @@ import {
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
+  private readonly referenceDate = inject(NOTIFICATIONS_REFERENCE_DATE);
   private readonly _notifications = signal<Notification[]>(NOTIFICATIONS);
 
   readonly notifications = this._notifications.asReadonly();
@@ -55,14 +81,14 @@ export class NotificationsService {
   }
 
   /**
-   * "Hoy" si es la fecha actual del showcase (2026-04-22), "Ayer" si es un
-   * día antes, sino formato "Dom 19 abr".
+   * "Hoy" si es la fecha de referencia, "Ayer" si es un día antes, sino
+   * formato "Dom 19 abr". La fecha de referencia se inyecta vía el token
+   * `NOTIFICATIONS_REFERENCE_DATE` — ver JSDoc del token para contexto.
    */
   private formatGroupLabel(dateKey: string): string {
-    const today = new Date('2026-04-22');
     const date = new Date(dateKey);
     const diffDays = Math.round(
-      (today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+      (this.referenceDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
     );
     if (diffDays === 0) return 'Hoy';
     if (diffDays === 1) return 'Ayer';

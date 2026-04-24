@@ -16,13 +16,18 @@ import {
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
+import { BackButtonComponent } from '../../shared/back-button/back-button.component';
 import type { NavModule } from '../nav/models/nav-module.interface';
 import { NavSectionsComponent } from '../nav/nav-sections/nav-sections.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
 const NG_MODULES = [A11yModule, NgClass, RouterModule];
-const LOCAL_COMPONENTS = [NavSectionsComponent, PrimaryTitleToolbarComponent];
+const LOCAL_COMPONENTS = [
+  BackButtonComponent,
+  NavSectionsComponent,
+  PrimaryTitleToolbarComponent,
+];
 
 type MobileView = 'modules' | 'sections';
 
@@ -183,7 +188,7 @@ export class NavOverlayComponent {
   // ─── Shared ──────────────────────────────────────────────────────────────
   close(): void {
     this.nav.clearHoverImmediate();
-    this.nav.sidebarOpen.set(false);
+    this.nav.close('nav');
   }
 
   /**

@@ -3,18 +3,7 @@
 >
   @if (nav.currentUrl() === '/notifications') {
     <app-primary-title-toolbar title="Notificaciones" class="md:hidden">
-      <button
-        leading
-        type="button"
-        (click)="nav.goBack()"
-        aria-label="Volver"
-        class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
-      >
-        <i
-          class="fa-sharp fa-regular fa-arrow-left text-xl"
-          aria-hidden="true"
-        ></i>
-      </button>
+      <app-back-button leading (pressed)="nav.goBack()" />
     </app-primary-title-toolbar>
     <app-toolbar [elevated]="isScrolled()" class="hidden md:flex" />
   } @else {
@@ -44,5 +33,39 @@
   <app-nav-overlay />
   <app-mobile-search-overlay />
   <app-mobile-more-overlay />
-  <app-mobile-notifications-overlay />
+  <!-- Defer el overlay mobile de notifs — trae `NotificationsComponent` con
+       todos sus mocks + el `NotificationsService` via su cadena de imports.
+       Prefetch on idle para que al primer tap del bell ya esté en caché,
+       sin costear el initial bundle de la home.
+
+       `@loading` cubre el race entre la activación del mutex (scroll lock
+       instantáneo via effect) y el mount del chunk (100-500ms en 3G): sin
+       placeholder el usuario vería el canvas de fondo inerte + locked. El
+       skeleton mirrorea la estructura del overlay real (primary-title-toolbar
+       h-16 con back + lista de 5 rows a 4rem) para zero layout shift al
+       completar el swap. Omitimos `@placeholder` para no rendear nada cuando
+       el overlay está cerrado. -->
+  @defer (when nav.notificationsOverlayOpen(); prefetch on idle) {
+    <app-mobile-notifications-overlay />
+  } @loading {
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Cargando notificaciones"
+      aria-busy="true"
+      class="md:hidden fixed inset-x-0 bottom-16 top-0 z-30 bg-surface-0 dark:bg-surface-950 flex flex-col"
+    >
+      <app-primary-title-toolbar title="Notificaciones">
+        <app-back-button
+          leading
+          (pressed)="nav.close('notifications')"
+        />
+      </app-primary-title-toolbar>
+      <div class="flex-1 overflow-hidden flex flex-col p-4 gap-3">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <p-skeleton width="100%" height="4rem" borderRadius="0.5rem" />
+        }
+      </div>
+    </div>
+  }
 </div>

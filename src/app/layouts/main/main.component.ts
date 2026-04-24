@@ -11,8 +11,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { Skeleton } from 'primeng/skeleton';
 import { filter } from 'rxjs';
 
+import { BackButtonComponent } from '../../shared/back-button/back-button.component';
 import { BreadcrumbBarComponent } from '../breadcrumb-bar/breadcrumb-bar.component';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
 import { MobileMoreOverlayComponent } from '../mobile-more-overlay/mobile-more-overlay.component';
@@ -25,7 +27,9 @@ import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-t
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 const NG_MODULES = [RouterOutlet];
+const PRIME_MODULES = [Skeleton];
 const COMPONENTS = [
+  BackButtonComponent,
   BreadcrumbBarComponent,
   MobileFooterComponent,
   MobileMoreOverlayComponent,
@@ -39,7 +43,7 @@ const COMPONENTS = [
 
 @Component({
   selector: 'app-main',
-  imports: [NG_MODULES, COMPONENTS],
+  imports: [NG_MODULES, PRIME_MODULES, COMPONENTS],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
@@ -15,6 +15,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
 // App
+import { AUTH_SUBMIT_DELAY_MS } from '../../core/constants/auth-timings';
 import { AuthService } from '../../core/services/auth/auth.service';
 // Constants
 import {
@@ -55,6 +56,25 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  /**
+   * URL destino tras login. Viene via queryParam desde `authGuard` cuando el
+   * usuario intenta acceder a una ruta protegida sin sesión. Default a `/`
+   * si no hay returnUrl (flujo standalone desde /login).
+   *
+   * **Sanitización contra open-redirect:** solo aceptamos paths internos que
+   * empiezan con `/` y no son `//` (protocolo-relative). Cualquier otra cosa
+   * cae al fallback `/`. Evita que un attacker pase `?returnUrl=https://evil.com`
+   * en un email phishing y el login-success redirija afuera. Patrón OWASP
+   * Unvalidated-Redirect. Ref: https://owasp.org/www-community/attacks/Unvalidated_Redirects_and_Forwards
+   */
+  private readonly returnUrl = ((): string => {
+    const raw = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (!raw) return '/';
+    if (!raw.startsWith('/') || raw.startsWith('//')) return '/';
+    return raw;
+  })();
 
   readonly email = signal('');
   readonly password = signal('');
@@ -111,7 +131,7 @@ export class LoginComponent {
     // que llamar, el timer es la única fuente de latencia. Ref: ADR-001 §8.
     setTimeout(() => {
       this.auth.login(this.email().trim());
-      this.router.navigateByUrl('/');
-    }, 450);
+      this.router.navigateByUrl(this.returnUrl);
+    }, AUTH_SUBMIT_DELAY_MS);
   }
 }

@@ -2,11 +2,16 @@ import { A11yModule } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { NotificationsComponent } from '../../modules/notifications/notifications.component';
+import { BackButtonComponent } from '../../shared/back-button/back-button.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
 const NG_MODULES = [A11yModule];
-const LOCAL_COMPONENTS = [NotificationsComponent, PrimaryTitleToolbarComponent];
+const LOCAL_COMPONENTS = [
+  BackButtonComponent,
+  NotificationsComponent,
+  PrimaryTitleToolbarComponent,
+];
 
 /**
  * Full-screen mobile overlay para notificaciones — gemelo visual de
@@ -33,11 +38,20 @@ const LOCAL_COMPONENTS = [NotificationsComponent, PrimaryTitleToolbarComponent];
   templateUrl: './mobile-notifications-overlay.component.html',
   styleUrl: './mobile-notifications-overlay.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Escape explícito — CDK `cdkTrapFocus` atrapa el tab loop pero NO
+  // intercepta Escape; los otros overlays mobile (more, search) tienen el
+  // mismo host binding para consistencia UX (teclado físico + screen readers
+  // que mapean un gesto a Escape).
+  host: { '(window:keydown.escape)': 'onEscape()' },
 })
 export class MobileNotificationsOverlayComponent {
   protected nav = inject(NavStateService);
 
   close(): void {
-    this.nav.notificationsOverlayOpen.set(false);
+    this.nav.close('notifications');
+  }
+
+  onEscape(): void {
+    if (this.nav.notificationsOverlayOpen()) this.close();
   }
 }

@@ -69,17 +69,7 @@
     />
   </a>
 } @else {
-  <button
-    type="button"
-    (click)="nav.goBack()"
-    aria-label="Volver"
-    class="md:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
-  >
-    <i
-      class="fa-sharp fa-regular fa-arrow-left text-xl"
-      aria-hidden="true"
-    ></i>
-  </button>
+  <app-back-button class="md:hidden" (pressed)="nav.goBack()" />
   <!-- Spacer: sustituye al flex-1 del logo link para que bell + search
        queden anclados al borde derecho (no se cuelguen a la izquierda). -->
   <div class="md:hidden flex-1" aria-hidden="true"></div>
@@ -119,18 +109,24 @@
 <button
   type="button"
   (click)="nav.openNotifications()"
-  aria-label="Notificaciones, 3 nuevas"
+  [attr.aria-label]="
+    notifications.unreadCount() > 0
+      ? 'Notificaciones, ' + notifications.unreadCount() + ' sin leer'
+      : 'Notificaciones'
+  "
   aria-haspopup="dialog"
   [attr.aria-expanded]="nav.notificationsOverlayOpen()"
   class="md:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
 >
   <span class="relative inline-flex mt-1">
     <i class="fa-sharp fa-regular fa-bell text-xl" aria-hidden="true"></i>
-    <span
-      aria-hidden="true"
-      class="absolute -top-2 -right-1 min-w-4 h-4 px-1 rounded-full bg-[var(--p-red-500)] flex items-center justify-center text-xs font-semibold text-surface-0 leading-none"
-      >3</span
-    >
+    @if (notifications.unreadCount() > 0) {
+      <span
+        aria-hidden="true"
+        class="absolute -top-2 -right-1 min-w-4 h-4 px-1 rounded-full bg-[var(--p-red-500)] flex items-center justify-center text-xs font-semibold text-surface-0 leading-none"
+        >{{ notifications.unreadCount() }}</span
+      >
+    }
   </span>
 </button>
 
@@ -155,7 +151,11 @@
   <button
     type="button"
     (click)="notifPopover.toggle($event)"
-    aria-label="Notificaciones"
+    [attr.aria-label]="
+      notifications.unreadCount() > 0
+        ? 'Notificaciones, ' + notifications.unreadCount() + ' sin leer'
+        : 'Notificaciones'
+    "
     aria-haspopup="dialog"
     [attr.aria-expanded]="notifOpen()"
     pTooltip="Notificaciones"
@@ -167,11 +167,13 @@
   >
     <span class="relative inline-flex mt-1">
       <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
-      <span
-        aria-hidden="true"
-        class="absolute -top-2 -right-2 min-w-4 h-4 px-1 rounded-full bg-[var(--p-red-500)] flex items-center justify-center text-xs font-semibold text-surface-0 leading-none"
-        >3</span
-      >
+      @if (notifications.unreadCount() > 0) {
+        <span
+          aria-hidden="true"
+          class="absolute -top-2 -right-2 min-w-4 h-4 px-1 rounded-full bg-[var(--p-red-500)] flex items-center justify-center text-xs font-semibold text-surface-0 leading-none"
+          >{{ notifications.unreadCount() }}</span
+        >
+      }
     </span>
   </button>
   <div
@@ -182,13 +184,18 @@
     #settingsTrigger
     type="button"
     (click)="userMenuRef.toggle($event)"
-    aria-label="Mi cuenta"
     aria-haspopup="menu"
     class="h-11 w-40 pl-1 pr-3 gap-2 rounded-lg flex items-center text-left bg-surface-950/25 hover:bg-surface-950/40 cursor-pointer transition-colors select-none text-surface-0"
   >
+    <!-- alt="" marca el avatar como decorativo: el accessible name del
+         botón ("Mi cuenta: Brook, Ejecutivo") ya cubre el contexto; sin
+         alt, la img entra al a11y tree sin nombre y Lighthouse falla el
+         audit `image-alt`. PrimeNG p-avatar no expone alt como Input
+         directo; usamos passThrough `[pt]` para inyectarlo en la img interna. -->
     <p-avatar
       image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
       size="normal"
+      [pt]="{ image: { alt: '' } }"
       class="rounded-lg overflow-hidden flex shrink-0"
     />
     <div class="flex-1 min-w-0 flex flex-col">
@@ -339,7 +346,7 @@
 ) {
   <app-settings-drawer
     [visible]="nav.accountDrawerOpen()"
-    (visibleChange)="nav.accountDrawerOpen.set($event)"
+    (visibleChange)="!$event && nav.close('account')"
     (hidden)="restoreSettingsTriggerFocus()"
   />
 }

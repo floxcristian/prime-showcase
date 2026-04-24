@@ -124,7 +124,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
     active: false,
     name: 'Annette Black',
-    type: '',
+    type: 'Sistema',
     time: '8 Ene',
     title: 'Aviso de mantenimiento programado del sistema',
     message:
@@ -163,7 +163,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
     active: false,
     name: 'Onyama Limba',
-    type: '',
+    type: 'Oferta',
     time: '2 Ene',
     title: 'Paquetes de viaje exclusivos para usted',
     message:
@@ -189,7 +189,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
     active: false,
     name: 'Courtney Henry',
     capName: 'CH',
-    type: '',
+    type: 'Novedades',
     time: '12.09.2023',
     title: 'Novedades - Descubre los \u00faltimos libros',
     message:
@@ -202,7 +202,7 @@ export const INBOX_MESSAGES: InboxMessage[] = [
       'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
     active: false,
     name: 'Arlene McCoy',
-    type: '',
+    type: 'Invitación',
     time: '12.04.2023',
     title: 'Demo de nuevo producto',
     message: 'Demo exclusiva de nuestro \u00faltimo producto el jueves.',

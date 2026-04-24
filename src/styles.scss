@@ -40,6 +40,25 @@ html {
 @custom-variant dark (&:where(.p-dark, .p-dark *));
 
 /*
+ * Override contrast WCAG AA para `--p-togglebutton-color` — Aura default es
+ * surface.500 (light) / surface.400 (dark). Sobre surface.100/surface.700
+ * respectivamente, el contraste queda en 4.07:1, apenas bajo AA normal
+ * (4.5:1). Lighthouse lo flaggeó en el p-selectbutton del dashboard
+ * (Semanal/Mensual/Anual). Subimos a surface.600 / surface.300 — mismo
+ * shift que `text.muted.color` en app.config.ts para mantener jerarquía
+ * visual consistente. El token es específico de togglebutton y no hereda
+ * de text.muted, por eso el override vive aquí como CSS global y no en el
+ * preset (que no expone `components.togglebutton.color` en el API de
+ * `definePreset`). Ref: Lighthouse a11y audit 2026-04-23.
+ */
+:root {
+  --p-togglebutton-color: var(--p-surface-600);
+}
+html.p-dark {
+  --p-togglebutton-color: var(--p-surface-300);
+}
+
+/*
  * Brand block background: SVG tornado/radial azul mismo asset que el aside del
  * login. Declarado global (antes vivía duplicado en toolbar.component.scss +
  * primary-title-toolbar.component.scss + mobile-search-overlay.component.scss).

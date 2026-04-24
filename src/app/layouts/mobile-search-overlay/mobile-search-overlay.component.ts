@@ -110,7 +110,7 @@ export class MobileSearchOverlayComponent {
   //     que el keyboard mobile aparezca inmediatamente (patrón Google app).
 
   close(): void {
-    this.nav.searchOverlayOpen.set(false);
+    this.nav.close('search');
   }
 
   onEscape(): void {

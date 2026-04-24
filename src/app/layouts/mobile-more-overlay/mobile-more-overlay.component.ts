@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { BackButtonComponent } from '../../shared/back-button/back-button.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
@@ -20,7 +21,7 @@ interface MoreItem {
 }
 
 const NG_MODULES = [A11yModule, RouterModule];
-const LOCAL_COMPONENTS = [PrimaryTitleToolbarComponent];
+const LOCAL_COMPONENTS = [BackButtonComponent, PrimaryTitleToolbarComponent];
 
 /**
  * Full-screen "Más" overlay mobile. Triggereado por el botón "Más" del
@@ -100,7 +101,7 @@ export class MobileMoreOverlayComponent {
   ];
 
   close(): void {
-    this.nav.moreOverlayOpen.set(false);
+    this.nav.close('more');
   }
 
   onEscape(): void {

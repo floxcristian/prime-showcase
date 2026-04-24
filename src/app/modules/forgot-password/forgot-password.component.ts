@@ -11,6 +11,8 @@ import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
+// App
+import { AUTH_SUBMIT_DELAY_MS } from '../../core/constants/auth-timings';
 
 const NG_MODULES = [FormsModule, RouterLink];
 const PRIME_MODULES = [ButtonModule, InputTextModule, Message];
@@ -67,7 +69,7 @@ export class ForgotPasswordComponent {
     setTimeout(() => {
       this.submitting.set(false);
       this.submitted.set(true);
-    }, 450);
+    }, AUTH_SUBMIT_DELAY_MS);
   }
 
   resend(): void {
@@ -77,7 +79,7 @@ export class ForgotPasswordComponent {
     this.submitting.set(true);
     setTimeout(() => {
       this.submitting.set(false);
-    }, 450);
+    }, AUTH_SUBMIT_DELAY_MS);
   }
 
   useDifferentEmail(): void {

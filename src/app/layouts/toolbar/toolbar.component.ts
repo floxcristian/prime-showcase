@@ -24,6 +24,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../modules/notifications/services/notifications.service';
+import { BackButtonComponent } from '../../shared/back-button/back-button.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { SettingsDrawerComponent } from '../side-menu/settings-drawer/settings-drawer.component';
 
@@ -38,7 +39,7 @@ const PRIME_MODULES = [
   Popover,
   TooltipModule,
 ];
-const LOCAL_COMPONENTS = [SettingsDrawerComponent];
+const LOCAL_COMPONENTS = [BackButtonComponent, SettingsDrawerComponent];
 
 @Component({
   selector: 'app-toolbar',

@@ -3,7 +3,7 @@
     class="flex items-center justify-between gap-2 p-4 min-h-20 border-b border-surface"
     >
     <h1 class="text-2xl font-medium leading-8 text-color">Chats</h1>
-    <p-button icon="fa-sharp fa-regular fa-plus" text aria-label="Nuevo chat" pTooltip="Nuevo chat" tooltipPosition="bottom" />
+    <p-button icon="fa-sharp fa-regular fa-plus" text ariaLabel="Nuevo chat" pTooltip="Nuevo chat" tooltipPosition="bottom" />
   </div>
   <div class="flex-1 flex flex-col overflow-auto">
     <div class="flex flex-col gap-4 p-4">
@@ -107,13 +107,13 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <p-button icon="fa-sharp fa-regular fa-phone" text aria-label="Llamar" pTooltip="Llamar" tooltipPosition="bottom" />
-              <p-button icon="fa-sharp fa-regular fa-magnifying-glass" text aria-label="Buscar" pTooltip="Buscar" tooltipPosition="bottom" />
+              <p-button icon="fa-sharp fa-regular fa-phone" text ariaLabel="Llamar" pTooltip="Llamar" tooltipPosition="bottom" />
+              <p-button icon="fa-sharp fa-regular fa-magnifying-glass" text ariaLabel="Buscar" pTooltip="Buscar" tooltipPosition="bottom" />
               <p-button
                 type="button"
                 icon="fa-sharp fa-regular fa-ellipsis"
                 text
-                aria-label="Más opciones"
+                ariaLabel="Más opciones"
                 pTooltip="Más opciones"
                 tooltipPosition="bottom"
                 (onClick)="menu.toggle($event)"
@@ -197,8 +197,8 @@
                   </div>
                   <div class="p-4 border-t border-surface flex items-end justify-between gap-2">
                     <div class="flex items-end gap-1 flex-1">
-                      <p-button icon="fa-sharp fa-regular fa-face-smile" text aria-label="Emojis" pTooltip="Emojis" tooltipPosition="top" />
-                      <p-button icon="fa-sharp fa-regular fa-paperclip" text aria-label="Adjuntar archivo" pTooltip="Adjuntar archivo" tooltipPosition="top" />
+                      <p-button icon="fa-sharp fa-regular fa-face-smile" text ariaLabel="Emojis" pTooltip="Emojis" tooltipPosition="top" />
+                      <p-button icon="fa-sharp fa-regular fa-paperclip" text ariaLabel="Adjuntar archivo" pTooltip="Adjuntar archivo" tooltipPosition="top" />
                       <textarea
                         pTextarea
                         class="ml-1 flex-1 border-0 shadow-none max-h-32 min-h-9 bg-emphasis overflow-auto"
@@ -208,7 +208,7 @@
                         aria-label="Escribe tu mensaje"
                       ></textarea>
                     </div>
-                    <p-button icon="fa-sharp fa-regular fa-paper-plane" aria-label="Enviar mensaje" pTooltip="Enviar mensaje" tooltipPosition="top" />
+                    <p-button icon="fa-sharp fa-regular fa-paper-plane" ariaLabel="Enviar mensaje" pTooltip="Enviar mensaje" tooltipPosition="top" />
                   </div>
                 </div>
                 @defer (hydrate on viewport) {
@@ -227,13 +227,13 @@
                         &#64;primetek
                       </div>
                       <div class="flex items-center justify-center flex-wrap gap-1 mt-4">
-                        <p-button icon="fa-sharp fa-regular fa-phone text-muted-color" severity="secondary" text aria-label="Llamar" pTooltip="Llamar" tooltipPosition="bottom" />
-                        <p-button icon="fa-sharp fa-regular fa-film text-muted-color" severity="secondary" text aria-label="Videollamada" pTooltip="Videollamada" tooltipPosition="bottom" />
+                        <p-button icon="fa-sharp fa-regular fa-phone text-muted-color" severity="secondary" text ariaLabel="Llamar" pTooltip="Llamar" tooltipPosition="bottom" />
+                        <p-button icon="fa-sharp fa-regular fa-film text-muted-color" severity="secondary" text ariaLabel="Videollamada" pTooltip="Videollamada" tooltipPosition="bottom" />
                         <p-button
                           icon="fa-sharp fa-regular fa-arrow-right-to-bracket text-muted-color"
                           severity="secondary"
                           text
-                          aria-label="Compartir pantalla"
+                          ariaLabel="Compartir pantalla"
                           pTooltip="Compartir pantalla"
                           tooltipPosition="bottom"
                           />
@@ -241,7 +241,7 @@
                             icon="fa-sharp fa-regular fa-circle-info text-muted-color"
                             severity="secondary"
                             text
-                            aria-label="Información"
+                            ariaLabel="Información"
                             pTooltip="Información"
                             tooltipPosition="bottom"
                             />
@@ -250,7 +250,7 @@
                               icon="fa-sharp fa-regular fa-ellipsis"
                               severity="secondary"
                               text
-                              aria-label="Más opciones"
+                              ariaLabel="Más opciones"
                               pTooltip="Más opciones"
                               tooltipPosition="bottom"
                               (onClick)="profileMenu.toggle($event)"
@@ -284,7 +284,7 @@
                               <div class="flex-1 text-color leading-6 font-medium">Miembros</div>
                               <p-button
                                 label="Ver todo"
-                                styleClass="text-sm py-0.5 px-2 text-muted-color"
+                                styleClass="text-sm py-1 px-2 text-muted-color"
                                 text
                                 />
                               </div>

@@ -5,6 +5,25 @@
   <title>PrimeShowcase</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!--
+    Dashboard privado: SEO metadata deshabilitada porque no queremos
+    indexación orgánica ni preview cards en redes sociales para una app de
+    datos internos. `robots.txt` bloquea crawlers; estos meta tags adicionales
+    son la capa complementaria.
+
+    Si la app se expone públicamente (landing + login indexable), descomentar
+    el bloque siguiente y ajustar el copy al branding oficial. `theme-color`
+    afecta color del browser chrome en Chrome Android + Safari iOS PWA y es
+    seguro aunque la app sea privada — lo dejamos activo.
+  -->
+  <!--
+  <meta name="description" content="ERP web Angular 21 + PrimeNG 21 — showcase mobile-first con CRM, inbox, overview analítico y gestión de clientes.">
+  <meta property="og:title" content="PrimeShowcase">
+  <meta property="og:description" content="ERP web Angular 21 + PrimeNG 21 — showcase mobile-first con CRM, inbox, overview analítico y gestión de clientes.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  -->
+  <meta name="theme-color" content="#0074c2">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script>
     // Pre-hydration theme bootstrap: runs before any CSS paints to prevent

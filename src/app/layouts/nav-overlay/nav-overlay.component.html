@@ -25,18 +25,7 @@
       @if (mobileView() === 'modules') {
         <!-- Vista 1: lista de módulos L1 full-width -->
         <app-primary-title-toolbar title="Menú">
-          <button
-            leading
-            type="button"
-            (click)="close()"
-            aria-label="Volver"
-            class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
-          >
-            <i
-              class="fa-sharp fa-regular fa-arrow-left text-xl"
-              aria-hidden="true"
-            ></i>
-          </button>
+          <app-back-button leading (pressed)="close()" />
           <button
             type="button"
             (click)="openSearch()"

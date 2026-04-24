@@ -1,7 +1,9 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   inject,
   provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter, withPreloading } from '@angular/router';
@@ -15,6 +17,7 @@ import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch } from '@angular/common/http';
+import { AppErrorHandler } from './core/services/error-handler/app-error-handler';
 import { BrowserPreloadingStrategy } from './core/strategies/browser-preloading.strategy';
 import { AppConfigService } from './core/services/app-config/app-config.service';
 
@@ -113,10 +116,22 @@ const AppPreset = definePreset(Aura, {
         // el feedback sea perceptible en CUALQUIER superficie. Patron Linear/
         // Stripe: hover visible pero no agresivo.
         content: { hoverBackground: '{surface.200}' },
+        // text.muted.color default de Aura = surface.500 (#71717a). Sobre
+        // bg-surface-200 (breadcrumb + p-selectbutton label) da 4.07:1 —
+        // por debajo de WCAG 2.1 AA (4.5:1 para texto normal, confirmado
+        // via Lighthouse a11y audit 2026-04-23). Bajamos un step a
+        // surface.600 (#52525b) → 5.9:1 AA+; sigue leyéndose "muted"
+        // (menos énfasis que text-color) sin quebrar la jerarquía.
+        text: { muted: { color: '{surface.600}' } },
       },
       dark: {
         formField: { invalidBorderColor: '{rose.400}' },
         content: { hoverBackground: '{surface.700}' },
+        // Dark mode equivalente: default surface.400 (#a1a1aa) sobre
+        // bg-surface-700 da ~4.0:1. Subimos a surface.300 (#d4d4d8) →
+        // 6.5:1 AAA. El bump brightens muted en dark pero se mantiene
+        // visualmente distinto de text-color (surface.0/50 puro blanco).
+        text: { muted: { color: '{surface.300}' } },
       },
     },
     // Focus ring halo-only estilo Lara — single source of truth del design system.
@@ -139,6 +154,19 @@ const AppPreset = definePreset(Aura, {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
+    // Global error handling:
+    //   1. `provideBrowserGlobalErrorListeners()` (Angular 21+) attaches
+    //      `window.onerror` + `unhandledrejection` listeners para capturar
+    //      errores que escapen del zone de Angular (setTimeout handlers,
+    //      fetch promises non-awaited, addEventListener callbacks externos).
+    //      Sin esto, esos errores solo viven en el console del browser y no
+    //      llegan al ErrorHandler.
+    //   2. Override del `ErrorHandler` default: reemplaza el `console.error`-
+    //      simple por `AppErrorHandler` con logging estructurado + SSR
+    //      platform-scope. En prod con backend real sustituir el console por
+    //      SDK de observabilidad (Sentry, Datadog, Rollbar, NewRelic).
+    provideBrowserGlobalErrorListeners(),
+    { provide: ErrorHandler, useClass: AppErrorHandler },
     provideRouter(routes, withPreloading(BrowserPreloadingStrategy)),
     provideHttpClient(withFetch()),
     // Incremental Hydration: el SSR sigue emitiendo HTML completo, pero los bloques

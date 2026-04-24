@@ -11,6 +11,10 @@
 npm-debug.log
 yarn-error.log
 
+# Dev/SSR smoke logs (temporary output from local server runs)
+dev-server.log
+ssr-*.log
+
 # IDEs and editors
 .idea/
 .project

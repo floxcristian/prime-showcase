@@ -5,9 +5,12 @@
 #      the `postinstall` hook that applies patches/primeng+21.1.5.patch.
 #   2. Lint — `ng lint` (ESLint + custom design-system rules) and the
 #      node:test suite for rules/__tests__ (chained via `npm run lint`).
-#   3. Production build — confirms bundle budgets (750kB warn / 1MB error)
+#   3. Unit tests — `ng test` (vitest) across every *.spec.ts. Catches
+#      regressions in services/components (NavStateService mutex, config
+#      service, etc.) before they reach main.
+#   4. Production build — confirms bundle budgets (750kB warn / 1MB error)
 #      and produces dist/prime-showcase/server/server.mjs used by the smoke.
-#   4. SSR smoke — boots the SSR server in the background, waits for it to
+#   5. SSR smoke — boots the SSR server in the background, waits for it to
 #      accept traffic on :4000, runs the theme-cookie smoke suite, and
 #      always stops the server (even on smoke failure) so the job cleans up.
 #
@@ -25,7 +28,7 @@ permissions:
 
 jobs:
   verify:
-    name: Lint, build, SSR smoke
+    name: Lint, test, build, SSR smoke
     runs-on: ubuntu-latest
 
     steps:
@@ -49,6 +52,11 @@ jobs:
       # Chains `ng lint` + the custom rule unit tests in tools/eslint/rules.
       - name: Lint (ESLint + design-system rules)
         run: npm run lint
+
+      # Unit tests (vitest). Every component/service *.spec.ts runs; guards
+      # against regressions in the overlay mutex + other backbone state.
+      - name: Unit tests (vitest)
+        run: npm test
 
       # Production build. Fails the job if any budget is exceeded (angular.json).
       - name: Build (production)

@@ -10,7 +10,6 @@ import {
   RendererFactory2,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
@@ -76,13 +75,31 @@ export class NavStateService {
   readonly modules: readonly NavModule[] = NAV_MODULES;
 
   readonly activeModuleId = signal<string>('crm');
-  readonly sidebarOpen = signal<boolean>(false);
+
+  /**
+   * Single source of truth para el overlay abierto (si hay). El mutex queda
+   * enforced by design: sólo UN kind puede estar en el signal a la vez, así
+   * que es imposible que dos overlays coexistan aunque un consumer intente
+   * hacer bypass. Los 5 flags individuales (`sidebarOpen`, etc.) son
+   * `computed` derivados read-only — exponerlos como writables invitaría a
+   * saltarse `open()`/`close()` y romper el mutex. Pattern Linear/Stripe
+   * Dashboard UIStateService: single intent signal, derived boolean views.
+   */
+  private readonly _currentOverlay = signal<OverlayKind | null>(null);
+
+  readonly sidebarOpen = computed(() => this._currentOverlay() === 'nav');
   /** Drawer "Mi cuenta" — datos personales del usuario (registros, preferencias, stats, oportunidades). */
-  readonly accountDrawerOpen = signal<boolean>(false);
+  readonly accountDrawerOpen = computed(
+    () => this._currentOverlay() === 'account',
+  );
   /** Full-screen search overlay mobile — búsquedas recientes + vistos recientemente. */
-  readonly searchOverlayOpen = signal<boolean>(false);
+  readonly searchOverlayOpen = computed(
+    () => this._currentOverlay() === 'search',
+  );
   /** Full-screen "Más" overlay mobile — links secundarios (ayuda, legal, logout). */
-  readonly moreOverlayOpen = signal<boolean>(false);
+  readonly moreOverlayOpen = computed(
+    () => this._currentOverlay() === 'more',
+  );
   /**
    * Full-screen notifications overlay mobile. En desktop las notificaciones
    * se ven vía popover + la ruta /notifications; en mobile este overlay
@@ -90,22 +107,17 @@ export class NavStateService {
    * fondo (p.ej. Overview) y re-dispare su ciclo de animación de charts.
    * La ruta /notifications sigue existiendo como deep-link fallback.
    */
-  readonly notificationsOverlayOpen = signal<boolean>(false);
+  readonly notificationsOverlayOpen = computed(
+    () => this._currentOverlay() === 'notifications',
+  );
 
   /**
-   * True si CUALQUIERA de los 4 overlays/drawers globales está abierto. Usado
+   * True si CUALQUIERA de los 5 overlays/drawers globales está abierto. Usado
    * para: (1) scroll lock del canvas de fondo, (2) el active-state del bottom
    * tab bar mobile — si un action overlay toma el control, los tabs de
    * routerLink no deben seguir pintados como activos aunque la URL coincida.
    */
-  readonly anyOverlayOpen = computed(
-    () =>
-      this.sidebarOpen() ||
-      this.accountDrawerOpen() ||
-      this.searchOverlayOpen() ||
-      this.moreOverlayOpen() ||
-      this.notificationsOverlayOpen(),
-  );
+  readonly anyOverlayOpen = computed(() => this._currentOverlay() !== null);
 
   /**
    * URL visitada antes de `currentUrl`. Rellenada en cada NavigationEnd
@@ -176,11 +188,13 @@ export class NavStateService {
   private hoverTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
+    // Service es `providedIn: 'root'` → singleton que vive mientras dure la
+    // app; no se necesita `takeUntilDestroyed()` porque nunca se destruye
+    // mientras hay router events que recibir. El único hook de limpieza real
+    // (`destroyRef.onDestroy`) abajo cancela timers de hover — salvaguarda
+    // por si en el futuro el service pasa a scoped.
     this.router.events
-      .pipe(
-        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
-        takeUntilDestroyed(),
-      )
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => {
         const url = this.normalizeUrl(e.urlAfterRedirects);
         // Actualiza previousUrl ANTES de pisar currentUrl — así goBack()
@@ -223,36 +237,26 @@ export class NavStateService {
 
   // ─── Overlay mutex API ───────────────────────────────────────────────────
   //
-  // Los overlays globales (nav, account, search, more) son mutuamente
-  // exclusivos. Abrir uno implica cerrar los otros tres. Centralizamos la
-  // lógica aquí (single source of truth) en vez de replicar el mutex en cada
-  // consumer — patrón Linear / Stripe Dashboard donde un UIStateService
-  // coordina los surfaces globales. Los consumers solo expresan la intención
-  // (`nav.openSearch()`), el service decide qué más cerrar.
+  // Los overlays globales (nav, account, search, more, notifications) son
+  // mutuamente exclusivos. Abrir uno implica cerrar los otros. El mutex está
+  // enforced by design: `_currentOverlay` sólo puede valer una key a la vez.
+  // Consumers expresan intención (`openNav()`, `close('account')`) sin tocar
+  // estado — patrón Linear/Stripe Dashboard UIStateService.
 
+  /** Abre el overlay indicado; cierra implícitamente el que estuviera abierto. */
   openOverlay(kind: OverlayKind): void {
-    if (kind !== 'nav') this.sidebarOpen.set(false);
-    if (kind !== 'account') this.accountDrawerOpen.set(false);
-    if (kind !== 'search') this.searchOverlayOpen.set(false);
-    if (kind !== 'more') this.moreOverlayOpen.set(false);
-    if (kind !== 'notifications') this.notificationsOverlayOpen.set(false);
+    this._currentOverlay.set(kind);
+  }
 
-    switch (kind) {
-      case 'nav':
-        this.sidebarOpen.set(true);
-        break;
-      case 'account':
-        this.accountDrawerOpen.set(true);
-        break;
-      case 'search':
-        this.searchOverlayOpen.set(true);
-        break;
-      case 'more':
-        this.moreOverlayOpen.set(true);
-        break;
-      case 'notifications':
-        this.notificationsOverlayOpen.set(true);
-        break;
+  /**
+   * Cierra el overlay `kind` si es el actual. No-op si ya está cerrado o si
+   * es otro el abierto — evita que un componente cierre un overlay ajeno
+   * (ej. el settings-drawer emitiendo visibleChange=false mientras el user
+   * ya abrió search vía el footer mutex).
+   */
+  close(kind: OverlayKind): void {
+    if (this._currentOverlay() === kind) {
+      this._currentOverlay.set(null);
     }
   }
 
@@ -277,11 +281,7 @@ export class NavStateService {
   }
 
   closeAllOverlays(): void {
-    this.sidebarOpen.set(false);
-    this.accountDrawerOpen.set(false);
-    this.searchOverlayOpen.set(false);
-    this.moreOverlayOpen.set(false);
-    this.notificationsOverlayOpen.set(false);
+    this._currentOverlay.set(null);
   }
 
   /**
@@ -311,7 +311,7 @@ export class NavStateService {
 
   toggleSidebar(): void {
     if (this.sidebarOpen()) {
-      this.sidebarOpen.set(false);
+      this.close('nav');
     } else {
       this.openNav();
     }

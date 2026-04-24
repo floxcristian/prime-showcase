@@ -16,7 +16,12 @@
       aria-label="Período de tiempo"
       [allowEmpty]="false"
     />
-    <div class="flex items-center gap-2">
+    <!-- Mobile <md: group toma w-full y el datepicker flex-1 para llenar el
+         espacio sobrante después del botón Descargar. Sin esto, el
+         placeholder `06/11/2024 - 06/22/2024` (180px) + botón (110px) + gap
+         supera 375px y el datepicker se trunca al borde derecho. Desktop
+         conserva el comportamiento natural side-by-side (md:w-auto). -->
+    <div class="flex items-center gap-2 w-full md:w-auto">
       <p-button
         label="Descargar"
         icon="fa-sharp fa-regular fa-download"
@@ -34,6 +39,7 @@
         iconDisplay="input"
         placeholder="06/11/2024 - 06/22/2024"
         inputStyleClass="!h-10"
+        class="flex-1 md:flex-initial"
       />
     </div>
   </div>
@@ -96,7 +102,7 @@
               icon="fa-sharp fa-regular fa-ellipsis"
               severity="secondary"
               text
-              aria-label="Más opciones"
+              ariaLabel="Más opciones"
               pTooltip="Más opciones"
               tooltipPosition="bottom"
               (onClick)="transactionsMenu.toggle($event)"
@@ -230,7 +236,7 @@
               icon="fa-sharp fa-regular fa-ellipsis"
               severity="secondary"
               text
-              aria-label="Más opciones"
+              ariaLabel="Más opciones"
               pTooltip="Más opciones"
               tooltipPosition="bottom"
               (onClick)="menu.toggle($event)"
@@ -245,7 +251,17 @@
               class="ml-6"
             />
           </div>
-          <p-metergroup [value]="metersData" labelPosition="end">
+          <!-- `[attr.aria-label]` (no `ariaLabel`) — p-metergroup no expone
+               @Input ariaLabel, así que la notación Angular camelCase cae a un
+               atributo HTML literal `arialabel` (sin guión) que los SRs
+               ignoran. Forzar attr-binding garantiza el nombre canónico
+               `aria-label` en el DOM. Patrón PrimeNG: verificar si el comp.
+               tiene Input antes de usar `ariaLabel=`. -->
+          <p-metergroup
+            [value]="metersData"
+            labelPosition="end"
+            [attr.aria-label]="'Distribución de la billetera por moneda'"
+          >
             <ng-template #label>
               <div class="flex flex-col gap-6 mt-4">
                 @for (val of metersData; track val.label; let index = $index) {

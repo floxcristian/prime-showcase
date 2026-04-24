@@ -43,6 +43,16 @@ export const routes: Routes = [
           ),
       },
       {
+        // Ruta fallback de notifs. Flujo primario:
+        //   - Mobile bell  → abre `MobileNotificationsOverlayComponent` via
+        //                    `nav.openNotifications()` (sin cambio de URL).
+        //   - Desktop bell → toggle popover anclado al trigger (misma data,
+        //                    sin route change).
+        // Esta ruta sólo se pisa por:
+        //   (a) deep-link externo (push notification, email link),
+        //   (b) click en "Ver todas las notificaciones" del popover desktop.
+        // Se mantiene para que ambos casos tengan un destino URL-addressable.
+        // NO remover sin sustituir (a) y (b) por otro mecanismo.
         path: 'notifications',
         loadComponent: () =>
           import('./modules/notifications/notifications.component').then(

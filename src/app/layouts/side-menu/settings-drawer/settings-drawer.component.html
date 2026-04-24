@@ -17,18 +17,7 @@
         title="Mi cuenta"
         class="md:hidden"
       >
-        <button
-          leading
-          type="button"
-          (click)="close()"
-          aria-label="Volver"
-          class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
-        >
-          <i
-            class="fa-sharp fa-regular fa-arrow-left text-xl"
-            aria-hidden="true"
-          ></i>
-        </button>
+        <app-back-button leading (pressed)="close()" />
       </app-primary-title-toolbar>
       <div>
         <div class="flex items-center gap-3 p-2 pt-4 md:p-6">
@@ -48,7 +37,7 @@
             text
             rounded
             severity="secondary"
-            aria-label="Cerrar panel"
+            ariaLabel="Cerrar panel"
             pTooltip="Cerrar panel"
             tooltipPosition="bottom"
             class="hidden md:inline-flex"
@@ -58,6 +47,7 @@
           [ngModel]="selectedSidebarOption()"
           (ngModelChange)="selectedSidebarOption.set($event)"
           [options]="sidebarOptions"
+          [allowEmpty]="false"
           class="w-full px-2 py-3 md:px-6 flex-1"
           styleClass="flex-1 w-full"
         >
@@ -78,7 +68,7 @@
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
                 severity="secondary"
                 text
-                aria-label="Descargar registro de llamadas"
+                ariaLabel="Descargar registro de llamadas"
                 pTooltip="Descargar"
                 tooltipPosition="bottom"
               />
@@ -103,7 +93,7 @@
                     icon="fa-sharp fa-regular fa-phone text-sm"
                     text
                     styleClass="bg-primary-100 dark:bg-primary-900 w-8 h-8"
-                    aria-label="Llamar"
+                    ariaLabel="Llamar"
                     pTooltip="Llamar"
                     tooltipPosition="bottom"
                   />
@@ -119,7 +109,7 @@
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
                 severity="secondary"
                 text
-                aria-label="Descargar registro de correos"
+                ariaLabel="Descargar registro de correos"
                 pTooltip="Descargar"
                 tooltipPosition="bottom"
               />
@@ -156,7 +146,7 @@
                 styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity leading-none"
                 severity="secondary"
                 text
-                aria-label="Descargar notas de reunión"
+                ariaLabel="Descargar notas de reunión"
                 pTooltip="Descargar"
                 tooltipPosition="bottom"
               />
@@ -231,7 +221,7 @@
                     styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900"
                     severity="secondary"
                     text
-                    aria-label="Abrir enlace"
+                    ariaLabel="Abrir enlace"
                     pTooltip="Abrir enlace"
                     tooltipPosition="bottom"
                   />

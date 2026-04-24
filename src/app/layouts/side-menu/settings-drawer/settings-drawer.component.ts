@@ -27,6 +27,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 // App
 import { AppConfigService } from '../../../core/services/app-config/app-config.service';
+import { BackButtonComponent } from '../../../shared/back-button/back-button.component';
 import { PrimaryTitleToolbarComponent } from '../../primary-title-toolbar/primary-title-toolbar.component';
 // Models
 import type {
@@ -65,7 +66,12 @@ const PRIME_MODULES = [
 
 @Component({
   selector: 'app-settings-drawer',
-  imports: [NG_MODULES, PRIME_MODULES, PrimaryTitleToolbarComponent],
+  imports: [
+    NG_MODULES,
+    PRIME_MODULES,
+    BackButtonComponent,
+    PrimaryTitleToolbarComponent,
+  ],
   templateUrl: './settings-drawer.component.html',
   styleUrl: './settings-drawer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

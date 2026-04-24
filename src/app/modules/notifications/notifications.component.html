@@ -43,7 +43,12 @@
                     {{ notifications.formatTime(n.timestamp) }}
                   </span>
                 </div>
-                <p class="text-muted-color leading-5">
+                <!-- line-clamp-3 evita que notifs con descripción muy larga
+                     dominen la lista (ej. "Solicitud de aprobación de OC
+                     con múltiples proveedores" puede superar 5 líneas).
+                     Patrón Gmail/Slack: preview truncado; el detalle pleno
+                     se ve al click (ruta `n.url`). -->
+                <p class="text-muted-color leading-5 line-clamp-3">
                   {{ n.description }}
                 </p>
               </div>
@@ -76,7 +81,12 @@
                     {{ notifications.formatTime(n.timestamp) }}
                   </span>
                 </div>
-                <p class="text-muted-color leading-5">
+                <!-- line-clamp-3 evita que notifs con descripción muy larga
+                     dominen la lista (ej. "Solicitud de aprobación de OC
+                     con múltiples proveedores" puede superar 5 líneas).
+                     Patrón Gmail/Slack: preview truncado; el detalle pleno
+                     se ve al click (ruta `n.url`). -->
+                <p class="text-muted-color leading-5 line-clamp-3">
                   {{ n.description }}
                 </p>
               </div>

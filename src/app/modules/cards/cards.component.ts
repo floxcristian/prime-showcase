@@ -34,6 +34,7 @@ import { Slider } from 'primeng/slider';
 import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
+import { FORGOT_PASSWORD_OTP_DEMO_VALUE } from './constants/otp-demo';
 import { Permission } from './models/permission.interface';
 import { FileWithPreview, MemberType, PriceRangeSpec } from './models/member-type.interface';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
@@ -82,7 +83,7 @@ export class CardsComponent {
   userProfiles = signal('Relajado');
   userProfilesOptions: string[] = ['Relajado', 'No molestar'];
   userProfilesValues = signal<boolean[]>([true, true, false, false, true, false]);
-  forgotPasswordOTP = signal('023');
+  forgotPasswordOTP = signal(FORGOT_PASSWORD_OTP_DEMO_VALUE);
   priceRange = signal<number[]>([0, 10000]);
   priceRangePopularSpecs: PriceRangeSpec[] = [
     { value: 'Amueblado', checked: true },

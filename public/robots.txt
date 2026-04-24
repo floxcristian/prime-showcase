@@ -1,0 +1,27 @@
+# robots.txt — PrimeShowcase (ERP Angular 21 + PrimeNG 21).
+#
+# Este dashboard NO es público. Todas las rutas requieren autenticación y
+# exponen datos internos (clientes, pedidos, inbox, etc.). Bloqueamos el
+# crawling a todos los bots para evitar:
+#   - Indexación de la landing/login con copy interno.
+#   - Intentos de brute-force descubiertos vía search engines.
+#   - Fuga de path hints (/customers, /chat, etc.) al ecosistema SEO público.
+#
+# Google sigue esta directiva para indexación orgánica. Para bots que ignoran
+# robots.txt (scrapers maliciosos), la defensa real es auth + rate limiting
+# a nivel de reverse proxy (nginx/Cloudflare), no este archivo.
+
+User-agent: *
+Disallow: /
+
+# --------------------------------------------------------------------------
+# Si este dashboard pasa a ser público (o se expone una landing + login
+# indexables), reemplazar el bloque anterior por lo siguiente:
+# --------------------------------------------------------------------------
+#
+# User-agent: *
+# Allow: /
+# Disallow: /login
+# Disallow: /forgot-password
+#
+# Sitemap: https://app.example.com/sitemap.xml
