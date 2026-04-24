@@ -5,10 +5,12 @@
     let sectionIdx = $index
   ) {
     <li>
-      <!-- L2 header: border-t absorbido dentro del h-12 (box-sizing: border-box).
-           sectionIdx > 0 evita línea encima del primer header del panel. -->
+      <!-- L2 header: border-t absorbido dentro del min-h-12 (box-sizing: border-box).
+           sectionIdx > 0 evita línea encima del primer header del panel.
+           min-h-12 + py-2 permite que títulos largos wrappeen sin cortarse
+           (patrón multi-line cuando el contenido lo requiere). -->
       <div
-        class="flex items-center gap-3 px-4 h-12 bg-surface-100 dark:bg-surface-800"
+        class="flex items-center gap-3 px-4 min-h-12 py-2 bg-surface-100 dark:bg-surface-800"
         [ngClass]="{
           'border-t border-surface-200 dark:border-surface-800':
             sectionIdx > 0
@@ -19,7 +21,7 @@
           class="w-5 text-center text-base shrink-0 text-color"
           aria-hidden="true"
         ></i>
-        <h3 class="flex-1 font-semibold leading-6 text-color truncate">
+        <h3 class="flex-1 font-semibold leading-6 text-color">
           {{ section.title }}
         </h3>
       </div>
@@ -36,10 +38,10 @@
               [ngClass]="{
                 'text-muted-color hover:text-color': !rla.isActive
               }"
-              class="flex items-center gap-3 px-4 h-12 bg-surface-0 dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium leading-6"
+              class="flex items-center gap-3 px-4 min-h-12 py-2 bg-surface-0 dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium leading-6"
             >
               <span class="w-5 shrink-0" aria-hidden="true"></span>
-              <span class="flex-1 truncate">{{ leaf.title }}</span>
+              <span class="flex-1">{{ leaf.title }}</span>
             </a>
           </li>
         }

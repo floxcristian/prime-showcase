@@ -1,0 +1,35 @@
+/*
+ * Tailwind v4 variant overrides — escritos en plain CSS para que Sass los
+ * preserve sin intentar parsear el block form de `@custom-variant`.
+ *
+ * Importado desde styles.scss vía `@import './tailwind-variants.css';` — Sass
+ * detecta la extensión `.css` y emite un plain CSS `@import` pass-through, sin
+ * procesar el contenido como Sass. Tailwind lo procesa en su turno de
+ * PostCSS.
+ *
+ * ─────────────────────── `hover:` variant ─────────────────────────────────
+ *
+ * Default de Tailwind v4: `hover:X` está envuelto en `@media (hover: hover)`,
+ * que dispara solo cuando el PRIMER dispositivo de puntero soporta hover. En
+ * Windows 11 con touchscreen (laptops 2-en-1, Surface, convertibles), Chrome
+ * considera touch como primario y reporta `(hover: hover): false` — TODOS los
+ * `hover:*` del repo quedan inertes aunque el mouse esté conectado.
+ *
+ * ❌ `(any-hover: hover)` no es solución confiable: en la práctica, Chrome
+ *    en Windows 11 con touchscreen reporta AMBAS queries como `false` aún
+ *    con mouse físico, verificado en hardware de desarrollo. La spec dice
+ *    que any-hover debería ser true si CUALQUIER pointer soporta hover, pero
+ *    la implementación de Chrome es defensiva y reporta false cuando hay
+ *    touch detectado, independiente de los demás pointers.
+ *
+ * ✅ `&:hover` sin media guard dispara siempre. Trade-off: en dispositivos
+ *    pure-touch, tras un tap el estado `:hover` queda "pegado" al elemento
+ *    hasta el próximo tap fuera (sticky hover). Para un dashboard
+ *    desktop-first con ocasional soporte touch-laptop, es el trade-off
+ *    correcto — patrón documentado en Linear, Vercel, Stripe, Tailwind docs.
+ *
+ * La decisión es deliberada: priorizar confiabilidad del hover en TODO
+ * device con capacidad hover sobre pureza UX en pure-touch (donde la mayoría
+ * de usuarios no esperan ver estados hover de todas formas).
+ */
+@custom-variant hover (&:hover);

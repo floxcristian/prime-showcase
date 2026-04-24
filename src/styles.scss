@@ -2,6 +2,15 @@
 @plugin 'tailwindcss-primeui';
 
 /*
+ * Tailwind variant overrides vivien en un archivo CSS separado porque Sass no
+ * tolera el block form `@custom-variant name { @media (...) { &:X } }` (el `&`
+ * dentro de `@media` sin parent context falla el parser de Sass). Al tener
+ * extensión `.css`, Sass emite este `@import` como CSS pass-through y Tailwind
+ * lo procesa normalmente en su turno de PostCSS.
+ */
+@import './tailwind-variants.css';
+
+/*
  * Inter Variable — fuente principal del showcase oficial de PrimeNG (y de Linear,
  * Vercel, Retool, Rippling). Self-hosted via @fontsource-variable/inter para evitar
  * dependencia de Google Fonts CDN (privacy + offline). El axis `wght` variable cubre
@@ -38,6 +47,7 @@ html {
  * it consistent across SSR → CSR. Ref: ADR-001 §4.
  */
 @custom-variant dark (&:where(.p-dark, .p-dark *));
+
 
 /*
  * Override contrast WCAG AA para `--p-togglebutton-color` — Aura default es
