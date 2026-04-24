@@ -76,6 +76,22 @@ export class ToolbarComponent {
    */
   readonly elevated = input<boolean>(false);
 
+  /**
+   * Design tokens para el notif popover. PrimeNG Aura default setea padding
+   * en `.p-popover-content` (~1rem) pensado para popovers genéricos tipo
+   * card. Acá el contenido trae su propio chrome (header con border-b, list
+   * scrollable, footer con border-t) — el padding externo crea dos capas de
+   * espacio redundante arriba y abajo, rompiendo el ajuste flush del border
+   * del header/footer contra el borde del popover.
+   *
+   * Ref de tokens: @primeuix/themes/dist/aura/popover/index.mjs expone
+   * `content: { padding }`. Zero-outing acá preserva el resto del styling
+   * (bg, border, shadow, arrow) que sí queremos.
+   */
+  protected readonly notifPopoverTokens = {
+    content: { padding: '0' },
+  };
+
   constructor() {
     afterNextRender(
       () => {
