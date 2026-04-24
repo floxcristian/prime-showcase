@@ -10,6 +10,7 @@ import {
   RendererFactory2,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
@@ -43,23 +44,11 @@ export interface BreadcrumbCrumb {
 }
 
 /**
- * Owns the three-tier navigation state: which module is committed (visible in
- * the fixed sidebar), which module the user is peeking at via hover/focus (the
- * flyout), and which sections are expanded in the accordion.
- *
- * Hover intent uses two asymmetric delays modeled on the Microsoft 365 / Azure
- * Portal pattern:
- *   - **Open delay (150ms)**: transient mouse passes over a rail item while
- *     aiming at something else don't open the flyout. Only a deliberate pause
- *     does.
- *   - **Switch delay (0ms)**: once the flyout is already open, moving to
- *     another rail item switches instantly — the user is actively browsing.
- *   - **Close delay (200ms)**: gives the user time to cross the dead zone
- *     between rail and flyout without losing the panel.
- *
- * A single timer handle is reused across all these transitions: any new call
- * to `setHoverModule*` cancels the pending one. This guarantees we never have
- * two competing timers racing to set `hoveredModuleId`.
+ * Global navigation state: módulo activo committeado, URL actual, overlay
+ * mutex, triggerLeft del botón hamburger. Lo que NO vive aquí es el estado
+ * transient del preview hover en el mega-menu — ese lo maneja
+ * NavOverlayComponent local porque su lifetime coincide con el del overlay,
+ * no con el de la app.
  */
 @Injectable({ providedIn: 'root' })
 export class NavStateService {
@@ -88,15 +77,15 @@ export class NavStateService {
   private readonly _currentOverlay = signal<OverlayKind | null>(null);
 
   readonly sidebarOpen = computed(() => this._currentOverlay() === 'nav');
-  /** Drawer "Mi cuenta" — datos personales del usuario (registros, preferencias, stats, oportunidades). */
+  /** Drawer "Mi cuenta" — datos personales del usuario. */
   readonly accountDrawerOpen = computed(
     () => this._currentOverlay() === 'account',
   );
-  /** Full-screen search overlay mobile — búsquedas recientes + vistos recientemente. */
+  /** Full-screen search overlay mobile. */
   readonly searchOverlayOpen = computed(
     () => this._currentOverlay() === 'search',
   );
-  /** Full-screen "Más" overlay mobile — links secundarios (ayuda, legal, logout). */
+  /** Full-screen "Más" overlay mobile. */
   readonly moreOverlayOpen = computed(
     () => this._currentOverlay() === 'more',
   );
@@ -145,28 +134,22 @@ export class NavStateService {
    * deep-link inicial (único estado) — el back cae al fallback `/`.
    */
   readonly canGoBack = computed(() => this.previousUrl() !== null);
-  readonly expandedSectionIds = signal<ReadonlySet<string>>(
-    new Set(['crm.adm-clientes']),
-  );
+
   readonly currentUrl = signal<string>(this.normalizeUrl(this.router.url));
-  readonly hoveredModuleId = signal<string | null>(null);
-  /** x-position of the overlay trigger button (hamburger) in viewport pixels. */
+
+  /**
+   * Left viewport-pixel del botón hamburger del toolbar. Lo setea el toolbar
+   * vía ResizeObserver + click handler. Lo consume el nav-overlay para
+   * anchorear el panel desktop. Vive en el singleton porque los dos
+   * componentes (toolbar, nav-overlay) no son ancestor/descendant y
+   * comunicar via signal compartido es más claro que un service
+   * intermediario o query selector cross-component.
+   */
   readonly triggerLeft = signal<number>(0);
 
   readonly activeModule = computed<NavModule | undefined>(() =>
     this.modules.find((m) => m.id === this.activeModuleId()),
   );
-
-  /**
-   * The module to render in the flyout. Null when there's no hover, or when
-   * the hovered module equals the committed one (hovering the "you are here"
-   * rail item is a no-op — the sidebar already shows that content).
-   */
-  readonly flyoutModule = computed<NavModule | null>(() => {
-    const hoveredId = this.hoveredModuleId();
-    if (!hoveredId || hoveredId === this.activeModuleId()) return null;
-    return this.modules.find((m) => m.id === hoveredId) ?? null;
-  });
 
   readonly breadcrumb = computed<BreadcrumbCrumb[]>(() => {
     const mod = this.activeModule();
@@ -185,16 +168,12 @@ export class NavStateService {
     return [{ title: mod.title, icon: mod.icon }];
   });
 
-  private hoverTimer: ReturnType<typeof setTimeout> | null = null;
-
   constructor() {
-    // Service es `providedIn: 'root'` → singleton que vive mientras dure la
-    // app; no se necesita `takeUntilDestroyed()` porque nunca se destruye
-    // mientras hay router events que recibir. El único hook de limpieza real
-    // (`destroyRef.onDestroy`) abajo cancela timers de hover — salvaguarda
-    // por si en el futuro el service pasa a scoped.
     this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((e) => {
         const url = this.normalizeUrl(e.urlAfterRedirects);
         // Actualiza previousUrl ANTES de pisar currentUrl — así goBack()
@@ -207,7 +186,6 @@ export class NavStateService {
         }
         this.currentUrl.set(url);
         this.syncActiveModuleFromUrl(url);
-        this.clearHoverImmediate();
         // Cerrar overlays al navegar — en mobile el bottom tab bar se
         // comporta como page navigation: tap "Inicio" debería cerrar el
         // drawer/overlay y mostrar home.
@@ -230,9 +208,18 @@ export class NavStateService {
           this.renderer.removeClass(html, OVERLAY_OPEN_CLASS);
         }
       });
-    }
 
-    this.destroyRef.onDestroy(() => this.cancelHoverTimer());
+      // Cleanup defensivo: si el service se destruye (SSR teardown, test
+      // harness), remover la clase para no dejar el DOM con scroll lock
+      // residual. En runtime normal es no-op porque el singleton vive hasta
+      // que el app root muere.
+      this.destroyRef.onDestroy(() => {
+        this.renderer.removeClass(
+          this.document.documentElement,
+          OVERLAY_OPEN_CLASS,
+        );
+      });
+    }
   }
 
   // ─── Overlay mutex API ───────────────────────────────────────────────────
@@ -291,10 +278,6 @@ export class NavStateService {
    * animation + scroll-restoration) que entra en carrera con el swap del
    * `router-outlet` y produce flash/lag percibido. Fallback a `/` si no hay
    * URL previa (deep-link inicial).
-   *
-   * Patrón iOS/Android nativo + Gmail/Linear/Salesforce mobile: toda ruta
-   * no-root tiene back, y back siempre aterriza dentro de la app sin
-   * animaciones que compitan con la transición del framework.
    */
   goBack(): void {
     const prev = this.previousUrl();
@@ -304,9 +287,7 @@ export class NavStateService {
   setActiveModule(id: string): void {
     if (this.activeModuleId() !== id) {
       this.activeModuleId.set(id);
-      this.ensureFirstSectionExpanded(id);
     }
-    this.clearHoverImmediate();
   }
 
   toggleSidebar(): void {
@@ -314,84 +295,6 @@ export class NavStateService {
       this.close('nav');
     } else {
       this.openNav();
-    }
-  }
-
-  toggleSection(id: string): void {
-    this.expandedSectionIds.update((set) => {
-      const next = new Set(set);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-
-  isSectionExpanded(id: string): boolean {
-    return this.expandedSectionIds().has(id);
-  }
-
-  /**
-   * Called when the user's pointer (or keyboard focus) enters a rail item.
-   * Switches the flyout module with a short delay from idle, or instantly if
-   * the flyout is already open — mirroring the Windows/macOS menu behavior
-   * where "first open" costs a pause and "browsing" is immediate.
-   */
-  openHoverModule(id: string): void {
-    const delayMs = this.hoveredModuleId() === null ? 150 : 0;
-    this.scheduleHover(id, delayMs);
-    // Keep the hovered module readable even on first visit. Only seeds when
-    // the module has zero sections expanded — preserves user's manual
-    // collapse choices from a prior visit.
-    this.ensureFirstSectionExpanded(id);
-  }
-
-  /** Called on mouseleave from the rail or flyout. */
-  closeHoverModule(): void {
-    this.scheduleHover(null, 200);
-  }
-
-  /**
-   * Keeps the flyout open while the pointer hovers the flyout panel itself.
-   * Cancels any pending close scheduled by the rail's mouseleave.
-   */
-  cancelHoverClose(): void {
-    this.cancelHoverTimer();
-  }
-
-  /** Synchronously clears hover state — used on commit or route change. */
-  clearHoverImmediate(): void {
-    this.cancelHoverTimer();
-    if (this.hoveredModuleId() !== null) this.hoveredModuleId.set(null);
-  }
-
-  ensureFirstSectionExpanded(moduleId: string): void {
-    const mod = this.modules.find((m) => m.id === moduleId);
-    if (!mod || mod.sections.length === 0) return;
-    const expanded = this.expandedSectionIds();
-    const hasAny = mod.sections.some((s) => expanded.has(s.id));
-    if (!hasAny) {
-      this.expandedSectionIds.update(
-        (set) => new Set([...set, mod.sections[0].id]),
-      );
-    }
-  }
-
-  private scheduleHover(id: string | null, delayMs: number): void {
-    this.cancelHoverTimer();
-    if (delayMs <= 0) {
-      this.hoveredModuleId.set(id);
-      return;
-    }
-    this.hoverTimer = setTimeout(() => {
-      this.hoveredModuleId.set(id);
-      this.hoverTimer = null;
-    }, delayMs);
-  }
-
-  private cancelHoverTimer(): void {
-    if (this.hoverTimer !== null) {
-      clearTimeout(this.hoverTimer);
-      this.hoverTimer = null;
     }
   }
 

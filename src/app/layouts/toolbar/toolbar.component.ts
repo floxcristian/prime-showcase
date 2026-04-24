@@ -1,12 +1,14 @@
-import { NgClass } from '@angular/common';
+import { isPlatformBrowser, NgClass } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   inject,
   Injector,
   input,
+  PLATFORM_ID,
   signal,
   viewChild,
 } from '@angular/core';
@@ -25,6 +27,7 @@ import { AppConfigService } from '../../core/services/app-config/app-config.serv
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../modules/notifications/services/notifications.service';
 import { BackButtonComponent } from '../../shared/back-button/back-button.component';
+import { NAV_OVERLAY_PANEL_ID } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { SettingsDrawerComponent } from '../side-menu/settings-drawer/settings-drawer.component';
 
@@ -51,16 +54,20 @@ const LOCAL_COMPONENTS = [BackButtonComponent, SettingsDrawerComponent];
     class:
       'toolbar-brand-bg relative z-20 h-16 shrink-0 flex items-center gap-2 px-2 lg:gap-3 lg:pl-4 lg:pr-0 w-full transition-shadow duration-200',
     '[class.toolbar-elevated]': 'elevated()',
-    '(window:resize)': 'measureTrigger()',
   },
 })
 export class ToolbarComponent {
   private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
+  private platformId = inject(PLATFORM_ID);
   private auth = inject(AuthService);
   private router = inject(Router);
   private config = inject(AppConfigService);
   protected nav = inject(NavStateService);
   protected notifications = inject(NotificationsService);
+
+  /** Id del panel del nav-overlay — referenciado por `aria-controls` del trigger. */
+  protected readonly navPanelId = NAV_OVERLAY_PANEL_ID;
 
   protected readonly darkTheme = this.config.darkTheme;
   /** Estado visual del bell: true mientras el popover de notificaciones está
@@ -93,19 +100,55 @@ export class ToolbarComponent {
   };
 
   constructor() {
-    afterNextRender(
-      () => {
-        this.measureTrigger();
-      },
-      { injector: this.injector },
-    );
+    // ResizeObserver sobre el trigger captura TODO cambio de layout que
+    // afecte su posición: window resize, breadcrumb collapse, theme toggle,
+    // font loading, zoom del usuario, cambios de viewport (lg→xl, etc.).
+    // Más robusto que `window:resize` que miss varios de esos casos.
+    //
+    // `afterNextRender` asegura que el viewChild esté resuelto antes de
+    // empezar a observar. Mantiene SSR-seguro (ResizeObserver no existe
+    // en Node).
+    if (isPlatformBrowser(this.platformId)) {
+      afterNextRender(
+        () => {
+          const el = this.navTriggerRef()?.nativeElement;
+          if (!el) return;
+          // Medición inicial.
+          this.measureTrigger();
+          // ResizeObserver maneja todos los layout shifts subsiguientes.
+          const observer = new ResizeObserver(() => this.measureTrigger());
+          observer.observe(el);
+          this.destroyRef.onDestroy(() => observer.disconnect());
+        },
+        { injector: this.injector },
+      );
+    }
   }
 
-  measureTrigger(): void {
+  /**
+   * Click handler del trigger. Re-mide ANTES de togglear como safety net:
+   * durante hidratación SSR el ResizeObserver puede no haber corrido la
+   * medición válida si el botón estaba `display: none` (wrapper
+   * `hidden lg:flex`). Medir al click garantiza viewport resuelto, botón
+   * visible, layout final en cualquier camino de activación (mouse,
+   * keyboard Space/Enter, touch).
+   */
+  protected onNavToggleClick(): void {
+    this.measureTrigger();
+    this.nav.toggleSidebar();
+  }
+
+  private measureTrigger(): void {
     const el = this.navTriggerRef()?.nativeElement;
     if (!el) return;
-    this.nav.triggerLeft.set(el.getBoundingClientRect().left);
+    const rect = el.getBoundingClientRect();
+    // En SSR/hydration temprana con el botón en `hidden lg:flex`, rect
+    // viene con width=0 left=0. Descartar mediciones inválidas — el próximo
+    // layout cycle (o el click handler) las actualizará.
+    if (rect.width === 0) return;
+    this.nav.triggerLeft.set(rect.left);
   }
+
   protected readonly userMenu: MenuItem[] = [
     {
       label: 'Mi cuenta',

@@ -17,14 +17,17 @@
     />
   </a>
 
-  <!-- Sidebar toggle -->
+  <!-- Sidebar toggle — disclosure pattern (APG §Disclosure). aria-haspopup +
+       aria-expanded + aria-controls conectan el trigger con el panel. -->
   <button
     #navTrigger
     data-nav-trigger
     type="button"
-    (click)="nav.toggleSidebar()"
+    (click)="onNavToggleClick()"
     [attr.aria-label]="nav.sidebarOpen() ? 'Cerrar menú' : 'Abrir menú'"
-    [attr.aria-pressed]="nav.sidebarOpen()"
+    aria-haspopup="true"
+    [attr.aria-expanded]="nav.sidebarOpen()"
+    [attr.aria-controls]="navPanelId"
     [ngClass]="{
       'bg-surface-950/50': nav.sidebarOpen(),
       'bg-surface-950/25 hover:bg-surface-950/40': !nav.sidebarOpen(),

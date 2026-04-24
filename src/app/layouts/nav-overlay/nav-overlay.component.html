@@ -1,10 +1,14 @@
 @if (nav.sidebarOpen()) {
+  <!--
+    Wrapper fixed-positioned. NO es `role="dialog"` ni tiene `aria-modal`:
+    un mega-menu dismissable por click-outside NO cumple la contract de
+    dialog (que demanda explicit dismiss via botón o Escape, y focus trap
+    estricto). Es disclosure per ARIA Authoring Practices Guide §Disclosure.
+    El trigger del toolbar tiene `aria-expanded` + `aria-controls` apuntando
+    a `#nav-overlay-panel`, que es este div.
+  -->
   <div
-    role="dialog"
-    aria-modal="true"
-    aria-label="Menú"
-    cdkTrapFocus
-    [cdkTrapFocusAutoCapture]="true"
+    [id]="panelId"
     class="fixed inset-x-0 bottom-16 lg:bottom-0 top-0 lg:top-16 z-30"
   >
     <!-- Backdrop: solo desktop. Mobile el panel ocupa todo el viewport
@@ -15,7 +19,7 @@
       aria-hidden="true"
     ></div>
 
-    <!-- ──────────────────────── Mobile (<md) ────────────────────────
+    <!-- ──────────────────────── Mobile (<lg) ────────────────────────
          Full-screen single-column con drill-in de 1 paso. Patrón Notion /
          Linear / SAP Fiori / Shopify Admin mobile. -->
     <div
@@ -93,81 +97,35 @@
           </h2>
           <div class="w-10 shrink-0" aria-hidden="true"></div>
         </div>
-        <ul class="flex-1 overflow-y-auto overflow-x-hidden pb-3">
-          @for (
-            section of mod.sections;
-            track section.id;
-            let sectionIdx = $index
-          ) {
-            <li>
-              <!-- L2 header: border-t absorbido dentro del min-h-12 (box-sizing: border-box).
-                   sectionIdx>0 evita la línea encima del primer header del panel. -->
-              <div
-                class="flex items-center gap-3 px-4 min-h-12 py-2 bg-surface-100 dark:bg-surface-800"
-                [ngClass]="{
-                  'border-t border-surface-200 dark:border-surface-800':
-                    sectionIdx > 0
-                }"
-              >
-                <i
-                  [class]="section.icon"
-                  class="w-5 text-center text-base shrink-0 text-color"
-                  aria-hidden="true"
-                ></i>
-                <h3 class="flex-1 font-semibold leading-6 text-color">
-                  {{ section.title }}
-                </h3>
-              </div>
-              <ul>
-                @for (
-                  leaf of section.children;
-                  track leaf.title + leaf.url
-                ) {
-                  <li>
-                    <a
-                      [routerLink]="leaf.url"
-                      (click)="onMobileLeafClicked()"
-                      routerLinkActive="!text-primary !bg-primary-100 dark:!bg-primary-900"
-                      [routerLinkActiveOptions]="{ exact: true }"
-                      #rla="routerLinkActive"
-                      [attr.aria-current]="rla.isActive ? 'page' : null"
-                      [ngClass]="{
-                        'text-muted-color hover:text-color': !rla.isActive
-                      }"
-                      class="flex items-center gap-3 px-4 min-h-12 py-2 bg-surface-0 dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium"
-                    >
-                      <span class="w-5 shrink-0" aria-hidden="true"></span>
-                      <span class="flex-1 leading-6">{{ leaf.title }}</span>
-                    </a>
-                  </li>
-                }
-              </ul>
-            </li>
-          }
-        </ul>
+        <div class="flex-1 overflow-y-auto overflow-x-hidden pb-3">
+          <app-nav-sections
+            [module]="mod"
+            (leafClicked)="onMobileLeafClicked()"
+          />
+        </div>
       }
     </div>
 
-    <!-- Arrow pointer del desktop mega-menu: ancla visual entre el panel y el
-         botón "Menú" del toolbar. Mismo lenguaje que el user menu + popover
-         de notifs (cuadrado 12×12 rotado 45°, border top+left).
-         Posicionado DELIBERADAMENTE ANTES del panel en el DOM — con mismo
-         z-index, el último pinta encima. El panel queda por encima de la
-         flecha y cubre su mitad inferior (la que queda dentro del área del
-         panel). Solo se ve el triángulo superior asomando arriba del borde
-         del panel. Sin esto, al scrollear el L1 la mitad inferior de la
-         flecha aparece como un rombo flotando sobre los items scrolleados.
-         Posicionado via `triggerLeft() + 22` para quedar sobre el centro del
-         icono hamburger (triggerLeft + px-3 + icon/2 ≈ 20). -->
+    <!-- Arrow pointer del desktop mega-menu: ancla visual entre el panel y
+         el botón "Menú" del toolbar. Posicionado ANTES del panel en el DOM
+         para que el panel pinte encima y cubra su mitad inferior — solo se
+         ve el triángulo superior asomando arriba del borde del panel. Sin
+         esto, al scrollear L1 la mitad inferior aparecería como rombo
+         flotando sobre los items scrolleados.
+         (Mantenemos el `<div>` sibling — no `::before` — porque el panel
+         necesita `overflow: hidden` para clippear sus esquinas rounded-xl,
+         y un pseudo-element dentro del panel se recortaría.) -->
     <div
-      [style.left.px]="nav.triggerLeft() + 22"
-      class="hidden lg:block absolute -top-1.5 w-3 h-3 bg-surface-0 dark:bg-surface-950 border-t border-l border-surface rotate-45 pointer-events-none"
+      [style.left.px]="nav.triggerLeft() + arrowXOffset"
+      [style.top.px]="-7"
+      class="hidden lg:block absolute w-3 h-3 bg-surface-0 dark:bg-surface-950 border-t border-l border-surface rotate-45 pointer-events-none"
       aria-hidden="true"
     ></div>
 
-    <!-- ──────────────────────── Desktop (≥md) ────────────────────────
+    <!-- ──────────────────────── Desktop (lg+) ────────────────────────
          Panel flotante anclado al trigger, mega-menu multi-columna con
-         hover-preview. Idéntico al diseño previo. -->
+         hover-preview (JS-driven porque el preview conmuta contenido de
+         otra columna — estado compartido, no feedback visual local). -->
     <div
       data-nav-panel
       [style.left.px]="nav.triggerLeft()"
@@ -176,18 +134,33 @@
     >
       <nav
         aria-label="Módulos"
+        (mouseleave)="clearPreview()"
         class="w-72 shrink-0 border-r border-surface flex flex-col overflow-hidden"
       >
+        <!-- Keydown handler delega teclas al botón focuseado actual (eventos
+             bubble-ean desde ellos). `tabindex="-1"` lo hace programmatically
+             focusable para satisfacer a11y lint — en la práctica no se
+             tab-focusea directamente (los botones internos son los tab
+             stops), pero recibe y maneja los bubbled keydowns correctamente. -->
         <div
-          class="overflow-y-auto flex flex-col divide-y divide-surface-200 dark:divide-surface-800"
+          #l1List
+          tabindex="-1"
+          (keydown)="onL1Keydown($event)"
+          class="overflow-y-auto flex flex-col divide-y divide-surface-200 dark:divide-surface-800 outline-none"
         >
           @for (mod of nav.modules; track mod.id) {
             @let isActive = nav.activeModuleId() === mod.id;
-            @let isPreview = nav.hoveredModuleId() === mod.id && !isActive;
+            @let isPreview = hoveredModuleId() === mod.id && !isActive;
             <button
               type="button"
+              data-l1-item
+              [attr.aria-haspopup]="'true'"
+              [attr.aria-expanded]="selectedId() === mod.id"
+              [attr.aria-controls]="panelId + '-l2'"
+              [attr.aria-current]="isActive ? 'true' : null"
               (mouseenter)="preview(mod.id)"
               (focus)="preview(mod.id)"
+              (click)="selectModule(mod.id)"
               [ngClass]="{
                 'text-primary bg-primary-100 dark:bg-primary-900': isActive,
                 'text-color bg-emphasis': isPreview,
@@ -215,13 +188,18 @@
 
       @if (selectedModule(); as mod) {
         <section
-          aria-label="Secciones"
+          #l2Section
+          [id]="panelId + '-l2'"
+          [attr.aria-label]="'Secciones de ' + mod.title"
           class="w-80 shrink-0 flex flex-col overflow-hidden bg-surface-0 dark:bg-surface-950"
         >
-          <app-nav-sections [module]="mod" (leafClicked)="onLeafClicked()" />
+          <app-nav-sections
+            [module]="mod"
+            (leafClicked)="onLeafClicked()"
+            (requestReturnToL1)="focusPreviewedL1()"
+          />
         </section>
       }
     </div>
-
   </div>
 }
