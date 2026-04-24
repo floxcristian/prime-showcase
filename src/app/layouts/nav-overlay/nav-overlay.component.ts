@@ -219,14 +219,16 @@ export class NavOverlayComponent {
   }
 
   // ─── Desktop handlers ────────────────────────────────────────────────────
-  /** Activa preview del módulo por hover/focus. Sticky hasta nuevo preview o close. */
+  /**
+   * Activa preview del módulo por hover/focus. Sticky hasta que el usuario
+   * hoveree otro módulo, cierre el overlay, o navegue. No hay `clearPreview`
+   * dispatch-eado por `mouseleave` — un leave del `<nav>` L1 al cruzar a L2
+   * haría zumbar el preview al active y tiraría abajo la sección que el
+   * usuario está por seleccionar. El auto-cleanup vive en el effect que
+   * observa `sidebarOpen()`.
+   */
   protected preview(id: string): void {
     this.hoveredModuleId.set(id);
-  }
-
-  /** Limpia el preview. Llamado desde `(mouseleave)` del wrapper L1 desktop. */
-  protected clearPreview(): void {
-    this.hoveredModuleId.set(null);
   }
 
   /** Click/Enter en L1 desktop — commit del módulo y cierre del overlay. */

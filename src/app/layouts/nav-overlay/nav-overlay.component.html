@@ -132,9 +132,16 @@
       [style.maxHeight]="'calc(100% - 1rem)'"
       class="hidden lg:flex absolute top-0 right-0 lg:right-auto flex-row bg-surface-0 dark:bg-surface-950 border border-surface rounded-xl overflow-hidden"
     >
+      <!-- L1 preview es STICKY intencionalmente: una vez el usuario hoverea
+           un módulo, el preview persiste hasta que (a) hoveree otro, (b)
+           cierre el overlay (el effect del componente limpia `hoveredModuleId`
+           al ver `sidebarOpen() === false`), o (c) navegue. Sin sticky,
+           mover el cursor de L1 a L2 (cruzando el borde del <nav>) gatillaría
+           `mouseleave` y revertiría el preview al módulo activo, tirando
+           abajo la sección L2 que el usuario está por seleccionar. Patrón
+           Windows 365 hub / Office launcher / Atlassian product switcher. -->
       <nav
         aria-label="Módulos"
-        (mouseleave)="clearPreview()"
         class="w-72 shrink-0 border-r border-surface flex flex-col overflow-hidden"
       >
         <!-- Keydown handler delega teclas al botón focuseado actual (eventos
