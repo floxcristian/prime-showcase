@@ -61,6 +61,18 @@ export class InboxComponent {
 
   activeInboxNav = signal('Bandeja');
 
+  /**
+   * Visibilidad del folder nav en mobile (<lg). Desktop las clases `lg:flex`
+   * fuerzan visibilidad simultánea de ambos paneles; este signal solo
+   * controla el layout mobile single-panel.
+   *
+   * Default `false`: email list full-width (landing view — patrón Gmail,
+   * Outlook, Spark mobile). El user cambia de folder via un toggle
+   * explícito en el header del listado → abre nav, selecciona folder,
+   * vuelve al list.
+   */
+  protected readonly folderNavOpen = signal(false);
+
   inboxNavs: InboxNavGroup[] = INBOX_NAV_GROUPS;
 
   tableData = signal<InboxMessage[]>(INBOX_MESSAGES);
@@ -82,6 +94,20 @@ export class InboxComponent {
     this.tableData.update(data =>
       data.map(d => d === message ? { ...d, bookmarked: !d.bookmarked } : d)
     );
+  }
+
+  /**
+   * Mobile: seleccionar un folder en el nav panel. Actualiza
+   * `activeInboxNav` y cierra el nav panel para revelar el email list
+   * actualizado. Desktop ignora el cierre (las clases `lg:flex` dominan).
+   */
+  protected onNavSelected(name: string): void {
+    this.activeInboxNav.set(name);
+    this.folderNavOpen.set(false);
+  }
+
+  protected toggleFolderNav(): void {
+    this.folderNavOpen.update(v => !v);
   }
 
   readonly tableTokens = {

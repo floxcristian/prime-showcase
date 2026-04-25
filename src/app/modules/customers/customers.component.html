@@ -1,40 +1,72 @@
-<div class="flex items-start gap-2 justify-between">
-  <div>
+<div class="flex items-start gap-2 justify-between flex-wrap">
+  <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
     <div class="mt-1 leading-6 text-muted-color">
-      La lista de análisis muestra todos los usuarios
+      Gestión de la base de clientes de la compañía
     </div>
   </div>
+  <!--
+    Count pill: clarifica que "activos" = subset del total (no "conectados").
+    Se oculta en mobile (<sm) para no competir con el título — la info se
+    puede recuperar filtrando la tabla por estado. En sm+ vuelve a aparecer.
+  -->
   <p-button
     icon="fa-sharp fa-solid fa-circle text-green-500"
-    label="950 Usuarios activos"
+    label="950 clientes activos"
     outlined
     severity="secondary"
+    styleClass="hidden sm:inline-flex"
+    ariaLabel="950 clientes con estado activo (de un total mayor)"
   />
 </div>
-<div class="mt-10 mb-4 flex items-center justify-between">
-  <p-iconfield iconPosition="left">
+<!--
+  Action toolbar. Mobile (<lg): wrap a 2 filas — search full-width arriba,
+  acciones abajo. Desktop (lg+): lado a lado con search a la izquierda.
+  Paginación compact en mobile (sólo chevrons + contador) por ancho
+  restringido.
+-->
+<div class="mt-6 lg:mt-10 mb-4 flex items-center justify-between gap-2 flex-wrap lg:flex-nowrap">
+  <p-iconfield iconPosition="left" class="w-full lg:w-auto">
     <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"> </p-inputicon>
-    <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
+    <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" class="w-full" />
   </p-iconfield>
-  <div class="flex items-center gap-3">
+  <div class="flex items-center gap-2 lg:gap-3 shrink-0">
     <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" ariaLabel="Filtrar" pTooltip="Filtrar" tooltipPosition="bottom" />
-    <p-divider layout="vertical" class="m-0 p-0" />
+    <p-divider layout="vertical" class="m-0 p-0 hidden lg:inline-flex" />
     <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" ariaLabel="Actualizar" pTooltip="Actualizar" tooltipPosition="bottom" />
-    <p-button label="1 de 15" outlined severity="secondary" />
+    <p-button label="1/15" outlined severity="secondary" ariaLabel="Página 1 de 15" styleClass="whitespace-nowrap" />
     <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" ariaLabel="Página anterior" pTooltip="Página anterior" tooltipPosition="bottom" />
     <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" ariaLabel="Página siguiente" pTooltip="Página siguiente" tooltipPosition="bottom" />
   </div>
 </div>
+<!--
+  Container de la tabla. El scroll horizontal ocurre DENTRO del p-table
+  (en `.p-datatable-table-container`, PrimeNG maneja su propio scroll
+  wrapper), así que el `scroll-fade-x` se aplica vía `[pt]` directamente
+  a ese elemento — no al wrapper externo. Un fade en el wrapper no
+  serviría porque el wrapper nunca overflowea: PrimeNG clipea el overflow
+  internamente.
+-->
 <div
-  class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto"
+  class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full"
 >
+  <!--
+    `min-width: 50rem` fuerza overflow horizontal en viewports angostos.
+    Sin esto PrimeNG table colapsa los cells con text-wrap, produciendo
+    filas de altura inconsistente con strings como "Gerente / de / producto"
+    quebrados. Bigtech data tables (Stripe, Linear, GitHub) prefieren scroll
+    horizontal + filas alineadas sobre cell-wrap.
+    El scroll-fade-x del wrapper padre detecta este overflow y muestra el
+    gradient affordance automáticamente.
+  -->
   <p-table
     [value]="filteredTableData()"
     [selection]="selectedRows()" (selectionChange)="selectedRows.set($event)"
     dataKey="id"
     [rows]="10"
     [dt]="tableTokens"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [pt]="{ tableContainer: { class: 'scroll-fade-x' } }"
   >
     <ng-template #header>
       <tr>
@@ -55,7 +87,7 @@
         <td class="w-4">
           <p-tableCheckbox [value]="data" />
         </td>
-        <td>
+        <td class="whitespace-nowrap">
           <div class="flex items-center">
             <p-overlayBadge
               [severity]="
@@ -82,10 +114,10 @@
             </div>
           </div>
         </td>
-        <td>
+        <td class="whitespace-nowrap">
           <div class="leading-6 text-muted-color">{{ data.title }}</div>
         </td>
-        <td>
+        <td class="whitespace-nowrap">
           <div class="flex items-center gap-2">
             <!-- Logo decorativo: el nombre textual de la empresa va al lado
                  (línea siguiente) — aria-hidden evita double-announce en SR
@@ -102,12 +134,12 @@
             </div>
           </div>
         </td>
-        <td>
-          <div class="leading-6 text-muted-color truncate">
+        <td class="whitespace-nowrap">
+          <div class="leading-6 text-muted-color">
             {{ data.email }}
           </div>
         </td>
-        <td>
+        <td class="whitespace-nowrap">
           <div class="leading-6 text-muted-color">{{ data.lead }}</div>
         </td>
         <td>
@@ -125,14 +157,20 @@
         </td>
         <td>
           <div class="flex justify-end w-full">
+            <!--
+              Icono `fa-ellipsis` (no `fa-magnifying-glass`) porque el botón
+              abre un menú de ACCIONES (Detalles / Eliminar), no una vista
+              de búsqueda. Magnifying-glass = "search" semánticamente, el
+              uso anterior era semánticamente incorrecto.
+            -->
             <p-button
               (onClick)="displayPopover($event, op)"
-              icon="fa-sharp fa-regular fa-magnifying-glass"
+              icon="fa-sharp fa-regular fa-ellipsis"
               rounded
               outlined
               severity="secondary"
-              ariaLabel="Ver detalles"
-              pTooltip="Ver detalles"
+              ariaLabel="Más acciones"
+              pTooltip="Más acciones"
               tooltipPosition="bottom"
             />
           </div>

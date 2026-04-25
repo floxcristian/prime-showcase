@@ -1,0 +1,117 @@
+<div class="flex flex-col gap-6">
+  <!-- Búsquedas recientes: chips con X individual + Limpiar de sección -->
+  @if (history.recentSearches().length > 0) {
+    <section aria-label="Búsquedas recientes">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-color font-bold leading-6">Búsquedas recientes</h2>
+        <button
+          type="button"
+          (click)="history.clearSearches()"
+          class="text-primary hover:text-primary-emphasis font-medium leading-6 cursor-pointer transition-colors bg-transparent"
+        >
+          Limpiar
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        @for (item of history.recentSearches(); track item.id) {
+          <div
+            class="flex items-center gap-2 pl-3 pr-1 h-9 rounded-full border border-surface bg-surface-0 dark:bg-surface-950"
+          >
+            <button
+              type="button"
+              (click)="onItemSelected()"
+              class="text-color font-medium leading-6 cursor-pointer hover:text-muted-color-emphasis transition-colors bg-transparent"
+            >
+              {{ item.query }}
+            </button>
+            <button
+              type="button"
+              (click)="history.removeSearch(item.id)"
+              [attr.aria-label]="'Remover búsqueda ' + item.query"
+              class="w-6 h-6 rounded-full flex items-center justify-center text-muted-color hover:bg-emphasis cursor-pointer transition-colors bg-transparent"
+            >
+              <i
+                class="fa-sharp fa-regular fa-xmark text-xs"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Vistos recientemente: lista con icon + title + subtitle + X -->
+  @if (history.recentViews().length > 0) {
+    <section aria-label="Vistos recientemente">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-color font-bold leading-6">Vistos recientemente</h2>
+        <button
+          type="button"
+          (click)="history.clearViews()"
+          class="text-primary hover:text-primary-emphasis font-medium leading-6 cursor-pointer transition-colors bg-transparent"
+        >
+          Limpiar
+        </button>
+      </div>
+      <ul
+        class="flex flex-col divide-y divide-surface-200 dark:divide-surface-800 border-y border-surface-200 dark:border-surface-800"
+      >
+        @for (view of history.recentViews(); track view.id) {
+          <li class="flex items-center">
+            <a
+              [routerLink]="view.url"
+              (click)="onItemSelected()"
+              class="flex-1 flex items-center gap-3 px-2 h-14 hover:bg-emphasis cursor-pointer transition-colors select-none"
+            >
+              <i
+                [class]="view.icon"
+                class="w-5 text-center text-base shrink-0 text-muted-color"
+                aria-hidden="true"
+              ></i>
+              <div class="flex-1 min-w-0">
+                <div class="text-color font-medium leading-6 truncate">
+                  {{ view.title }}
+                </div>
+                <div
+                  class="text-muted-color text-xs leading-4 truncate mt-0.5"
+                >
+                  {{ view.subtitle }}
+                </div>
+              </div>
+            </a>
+            <button
+              type="button"
+              (click)="history.removeView(view.id)"
+              [attr.aria-label]="'Remover ' + view.title"
+              class="w-11 h-11 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis cursor-pointer transition-colors bg-transparent shrink-0 mr-2"
+            >
+              <i
+                class="fa-sharp fa-regular fa-xmark"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- Empty state (both arrays vacíos) -->
+  @if (
+    history.recentSearches().length === 0 && history.recentViews().length === 0
+  ) {
+    <div
+      class="flex flex-col items-center justify-center gap-4 py-8 text-center"
+    >
+      <i
+        class="fa-sharp-duotone fa-regular fa-magnifying-glass text-4xl text-muted-color"
+        aria-hidden="true"
+      ></i>
+      <div class="text-color font-semibold leading-6">Empieza a buscar</div>
+      <div class="text-muted-color leading-6">
+        Aquí aparecerán tus búsquedas y páginas recientes.
+      </div>
+    </div>
+  }
+</div>

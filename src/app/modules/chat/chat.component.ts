@@ -70,6 +70,41 @@ export class ChatComponent {
   sound = signal(false);
   download = signal(false);
 
+  /**
+   * Master-detail state para mobile (<lg). En desktop los dos paneles son
+   * visibles simultáneamente y este signal no afecta el layout (las clases
+   * `lg:flex` fuerzan visibilidad en el breakpoint superior).
+   *
+   * En mobile:
+   *   - `false` (default) → lista de chats full-width, messages panel oculto
+   *   - `true`            → messages panel full-width (con back button),
+   *                         lista oculta
+   *
+   * Patrón WhatsApp / Telegram / Gmail mobile: drill-in de un solo nivel.
+   * El desktop 3-panel es denso y funciona con ratones; mobile requiere
+   * que cada panel respire en full-width para ser táctilmente usable.
+   */
+  protected readonly detailOpen = signal(false);
+
+  /**
+   * Trigger del drill-in: seleccionar un chat. Actualiza `activeChat`
+   * (driver del highlight en la lista + contenido del messages panel) y
+   * abre el detail. En desktop el `detailOpen=true` es no-op (las clases
+   * `lg:flex` dominan); en mobile switch a messages panel.
+   */
+  protected onChatSelected(name: string): void {
+    this.activeChat.set(name);
+    this.detailOpen.set(true);
+  }
+
+  /**
+   * Back del drill-in mobile. Regresa a la lista de chats. Desktop ignora
+   * (el botón back está con `lg:hidden`).
+   */
+  protected closeDetail(): void {
+    this.detailOpen.set(false);
+  }
+
   chats: ChatItem[] = CHATS;
   filteredChats = computed<ChatItem[]>(() => {
     const term = this.search().trim().toLowerCase();

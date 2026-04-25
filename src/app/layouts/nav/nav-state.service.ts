@@ -152,8 +152,20 @@ export class NavStateService {
   );
 
   readonly breadcrumb = computed<BreadcrumbCrumb[]>(() => {
-    const mod = this.activeModule();
     const url = this.currentUrl();
+
+    // Home (`/`) es el dashboard general — NO deriva del árbol de módulos.
+    // Múltiples leaves del nav-tree apuntan a '/' (ej: NPS, Metas & KPIs,
+    // Campañas activas, Logs de acceso en distintos módulos), así que la
+    // heurística de "primer match" devolvía arbitrariamente uno de ellos.
+    // El contenido real de home es un dashboard cross-módulo, no una de
+    // esas leaves. Patrón Linear/Notion/Gmail: home siempre es "Inicio"
+    // irrespective of nav history.
+    if (url === '/') {
+      return [{ title: 'Inicio', icon: 'fa-sharp fa-regular fa-house' }];
+    }
+
+    const mod = this.activeModule();
     if (!mod) return [];
     for (const section of mod.sections) {
       const leaf = section.children.find((c) => c.url === url);

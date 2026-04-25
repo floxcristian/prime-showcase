@@ -27,6 +27,7 @@ import { AppConfigService } from '../../core/services/app-config/app-config.serv
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../modules/notifications/services/notifications.service';
 import { BackButtonComponent } from '../../shared/back-button/back-button.component';
+import { SearchSuggestionsComponent } from '../../shared/components/search-suggestions/search-suggestions.component';
 import { NAV_OVERLAY_PANEL_ID } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
 import { SettingsDrawerComponent } from '../side-menu/settings-drawer/settings-drawer.component';
@@ -42,7 +43,11 @@ const PRIME_MODULES = [
   Popover,
   TooltipModule,
 ];
-const LOCAL_COMPONENTS = [BackButtonComponent, SettingsDrawerComponent];
+const LOCAL_COMPONENTS = [
+  BackButtonComponent,
+  SearchSuggestionsComponent,
+  SettingsDrawerComponent,
+];
 
 @Component({
   selector: 'app-toolbar',
@@ -98,6 +103,28 @@ export class ToolbarComponent {
   protected readonly notifPopoverTokens = {
     content: { padding: '0' },
   };
+
+  /**
+   * Design tokens para el search dropdown. A diferencia del notif popover,
+   * acá el content SÍ necesita padding interno (chips + lista + empty state
+   * son "contenido bruto" sin chrome propio). 1rem matchea el padding del
+   * mobile overlay (px-4 py-4) → surfaces paired visualmente.
+   */
+  protected readonly searchPopoverTokens = {
+    content: { padding: '1rem' },
+  };
+
+  /**
+   * Cierra el search dropdown + suelta el foco del input. Patrón Google:
+   * Escape cancela tanto la búsqueda como el focus state, permitiendo que
+   * Tab desde cero o Ctrl+K reabran de forma explícita. Sin el blur, el
+   * user queda con focus invisible en el input (no hay popover pero el
+   * input sigue "armado").
+   */
+  protected closeSearch(popover: Popover, input: HTMLInputElement): void {
+    popover.hide();
+    input.blur();
+  }
 
   constructor() {
     // ResizeObserver sobre el trigger captura TODO cambio de layout que

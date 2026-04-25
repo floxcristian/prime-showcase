@@ -1,32 +1,30 @@
 <h1 class="sr-only">Peliculas</h1>
+<!--
+  Top action bar.
+  - Tabs (SelectButton): envuelto en un scroll container horizontal
+    mobile-only. Sin esto en viewport <sm los labels "Inicio/Películas/
+    Series/Recientes/Mi Lista" wrapean a 2 líneas y quedan apretados.
+    Patrón Netflix/Instagram mobile: tab strip con scroll lateral.
+  - Bell + avatar removidos del content: duplicaban los del toolbar
+    global (audit 2026-04-24). El toolbar ya expone esos controles a
+    nivel de app; tenerlos también en el content del route creaba
+    dissonance visual ("¿son los mismos? ¿hacen algo distinto?").
+-->
 <div class="flex flex-wrap gap-4 items-center justify-between">
-  <p-selectbutton
-    [ngModel]="value()"
-    (ngModelChange)="value.set($event)"
-    [options]="options"
-    aria-label="Filtro de películas"
+  <div class="w-full lg:w-auto overflow-x-auto no-scrollbar">
+    <p-selectbutton
+      [ngModel]="value()"
+      (ngModelChange)="value.set($event)"
+      [options]="options"
+      aria-label="Filtro de películas"
+      styleClass="flex-nowrap"
     />
-    <div class="flex gap-2 items-center">
-      <p-iconfield iconPosition="left">
-        <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
-        <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
-      </p-iconfield>
-      <p-button severity="secondary" outlined ariaLabel="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom">
-        <p-overlayBadge
-          severity="danger"
-          badgeSize="small"
-          styleClass="!min-w-0 !w-2.5 !h-2.5"
-          >
-          <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
-        </p-overlayBadge>
-      </p-button>
-      <p-avatar
-        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
-        shape="circle"
-        class="w-9 h-9 cursor-pointer hover:opacity-70 transition-opacity"
-        />
-      </div>
-    </div>
+  </div>
+  <p-iconfield iconPosition="left" class="lg:w-auto">
+    <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"></p-inputicon>
+    <input type="text" pInputText [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" />
+  </p-iconfield>
+</div>
     @defer (hydrate on viewport) {
       <div class="">
         <div class="flex items-center justify-between gap-2 mb-6">
@@ -152,15 +150,20 @@
       </div>
     }
                 <div>
+                  <!--
+                    Genre tab row. Mobile: scroll horizontal para los 4 tabs.
+                    "Mostrar todo" queda fuera del scroll (acción secundaria,
+                    debe permanecer siempre accesible al borde derecho).
+                  -->
                   <div class="mb-6 flex items-center gap-4 justify-between">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto no-scrollbar">
                       <h2 class="sr-only">Peliculas populares</h2>
-                      <p-button label="Popular" severity="secondary" />
-                      <p-button label="Estrenos" text severity="secondary" />
-                      <p-button label="Recientes" text severity="secondary" />
-                      <p-button label="Para ti" text severity="secondary" />
+                      <p-button label="Popular" severity="secondary" styleClass="whitespace-nowrap" />
+                      <p-button label="Estrenos" text severity="secondary" styleClass="whitespace-nowrap" />
+                      <p-button label="Recientes" text severity="secondary" styleClass="whitespace-nowrap" />
+                      <p-button label="Para ti" text severity="secondary" styleClass="whitespace-nowrap" />
                     </div>
-                    <p-button label="Mostrar todo" styleClass="p-button-tonal" />
+                    <p-button label="Mostrar todo" styleClass="p-button-tonal whitespace-nowrap" />
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-6">
                     @for (movie of popularMovies(); track movie.name) {

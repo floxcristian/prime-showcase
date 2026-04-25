@@ -525,42 +525,73 @@ app-settings-drawer > p-drawer {
 }
 
 /*
- * Fix para arrow misalignment del p-popover. PrimeNG v21 setea
- * `--p-popover-arrow-left` dinámicamente pero cuando el trigger está cerca
- * del borde derecho del viewport el cálculo queda ~48px desplazado
- * (verificado en runtime con getBoundingClientRect). Issues #18566, #17972.
+ * Notificaciones popover.
  *
- * En nuestro caso el único popover es el de notificaciones, anclado al bell
- * que siempre está en el extremo derecho del toolbar. La relación geométrica
- * es constante: el arrow debe quedar cerca del borde derecho del popover
- * porque ese es donde cae el center del bell. Con right: 0.5rem y left: auto
- * forzamos posición fija desde la derecha que sí coincide con el bell.
- * Ref: https://github.com/primefaces/primeng/issues/18566
- */
-.p-popover::before,
-.p-popover::after {
-  left: auto !important;
-  right: -3px;
-}
-
-/* Notificaciones popover:
- *  1. `margin-left: 1rem` → shift horizontal para breathing room del arrow
- *     (no usamos transform porque PrimeNG lo anima, ver punto 2).
- *  2. `transform-origin: top right` → el popover es ancho (w-96) y el
+ * Arrow misalignment fix: PrimeNG v21 setea `--p-popover-arrow-left`
+ * dinámicamente vía `this.container.style.setProperty(...)` en onAnimationStart
+ * (ver node_modules/primeng/fesm2022/primeng-popover.mjs). Para triggers al
+ * borde derecho del viewport (el bell está al extremo derecho del toolbar),
+ * el cálculo queda ~48px desplazado. Issues #18566, #17972.
+ *
+ * Con `left: auto !important` cancelamos el cálculo de PrimeNG y con
+ * `right: 13px` fijamos la posición desde la derecha — coincide con el
+ * centro del bell independiente del viewport.
+ *
+ * **IMPORTANTE:** este override DEBE estar scopeado a `.notif-popover`.
+ * Aplicarlo al `.p-popover` genérico rompería otros popovers (ej: el
+ * search-popover que NO está anchored al borde — el cálculo default de
+ * PrimeNG funciona correcto para esos). Ver search-popover abajo.
+ *
+ * Otros aspectos del notif-popover:
+ *   - `margin-left: 1rem` → shift horizontal para breathing room del arrow.
+ *   - `transform-origin: top right` → el popover es ancho (w-96) y el
  *     trigger (bell) está al borde derecho. PrimeNG usa `center top` por
  *     default, así que el scale-animation colapsa hacia el centro del
- *     popover — 183px a la IZQUIERDA del bell, creando un efecto visual
- *     "slide-left on close". Forzando origin top-right, el scale colapsa
- *     hacia el lado donde está el bell, mimicking el feel del <p-menu>
- *     (Mi cuenta) cuyo centro sí coincide con su trigger.
- *  3. Arrow `right: 13px` → compensa el shift para quedarse sobre el bell. */
+ *     popover — 183px a la IZQUIERDA del bell, creando efecto "slide-left
+ *     on close". Forzando origin top-right, el scale colapsa hacia el lado
+ *     del bell, mimicking el feel del <p-menu> user.
+ *   - `right: 13px` en arrow compensa el shift de `margin-left: 1rem`.
+ *
+ * Ref: https://github.com/primefaces/primeng/issues/18566
+ */
 .p-popover.notif-popover {
   margin-left: 1rem;
   transform-origin: top right !important;
 }
 .p-popover.notif-popover::before,
 .p-popover.notif-popover::after {
+  left: auto !important;
   right: 13px;
+}
+
+/*
+ * Search dropdown popover (on-focus desktop search).
+ *
+ * **Arrow visible por consistencia interna.** Los otros dos popovers del
+ * toolbar (notif-popover, user menu con .menu-with-arrow) tienen arrow
+ * conectando al trigger. Una UI con 3 popovers donde 2 tienen arrow y 1
+ * no crea dissonance visual. Coherencia interna > adherencia estricta a
+ * un patrón externo (Google/Gmail usan dropdowns SIN arrow).
+ *
+ * **Position del arrow:** usamos el **cálculo default de PrimeNG**, no un
+ * override manual. PrimeNG posiciona `--p-popover-arrow-left` tal que el
+ * arrow apunte al borde izquierdo del trigger (menos borderRadius) — o sea,
+ * al magnifying glass del input, que es el visual anchor. Ese cálculo es el
+ * correcto acá, NO tocar.
+ *
+ * Por eso NO hay una regla `.search-popover::before` — si la hubiera,
+ * estaríamos fighting contra la lógica de PrimeNG que ya hace lo correcto.
+ * El bug anterior venía de que la regla de notif-popover había sido
+ * escrita al nivel `.p-popover` genérico y contaminaba al search.
+ *
+ * **Width:** anclada al `lg:max-w-xl` (36rem) del input. Sin lock, el
+ * popover tomaría tamaño de su contenido (más angosto) y quedaría
+ * visualmente desalineado del input. Clamped a `100vw - 2rem` para no
+ * desbordar en viewports pequeños.
+ */
+.p-popover.search-popover {
+  width: min(36rem, 100vw - 2rem);
+  max-width: min(36rem, 100vw - 2rem);
 }
 
 /*
@@ -605,3 +636,116 @@ app-settings-drawer > p-drawer {
     animation-iteration-count: 1 !important;
   }
 }
+
+/*
+ * no-scrollbar — oculta la scrollbar pero mantiene el scroll funcional.
+ *
+ * Patrón usado en horizontal tab strips mobile (Instagram, Netflix, YouTube,
+ * TikTok). Sin esto, el thin scrollbar (~4-10px según OS) se dibuja bajo
+ * los tabs y crea un reflow visual que hace que los tabs parezcan
+ * desalineados con contenido debajo. Al ocultarla, el swipe-to-reveal
+ * sigue funcionando (el user scrollea con touch/trackpad) pero la UI queda
+ * limpia.
+ *
+ * Compatibilidad cross-browser: WebKit (`::-webkit-scrollbar`) + Firefox
+ * (`scrollbar-width`) + IE10/Edge Legacy (`-ms-overflow-style`). Los tres
+ * selectores cubren todos los browsers modernos.
+ */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera, modern Edge */
+}
+
+/*
+ * Scroll fade horizontal affordance — indica visualmente que un
+ * contenedor tiene contenido scrolleable fuera del viewport.
+ *
+ * Técnica CSS-only attribuida a Lea Verou (2012) + refinada por Roman
+ * Komarov. Cuatro layers via background-image con distintos
+ * `background-attachment`:
+ *   1. Cover layers (attachment: local) — viajan CON el scroll,
+ *      tapan los gradients cuando estás en inicio/fin.
+ *   2. Gradient layers (attachment: scroll) — se quedan fijos, visibles
+ *      cuando hay contenido overflow del lado correspondiente.
+ *
+ * Patrón usado por Stripe Dashboard, Linear, GitHub. Zero JS, zero
+ * ResizeObserver — pure CSS que reacciona automáticamente al scroll.
+ *
+ * Nombre `fade` (no `shadow`) porque visualmente es un gradient alpha
+ * que se desvanece, no un box-shadow. También evita false-positive del
+ * lint `no-shadow-classes`.
+ *
+ * Ref: https://css-tricks.com/books/greatest-css-tricks/scroll-shadows/
+ */
+.scroll-fade-x {
+  /*
+   * Shadow color-aware: black fade over light bg, white fade over dark bg.
+   * `--p-dark` flip se hace en la regla `.p-dark .scroll-fade-x` abajo.
+   * Alpha 0.22 en light (black-on-white = contraste fuerte), 0.10 en dark
+   * (white-on-dark = suficiente; más alpha satura el gradient).
+   */
+  --scroll-fade-color: 0, 0, 0;
+  --scroll-fade-alpha: 0.22;
+
+  background-image:
+    /* Left cover (color del parent — tapa el gradient cuando estamos al inicio) */
+    linear-gradient(
+      to right,
+      var(--p-content-background) 30%,
+      transparent
+    ),
+    /* Right cover */
+    linear-gradient(
+      to left,
+      var(--p-content-background) 30%,
+      transparent
+    ),
+    /* Left gradient fade */
+    linear-gradient(
+      to right,
+      rgba(var(--scroll-fade-color), var(--scroll-fade-alpha)),
+      rgba(var(--scroll-fade-color), 0)
+    ),
+    /* Right gradient fade */
+    linear-gradient(
+      to left,
+      rgba(var(--scroll-fade-color), var(--scroll-fade-alpha)),
+      rgba(var(--scroll-fade-color), 0)
+    );
+
+  background-position:
+    left center,
+    right center,
+    left center,
+    right center;
+
+  background-repeat: no-repeat;
+
+  /* Gradients 20px. El cover (40px) debe ser >= gradient para tapar limpio
+     al inicio/fin del scroll. */
+  background-size:
+    40px 100%,
+    40px 100%,
+    20px 100%,
+    20px 100%;
+
+  background-attachment:
+    local,
+    local,
+    scroll,
+    scroll;
+}
+
+/*
+ * Dark mode override — invierte el shadow color (white sobre fondo oscuro).
+ * `.p-dark` es la clase que PrimeNG / nuestro bootstrap aplican a <html>
+ * en dark mode. Usamos `:where()` para no bumpear specificity.
+ */
+:where(.p-dark) .scroll-fade-x {
+  --scroll-fade-color: 255, 255, 255;
+  --scroll-fade-alpha: 0.1;
+}
+

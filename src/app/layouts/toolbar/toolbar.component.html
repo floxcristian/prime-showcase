@@ -78,16 +78,43 @@
   <div class="lg:hidden flex-1" aria-hidden="true"></div>
 }
 
-<!-- Desktop search — oculto en mobile porque ahí el logo toma su lugar. -->
+<!-- Desktop search — oculto en mobile porque ahí el logo toma su lugar.
+     On focus muestra el popover con búsquedas recientes + vistos recientemente
+     (mismo content que el overlay mobile). Patrón Google / Gmail / Stripe
+     dashboard. Escape cierra el popover y suelta el foco del input. -->
 <p-iconfield iconPosition="left" class="hidden lg:block flex-1 lg:max-w-xl">
   <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
   <input
+    #searchInput
     type="text"
     pInputText
     placeholder="Buscar módulos, pantallas, acciones..."
+    (focus)="searchPopover.show($event)"
+    (keydown.escape)="closeSearch(searchPopover, searchInput)"
     class="w-full h-11"
   />
 </p-iconfield>
+
+<!-- Popover de sugerencias desktop. appendTo="body" saca el contenido del
+     stacking context del toolbar (que tiene z-index: 20 y podría chocar
+     con otros overlays). `[dt]` zero-out content padding porque el shared
+     component provee su propio spacing + hide arrow en styles.scss —
+     queremos un dropdown below-input, no un tooltip con arrow. -->
+<!--
+  Popover mutex: al abrir search, cerramos notif popover y user menu.
+  Pattern esperado de toolbars (Gmail, GitHub, Slack, Linear): un solo
+  popover visible a la vez. Sin esto, el user podía tener search + notif
+  + user menu abiertos simultáneamente (audit 2026-04-24).
+-->
+<p-popover
+  #searchPopover
+  appendTo="body"
+  styleClass="search-popover"
+  [dt]="searchPopoverTokens"
+  (onShow)="notifPopover.hide(); userMenuRef.hide()"
+>
+  <app-search-suggestions (itemSelected)="searchPopover.hide()" />
+</p-popover>
 
 <!-- Búsqueda mobile — dispara el search overlay full-screen con búsquedas
      recientes + vistos recientemente. Mismo styling ghost que el bell. -->
@@ -210,12 +237,14 @@
       aria-hidden="true"
     ></i>
   </button>
+  <!-- Mutex: al abrir user menu, cerrar search + notif popover. -->
   <p-menu
     #userMenuRef
     [model]="userMenu"
     [popup]="true"
     appendTo="body"
     styleClass="menu-with-arrow"
+    (onShow)="searchPopover.hide(); notifPopover.hide()"
   />
 </div>
 
@@ -223,12 +252,13 @@
      Gmail / Slack / GitHub / LinkedIn desktop: popover con el list scrollable
      y footer "Ver todas" que navega al route full. Mobile sigue navegando
      directo al route (el mobile bell tiene routerLink, no dispara esto). -->
+<!-- Mutex: al abrir notif, cerrar search popover + user menu. -->
 <p-popover
   #notifPopover
   appendTo="body"
   styleClass="notif-popover"
   [dt]="notifPopoverTokens"
-  (onShow)="notifOpen.set(true)"
+  (onShow)="notifOpen.set(true); searchPopover.hide(); userMenuRef.hide()"
   (onHide)="notifOpen.set(false)"
 >
   <div class="w-96 flex flex-col max-h-96">

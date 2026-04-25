@@ -1,4 +1,12 @@
-<div class="w-4/12 xl:w-3/12 min-w-40 h-full overflow-hidden flex flex-col">
+<!--
+  List panel. Mobile (<lg): full-width cuando detailOpen=false, oculto
+  cuando detailOpen=true. Desktop (lg+): ocupa su columna fija via
+  `lg:w-4/12 xl:w-3/12` y siempre visible via `lg:flex`.
+-->
+<div
+  class="min-w-40 h-full overflow-hidden w-full lg:w-4/12 xl:w-3/12 lg:flex-col"
+  [ngClass]="detailOpen() ? 'hidden lg:flex' : 'flex flex-col'"
+>
   <div
     class="flex items-center justify-between gap-2 p-4 min-h-20 border-b border-surface"
     >
@@ -30,7 +38,7 @@
         @for (chat of filteredChats(); track chat.name) {
           <button
             type="button"
-            (click)="activeChat.set(chat.name)"
+            (click)="onChatSelected(chat.name)"
             class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors text-left w-full bg-transparent"
             [attr.aria-current]="chat.name === activeChat() ? 'true' : null"
       [ngClass]="{
@@ -85,18 +93,42 @@
         </div>
       </div>
     </div>
-    <div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
-        <div class="flex items-center p-4 min-h-20 gap-7 border-b border-surface">
-          <div class="flex items-center">
+    <!--
+      Messages panel. Mobile (<lg): full-width cuando detailOpen=true, oculto
+      cuando =false. Desktop (lg+): columna fija siempre visible.
+      `border-l` en lg+ porque en mobile full-width no necesita separador.
+    -->
+    <div
+      class="w-full lg:w-8/12 xl:w-6/12 lg:border-x border-surface lg:flex-col"
+      [ngClass]="detailOpen() ? 'flex flex-col' : 'hidden lg:flex'"
+    >
+        <div class="flex items-center p-4 min-h-20 gap-2 lg:gap-7 border-b border-surface">
+          <!--
+            Back button — solo en mobile (<lg). Regresa a la lista de chats
+            sin perder el activeChat (si el user vuelve a entrar, sigue en
+            el mismo). Patrón WhatsApp / Telegram mobile.
+          -->
+          <button
+            type="button"
+            (click)="closeDetail()"
+            aria-label="Volver a la lista de chats"
+            class="lg:hidden w-10 h-10 rounded-lg flex items-center justify-center text-color bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none shrink-0"
+          >
+            <i
+              class="fa-sharp fa-regular fa-arrow-left"
+              aria-hidden="true"
+            ></i>
+          </button>
+          <div class="flex items-center flex-1 min-w-0">
             <p-avatar
               image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png"
               class="mr-2 av"
               size="large"
               shape="circle"
               />
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <div
-                  class="text-color leading-6 cursor-pointer hover:text-muted-color-emphasis transition-colors"
+                  class="text-color leading-6 cursor-pointer hover:text-muted-color-emphasis transition-colors truncate"
                   >
                   PrimeTek
                 </div>
