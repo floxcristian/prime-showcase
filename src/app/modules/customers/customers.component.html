@@ -49,12 +49,10 @@
   </div>
 </div>
 <!--
-  Container de la tabla. El scroll horizontal ocurre DENTRO del p-table
-  (en `.p-datatable-table-container`, PrimeNG maneja su propio scroll
-  wrapper), así que el `scroll-fade-x` se aplica vía `[pt]` directamente
-  a ese elemento — no al wrapper externo. Un fade en el wrapper no
-  serviría porque el wrapper nunca overflowea: PrimeNG clipea el overflow
-  internamente.
+  Container de la tabla. El scroll horizontal vive en el inner
+  `.p-datatable-table-container` de PrimeNG (overflow:auto manejado
+  internamente). El scrollbar nativo aparece al fondo de ese container —
+  visible cuando user scrollea hasta el final de las rows.
 -->
 <div
   class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full"
@@ -65,8 +63,11 @@
     filas de altura inconsistente con strings como "Gerente / de / producto"
     quebrados. Bigtech data tables (Stripe, Linear, GitHub) prefieren scroll
     horizontal + filas alineadas sobre cell-wrap.
-    El scroll-fade-x del wrapper padre detecta este overflow y muestra el
-    gradient affordance automáticamente.
+
+    El affordance de scroll horizontal es la TRUNCACIÓN visible de cells
+    al borde derecho ("Ejecutivo de venta...", "Gerente de produc..."). Es
+    el patrón que usan Linear, Notion, Vercel — content cut-off comunica
+    "hay más contenido", el thin scrollbar al fondo es el complemento.
   -->
   <p-table
     [value]="filteredTableData()"
