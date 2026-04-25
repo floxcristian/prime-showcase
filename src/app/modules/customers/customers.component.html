@@ -34,9 +34,18 @@
     <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" ariaLabel="Filtrar" pTooltip="Filtrar" tooltipPosition="bottom" />
     <p-divider layout="vertical" class="m-0 p-0 hidden lg:inline-flex" />
     <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" ariaLabel="Actualizar" pTooltip="Actualizar" tooltipPosition="bottom" />
-    <p-button label="1/15" outlined severity="secondary" ariaLabel="Página 1 de 15" styleClass="whitespace-nowrap" />
-    <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" ariaLabel="Página anterior" pTooltip="Página anterior" tooltipPosition="bottom" />
-    <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" ariaLabel="Página siguiente" pTooltip="Página siguiente" tooltipPosition="bottom" />
+    <!--
+      Paginador condicional: cuando el filtro activo no devuelve resultados,
+      mostrar `1/15` + chevrons es engañoso ("estás en página 1 de 15" pero
+      la tabla está vacía). Con 0 resultados ocultamos el bloque entero —
+      el empty state del table cubre el feedback. Patrón Linear / Stripe
+      Dashboard / GitHub: paginador solo visible cuando hay datos paginables.
+    -->
+    @if (filteredTableData().length > 0) {
+      <p-button label="1/15" outlined severity="secondary" ariaLabel="Página 1 de 15" styleClass="whitespace-nowrap" />
+      <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" ariaLabel="Página anterior" pTooltip="Página anterior" tooltipPosition="bottom" />
+      <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" ariaLabel="Página siguiente" pTooltip="Página siguiente" tooltipPosition="bottom" />
+    }
   </div>
 </div>
 <!--

@@ -660,92 +660,72 @@ app-settings-drawer > p-drawer {
 }
 
 /*
- * Scroll fade horizontal affordance — indica visualmente que un
- * contenedor tiene contenido scrolleable fuera del viewport.
+ * Refined scrollbar para tablas con overflow horizontal.
  *
- * Técnica CSS-only attribuida a Lea Verou (2012) + refinada por Roman
- * Komarov. Cuatro layers via background-image con distintos
- * `background-attachment`:
- *   1. Cover layers (attachment: local) — viajan CON el scroll,
- *      tapan los gradients cuando estás en inicio/fin.
- *   2. Gradient layers (attachment: scroll) — se quedan fijos, visibles
- *      cuando hay contenido overflow del lado correspondiente.
+ * **Por qué scrollbar VISIBLE (no oculta):**
+ * Es el affordance universal de scroll. Sin ella, mobile users no
+ * descubren que pueden swipear lateralmente; desktop users no ven el
+ * cuelgue de cells truncadas como "más allá hay contenido".
  *
- * Patrón usado por Stripe Dashboard, Linear, GitHub. Zero JS, zero
- * ResizeObserver — pure CSS que reacciona automáticamente al scroll.
+ * **Por qué styled (no native default):**
+ * Default Windows scrollbar es 14-17px gris oscuro — feo, compite con el
+ * card border, intrusivo. Modern bigtech (Stripe Dashboard, Linear,
+ * Notion, Vercel) las stylizan: thin (~6px), color sutil que matchea el
+ * surface. El user ve el affordance pero no le grita.
  *
- * Nombre `fade` (no `shadow`) porque visualmente es un gradient alpha
- * que se desvanece, no un box-shadow. También evita false-positive del
- * lint `no-shadow-classes`.
+ * **Por qué NO un gradient overlay:**
+ * El Lea Verou 2012 trick (gradient con background-attachment: local)
+ * crea un tinte oscuro sobre celdas del borde — lee como "render bug"
+ * en vez de "scroll indicator". Inspeccioné Stripe/Linear/GitHub: ninguno
+ * lo usa. Truncación natural de cells + scrollbar refinada = patrón real.
  *
- * Ref: https://css-tricks.com/books/greatest-css-tricks/scroll-shadows/
+ * **iOS / Android:** los browsers auto-hide la scrollbar cuando la table
+ * está idle, la muestran durante swipe activo. Estos estilos solo
+ * aplican durante esa ventana visible — UX natural touch.
+ *
+ * **macOS:** overlay scrollbars (visible solo on hover/scroll) —
+ * comportamiento del OS, nuestro CSS solo afecta el styling cuando se
+ * muestra.
+ *
+ * **Windows:** scrollbar persistente (Windows 10) o auto-hide (Windows
+ * 11) según preferencia del user. Nuestro thin styling la hace
+ * aceptable en ambos casos.
  */
 .scroll-fade-x {
-  /*
-   * Shadow color-aware: black fade over light bg, white fade over dark bg.
-   * `--p-dark` flip se hace en la regla `.p-dark .scroll-fade-x` abajo.
-   * Alpha 0.22 en light (black-on-white = contraste fuerte), 0.10 en dark
-   * (white-on-dark = suficiente; más alpha satura el gradient).
-   */
-  --scroll-fade-color: 0, 0, 0;
-  --scroll-fade-alpha: 0.22;
+  /* Firefox: thin scrollbar + colores con surface tokens. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-surface-300) transparent;
+}
 
-  background-image:
-    /* Left cover (color del parent — tapa el gradient cuando estamos al inicio) */
-    linear-gradient(
-      to right,
-      var(--p-content-background) 30%,
-      transparent
-    ),
-    /* Right cover */
-    linear-gradient(
-      to left,
-      var(--p-content-background) 30%,
-      transparent
-    ),
-    /* Left gradient fade */
-    linear-gradient(
-      to right,
-      rgba(var(--scroll-fade-color), var(--scroll-fade-alpha)),
-      rgba(var(--scroll-fade-color), 0)
-    ),
-    /* Right gradient fade */
-    linear-gradient(
-      to left,
-      rgba(var(--scroll-fade-color), var(--scroll-fade-alpha)),
-      rgba(var(--scroll-fade-color), 0)
-    );
-
-  background-position:
-    left center,
-    right center,
-    left center,
-    right center;
-
-  background-repeat: no-repeat;
-
-  /* Gradients 20px. El cover (40px) debe ser >= gradient para tapar limpio
-     al inicio/fin del scroll. */
-  background-size:
-    40px 100%,
-    40px 100%,
-    20px 100%,
-    20px 100%;
-
-  background-attachment:
-    local,
-    local,
-    scroll,
-    scroll;
+/* WebKit / Chromium / Safari */
+.scroll-fade-x::-webkit-scrollbar {
+  height: 6px; /* horizontal scrollbar height */
+}
+.scroll-fade-x::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-fade-x::-webkit-scrollbar-thumb {
+  background: var(--p-surface-300);
+  border-radius: 3px;
+  /* `border` transparent crea inset visual que parece padding alrededor del
+     thumb — match con la altura del track + transición smooth a hover. */
+}
+.scroll-fade-x::-webkit-scrollbar-thumb:hover {
+  background: var(--p-surface-400);
 }
 
 /*
- * Dark mode override — invierte el shadow color (white sobre fondo oscuro).
- * `.p-dark` es la clase que PrimeNG / nuestro bootstrap aplican a <html>
- * en dark mode. Usamos `:where()` para no bumpear specificity.
+ * Dark mode: surface tokens son distintos, el thumb debe matchear el
+ * fondo dark sin desaparecer. surface-700 en dark equivale visualmente
+ * a surface-300 en light — same contrast ratio relativo.
  */
 :where(.p-dark) .scroll-fade-x {
-  --scroll-fade-color: 255, 255, 255;
-  --scroll-fade-alpha: 0.1;
+  scrollbar-color: var(--p-surface-700) transparent;
+}
+:where(.p-dark) .scroll-fade-x::-webkit-scrollbar-thumb {
+  background: var(--p-surface-700);
+}
+:where(.p-dark) .scroll-fade-x::-webkit-scrollbar-thumb:hover {
+  background: var(--p-surface-600);
 }
 

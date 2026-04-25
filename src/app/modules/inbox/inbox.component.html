@@ -72,7 +72,7 @@
             </ng-template>
           </p-progressbar>
         </div>
-        <p-button label="Actualizar a PRO 🚀" styleClass="w-full p-button-tonal" />
+        <p-button label="Actualizar a PRO" icon="fa-sharp fa-regular fa-arrow-up-right-from-square" iconPos="right" styleClass="w-full p-button-tonal" />
       </div>
     </div>
   </div>
@@ -95,6 +95,7 @@
       [dt]="tableTokens"
       [scrollable]="true"
       scrollHeight="flex"
+      [pt]="{ tableContainer: { class: 'scroll-fade-x' } }"
       >
       <ng-template #caption>
         <div
@@ -160,14 +161,23 @@
                     <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" ariaLabel="Filtrar" pTooltip="Filtrar" tooltipPosition="bottom" />
                     <p-divider layout="vertical" class="m-0" />
                     <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" ariaLabel="Actualizar" pTooltip="Actualizar" tooltipPosition="bottom" />
-                    <p-button
-                      label="1 de 15"
-                      class="!whitespace-nowrap"
-                      outlined
-                      severity="secondary"
-                      />
-                      <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" ariaLabel="Página anterior" pTooltip="Página anterior" tooltipPosition="bottom" />
-                      <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" ariaLabel="Página siguiente" pTooltip="Página siguiente" tooltipPosition="bottom" />
+                    <!--
+                      Paginador condicional + formato compact `1/15` (era
+                      `1 de 15`) — consistencia con customers + ahorro de
+                      ancho mobile. Hidden cuando 0 results: con empty state
+                      el paginator no aporta info accionable.
+                    -->
+                    @if (filteredTableData().length > 0) {
+                      <p-button
+                        label="1/15"
+                        styleClass="whitespace-nowrap"
+                        outlined
+                        severity="secondary"
+                        ariaLabel="Página 1 de 15"
+                        />
+                        <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" ariaLabel="Página anterior" pTooltip="Página anterior" tooltipPosition="bottom" />
+                        <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" ariaLabel="Página siguiente" pTooltip="Página siguiente" tooltipPosition="bottom" />
+                    }
                     </div>
                   </div>
                 </ng-template>

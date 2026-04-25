@@ -11,7 +11,11 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, Router } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  NavigationEnd,
+  Router,
+} from '@angular/router';
 import { filter } from 'rxjs';
 
 import { NAV_MODULES } from './constants/nav-modules';
@@ -151,7 +155,24 @@ export class NavStateService {
     this.modules.find((m) => m.id === this.activeModuleId()),
   );
 
+  /**
+   * Breadcrumb declarado vía `data: { breadcrumb: BreadcrumbCrumb[] }` en
+   * `app.routes.ts`. Set en cada NavigationEnd, leído por la `breadcrumb`
+   * computed con prioridad sobre la heurística nav-tree-derivada.
+   *
+   * `null` significa "ruta sin override" → fallback a la lógica legacy
+   * (nav-tree match). Esto preserva backward-compat para rutas que aún no
+   * declaran su breadcrumb.
+   */
+  private readonly routeBreadcrumb = signal<BreadcrumbCrumb[] | null>(null);
+
   readonly breadcrumb = computed<BreadcrumbCrumb[]>(() => {
+    // Prioridad #1: route.data.breadcrumb (declarativo, explícito).
+    // Source of truth cuando la ruta lo provee — evita ambigüedad de
+    // múltiples leaves del nav-tree compartiendo URL.
+    const fromRoute = this.routeBreadcrumb();
+    if (fromRoute) return fromRoute;
+
     const url = this.currentUrl();
 
     // Home (`/`) es el dashboard general — NO deriva del árbol de módulos.
@@ -165,6 +186,9 @@ export class NavStateService {
       return [{ title: 'Inicio', icon: 'fa-sharp fa-regular fa-house' }];
     }
 
+    // Fallback legacy: derivar del nav-tree para rutas sin route.data.
+    // Cubre el caso de rutas agregadas en el futuro sin migrar — devuelve
+    // un breadcrumb "best-effort" en vez de `[]`.
     const mod = this.activeModule();
     if (!mod) return [];
     for (const section of mod.sections) {
@@ -198,6 +222,9 @@ export class NavStateService {
         }
         this.currentUrl.set(url);
         this.syncActiveModuleFromUrl(url);
+        // Lee `data.breadcrumb` del leaf snapshot. Si la ruta lo declara,
+        // override; si no, `null` y el computed cae al legacy nav-tree.
+        this.routeBreadcrumb.set(this.readRouteBreadcrumb());
         // Cerrar overlays al navegar — en mobile el bottom tab bar se
         // comporta como page navigation: tap "Inicio" debería cerrar el
         // drawer/overlay y mostrar home.
@@ -327,5 +354,27 @@ export class NavStateService {
   private normalizeUrl(url: string): string {
     const clean = url.split('?')[0].split('#')[0];
     return clean === '' ? '/' : clean;
+  }
+
+  /**
+   * Lee `data.breadcrumb` del snapshot del router. Walk al deepest child
+   * porque las rutas anidadas (parent + child con loadComponent) emitirían
+   * el data del PARENT si leyéramos del root. El leaf siempre tiene el
+   * data más específico.
+   *
+   * @returns el array de crumbs si la ruta declara `data.breadcrumb`,
+   *          o `null` si no — el caller (`breadcrumb` computed) usa null
+   *          como señal de "fallback al legacy nav-tree".
+   */
+  private readRouteBreadcrumb(): BreadcrumbCrumb[] | null {
+    let snapshot: ActivatedRouteSnapshot | null =
+      this.router.routerState.snapshot.root;
+    while (snapshot?.firstChild) snapshot = snapshot.firstChild;
+    const data = snapshot?.data?.['breadcrumb'];
+    // Validación defensiva: data es `Record<string, any>` (Angular type).
+    // Si alguien pone `data.breadcrumb: 'algo no array'` por error, no
+    // queremos crashear el computed — fallback gracefully a null.
+    if (!Array.isArray(data) || data.length === 0) return null;
+    return data as BreadcrumbCrumb[];
   }
 }

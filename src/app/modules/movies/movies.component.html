@@ -1,4 +1,12 @@
-<h1 class="sr-only">Peliculas</h1>
+<!--
+  Visible page title. Antes era sr-only (h1 para SR, sin anchor visible) —
+  las otras rutas tienen títulos visibles (`Clientes`, `Correos`, `Chats`,
+  `Tarjetas`) en `text-2xl font-medium`, esto rompía el patrón.
+  Un usuario que llega via deep-link a /movies necesita saber DE UN VISTAZO
+  en qué sección está; los tabs debajo (Inicio/Películas/Series/...) son
+  content filters, no nombre de la ruta.
+-->
+<h1 class="text-2xl font-medium leading-8 text-color mb-4">Películas</h1>
 <!--
   Top action bar.
   - Tabs (SelectButton): envuelto en un scroll container horizontal
