@@ -1,4 +1,4 @@
-<ul tabindex="-1" (keydown)="onKeydown($event)" class="outline-none">
+<ul tabindex="-1" (keydown)="onKeydown($event)">
   @for (
     section of module().sections;
     track section.id;
@@ -6,9 +6,9 @@
   ) {
     @let headerId = 'nav-sec-' + section.id;
     <li role="group" [attr.aria-labelledby]="headerId">
-      <!-- L2 header: border-t absorbido dentro del min-h-12 (box-sizing: border-box).
-           sectionIdx > 0 evita línea encima del primer header del panel.
-           min-h-12 + py-2 permite que títulos largos wrappeen sin cortarse. -->
+      <!-- L2 header: border-t absorbido dentro del min-h-12 (box-sizing:
+           border-box). sectionIdx > 0 evita línea encima del primer header.
+           min-h-12 + py-2 permite que títulos largos wrappeen. -->
       <div
         class="flex items-center gap-3 px-4 min-h-12 py-2 bg-surface-100 dark:bg-surface-800"
         [ngClass]="{
@@ -29,8 +29,8 @@
         @for (leaf of section.children; track leaf.title + leaf.url) {
           <li>
             <a
+              #l3Item
               [routerLink]="leaf.url"
-              data-l3-item
               (click)="leafClicked.emit()"
               routerLinkActive="!text-primary !bg-primary-100 dark:!bg-primary-900"
               [routerLinkActiveOptions]="{ exact: true }"

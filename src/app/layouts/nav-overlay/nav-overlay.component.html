@@ -2,32 +2,42 @@
   <!--
     Wrapper fixed-positioned. NO es `role="dialog"` ni tiene `aria-modal`:
     un mega-menu dismissable por click-outside NO cumple la contract de
-    dialog (que demanda explicit dismiss via botón o Escape, y focus trap
-    estricto). Es disclosure per ARIA Authoring Practices Guide §Disclosure.
-    El trigger del toolbar tiene `aria-expanded` + `aria-controls` apuntando
-    a `#nav-overlay-panel`, que es este div.
+    dialog (explicit dismiss + focus trap estricto). Es disclosure per APG
+    §Disclosure Navigation Menu. El trigger del toolbar tiene `aria-expanded`
+    + `aria-controls` apuntando a `#nav-overlay-panel` (este div).
   -->
   <div
     [id]="panelId"
     class="fixed inset-x-0 bottom-16 lg:bottom-0 top-0 lg:top-16 z-30"
   >
-    <!-- Backdrop: solo desktop. Mobile el panel ocupa todo el viewport
-         disponible (entre toolbar y footer) así que no hay "fuera". -->
-    <div
-      class="absolute inset-0 bg-[var(--p-mask-background)] hidden lg:block"
+    <!-- NO hay aria-live region: el trigger `aria-expanded` de cada L1 ya
+         comunica el estado del panel controlado, y un usuario SR con Tab
+         hace nav a L3 para percibir el contenido. Un aria-live adicional
+         causaría doble anuncio (expand change + live text) — verboso. -->
+
+    <!-- Backdrop (solo desktop): button accesible en vez de <div aria-hidden>.
+         WCAG 4.1.2 prohíbe aria-hidden en elementos interactivos; un <button>
+         con label + tabindex="-1" (keyboard usa Escape) es la vía correcta.
+         `cursor-pointer` comunica que es clickeable (click dismiss). Mobile
+         no tiene backdrop (panel ocupa viewport completo). -->
+    <button
+      type="button"
       (click)="close()"
-      aria-hidden="true"
-    ></div>
+      aria-label="Cerrar menú"
+      tabindex="-1"
+      class="absolute inset-0 bg-[var(--p-mask-background)] hidden lg:block"
+    ></button>
 
     <!-- ──────────────────────── Mobile (<lg) ────────────────────────
          Full-screen single-column con drill-in de 1 paso. Patrón Notion /
-         Linear / SAP Fiori / Shopify Admin mobile. -->
+         Linear / Shopify Admin mobile. Entry animation vive en
+         `.nav-overlay-panel-mobile` (styles.scss) — slide-up 120ms paritario
+         al desktop. -->
     <div
       data-nav-panel
-      class="lg:hidden absolute inset-0 bg-surface-0 dark:bg-surface-950 flex flex-col overflow-hidden"
+      class="nav-overlay-panel-mobile lg:hidden absolute inset-0 bg-surface-0 dark:bg-surface-950 flex flex-col overflow-hidden"
     >
       @if (mobileView() === 'modules') {
-        <!-- Vista 1: lista de módulos L1 full-width -->
         <app-primary-title-toolbar title="Menú">
           <app-back-button leading (pressed)="close()" />
           <button
@@ -45,7 +55,7 @@
           </button>
         </app-primary-title-toolbar>
         <nav
-          aria-label="Módulos"
+          aria-label="Módulos (móvil)"
           class="flex-1 overflow-y-auto divide-y divide-surface-200 dark:divide-surface-800"
         >
           @for (mod of nav.modules; track mod.id) {
@@ -76,7 +86,6 @@
           }
         </nav>
       } @else if (mobileDrilledModule(); as mod) {
-        <!-- Vista 2: L2+L3 del módulo drilleado, full-width -->
         <div
           class="min-h-12 py-2 shrink-0 flex items-center gap-1 px-2 border-b border-surface"
         >
@@ -106,68 +115,61 @@
       }
     </div>
 
-    <!-- Arrow pointer del desktop mega-menu: ancla visual entre el panel y
-         el botón "Menú" del toolbar. Posicionado ANTES del panel en el DOM
-         para que el panel pinte encima y cubra su mitad inferior — solo se
-         ve el triángulo superior asomando arriba del borde del panel. Sin
-         esto, al scrollear L1 la mitad inferior aparecería como rombo
-         flotando sobre los items scrolleados.
-         (Mantenemos el `<div>` sibling — no `::before` — porque el panel
-         necesita `overflow: hidden` para clippear sus esquinas rounded-xl,
-         y un pseudo-element dentro del panel se recortaría.) -->
+    <!-- Arrow pointer del desktop mega-menu. Posicionado ANTES del panel
+         en DOM para que el panel pinte encima y cubra su mitad inferior —
+         solo se ve el triángulo superior (si estuviera DESPUÉS, la mitad
+         inferior aparecería como rombo flotando sobre items scrolleados).
+         `.nav-overlay-arrow` (styles.scss) tiene `pointer-events: none`
+         así que clicks lo atraviesan → no necesita `data-nav-panel` marker
+         para el guard de click-outside (el evento nunca target-ea el
+         arrow). Solo `left` va inline porque depende del runtime trigger.
+         El `22` offset = px-3 (12) + icon w-4/2 (8) + 2 (ajuste visual) —
+         centra la punta sobre el icono hamburger. -->
     <div
-      [style.left.px]="nav.triggerLeft() + arrowXOffset"
-      [style.top.px]="-7"
-      class="hidden lg:block absolute w-3 h-3 bg-surface-0 dark:bg-surface-950 border-t border-l border-surface rotate-45 pointer-events-none"
+      [style.left.px]="nav.triggerLeft() + 22"
+      class="nav-overlay-arrow hidden lg:block"
       aria-hidden="true"
     ></div>
 
     <!-- ──────────────────────── Desktop (lg+) ────────────────────────
-         Panel flotante anclado al trigger, mega-menu multi-columna con
-         hover-preview (JS-driven porque el preview conmuta contenido de
-         otra columna — estado compartido, no feedback visual local). -->
+         Panel flotante anclado al trigger, mega-menu multi-columna. -->
     <div
       data-nav-panel
       [style.left.px]="nav.triggerLeft()"
-      [style.maxHeight]="'calc(100% - 1rem)'"
-      class="hidden lg:flex absolute top-0 right-0 lg:right-auto flex-row bg-surface-0 dark:bg-surface-950 border border-surface rounded-xl overflow-hidden"
+      class="nav-overlay-panel hidden lg:flex absolute top-0 right-0 lg:right-auto flex-row bg-surface-0 dark:bg-surface-950 border border-surface rounded-xl overflow-hidden"
     >
       <!-- L1 preview es STICKY intencionalmente: una vez el usuario hoverea
            un módulo, el preview persiste hasta que (a) hoveree otro, (b)
-           cierre el overlay (el effect del componente limpia `hoveredModuleId`
-           al ver `sidebarOpen() === false`), o (c) navegue. Sin sticky,
-           mover el cursor de L1 a L2 (cruzando el borde del <nav>) gatillaría
-           `mouseleave` y revertiría el preview al módulo activo, tirando
-           abajo la sección L2 que el usuario está por seleccionar. Patrón
-           Windows 365 hub / Office launcher / Atlassian product switcher. -->
+           cierre el overlay, o (c) navegue. Sin sticky, mover el cursor de
+           L1 a L2 gatillaría mouseleave y revertiría el preview. Pattern
+           Windows 365 / Office launcher / Atlassian product switcher. -->
       <nav
         aria-label="Módulos"
         class="w-72 shrink-0 border-r border-surface flex flex-col overflow-hidden"
       >
-        <!-- Keydown handler delega teclas al botón focuseado actual (eventos
-             bubble-ean desde ellos). `tabindex="-1"` lo hace programmatically
-             focusable para satisfacer a11y lint — en la práctica no se
-             tab-focusea directamente (los botones internos son los tab
-             stops), pero recibe y maneja los bubbled keydowns correctamente. -->
+        <!-- Keydown handler en el div interno delega teclas al botón
+             focuseado actual. tabindex="-1" lo hace programmatically
+             focusable para satisfacer a11y lint; en práctica el foco lo
+             atrapan los botones hijos. -->
         <div
-          #l1List
           tabindex="-1"
           (keydown)="onL1Keydown($event)"
-          class="overflow-y-auto flex flex-col divide-y divide-surface-200 dark:divide-surface-800 outline-none"
+          class="overflow-y-auto flex flex-col divide-y divide-surface-200 dark:divide-surface-800"
         >
           @for (mod of nav.modules; track mod.id) {
             @let isActive = nav.activeModuleId() === mod.id;
-            @let isPreview = hoveredModuleId() === mod.id && !isActive;
+            @let isSelected = selectedId() === mod.id;
+            @let isPreview = isSelected && !isActive;
             <button
+              #l1Item
               type="button"
-              data-l1-item
-              [attr.aria-haspopup]="'true'"
-              [attr.aria-expanded]="selectedId() === mod.id"
-              [attr.aria-controls]="panelId + '-l2'"
-              [attr.aria-current]="isActive ? 'true' : null"
+              [attr.data-l1-id]="mod.id"
+              [attr.aria-expanded]="isSelected"
+              [attr.aria-controls]="l2SectionId"
+              [attr.aria-current]="isActive ? 'page' : null"
               (mouseenter)="preview(mod.id)"
-              (focus)="preview(mod.id)"
-              (click)="selectModule(mod.id)"
+              (focus)="previewImmediate(mod.id)"
+              (click)="activateModule(mod.id)"
               [ngClass]="{
                 'text-primary bg-primary-100 dark:bg-primary-900': isActive,
                 'text-color bg-emphasis': isPreview,
@@ -196,14 +198,16 @@
       @if (selectedModule(); as mod) {
         <section
           #l2Section
-          [id]="panelId + '-l2'"
+          [id]="l2SectionId"
           [attr.aria-label]="'Secciones de ' + mod.title"
           class="w-80 shrink-0 flex flex-col overflow-hidden bg-surface-0 dark:bg-surface-950"
         >
           <app-nav-sections
             [module]="mod"
+            [restoreScrollTop]="l2ScrollForModule(mod.id)"
             (leafClicked)="onLeafClicked()"
             (requestReturnToL1)="focusPreviewedL1()"
+            (scrollChange)="onL2ScrollChange($event)"
           />
         </section>
       }

@@ -17,15 +17,19 @@
     />
   </a>
 
-  <!-- Sidebar toggle — disclosure pattern (APG §Disclosure). aria-haspopup +
-       aria-expanded + aria-controls conectan el trigger con el panel. -->
+  <!-- Sidebar toggle — disclosure pattern (APG §Disclosure Navigation Menu).
+       `aria-expanded` + `aria-controls` conectan el trigger con el panel; NO
+       se usa `aria-haspopup` porque APG lo reserva para contratos `menu` /
+       `listbox` / `tree` / `dialog` que el mega-menu no cumple (es navegación
+       por disclosure, no un menu con roving tabindex). `aria-label="Menú"`
+       estático — el estado se comunica via aria-expanded, no mutando el label
+       (anti-pattern de SR cache). -->
   <button
     #navTrigger
     data-nav-trigger
     type="button"
     (click)="onNavToggleClick()"
-    [attr.aria-label]="nav.sidebarOpen() ? 'Cerrar menú' : 'Abrir menú'"
-    aria-haspopup="true"
+    aria-label="Menú"
     [attr.aria-expanded]="nav.sidebarOpen()"
     [attr.aria-controls]="navPanelId"
     [ngClass]="{

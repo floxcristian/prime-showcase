@@ -602,21 +602,127 @@ app-settings-drawer > p-drawer {
  * arrow pueda sobresalir del overlay. margin-top crea la separacion del
  * trigger para que el arrow tenga espacio.
  */
+/*
+ * Arrow pointer shared pattern — mixin reusado por menu-with-arrow,
+ * notif-popover, y nav-overlay. Unifica las 3 implementaciones históricas
+ * (antes había 3 archivos diferentes con mismo cuadrado-rotado-45°).
+ *
+ * @param $bg — css value del fondo del arrow (debe matchear el del surface
+ *              al que apunta, para cubrir el border donde solapan).
+ * @param $border-color — color del border top+left (forman la V visible).
+ *
+ * El arrow se posiciona con top/left/right CUSTOM por cada uso — el mixin
+ * solo define shape, size y tokens de color. Tamaño 12px es big-tech
+ * standard (GitHub 12px, Linear 12px, Airbnb 12px).
+ */
+@mixin arrow-pointer(
+  $bg: var(--p-menu-background),
+  $border-color: var(--p-menu-border-color)
+) {
+  content: '';
+  position: absolute;
+  width: 0.75rem; /* 12px */
+  height: 0.75rem;
+  background: $bg;
+  border-top: 1px solid $border-color;
+  border-left: 1px solid $border-color;
+  transform: rotate(45deg);
+}
+
 .p-menu.menu-with-arrow {
   overflow: visible;
   margin-top: 0.5rem;
 
   &::before {
-    content: '';
-    position: absolute;
+    @include arrow-pointer;
     top: -0.4375rem; /* -7px — medio fuera, medio dentro del overlay */
     right: 1rem;
-    width: 0.75rem;
-    height: 0.75rem;
-    background: var(--p-menu-background);
-    border-top: 1px solid var(--p-menu-border-color);
-    border-left: 1px solid var(--p-menu-border-color);
-    transform: rotate(45deg);
+  }
+}
+
+/*
+ * Nav-overlay mega-menu — desktop panel + arrow + entry animation.
+ *
+ * ### Arrow (`.nav-overlay-arrow`)
+ *   Sibling del panel (NO ::before) porque el panel tiene `overflow: hidden`
+ *   para clippear sus rounded-xl corners; un pseudo-element dentro del
+ *   panel se recortaría. Top/size constantes (en el mixin); solo `left`
+ *   viene inline desde TS porque depende de `nav.triggerLeft()`.
+ *
+ *   Se pinta ANTES del panel en DOM → el panel cubre su mitad inferior
+ *   cuando solapan, dejando visible solo el triángulo superior. Al
+ *   scrollear L1 la mitad inferior queda oculta por el panel en vez de
+ *   flotar como rombo sobre items.
+ *
+ * ### Desktop panel (`.nav-overlay-panel`)
+ *   `max-height: calc(100% - 1rem)` — deja 16px bottom gap del viewport.
+ *   `box-shadow` sutil — EXCEPCIÓN documentada a la regla global "no
+ *   shadows usar border". Rationale: un floating overlay enterprise-grade
+ *   sobre backdrop necesita elevation visual. Patrón GitHub/Stripe/Shopify.
+ *   Design system del proyecto permite esta excepción para "floating
+ *   overlays sobre backdrop" (distinto de cards estáticos en el canvas).
+ *
+ * ### Entry animation
+ *   `opacity 0→1 + scale 0.98→1` en 120ms ease-out. `transform-origin:
+ *   top left` hace que el panel "crezca" desde la esquina superior
+ *   izquierda (donde está el trigger). Respeta `prefers-reduced-motion`
+ *   via la regla global que baja animation-duration a 0.01ms.
+ */
+.nav-overlay-arrow {
+  @include arrow-pointer(
+    var(--p-surface-0),
+    var(--p-surface-border-color)
+  );
+  top: -0.4375rem; /* -7px — consistente con menu-with-arrow */
+  pointer-events: none;
+}
+.p-dark .nav-overlay-arrow {
+  background: var(--p-surface-950);
+}
+
+.nav-overlay-panel {
+  max-height: calc(100% - 1rem);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.08),
+    0 4px 6px -4px rgb(0 0 0 / 0.06);
+  animation: nav-overlay-panel-enter 120ms ease-out;
+  transform-origin: top left;
+}
+.p-dark .nav-overlay-panel {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.4),
+    0 4px 6px -4px rgb(0 0 0 / 0.3);
+}
+
+@keyframes nav-overlay-panel-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/*
+ * Mobile panel entry — slide-up 8px + fade. Paritario al desktop (ambos
+ * 120ms ease-out) para una experiencia consistente cross-viewport. En
+ * mobile no hay arrow pointer así que usar transform-origin top-left no
+ * aporta; el slide vertical sugiere "emerge desde el toolbar" que ES
+ * donde el usuario presionó el trigger.
+ */
+.nav-overlay-panel-mobile {
+  animation: nav-overlay-panel-mobile-enter 120ms ease-out;
+}
+@keyframes nav-overlay-panel-mobile-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
