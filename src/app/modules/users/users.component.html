@@ -1,0 +1,551 @@
+<!-- Header -->
+<div class="flex items-start gap-2 justify-between flex-wrap">
+  <div class="min-w-0">
+    <h1 class="text-2xl leading-8 text-color font-medium">Usuarios</h1>
+    <div class="mt-1 leading-6 text-muted-color">
+      Colaboradores internos y externos con acceso al sistema.
+    </div>
+  </div>
+  <!--
+    Count pill informativo: "X de Y activos" — la fracción transmite
+    señal de salud de la base de usuarios mejor que un absoluto. Oculto
+    en mobile (<sm) para no competir con el título.
+  -->
+  @if (totalCount() > 0) {
+    <div
+      class="hidden sm:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
+      role="status"
+      [attr.aria-label]="
+        activeCount() + ' de ' + totalCount() + ' usuarios activos'
+      "
+    >
+      <i
+        class="fa-sharp fa-solid fa-circle text-green-500"
+        aria-hidden="true"
+      ></i>
+      <span>{{ activeCount() }} de {{ totalCount() }} activos</span>
+    </div>
+  }
+</div>
+
+<!--
+  Toolbar — solo info de freshness + refresh. Filtros viven en cada
+  columna vía `<p-columnFilter>`, paginación vía `[paginator]` del
+  p-table. Pattern alineado con customers / obs-uptime / Linear.
+-->
+<div
+  class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap"
+>
+  <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
+    @if (lastFetchedAt(); as ts) {
+      <span
+        class="text-sm text-muted-color leading-5 hidden sm:inline"
+        aria-live="polite"
+      >
+        Actualizado {{ ts | relativeTime }}
+      </span>
+    }
+    <p-button
+      [icon]="
+        'fa-sharp fa-regular fa-arrows-rotate' +
+        (loading() ? ' animate-spin' : '')
+      "
+      [disabled]="loading()"
+      outlined
+      severity="secondary"
+      ariaLabel="Actualizar"
+      pTooltip="Actualizar"
+      tooltipPosition="bottom"
+      (onClick)="retry()"
+    />
+  </div>
+</div>
+
+@if (tableData().length === 0 && loadError()) {
+  <app-empty-state
+    icon="fa-triangle-exclamation"
+    title="No pudimos cargar los usuarios"
+    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+    [bordered]="true"
+    actionLabel="Reintentar"
+    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+    (actionClick)="retry()"
+  />
+} @else {
+  @if (loadError() && tableData().length > 0) {
+    <div
+      class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
+      role="alert"
+    >
+      <i
+        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
+        aria-hidden="true"
+      ></i>
+      <span class="flex-1 text-muted-color leading-5">
+        No pudimos refrescar los datos. Estás viendo la última versión
+        disponible.
+      </span>
+      <p-button
+        label="Reintentar"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        icon="fa-sharp fa-regular fa-arrows-rotate"
+        (onClick)="retry()"
+      />
+    </div>
+  }
+  <div class="rounded-lg border border-surface w-full overflow-hidden">
+    <p-table
+      [value]="$any(tableData())"
+      [loading]="loading()"
+      [selection]="selectedRows()"
+      (selectionChange)="selectedRows.set($event)"
+      dataKey="id"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [stripedRows]="true"
+      [showGridlines]="true"
+      [rowHover]="true"
+      sortMode="single"
+      [tableStyle]="{ 'min-width': '64rem' }"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} usuarios"
+    >
+      <ng-template #header>
+        <tr>
+          <th scope="col" class="w-4">
+            <p-tableHeaderCheckbox />
+          </th>
+          <!--
+            Columna "Nombre" — display unificado del nombre completo
+            (4 partes), pero sort por `paternalSurname` (convención
+            chilena enterprise: registry / pagas / audit ordenan por
+            apellido paterno). Filter contains sobre `name` matchea
+            cualquier sub-string del nombre completo (incluye apellido
+            materno y nombres) — gracias a que `name` es la versión
+            denormalizada del backend.
+          -->
+          <th
+            pSortableColumn="paternalSurname"
+            scope="col"
+            class="whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Nombre</span>
+                <p-sortIcon field="paternalSurname" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="name"
+                matchMode="contains"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <input
+                      type="text"
+                      pInputText
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Buscar nombre o apellido"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          <th
+            pSortableColumn="email"
+            scope="col"
+            class="whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Correo electrónico</span>
+                <p-sortIcon field="email" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="email"
+                matchMode="contains"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <input
+                      type="text"
+                      pInputText
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Buscar correo"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          <th
+            pSortableColumn="type"
+            scope="col"
+            class="w-32 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Tipo</span>
+                <p-sortIcon field="type" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="type"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <p-multiselect
+                      [options]="typeOptions"
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Cualquiera"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          <th
+            pSortableColumn="role"
+            scope="col"
+            class="w-36 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Rol</span>
+                <p-sortIcon field="role" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="role"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <p-multiselect
+                      [options]="availableRoles()"
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Cualquiera"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          <th
+            pSortableColumn="organization"
+            scope="col"
+            class="whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Organización</span>
+                <p-sortIcon field="organization" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="organization"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <p-multiselect
+                      [options]="availableOrganizations()"
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Cualquiera"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          <th
+            pSortableColumn="lastActive"
+            scope="col"
+            class="w-44 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Última actividad</span>
+                <p-sortIcon field="lastActive" />
+              </span>
+            </div>
+          </th>
+          <th
+            pSortableColumn="status"
+            scope="col"
+            class="w-32 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Estado</span>
+                <p-sortIcon field="status" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="status"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <p-multiselect
+                      [options]="statusOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Cualquiera"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          <!--
+            Columna de acción "Más acciones" — última posición. Sin label
+            visible, solo el ellipsis comunica multi-action menu (pattern
+            customers).
+          -->
+          <th scope="col" class="w-12 whitespace-nowrap"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-data>
+        <tr>
+          <td class="w-4">
+            <p-tableCheckbox [value]="data" />
+          </td>
+          <td class="whitespace-nowrap">
+            <div class="flex items-center">
+              <p-avatar
+                [image]="data.image"
+                [label]="!data.image ? data.capName : ''"
+                class="rounded-lg overflow-hidden flex"
+                [ngClass]="{
+                  '!bg-primary-100 !text-primary-950 text-xs font-medium': !data.image
+                }"
+              />
+              <div class="ml-4 leading-6 text-color font-medium">
+                {{ data.name }}
+              </div>
+            </div>
+          </td>
+          <td class="whitespace-nowrap">
+            <div class="leading-6 text-muted-color">
+              {{ data.email }}
+            </div>
+          </td>
+          <td class="whitespace-nowrap">
+            <p-tag
+              [severity]="typeSeverity(data.type)"
+              [value]="data.type"
+              class="font-medium"
+            />
+          </td>
+          <td class="whitespace-nowrap">
+            <div class="leading-6 text-muted-color">{{ data.role }}</div>
+          </td>
+          <td class="whitespace-nowrap">
+            <div class="leading-6 text-muted-color">
+              {{ data.organization }}
+            </div>
+          </td>
+          <td class="whitespace-nowrap">
+            <div class="leading-6 text-muted-color">
+              {{ data.lastActive | relativeTime }}
+            </div>
+          </td>
+          <td class="whitespace-nowrap">
+            <p-tag
+              [severity]="statusSeverity(data.status)"
+              [value]="data.status"
+              class="font-medium"
+            />
+          </td>
+          <td class="text-right">
+            <p-button
+              (onClick)="displayPopover($event, op, data)"
+              icon="fa-sharp fa-regular fa-ellipsis"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              ariaLabel="Más acciones"
+              pTooltip="Más acciones"
+              tooltipPosition="left"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <!--
+        loadingbody: PrimeNG renderiza este template cuando [loading]=true.
+        Skeletons heterogéneos replican la forma visual de cada celda —
+        circle para avatar, lines para texto, rectangles para tags.
+        Mantener proporciones evita layout shift al hidratar.
+      -->
+      <ng-template #loadingbody>
+        @for (i of skeletonPlaceholders; track i) {
+          <tr>
+            <td class="w-4">
+              <p-skeleton width="1rem" height="1rem" />
+            </td>
+            <td>
+              <div class="flex items-center gap-4">
+                <p-skeleton shape="circle" size="2.5rem" />
+                <p-skeleton width="60%" height="1rem" />
+              </div>
+            </td>
+            <td>
+              <p-skeleton width="70%" height="1rem" />
+            </td>
+            <td>
+              <p-skeleton width="4rem" height="1.5rem" />
+            </td>
+            <td>
+              <p-skeleton width="60%" height="1rem" />
+            </td>
+            <td>
+              <p-skeleton width="50%" height="1rem" />
+            </td>
+            <td>
+              <p-skeleton width="60%" height="1rem" />
+            </td>
+            <td>
+              <p-skeleton width="5rem" height="1.5rem" />
+            </td>
+            <td>
+              <p-skeleton shape="circle" size="2rem" />
+            </td>
+          </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="9">
+            <app-empty-state
+              icon="fa-users"
+              title="Sin usuarios"
+              description="No encontramos usuarios que coincidan con los filtros aplicados. Limpia los filtros para ver el listado completo."
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+}
+
+<p-popover #op>
+  <ng-template #content>
+    <!--
+      Acciones de fila — set varía según el tipo de user. Detalles +
+      Suspender aplican a todos. "Gestionar API keys" solo para externos
+      (los internos usan SSO/OAuth corporativo, no API keys directas).
+      Pattern Stripe Dashboard / GitHub: row action menus condicionales
+      por contexto del row.
+    -->
+    <div class="flex gap-2">
+      <p-button
+        label="Detalles"
+        size="small"
+        outlined
+        (onClick)="op.hide()"
+      />
+      @if (activeUser()?.type === 'Externo') {
+        <p-button
+          label="API keys"
+          icon="fa-sharp fa-regular fa-key"
+          size="small"
+          severity="secondary"
+          outlined
+          (onClick)="openApiKeysDialog(op)"
+        />
+      }
+      <p-button
+        label="Suspender"
+        severity="danger"
+        size="small"
+        outlined
+        (onClick)="op.hide()"
+      />
+    </div>
+  </ng-template>
+</p-popover>
+
+<!--
+  Dialog de API keys — solo se renderiza para externos. Two-way bind
+  con `apiKeysDialogVisible` desde el component. El user activo se
+  pasa como input — null cuando el dialog está cerrado y el component
+  guardea contra ese caso.
+-->
+<app-user-api-keys-dialog
+  [user]="activeUser()"
+  [(visible)]="apiKeysDialogVisible"
+/>

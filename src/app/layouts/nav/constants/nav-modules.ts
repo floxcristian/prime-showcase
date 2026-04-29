@@ -424,9 +424,9 @@ export const NAV_MODULES: NavModule[] = [
         title: 'Usuarios & Roles',
         icon: 'fa-sharp-duotone fa-regular fa-user-shield',
         children: [
-          { title: 'Usuarios', url: '/customers' },
-          { title: 'Roles', url: '/cards' },
-          { title: 'Permisos', url: '/cards' },
+          { title: 'Usuarios', url: '/users' },
+          { title: 'Roles', url: '/roles' },
+          { title: 'Permisos', url: '/roles' },
         ],
       },
       {
@@ -477,6 +477,51 @@ export const NAV_MODULES: NavModule[] = [
         children: [
           { title: 'Nueva denuncia', url: '/cards' },
           { title: 'Mis denuncias', url: '/inbox' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'observabilidad',
+    title: 'Observabilidad',
+    icon: 'fa-sharp-duotone fa-regular fa-chart-mixed',
+    sections: [
+      {
+        id: 'obs.inicio',
+        title: 'Inicio',
+        icon: 'fa-sharp-duotone fa-regular fa-bell',
+        children: [
+          { title: 'Inbox', url: '/observability/inbox' },
+          { title: 'Búsqueda global', url: '/observability/services' },
+        ],
+      },
+      {
+        id: 'obs.servicios',
+        title: 'Servicios',
+        icon: 'fa-sharp-duotone fa-regular fa-server',
+        children: [
+          { title: 'Service registry', url: '/observability/services' },
+          { title: 'Uptime overview', url: '/observability/uptime' },
+        ],
+      },
+      {
+        id: 'obs.alertas',
+        title: 'Alertas',
+        icon: 'fa-sharp-duotone fa-regular fa-bell-on',
+        children: [
+          { title: 'Alertas activas', url: '/observability/alerts' },
+        ],
+      },
+      {
+        id: 'obs.ajustes',
+        title: 'Ajustes',
+        icon: 'fa-sharp-duotone fa-regular fa-sliders',
+        children: [
+          { title: 'Preferencias', url: '/observability/preferences' },
+          {
+            title: 'Historial de notificaciones',
+            url: '/observability/notifications-history',
+          },
         ],
       },
     ],

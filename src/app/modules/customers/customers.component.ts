@@ -1,49 +1,77 @@
 // Angular
+import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Customer, CompanyLogos } from './models/customer.interface';
-import { CUSTOMERS_TABLE_DATA } from './constants/customers-data';
 // PrimeNG
-import { AvatarModule } from 'primeng/avatar';
+import { FilterService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { OverlayBadgeModule } from 'primeng/overlaybadge';
+import { MultiSelect } from 'primeng/multiselect';
 import type { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
+import { Skeleton } from 'primeng/skeleton';
+import { Slider } from 'primeng/slider';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
+// Local
+import {
+  ColumnHelpComponent,
+  type ColumnHelpEntry,
+} from '../../shared/components/column-help/column-help.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { TRANSPARENT_TABLE_TOKENS } from '../../shared/tokens/table-tokens';
+import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
+import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
+import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
+import type {
+  Cartera,
+  CreditClassification,
+  Customer,
+  CustomerLifecycle,
+  CustomerSegmento,
+  CustomerType,
+  PotencialGroup,
+} from './models/customer.interface';
+import { CustomersMockService } from './services/customers-mock.service';
 
-const NG_MODULES = [FormsModule, NgClass];
+const NG_MODULES = [CommonModule, FormsModule];
 const PRIME_MODULES = [
-  AvatarModule,
   ButtonModule,
-  DividerModule,
-  IconField,
-  InputIcon,
   InputTextModule,
-  OverlayBadgeModule,
+  MultiSelect,
   PopoverModule,
+  Skeleton,
+  Slider,
   TableModule,
   Tag,
-  ToggleSwitchModule,
   TooltipModule,
 ];
-const LOCAL_COMPONENTS = [EmptyStateComponent];
+const LOCAL_COMPONENTS = [
+  ColumnHelpComponent,
+  EmptyStateComponent,
+  TableFilterShellComponent,
+  TooltipDismissOnClickDirective,
+  RelativeTimePipe,
+];
+
+/**
+ * Custom matcher para arrays — registrado globalmente en `FilterService`
+ * para usarlo via `matchMode="arrayIntersect"` en `<p-columnFilter>`.
+ *
+ * Lógica: matchea si el field array contiene AL MENOS uno de los
+ * valores del filter. Caso de uso: columna "Vendedores asignados"
+ * donde un cliente tiene 1-3 vendedores y el filter pregunta "muéstrame
+ * todos los clientes de Carla, Felipe o Diego".
+ */
+const ARRAY_INTERSECT_MATCHMODE = 'arrayIntersect';
 
 @Component({
   selector: 'app-customers',
@@ -57,74 +85,568 @@ const LOCAL_COMPONENTS = [EmptyStateComponent];
   },
 })
 export class CustomersComponent {
-  search = signal('');
+  private api = inject(CustomersMockService);
+  private filterService = inject(FilterService);
 
-  tableData: Customer[] = CUSTOMERS_TABLE_DATA;
+  protected readonly customersResource = rxResource({
+    stream: () => this.api.getCustomers(),
+  });
+  protected readonly loading = computed(() =>
+    this.customersResource.isLoading(),
+  );
+  protected readonly loadError = computed(() =>
+    this.customersResource.error(),
+  );
 
-  filteredTableData = computed<Customer[]>(() => {
-    const term = this.search().trim().toLowerCase();
-    if (!term) return this.tableData;
-    return this.tableData.filter(
-      c =>
-        c.name.toLowerCase().includes(term) ||
-        c.title.toLowerCase().includes(term) ||
-        c.email.toLowerCase().includes(term) ||
-        c.company.name.toLowerCase().includes(term) ||
-        c.lead.toLowerCase().includes(term) ||
-        c.status.toLowerCase().includes(term)
-    );
+  protected readonly tableData = computed<readonly Customer[]>(
+    () => this.customersResource.value() ?? [],
+  );
+
+  /**
+   * Conteos derivados para el count pill del header — formato "X de Y
+   * activos". "Activo" en este contexto = `cartera === 'CA'` (cuenta
+   * corriente operativa, paga al día). Las demás carteras (CP/CN/CI/CM)
+   * son lifecycle states distintos.
+   */
+  protected readonly activeCount = computed(
+    () => this.tableData().filter((c) => c.cartera === 'CA').length,
+  );
+  protected readonly totalCount = computed(() => this.tableData().length);
+
+  /**
+   * Set deduplicado de vendedores presentes en la sesión — para el
+   * `<p-columnFilter>` multiselect de la columna "Vendedores asignados".
+   * Como cada cliente tiene un array de sellers, hacemos flatMap +
+   * Set para obtener la lista plana única.
+   */
+  protected readonly availableSellers = computed<string[]>(() =>
+    Array.from(
+      new Set(this.tableData().flatMap((c) => c.assignedSellers)),
+    ).sort(),
+  );
+
+  /**
+   * Set deduplicado de regiones presentes — feed del multiselect filter.
+   * Mismo patrón que `availableSellers`. Sort alfabético para escaneo
+   * predecible en el dropdown.
+   */
+  protected readonly availableRegions = computed<string[]>(() =>
+    Array.from(new Set(this.tableData().map((c) => c.region))).sort(),
+  );
+
+  /**
+   * Cota superior del rango de crédito — usado por el slider del
+   * filter de "Crédito disponible". Redondeado al millón superior para
+   * que el slider tenga un máximo "limpio" (evita tope tipo
+   * $47.500.000 que se ve raro como granularity de slider).
+   *
+   * `Math.max(...empty)` retorna `-Infinity` durante el initial load
+   * (cuando `tableData()` es []) — caemos a $50M como default razonable
+   * para que el slider exista incluso antes de hidratar la data.
+   */
+  protected readonly maxCredit = computed<number>(() => {
+    const amounts = this.tableData().map((c) => c.availableCredit);
+    if (amounts.length === 0) return 50000000;
+    return Math.ceil(Math.max(...amounts) / 1000000) * 1000000;
   });
 
-  private sanitizer = inject(DomSanitizer);
+  /** Distintivo B2B / B2C — set cerrado. */
+  protected readonly typeOptions: CustomerType[] = ['Empresa', 'Persona'];
 
-  companyLogos: CompanyLogos = {
-    mistranet: this.sanitizer.bypassSecurityTrustHtml(`
-            <svg  xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-                <path class="fill-surface-600 dark:fill-surface-400" fill-rule="evenodd" clip-rule="evenodd" d="M6.82207 0.728516C5.83146 0.728516 4.88145 1.12203 4.18099 1.82249L1.89501 4.10846C1.19454 4.80892 0.801025 5.75895 0.801025 6.74956C0.801025 7.8426 1.27054 8.82597 2.01888 9.509C1.27054 10.192 0.801025 11.1754 0.801025 12.2684C0.801025 13.2591 1.19454 14.2091 1.89501 14.9095L4.18099 17.1955C4.88145 17.896 5.83146 18.2895 6.82207 18.2895C7.91511 18.2895 8.89848 17.82 9.58152 17.0716C10.2646 17.82 11.2479 18.2895 12.341 18.2895C13.3316 18.2895 14.2816 17.896 14.982 17.1955L17.268 14.9095C17.9685 14.2091 18.362 13.2591 18.362 12.2684C18.362 11.1754 17.8925 10.192 17.1442 9.509C17.8925 8.82597 18.362 7.8426 18.362 6.74956C18.362 5.75895 17.9685 4.80892 17.268 4.10846L14.982 1.82249C14.2816 1.12203 13.3316 0.728516 12.341 0.728516C11.2479 0.728516 10.2646 1.19802 9.58152 1.94637C8.89848 1.19802 7.91511 0.728516 6.82207 0.728516ZM11.9859 9.62736C12.0509 9.56231 12.0509 9.45569 11.9859 9.39064L11.4907 8.89547C10.4363 7.84105 8.72674 7.84105 7.67233 8.89547L7.17716 9.39064C7.11211 9.45569 7.11211 9.56231 7.17716 9.62736L7.67233 10.1225C8.72674 11.177 10.4363 11.177 11.4907 10.1225L11.9859 9.62736ZM11.0796 13.2931C10.7451 13.6276 10.5571 14.0814 10.5571 14.5544C10.5571 15.5396 11.3558 16.3383 12.341 16.3383C12.8141 16.3383 13.2678 16.1503 13.6023 15.8158L15.8883 13.5298C16.2229 13.1953 16.4108 12.7415 16.4108 12.2684C16.4108 11.2833 15.6121 10.4846 14.627 10.4846C14.1539 10.4846 13.7001 10.6725 13.3656 11.0071L11.0796 13.2931ZM8.60592 14.5544C8.60592 14.0814 8.41798 13.6276 8.08345 13.2931L5.79743 11.0071C5.4629 10.6725 5.00918 10.4846 4.53608 10.4846C3.5509 10.4846 2.75224 11.2833 2.75224 12.2684C2.75224 12.7415 2.94018 13.1953 3.27471 13.5298L5.56071 15.8158C5.89525 16.1503 6.34898 16.3383 6.82207 16.3383C7.80724 16.3383 8.60592 15.5396 8.60592 14.5544ZM8.60592 4.46357C8.60592 4.93666 8.41798 5.39037 8.08346 5.72489L5.79743 8.01092C5.4629 8.34545 5.00918 8.5334 4.53608 8.5334C3.5509 8.5334 2.75224 7.73473 2.75224 6.74956C2.75224 6.27646 2.94018 5.82274 3.27471 5.48821L5.56071 3.20221C5.89525 2.86767 6.34898 2.67974 6.82207 2.67974C7.80724 2.67974 8.60592 3.47838 8.60592 4.46357ZM13.3656 8.01092L11.0796 5.72489C10.7451 5.39037 10.5571 4.93666 10.5571 4.46357C10.5571 3.47838 11.3558 2.67974 12.341 2.67974C12.8141 2.67974 13.2678 2.86767 13.6023 3.20221L15.8883 5.48821C16.2229 5.82274 16.4108 6.27646 16.4108 6.74956C16.4108 7.73473 15.6121 8.5334 14.627 8.5334C14.1539 8.5334 13.7001 8.34545 13.3656 8.01092Z"/>
-            </svg>
-            `),
-    britemank: this.sanitizer.bypassSecurityTrustHtml(`
-            <svg class="fill-surface-600 dark:fill-surface-400" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-<g clip-path="url(#clip0_536_12504)">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12.3011 5.75643C12.1897 5.68201 12.0754 5.6128 11.9585 5.54894C10.8679 4.95318 9.80103 3.99069 9.80103 2.74805V0.498047C11.581 0.498047 13.3211 1.02589 14.8012 2.01482C16.2812 3.00375 17.4347 4.40936 18.1159 6.05388C18.7971 7.69841 18.9754 9.50804 18.6281 11.2539C18.2808 12.9997 17.4237 14.6033 16.165 15.862C14.9063 17.1207 13.3027 17.9778 11.5568 18.3251C9.81102 18.6724 8.00139 18.4941 6.35686 17.813C4.71234 17.1318 3.30673 15.9782 2.3178 14.4982C1.32887 13.0181 0.801025 11.2781 0.801025 9.49805H3.05103C4.29367 9.49805 5.25615 10.565 5.85191 11.6555C5.91578 11.7724 5.98498 11.8867 6.05941 11.9981C6.55387 12.7381 7.25668 13.3149 8.07897 13.6555C8.90121 13.9961 9.80602 14.0852 10.6789 13.9116C11.5518 13.7379 12.3537 13.3094 12.983 12.68C13.6123 12.0507 14.0409 11.2489 14.2145 10.376C14.3882 9.50304 14.2991 8.59823 13.9585 7.77599C13.6179 6.9537 13.0411 6.25089 12.3011 5.75643Z" />
-<path fill-rule="evenodd" clip-rule="evenodd" d="M5.75102 0.498049C5.50249 0.498049 5.30335 0.700016 5.27854 0.947303C5.23471 1.38414 5.12711 1.81303 4.95848 2.22012C4.73234 2.76609 4.40087 3.26216 3.983 3.68003C3.56514 4.0979 3.06907 4.42936 2.5231 4.65551C2.116 4.82413 1.68711 4.93174 1.25028 4.97557C1.00299 5.00038 0.801026 5.19952 0.801026 5.44805L0.801025 9.49805C1.98292 9.49805 3.15324 9.26526 4.24518 8.81297C5.33711 8.36067 6.32927 7.69773 7.16497 6.86199C8.00071 6.0263 8.66365 5.03414 9.11594 3.9422C9.56824 2.85027 9.80102 1.67994 9.80102 0.498047L5.75102 0.498049Z"/>
-</g>
-<defs>
-<clipPath id="clip0_536_12504">
-<rect width="18" height="18" fill="white" transform="translate(0.800049 0.5)"/>
-</clipPath>
-</defs>
-</svg>
-            `),
-    zentrailms: this.sanitizer.bypassSecurityTrustHtml(`
-<svg class="fill-surface-600 dark:fill-surface-400" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M9.79908 18.5C14.7696 18.5 18.7991 14.4705 18.7991 9.49998C18.7991 4.52944 14.7696 0.5 9.79908 0.5C4.8285 0.5 0.799072 4.52944 0.799072 9.49998C0.799072 14.4705 4.8285 18.5 9.79908 18.5ZM12.6068 4.69258C12.7434 4.20712 12.2723 3.92006 11.8421 4.22658L5.83597 8.5053C5.36937 8.83772 5.44276 9.49998 5.94622 9.49998H7.52779V9.48774H10.6102L8.09862 10.3739L6.99139 14.3074C6.85473 14.7929 7.32579 15.0799 7.75608 14.7734L13.7622 10.4947C14.2288 10.1623 14.1553 9.49998 13.6519 9.49998H11.2535L12.6068 4.69258Z" />
-</svg>
-            `),
-    streamlinz: this.sanitizer
-      .bypassSecurityTrustHtml(`<svg class="fill-surface-600 dark:fill-surface-400" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-<path d="M9.79907 0.498047C8.61719 0.498047 7.44683 0.730864 6.3549 1.18313C5.26297 1.63544 4.27086 2.29835 3.43509 3.13407C2.59938 3.96983 1.93647 4.96194 1.48415 6.05387C1.03189 7.1458 0.799072 8.31616 0.799072 9.49804C0.799072 10.6799 1.03189 11.8503 1.48415 12.9422C1.93647 14.0341 2.59938 15.0262 3.43509 15.862C4.27086 16.6977 5.26297 17.3606 6.3549 17.813C7.44683 18.2652 8.61719 18.498 9.79907 18.498V13.998C9.2081 13.998 8.62295 13.8817 8.07698 13.6555C7.53102 13.4293 7.03494 13.0979 6.61708 12.68C6.19922 12.2622 5.86777 11.7661 5.64164 11.2201C5.41545 10.6742 5.29907 10.089 5.29907 9.49804C5.29907 8.90708 5.41545 8.32192 5.64164 7.77596C5.86777 7.22999 6.19922 6.73391 6.61708 6.31606C7.03494 5.8982 7.53102 5.56674 8.07698 5.34061C8.62295 5.11443 9.2081 4.99804 9.79907 4.99804V0.498047Z" />
-<path d="M9.79905 12.5019C11.4559 12.5019 12.799 11.1588 12.799 9.50193C12.799 7.84506 11.4559 6.50195 9.79905 6.50195C8.14218 6.50195 6.79907 7.84506 6.79907 9.50193C6.79907 11.1588 8.14218 12.5019 9.79905 12.5019Z"/>
-<path d="M0.799072 9.49805C0.799072 10.6799 1.03189 11.8503 1.48415 12.9422C1.93647 14.0341 2.59938 15.0263 3.43509 15.862C4.27086 16.6977 5.26297 17.3606 6.3549 17.813C7.44683 18.2652 8.61719 18.498 9.79907 18.498C10.9809 18.498 12.1513 18.2652 13.2432 17.813C14.3352 17.3606 15.3273 16.6977 16.163 15.862C16.9988 15.0263 17.6617 14.0341 18.114 12.9422C18.5662 11.8503 18.7991 10.6799 18.7991 9.49805H14.2991C14.2991 10.089 14.1827 10.6742 13.9565 11.2201C13.7304 11.7661 13.3989 12.2622 12.9811 12.68C12.5632 13.0979 12.0671 13.4293 11.5212 13.6555C10.9752 13.8817 10.39 13.998 9.79907 13.998C9.2081 13.998 8.62295 13.8817 8.07698 13.6555C7.53102 13.4293 7.03494 13.0979 6.61708 12.68C6.19922 12.2622 5.86777 11.7661 5.64164 11.2201C5.41545 10.6742 5.29907 10.089 5.29907 9.49805H0.799072Z" />
-<path d="M12.7991 9.50199C12.7991 8.70634 12.483 7.94329 11.9204 7.38066C11.3578 6.81803 10.5948 6.50195 9.7991 6.50195C9.00345 6.50195 8.24041 6.81803 7.67778 7.38066C7.11515 7.94329 6.79907 8.70634 6.79907 9.50199H9.7991H12.7991Z" />
-</svg>`),
-    wavelength: this.sanitizer
-      .bypassSecurityTrustHtml(`<svg class="fill-surface-600 dark:fill-surface-400" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-<path d="M9.79907 0.5C4.82851 0.5 0.799072 4.52943 0.799072 9.5C5.76963 9.5 9.79907 5.47056 9.79907 0.5Z" />
-<path d="M9.79907 18.5C14.7696 18.5 18.7991 14.4706 18.7991 9.5C13.8285 9.5 9.79907 13.5294 9.79907 18.5Z" />
-<path d="M9.79907 0.5C14.7696 0.5 18.7991 4.52943 18.7991 9.5C13.8285 9.5 9.79907 5.47056 9.79907 0.5Z" />
-<path d="M9.79907 18.5C4.82851 18.5 0.799072 14.4706 0.799072 9.5C5.76963 9.5 9.79907 13.5294 9.79907 18.5Z" />
-</svg>`),
+  /** Verticales de negocio — set cerrado. */
+  protected readonly segmentoOptions: CustomerSegmento[] = [
+    'PASAJEROS',
+    'CARGA',
+    'INDUSTRIAL',
+    'COMERCIO',
+    'OTROS',
+  ];
+
+  /** Ratings de riesgo crediticio (A1 mejor, D peor). */
+  protected readonly classificationOptions: CreditClassification[] = [
+    'A1',
+    'A2',
+    'B1',
+    'B2',
+    'C1',
+    'C2',
+    'D',
+  ];
+
+  /** Grupos de potencial de venta (G1 más alto, G4 más bajo). */
+  protected readonly potencialOptions: PotencialGroup[] = [
+    'G1',
+    'G2',
+    'G3',
+    'G4',
+  ];
+
+  /**
+   * Estados del ciclo de vida comercial — separado de Cartera (estado
+   * financiero). Set cerrado del legacy.
+   */
+  protected readonly lifecycleOptions: CustomerLifecycle[] = [
+    'RECURRENTE',
+    'INACTIVO',
+    'PELIGRO FUGA',
+    'FUGADO',
+  ];
+
+  /**
+   * Carteras lifecycle del cliente. Labels expuestos al filter para que
+   * el admin elija "Activa" en lugar del código `CA`.
+   */
+  protected readonly carteraOptions: { label: string; value: Cartera }[] = [
+    { label: 'Activa (CA)', value: 'CA' },
+    { label: 'Prospecto (CP)', value: 'CP' },
+    { label: 'Nueva (CN)', value: 'CN' },
+    { label: 'Inactiva (CI)', value: 'CI' },
+    { label: 'Morosa (CM)', value: 'CM' },
+  ];
+
+  /**
+   * Legends de columnas codificadas — single source of truth de qué
+   * significa cada código del legacy. Los `<app-column-help>` del
+   * header las renderizan en un popover; los tooltips per-cell
+   * (`codeTooltip`) hacen lookup en estas mismas listas.
+   */
+  protected readonly classificationLegend: readonly ColumnHelpEntry[] = [
+    {
+      code: 'A1',
+      label: 'Excelente',
+      description: 'Riesgo financiero bajo',
+      severity: 'success',
+    },
+    {
+      code: 'A2',
+      label: 'Muy bueno',
+      description: 'Riesgo financiero bajo',
+      severity: 'success',
+    },
+    {
+      code: 'B1',
+      label: 'Bueno',
+      description: 'Riesgo financiero medio',
+      severity: 'info',
+    },
+    {
+      code: 'B2',
+      label: 'Aceptable',
+      description: 'Riesgo financiero medio',
+      severity: 'info',
+    },
+    {
+      code: 'C1',
+      label: 'Regular',
+      description: 'Riesgo financiero medio-alto',
+      severity: 'warn',
+    },
+    {
+      code: 'C2',
+      label: 'Marginal',
+      description: 'Riesgo financiero alto',
+      severity: 'warn',
+    },
+    {
+      code: 'D',
+      label: 'Crítico',
+      description: 'Riesgo de incumplimiento alto',
+      severity: 'danger',
+    },
+  ];
+
+  protected readonly potencialLegend: readonly ColumnHelpEntry[] = [
+    {
+      code: 'G1',
+      label: 'Estratégico',
+      description: 'Cuentas top con máximo potencial de venta',
+      severity: 'success',
+    },
+    {
+      code: 'G2',
+      label: 'Alto',
+      description: 'Cuentas en crecimiento con buen potencial',
+      severity: 'info',
+    },
+    {
+      code: 'G3',
+      label: 'Medio',
+      description: 'Cuentas estables con potencial moderado',
+      severity: 'warn',
+    },
+    {
+      code: 'G4',
+      label: 'Bajo',
+      description: 'Cuentas con bajo potencial de crecimiento',
+      severity: 'secondary',
+    },
+  ];
+
+  protected readonly lifecycleLegend: readonly ColumnHelpEntry[] = [
+    {
+      code: 'RECURRENTE',
+      label: 'Recurrente',
+      description: 'Compras consistentes en el período',
+      severity: 'success',
+    },
+    {
+      code: 'INACTIVO',
+      label: 'Inactivo',
+      description: 'Sin compras recientes, churn parcial',
+      severity: 'secondary',
+    },
+    {
+      code: 'PELIGRO FUGA',
+      label: 'Peligro de fuga',
+      description: 'Frecuencia decreciente, target de retención',
+      severity: 'warn',
+    },
+    {
+      code: 'FUGADO',
+      label: 'Fugado',
+      description: 'Cliente perdido, churn confirmado',
+      severity: 'danger',
+    },
+  ];
+
+  protected readonly carteraLegend: readonly ColumnHelpEntry[] = [
+    {
+      code: 'CA',
+      label: 'Activa',
+      description: 'Cuenta corriente operativa, paga al día',
+      severity: 'success',
+    },
+    {
+      code: 'CN',
+      label: 'Nueva',
+      description: 'Alta reciente, primer ciclo de facturación',
+      severity: 'info',
+    },
+    {
+      code: 'CP',
+      label: 'Prospecto',
+      description: 'En etapa comercial, sin venta confirmada',
+      severity: 'secondary',
+    },
+    {
+      code: 'CI',
+      label: 'Inactiva',
+      description: 'Sin movimiento +6 meses, no morosa',
+      severity: 'secondary',
+    },
+    {
+      code: 'CM',
+      label: 'Morosa',
+      description: 'Cuenta con deuda vencida, asignar a cobranza',
+      severity: 'danger',
+    },
+  ];
+
+  protected readonly discountGroupLegend: readonly ColumnHelpEntry[] = [
+    {
+      code: '0',
+      label: 'Sin descuento',
+      description: 'Precios estándar de catálogo',
+      severity: 'secondary',
+    },
+    {
+      code: '1',
+      label: 'Tier básico',
+      description: 'Descuento mínimo (~2%)',
+      severity: 'info',
+    },
+    {
+      code: '2',
+      label: 'Tier básico+',
+      description: 'Descuento bajo (~5%)',
+      severity: 'info',
+    },
+    {
+      code: '3',
+      label: 'Tier estándar',
+      description: 'Descuento moderado (~10%)',
+      severity: 'success',
+    },
+    {
+      code: '4',
+      label: 'Tier estándar+',
+      description: 'Descuento alto (~15%)',
+      severity: 'success',
+    },
+    {
+      code: '5',
+      label: 'Tier premium',
+      description: 'Descuento máximo (~20%) — cuentas estratégicas',
+      severity: 'warn',
+    },
+  ];
+
+  /**
+   * Tooltip per-cell — lookup en la legend correspondiente y formateo
+   * "Label — descripción". Hover sobre `[A1]` muestra
+   * "Excelente — Riesgo financiero bajo" instantáneamente, sin abrir
+   * el popover del header.
+   */
+  protected codeTooltip(
+    legend: readonly ColumnHelpEntry[],
+    code: string,
+  ): string {
+    const entry = legend.find((e) => e.code === code);
+    if (!entry) return '';
+    return entry.description
+      ? `${entry.label} — ${entry.description}`
+      : entry.label;
+  }
+
+  /**
+   * Severity del tag de tipo. Empresa → undefined (primary), Persona →
+   * secondary. Mismo patrón que users.ts para Interno/Externo.
+   */
+  protected typeSeverity(type: CustomerType): 'secondary' | undefined {
+    return type === 'Empresa' ? undefined : 'secondary';
+  }
+
+  /**
+   * Severity del tag de clasificación crediticia — color-coded por
+   * rating. A* (excelente) → success, B* (bueno) → info, C* (regular)
+   * → warn, D (malo) → danger. Comunica salud crediticia de un vistazo
+   * sin necesidad de leer el código.
+   */
+  protected classificationSeverity(
+    cls: CreditClassification,
+  ): 'success' | 'info' | 'warn' | 'danger' {
+    if (cls === 'A1' || cls === 'A2') return 'success';
+    if (cls === 'B1' || cls === 'B2') return 'info';
+    if (cls === 'C1' || cls === 'C2') return 'warn';
+    return 'danger';
+  }
+
+  /**
+   * Severity del tag de ciclo de vida comercial:
+   *   - RECURRENTE → success (cliente saludable, compra consistente)
+   *   - INACTIVO → secondary (sin actividad, sin alarma inmediata)
+   *   - PELIGRO FUGA → warn (target proactivo de retención)
+   *   - FUGADO → danger (churn confirmado)
+   */
+  protected lifecycleSeverity(
+    l: CustomerLifecycle,
+  ): 'success' | 'secondary' | 'warn' | 'danger' {
+    if (l === 'RECURRENTE') return 'success';
+    if (l === 'PELIGRO FUGA') return 'warn';
+    if (l === 'FUGADO') return 'danger';
+    return 'secondary';
+  }
+
+  /**
+   * Severity del tag de cartera — lifecycle del cliente:
+   *   - CA Activa → success (paga al día)
+   *   - CN Nueva  → info (alta reciente)
+   *   - CP Prospecto → secondary (pre-venta)
+   *   - CI Inactiva → secondary (sin movimiento, no morosa)
+   *   - CM Morosa → danger (deuda vencida)
+   */
+  protected carteraSeverity(
+    c: Cartera,
+  ): 'success' | 'info' | 'secondary' | 'danger' {
+    if (c === 'CA') return 'success';
+    if (c === 'CN') return 'info';
+    if (c === 'CM') return 'danger';
+    return 'secondary';
+  }
+
+  /** Label legible de cartera (para mostrar en el tag). */
+  protected carteraLabel(c: Cartera): string {
+    if (c === 'CA') return 'Activa';
+    if (c === 'CP') return 'Prospecto';
+    if (c === 'CN') return 'Nueva';
+    if (c === 'CI') return 'Inactiva';
+    return 'Morosa';
+  }
+
+  protected readonly columnFilterPt = {
+    pcFilterClearButton: { root: { class: 'p-button-tonal' } },
+    filterButtonBar: { class: '!justify-end gap-2' },
   };
 
-  selectedRows = signal<Customer[]>([]);
+  private readonly _lastFetchedAt = signal<string | null>(null);
+  protected readonly lastFetchedAt = this._lastFetchedAt.asReadonly();
 
-  readonly tableTokens = TRANSPARENT_TABLE_TOKENS;
+  protected readonly skeletonPlaceholders = [0, 1, 2, 3, 4];
 
-  displayPopover(e: MouseEvent, op: Popover): void {
+  /**
+   * Catálogo de columnas hideables. El checkbox de selección, Nombre y
+   * Acciones quedan fuera — son funcionales/identidad y siempre visibles
+   * (patrón Linear / Notion / Airtable: la primary column nunca se oculta).
+   * El orden acá es el mismo que en el thead, así el multiselect lista las
+   * opciones en el mismo eje visual que la tabla.
+   *
+   * Patrón PrimeNG "Column Toggle" oficial: `<p-multiselect>` con el
+   * catálogo + un signal de keys seleccionadas como ngModel. La doc
+   * (primeng.org/table#column-toggle) lo aplica con `*ngFor="let col of
+   * columns"` para tablas homogéneas — acá adoptamos el trigger UI pero
+   * mantenemos `@if (isColumnVisible(key))` por columna porque cada
+   * celda renderiza distinto (tag, formatCredit, tabular-nums, tooltip
+   * per-cell, sortIcon condicional).
+   */
+  protected readonly columnDefs: {
+    key: string;
+    label: string;
+    defaultHidden?: boolean;
+  }[] = [
+    { key: 'rut', label: 'RUT' },
+    { key: 'type', label: 'Tipo' },
+    { key: 'email', label: 'Contacto', defaultHidden: true },
+    { key: 'lifecycle', label: 'Ciclo de vida', defaultHidden: true },
+    { key: 'assignedSellers', label: 'Vendedores asignados' },
+    { key: 'availableCredit', label: 'Crédito disponible' },
+    { key: 'usedCredit', label: 'Crédito utilizado', defaultHidden: true },
+    { key: 'assignedCredit', label: 'Crédito asignado', defaultHidden: true },
+    { key: 'region', label: 'Región', defaultHidden: true },
+    { key: 'city', label: 'Ciudad', defaultHidden: true },
+    { key: 'segmento', label: 'Segmento' },
+    { key: 'creditClassification', label: 'Clasif. crédito' },
+    { key: 'potencial', label: 'Potencial' },
+    { key: 'discountGroup', label: 'Grupo desc.' },
+    { key: 'cartera', label: 'Cartera' },
+  ];
+
+  /**
+   * Keys de columnas visibles — modelo positivo. Default = columnas
+   * sin `defaultHidden`. `email` y `lifecycle` quedan ocultas por
+   * default — son campos de uso secundario que el admin opta-in via
+   * el multiselect de columnas.
+   */
+  protected readonly selectedColumnKeys = signal<string[]>(
+    this.columnDefs.filter((c) => !c.defaultHidden).map((c) => c.key),
+  );
+
+  /**
+   * `maxSelectedLabels` dinámico — decide entre render chip vs texto
+   * según si el contenido fits en el container `w-72` (288px).
+   *
+   * **Truco PrimeNG**: el source dispara `selectedItemsLabel` cuando
+   * `chipSelectedItems().length === maxSelectedLabels` (ver
+   * primeng-multiselect.mjs:1875). Para forzar chips → max = count+1.
+   * Para forzar texto → max = count.
+   *
+   * **Cap explícito a 2 chips**: con 3+ seleccionadas siempre texto
+   * (matchea comportamiento del demo). Con 1-2 seleccionadas, evalúa
+   * si el estimated width cabe.
+   *
+   * **Estimación de width**: heurística, no medición DOM (sería caro
+   * y requeriría effect post-render). Char width 8px (Inter @ 16px
+   * avg) + 40px overhead por chip (padding + remove icon + gap) vs
+   * 248px disponibles (w-72 menos padding interno + chevron).
+   * Conservadora: cae a texto antes de overflow visible.
+   */
+  protected readonly chipsMaxLabels = computed<number>(() => {
+    const selected = this.selectedColumnKeys();
+    if (selected.length === 0) return 3;
+    if (selected.length >= 3) return 3;
+
+    const totalChars = selected.reduce((sum, key) => {
+      const def = this.columnDefs.find((c) => c.key === key);
+      return sum + (def?.label.length ?? 0);
+    }, 0);
+
+    const PER_CHIP_OVERHEAD = 40;
+    const CHAR_WIDTH = 8;
+    const AVAILABLE_WIDTH = 248;
+    const estimated =
+      selected.length * PER_CHIP_OVERHEAD + totalChars * CHAR_WIDTH;
+
+    return estimated <= AVAILABLE_WIDTH
+      ? selected.length + 1
+      : selected.length;
+  });
+
+  protected isColumnVisible(key: string): boolean {
+    return this.selectedColumnKeys().includes(key);
+  }
+
+  /**
+   * Colspan dinámico para el `<td>` del emptymessage. 2 = Nombre +
+   * Acciones (siempre visibles) + N columnas de datos visibles.
+   */
+  protected readonly visibleColumnCount = computed(
+    () => 2 + this.selectedColumnKeys().length,
+  );
+
+  /**
+   * matchMode constant exposed al template — usar string literal en
+   * el template requeriría escapar comillas. Esta property es read-only
+   * y typed.
+   */
+  protected readonly arrayIntersectMatchMode = ARRAY_INTERSECT_MATCHMODE;
+
+  /**
+   * Formateador de moneda CLP. Instanciado una vez (constructor de
+   * `Intl.NumberFormat` es relativamente caro) y reusado por
+   * `formatCredit` + el filter shell. `maximumFractionDigits: 0`
+   * porque el peso chileno no usa decimales.
+   */
+  private readonly clpFormatter = new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0,
+  });
+
+  protected formatCredit(amount: number): string {
+    return this.clpFormatter.format(amount);
+  }
+
+  /**
+   * Tooltip del overflow indicator "N más" — lista los nombres después
+   * del primary, separados por coma. Permite peek rápido del equipo
+   * sin abrir el detalle del cliente.
+   */
+  protected additionalSellersTooltip(sellers: readonly string[]): string {
+    return sellers.slice(1).join(', ');
+  }
+
+
+  constructor() {
+    // Registrar el custom matcher al construir el componente. La
+    // operación es idempotente — re-registrar la misma key con la misma
+    // función no rompe nada. PrimeNG mantiene la registry global.
+    this.filterService.register(
+      ARRAY_INTERSECT_MATCHMODE,
+      (value: unknown, filter: unknown): boolean => {
+        if (!Array.isArray(filter) || filter.length === 0) return true;
+        if (!Array.isArray(value) || value.length === 0) return false;
+        return filter.some((f) => value.includes(f));
+      },
+    );
+
+    effect(() => {
+      const val = this.customersResource.value();
+      if (val !== undefined && !this.customersResource.isLoading()) {
+        this._lastFetchedAt.set(new Date().toISOString());
+      }
+    });
+  }
+
+  protected retry(): void {
+    if (this.customersResource.isLoading()) return;
+    this.customersResource.reload();
+  }
+
+  protected displayPopover(e: MouseEvent, op: Popover): void {
     op.hide();
     setTimeout(() => {
       op.show(e);
     }, 150);
+  }
+
+  /**
+   * Handler del CTA "Crear cliente". Placeholder por ahora — en el
+   * showcase real abriría un dialog/wizard con el form de alta:
+   * Nombre, RUT (con check-digit validation), Tipo Empresa/Persona,
+   * vendedor primario asignado, segmento, etc. La acción primaria
+   * vive en el header del page (top-right) según convención bigtech
+   * (Stripe Customers, HubSpot, Salesforce Accounts).
+   */
+  protected onCreateCustomer(): void {
+    // TODO: open create customer dialog
   }
 }

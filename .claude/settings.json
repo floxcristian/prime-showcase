@@ -11,7 +11,9 @@
       "Bash(curl -s -L \"https://primeng.org/guides/migration/v20\" -o /tmp/migration_v20.html)",
       "Bash(curl -s -L \"https://primeng.org/guides/migration/v21\" -o /tmp/migration_v21.html)",
       "WebSearch",
-      "Bash(xargs wc *)"
+      "Bash(xargs wc *)",
+      "WebFetch(domain:prime-showcase-mu.vercel.app)",
+      "mcp__chrome-devtools__list_pages"
     ]
   }
 }

@@ -1,0 +1,132 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="!saving()"
+  [closeOnEscape]="!saving()"
+  [dismissableMask]="!saving()"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '54rem', maxWidth: '95vw' }"
+>
+  <ng-template #header>
+    <div class="min-w-0">
+      <h2 class="text-xl font-medium leading-7 text-color">Permisos del role</h2>
+      @if (role(); as r) {
+        <div class="mt-1 text-sm text-muted-color leading-5">
+          {{ r.name }} · {{ r.description }}
+        </div>
+      }
+    </div>
+  </ng-template>
+
+  <div class="flex flex-col gap-4">
+    <!--
+      Resumen + bulk actions. Patrón AWS IAM editor: chips de "X módulos
+      con admin / Y con write / Z con read / W sin acceso" + atajos
+      "Conceder lectura completa" / "Revocar todo" para gobernanza
+      rápida en roles built-in.
+    -->
+    <div
+      class="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between flex-wrap"
+    >
+      @if (levelCounts(); as counts) {
+        <div class="flex items-center gap-2 flex-wrap">
+          <p-tag
+            [severity]="levelTagSeverity('admin')"
+            [value]="counts.admin + ' admin'"
+            class="font-medium"
+          />
+          <p-tag
+            [severity]="levelTagSeverity('write')"
+            [value]="counts.write + ' write'"
+            class="font-medium"
+          />
+          <p-tag
+            [severity]="levelTagSeverity('read')"
+            [value]="counts.read + ' read'"
+            class="font-medium"
+          />
+          <p-tag
+            [severity]="levelTagSeverity('none')"
+            [value]="counts.none + ' sin acceso'"
+            class="font-medium"
+          />
+        </div>
+      }
+      <div class="flex items-center gap-2">
+        <p-button
+          label="Lectura a todo"
+          severity="secondary"
+          size="small"
+          [outlined]="true"
+          [disabled]="saving()"
+          pTooltip="Aplica nivel 'Lectura' a todos los módulos"
+          tooltipPosition="top"
+          (onClick)="setAll('read')"
+        />
+        <p-button
+          label="Revocar todo"
+          severity="secondary"
+          size="small"
+          [outlined]="true"
+          [disabled]="saving()"
+          pTooltip="Quita acceso a todos los módulos"
+          tooltipPosition="top"
+          (onClick)="setAll('none')"
+        />
+      </div>
+    </div>
+
+    <!--
+      Lista de módulos. Cada fila: icon + título a la izquierda, dropdown
+      de nivel a la derecha. max-height con scroll para que el dialog
+      mantenga altura razonable cuando hay muchos módulos.
+    -->
+    <div
+      class="rounded-lg border border-surface overflow-hidden divide-y divide-surface-200 dark:divide-surface-800"
+    >
+      <div class="max-h-96 overflow-y-auto">
+        @for (mod of modules; track mod.id) {
+          <div class="flex items-center gap-3 px-4 py-3">
+            <i
+              [class]="mod.icon + ' text-2xl text-color shrink-0'"
+              aria-hidden="true"
+            ></i>
+            <div class="flex-1 min-w-0">
+              <div class="text-color font-medium leading-6">
+                {{ mod.title }}
+              </div>
+            </div>
+            <p-select
+              [options]="levelOptions"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="levelFor(mod.id)"
+              (ngModelChange)="setLevel(mod.id, $event)"
+              [disabled]="saving()"
+              class="w-44"
+              [appendTo]="'body'"
+            />
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="saving()"
+      (onClick)="cancel()"
+    />
+    <p-button
+      label="Guardar permisos"
+      icon="fa-sharp fa-regular fa-floppy-disk"
+      [disabled]="!isDirty() || saving()"
+      [loading]="saving()"
+      (onClick)="save()"
+    />
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,444 @@
+@if (loading()) {
+  <!-- Skeleton: dimensiones aproximan el layout real (header card ~10rem
+       con título + meta + descripción + actions; KPIs ~7rem por tarjeta;
+       contenido tabs/side ~24rem). Evita CLS al hidratar. -->
+  <div aria-busy="true" class="flex flex-col gap-6">
+    <p-skeleton width="100%" height="10rem" borderRadius="1rem" />
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      @for (i of [0, 1, 2, 3]; track i) {
+        <p-skeleton width="100%" height="7rem" borderRadius="1rem" />
+      }
+    </div>
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <p-skeleton
+        class="xl:col-span-8"
+        width="100%"
+        height="24rem"
+        borderRadius="1rem"
+      />
+      <p-skeleton
+        class="xl:col-span-4"
+        width="100%"
+        height="24rem"
+        borderRadius="1rem"
+      />
+    </div>
+  </div>
+} @else if (loadError()) {
+  <app-empty-state
+    icon="fa-triangle-exclamation"
+    title="No pudimos cargar el servicio"
+    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+    [bordered]="true"
+    actionLabel="Reintentar"
+    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+    (actionClick)="retry()"
+  />
+} @else if (service(); as svc) {
+  <!--
+    Header card — patrón compartido con `obs-alert-detail`:
+      <p-6, border, rounded-2xl> wrapper
+      flex (col en mobile, row en xl)
+      <flex-1> = title col: chips + h1 + meta + description
+      <flex shrink-0> = actions toolbar (stacked en mobile, side-by-side en xl)
+  -->
+  <div
+    class="border border-surface rounded-2xl p-6 mb-6 flex flex-col xl:flex-row xl:items-start gap-4"
+  >
+    <div class="flex-1 flex flex-col gap-2">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1 class="text-color text-3xl font-bold leading-normal">
+          {{ svc.name }}
+        </h1>
+        <app-health-badge [state]="svc.health" size="lg" />
+      </div>
+      <div class="text-muted-color leading-6 flex items-center gap-2 flex-wrap">
+        <span>{{ svc.team }}</span>
+        <span>·</span>
+        <a
+          [href]="svc.repoUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150"
+          >{{ svc.slug }}</a
+        >
+        <span>·</span>
+        <span>Último deploy {{ svc.lastDeployAt | relativeTime }}</span>
+      </div>
+      <p class="text-muted-color leading-6">{{ svc.description }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <p-button
+        label="Editar"
+        severity="secondary"
+        [outlined]="true"
+        icon="fa-sharp fa-regular fa-pen"
+      />
+      <p-button
+        label="Silenciar"
+        severity="secondary"
+        [outlined]="true"
+        icon="fa-sharp fa-regular fa-bell-slash"
+      />
+      <p-button
+        [label]="'Runbook'"
+        severity="secondary"
+        icon="fa-sharp fa-regular fa-book-open"
+        [outlined]="true"
+      />
+    </div>
+  </div>
+
+  <!-- ── KPIs ─────────────────────────────────────────────────────── -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+    <app-metric-card
+      label="Uptime 30d"
+      [value]="formatPercent(svc.uptime30d.value)"
+      icon="fa-sharp fa-regular fa-heart-pulse"
+      [delta]="svc.uptime30d.delta"
+      direction="up-good"
+    />
+    <app-metric-card
+      label="Error rate 24h"
+      [value]="formatPercent(svc.errorRate24h.value)"
+      icon="fa-sharp fa-regular fa-bug"
+      [delta]="svc.errorRate24h.delta"
+      direction="up-bad"
+    />
+    <app-metric-card
+      label="Latencia p99"
+      [value]="svc.p99Latency.value"
+      unit="ms"
+      icon="fa-sharp fa-regular fa-gauge-high"
+      [delta]="svc.p99Latency.delta"
+      direction="up-bad"
+    />
+    <app-metric-card
+      label="Alertas activas"
+      [value]="svc.activeAlertsCount"
+      icon="fa-sharp fa-regular fa-bell"
+    />
+  </div>
+
+  <!-- ── Main + Side ──────────────────────────────────────────────── -->
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+    <!-- Main: tabs (Salud / Errores / Performance / Deploys) -->
+    <div class="xl:col-span-8 border border-surface rounded-2xl">
+      <p-tabs
+        [value]="activeTab()"
+        (valueChange)="activeTab.set($any($event))"
+        [lazy]="true"
+      >
+        <p-tablist>
+          <p-tab value="health">
+            <i
+              class="fa-sharp fa-regular fa-heart-pulse mr-2"
+              aria-hidden="true"
+            ></i>
+            Salud
+          </p-tab>
+          <p-tab value="errors">
+            <i class="fa-sharp fa-regular fa-bug mr-2" aria-hidden="true"></i>
+            Errores
+            <app-pill class="ml-2">{{ svc.errors.length }}</app-pill>
+          </p-tab>
+          <p-tab value="performance">
+            <i
+              class="fa-sharp fa-regular fa-gauge-high mr-2"
+              aria-hidden="true"
+            ></i>
+            Performance
+          </p-tab>
+          <p-tab value="deploys">
+            <i
+              class="fa-sharp fa-regular fa-rocket-launch mr-2"
+              aria-hidden="true"
+            ></i>
+            Deploys
+          </p-tab>
+        </p-tablist>
+
+        <p-tabpanel value="health">
+          <div class="p-4 flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-4 flex-wrap">
+              <h3 class="text-color font-semibold leading-6">SLOs</h3>
+              <span class="text-xs text-muted-color">Objetivos del servicio</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div
+                class="border border-surface-200 dark:border-surface-800 rounded-lg p-3"
+              >
+                <div class="text-xs text-muted-color leading-4 mb-1">
+                  Error rate target
+                </div>
+                <div class="text-color font-semibold leading-6">
+                  &lt; {{ formatPercent(svc.slos.errorRateTarget) }}
+                </div>
+              </div>
+              <div
+                class="border border-surface-200 dark:border-surface-800 rounded-lg p-3"
+              >
+                <div class="text-xs text-muted-color leading-4 mb-1">
+                  Latency p99 target
+                </div>
+                <div class="text-color font-semibold leading-6">
+                  &lt; {{ svc.slos.latencyP99TargetMs }}ms
+                </div>
+              </div>
+              <div
+                class="border border-surface-200 dark:border-surface-800 rounded-lg p-3"
+              >
+                <div class="text-xs text-muted-color leading-4 mb-1">
+                  Uptime target
+                </div>
+                <div class="text-color font-semibold leading-6">
+                  &gt; {{ formatPercent(svc.slos.uptimeTarget) }}
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-surface-200 dark:border-surface-800 pt-4">
+              <h3 class="text-color font-semibold leading-6 mb-4">
+                Endpoints monitoreados
+              </h3>
+              @if (svc.endpoints.length === 0) {
+                <app-empty-state
+                  icon="fa-link-slash"
+                  title="Sin endpoints declarados"
+                  description="Agregá los endpoints monitoreados en el manifiesto del servicio."
+                />
+              } @else {
+                <ul class="flex flex-col gap-2">
+                  @for (ep of svc.endpoints; track ep) {
+                    <li
+                      class="flex items-center gap-2 text-sm text-muted-color font-mono leading-5"
+                    >
+                      <i
+                        class="fa-sharp fa-solid fa-circle text-green-500 text-xs"
+                        aria-hidden="true"
+                      ></i>
+                      {{ ep }}
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="errors">
+          @if (svc.errors.length === 0) {
+            <app-empty-state
+              icon="fa-bug-slash"
+              title="Sin errores"
+              description="No detectamos errores capturados para este servicio en el período actual."
+            />
+          } @else {
+            <ul class="divide-y divide-surface-200 dark:divide-surface-800">
+              @for (err of svc.errors; track err.id) {
+                <li class="p-4 flex items-start gap-3">
+                  <div
+                    class="w-8 h-8 rounded-lg bg-emphasis flex items-center justify-center text-color shrink-0 mt-0.5"
+                  >
+                    <i
+                      class="fa-sharp fa-regular fa-bug text-sm"
+                      aria-hidden="true"
+                    ></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-baseline justify-between gap-2 flex-wrap">
+                      <span class="text-color font-medium leading-6 truncate">
+                        {{ err.title }}
+                      </span>
+                      <span class="text-xs text-muted-color leading-4">
+                        Visto {{ err.lastSeen | relativeTime }}
+                      </span>
+                    </div>
+                    <div class="text-xs text-muted-color leading-4 mt-1">
+                      <span class="font-medium text-color">{{ err.count }}</span>
+                      eventos ·
+                      <span class="font-medium text-color">{{
+                        err.affectedUsers
+                      }}</span>
+                      usuarios ·
+                      <span class="text-muted-color">{{ err.type }}</span>
+                    </div>
+                  </div>
+                  <a
+                    [href]="err.externalUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-xs font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 shrink-0 mt-1"
+                    >Sentry →</a
+                  >
+                </li>
+              }
+            </ul>
+          }
+        </p-tabpanel>
+
+        <p-tabpanel value="performance">
+          <div class="p-6 flex flex-col items-center text-center gap-3">
+            <i
+              class="fa-sharp-duotone fa-regular fa-chart-line text-4xl text-color"
+              aria-hidden="true"
+            ></i>
+            <h3 class="text-color font-bold leading-6">Gráficos de performance</h3>
+            <p class="text-muted-color leading-6 max-w-md">
+              p50/p95/p99 + throughput. Integración pendiente con Chart.js
+              cuando lleguen los time-series del backend.
+            </p>
+          </div>
+        </p-tabpanel>
+
+        <p-tabpanel value="deploys">
+          <div class="p-4">
+            <p-timeline [value]="$any(svc.deploys)" align="left" class="!m-0">
+              <ng-template let-deploy #content>
+                <div class="flex flex-col pb-4">
+                  <div class="flex items-center gap-2">
+                    <span class="text-color font-semibold leading-6">
+                      {{ deploy.version }}
+                    </span>
+                    <app-pill>{{ deployStatusLabel(deploy.status) }}</app-pill>
+                  </div>
+                  <div class="text-sm text-muted-color leading-5 mt-1">
+                    {{ deploy.commitMessage }}
+                  </div>
+                  <div class="text-xs text-muted-color leading-4 mt-1">
+                    {{ deploy.author }} ·
+                    <span class="font-mono">{{ deploy.commitSha }}</span>
+                    · {{ deploy.deployedAt | relativeTime }}
+                  </div>
+                </div>
+              </ng-template>
+              <ng-template let-deploy #marker>
+                <i
+                  [class]="deployIcon(deploy.status)"
+                  class="text-base text-color"
+                  aria-hidden="true"
+                ></i>
+              </ng-template>
+            </p-timeline>
+          </div>
+        </p-tabpanel>
+      </p-tabs>
+    </div>
+
+    <!-- Side -->
+    <div class="xl:col-span-4 flex flex-col gap-4">
+      <!-- Owners -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-4">Dueños</h3>
+        <ul class="flex flex-col gap-2">
+          @for (owner of svc.owners; track owner.id) {
+            <li class="flex items-center gap-3">
+              <p-avatar
+                [image]="owner.avatarUrl"
+                shape="circle"
+                size="normal"
+              />
+              <div class="flex-1 min-w-0">
+                <div class="text-color font-medium leading-6 truncate">
+                  {{ owner.name }}
+                </div>
+                <div class="text-xs text-muted-color leading-4 capitalize">
+                  {{ owner.role === 'primary' ? 'Primario' : 'Secundario' }}
+                </div>
+              </div>
+              <p-button
+                icon="fa-sharp fa-regular fa-message"
+                severity="secondary"
+                [text]="true"
+                [rounded]="true"
+                size="small"
+                [attr.aria-label]="'Enviar mensaje a ' + owner.name"
+                pTooltip="Mensaje"
+              />
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Dependencies -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-4">Dependencias</h3>
+        @if (svc.dependencies.length === 0) {
+          <app-empty-state
+            icon="fa-diagram-project"
+            title="Sin dependencias"
+            description="Este servicio no declara dependencias upstream."
+          />
+        } @else {
+          <ul class="flex flex-col gap-2">
+            @for (dep of svc.dependencies; track dep.id) {
+              <li class="flex items-center gap-2">
+                <a
+                  [routerLink]="['/observability/services', dep.id]"
+                  class="flex-1 text-color font-medium leading-6 hover:text-color-emphasis cursor-pointer transition-colors truncate"
+                  >{{ dep.name }}</a
+                >
+                <app-health-badge [state]="dep.health" size="sm" />
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Links externos -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-4">Enlaces</h3>
+        <ul class="flex flex-col gap-2 text-sm">
+          <li>
+            <a
+              [href]="svc.repoUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 flex items-center gap-2"
+            >
+              <i class="fa-brands fa-github" aria-hidden="true"></i>
+              Repositorio
+            </a>
+          </li>
+          <li>
+            <a
+              [href]="svc.runbookUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 flex items-center gap-2"
+            >
+              <i class="fa-sharp fa-regular fa-book-open" aria-hidden="true"></i>
+              Runbook
+            </a>
+          </li>
+          @if (svc.externalDashboardUrl) {
+            <li>
+              <a
+                [href]="svc.externalDashboardUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 flex items-center gap-2"
+              >
+                <i
+                  class="fa-sharp fa-regular fa-chart-mixed"
+                  aria-hidden="true"
+                ></i>
+                Dashboard Grafana
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+} @else {
+  <app-empty-state
+    icon="fa-circle-question"
+    title="Servicio no encontrado"
+    description="El id solicitado no existe en el registry."
+    [bordered]="true"
+    actionLabel="Volver al listado"
+    actionIcon="fa-sharp fa-regular fa-arrow-left"
+    (actionClick)="backToList()"
+  />
+}

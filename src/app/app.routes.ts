@@ -31,6 +31,20 @@ const ROUTE_DATA = {
       { title: 'Clientes' },
     ],
   },
+  users: {
+    breadcrumb: [
+      { title: 'Administración' },
+      { title: 'Usuarios & Roles' },
+      { title: 'Usuarios' },
+    ],
+  },
+  roles: {
+    breadcrumb: [
+      { title: 'Administración' },
+      { title: 'Usuarios & Roles' },
+      { title: 'Roles' },
+    ],
+  },
   chat: {
     breadcrumb: [
       { title: 'CRM' },
@@ -60,6 +74,68 @@ const ROUTE_DATA = {
       { title: 'CMS' },
       { title: 'Contenidos' },
       { title: 'Películas' },
+    ],
+  },
+  // ── Observabilidad ────────────────────────────────────────────────────
+  // Estructura 3 niveles consistente con `/customers` (CRM > Adm. Clientes
+  // > Clientes). El nivel intermedio es el agrupamiento conceptual
+  // (Inicio / Catálogo / Monitoreo / Ajustes), no el nombre de la página.
+  // Para detail views (`/services/:id`, `/alerts/:id`) el middle linkea de
+  // vuelta al listado y el último crumb es "Detalle".
+  obsInbox: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Inicio' },
+      { title: 'Inbox' },
+    ],
+  },
+  obsServices: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Catálogo' },
+      { title: 'Servicios' },
+    ],
+  },
+  obsServiceDetail: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Servicios', url: '/observability/services' },
+      { title: 'Detalle' },
+    ],
+  },
+  obsAlerts: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Monitoreo' },
+      { title: 'Alertas' },
+    ],
+  },
+  obsAlertDetail: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Alertas', url: '/observability/alerts' },
+      { title: 'Detalle' },
+    ],
+  },
+  obsUptime: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Catálogo' },
+      { title: 'Uptime' },
+    ],
+  },
+  obsPreferences: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Ajustes' },
+      { title: 'Preferencias' },
+    ],
+  },
+  obsNotifsHistory: {
+    breadcrumb: [
+      { title: 'Observabilidad' },
+      { title: 'Ajustes' },
+      { title: 'Historial de notificaciones' },
     ],
   },
 } as const;
@@ -145,12 +221,99 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'users',
+        data: ROUTE_DATA.users,
+        loadComponent: () =>
+          import('./modules/users/users.component').then(
+            (m) => m.UsersComponent
+          ),
+      },
+      {
+        path: 'roles',
+        data: ROUTE_DATA.roles,
+        loadComponent: () =>
+          import('./modules/roles/roles.component').then(
+            (m) => m.RolesComponent
+          ),
+      },
+      {
         path: 'movies',
         data: ROUTE_DATA.movies,
         loadComponent: () =>
           import('./modules/movies/movies.component').then(
             (m) => m.MoviesComponent
           ),
+      },
+      // ── Observabilidad — dashboard de devops/SRE ────────────────────
+      {
+        path: 'observability',
+        children: [
+          { path: '', redirectTo: 'inbox', pathMatch: 'full' },
+          {
+            path: 'inbox',
+            data: ROUTE_DATA.obsInbox,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-inbox/obs-inbox.component'
+              ).then((m) => m.ObsInboxComponent),
+          },
+          {
+            path: 'services',
+            data: ROUTE_DATA.obsServices,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-services/obs-services.component'
+              ).then((m) => m.ObsServicesComponent),
+          },
+          {
+            path: 'services/:id',
+            data: ROUTE_DATA.obsServiceDetail,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-service-detail/obs-service-detail.component'
+              ).then((m) => m.ObsServiceDetailComponent),
+          },
+          {
+            path: 'alerts',
+            data: ROUTE_DATA.obsAlerts,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-alerts/obs-alerts.component'
+              ).then((m) => m.ObsAlertsComponent),
+          },
+          {
+            path: 'alerts/:id',
+            data: ROUTE_DATA.obsAlertDetail,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-alert-detail/obs-alert-detail.component'
+              ).then((m) => m.ObsAlertDetailComponent),
+          },
+          {
+            path: 'uptime',
+            data: ROUTE_DATA.obsUptime,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-uptime/obs-uptime.component'
+              ).then((m) => m.ObsUptimeComponent),
+          },
+          {
+            path: 'preferences',
+            data: ROUTE_DATA.obsPreferences,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-preferences/obs-preferences.component'
+              ).then((m) => m.ObsPreferencesComponent),
+          },
+          {
+            path: 'notifications-history',
+            data: ROUTE_DATA.obsNotifsHistory,
+            loadComponent: () =>
+              import(
+                './modules/observability/obs-notifications-history/obs-notifications-history.component'
+              ).then((m) => m.ObsNotificationsHistoryComponent),
+          },
+        ],
       },
       {
         path: '**',

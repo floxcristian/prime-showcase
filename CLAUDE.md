@@ -840,6 +840,116 @@ Rationale: `aria-label` expone el propósito a tecnologías asistivas, pero usua
 </ng-template>
 ```
 
+#### Column filters — `<p-columnFilter>` con shell uniforme
+
+**REGLA**: cuando se usa `<p-columnFilter>` con `<ng-template #filter>` custom, envolver el contenido en `<app-table-filter-shell>` (shared component, [src/app/shared/components/table-filter-shell/](src/app/shared/components/table-filter-shell/)). Aplica un `w-64` (256px) uniforme.
+
+**Por qué**: PrimeNG popup adapta su width al contenido. Sin un wrapper fijo, cada columna renderiza con ancho distinto según el componente interno (`<p-multiselect>` colapsado ~14rem, `<input pInputText>` ~22rem, `<p-slider>` ~17rem). Esa inconsistencia se nota al ciclar entre filters de columnas distintas — bigtech (Linear / Stripe / Datadog) usan width uniforme cross-columna. Single source of truth: cambio del width vive en el shell, todas las tablas se actualizan sin tocar templates.
+
+```html
+<p-columnFilter
+  field="estado"
+  matchMode="in"
+  display="menu"
+  [showMatchModes]="false"
+  [showOperator]="false"
+  [showAddButton]="false"
+>
+  <ng-template #filter let-value let-filter="filterCallback">
+    <app-table-filter-shell>
+      <p-multiselect
+        [options]="..."
+        [ngModel]="value"
+        (ngModelChange)="filter($event)"
+        placeholder="Cualquiera"
+        class="w-full"
+      />
+    </app-table-filter-shell>
+  </ng-template>
+</p-columnFilter>
+```
+
+Filters con layout vertical (label + input, p.ej. range slider con value display) envuelven el contenido en un `<div>` interno propio:
+
+```html
+<app-table-filter-shell>
+  <div class="flex flex-col gap-3 px-1">
+    <span class="text-xs text-muted-color leading-4">Rango: {{ ... }}</span>
+    <p-slider class="w-full" ... />
+  </div>
+</app-table-filter-shell>
+```
+
+**Consistencia adicional**:
+- Para filters texto simples (`contains`/`equals`), pasar a custom template con `<input pInputText class="w-full">` en lugar de `type="text"` built-in (que tiene width fijo interno).
+- Inputs internos siempre con `class="w-full"` para llenar el shell.
+- `[showMatchModes]="false"` `[showOperator]="false"` `[showAddButton]="false"` cuando el filter es de single-mode (sin necesidad de UI extra de "Add rule" / "Match all/any").
+- **Clear button con `.p-button-tonal`**: aplicar via passthrough `pcFilterClearButton.root.class` para que el botón "Limpiar" del popup use el variant tonal (bg `primary-100` light / `primary-900` dark) en vez del outlined default. Patrón Material 3: secondary action filled-tinted, no outlined neutro — refuerza jerarquía visual con la acción primaria "Aplicar".
+
+- **Botones agrupados a la derecha con `gap-2`**: PrimeNG aplica `justify-content: space-between` por default al `filterButtonBar` (un botón a cada borde, sin gap entre ellos). Override a `!justify-end gap-2` para que ambos queden right-anchored como grupo con respiración mínima entre los botones. Patrón Linear / Stripe / GitHub / Notion / Vercel: filter actions como unidad de salida del dialog, no como alternativas equilibradas en los extremos. `gap-2` (8px) matchea el spacing canónico del DS para action button groups.
+
+  Definir el `pt` como const protegida en la clase para reusar entre los N column filters de la tabla:
+
+  ```typescript
+  protected readonly columnFilterPt = {
+    pcFilterClearButton: { root: { class: 'p-button-tonal' } },
+    filterButtonBar: { class: '!justify-end gap-2' },
+  };
+  ```
+
+  ```html
+  <p-columnFilter [pt]="columnFilterPt" ...>
+  ```
+
+  **Por qué `root.class` y no solo `class`**: el `class` plano en
+  `ButtonPassThrough` aplica al HOST del `<p-button>` (el Angular
+  component element), NO al `<button>` HTML interno. La utility
+  `.p-button-tonal` definida en `styles.scss` matchea el `<button>`
+  — mismo elemento al que se aplica vía `styleClass` en otros sitios
+  del proyecto. `root.class` apunta al elemento correcto.
+
+  **Por qué `!justify-end`**: el `!` modifier de Tailwind emite la
+  declaración con `!important` para sobreescribir el
+  `justify-content: space-between` que PrimeNG aplica al
+  `.p-datatable-filter-button-bar` por default. Sin el `!`, la
+  specificity de las dos reglas es similar y la última declarada
+  gana — depende del orden de carga de CSS layers.
+
+#### Material 3 variants — `@mixin` SCSS
+
+**REGLA**: cuando un styling visual (variant) deba aplicarse a múltiples elementos, encapsular como `@mixin` en `styles.scss` y aplicar con `@include`. NO copiar/pegar las reglas CSS entre selectores.
+
+**Por qué**: convierte el variant en una primitive reusable con single source of truth — cualquier ajuste futuro al variant propaga a TODOS los consumers automáticamente. Es el patrón canónico de Material UI / Mantine / Tailwind plugin para encapsular variants.
+
+**Ejemplo actual** — `tonal-variant` (Material 3 secondary action filled-tinted):
+
+```scss
+@mixin tonal-variant {
+  background: var(--p-primary-100) !important;
+  color: var(--p-primary-color) !important;
+  border-color: var(--p-primary-100) !important;
+
+  &:hover { background: var(--p-primary-200) !important; border-color: var(--p-primary-200) !important; }
+  &:active { background: var(--p-primary-300) !important; border-color: var(--p-primary-300) !important; }
+
+  .p-dark & {
+    background: var(--p-primary-900) !important;
+    color: var(--p-primary-100) !important;
+    border-color: var(--p-primary-900) !important;
+
+    &:hover { background: var(--p-primary-800) !important; border-color: var(--p-primary-800) !important; }
+    &:active { background: var(--p-primary-700) !important; border-color: var(--p-primary-700) !important; }
+  }
+}
+
+.p-button-tonal           { @include tonal-variant; }
+.p-paginator-page-selected { @include tonal-variant; }
+```
+
+**Para agregar un nuevo consumer**: 1 línea (`@include tonal-variant`) — no copiar las 6 reglas individuales. Los selectores múltiples (sin mixin) son antipattern para variants reusables.
+
+**Cuándo NO usar mixin**: estilos one-off (un solo selector usa la regla, sin chance de reuso). Mixin se justifica desde 2+ consumers.
+
 ### Menú popup
 
 ```html

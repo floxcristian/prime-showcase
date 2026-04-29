@@ -1,0 +1,226 @@
+@if (loading()) {
+  <!-- Skeleton: header card de alerta (~10rem) + cards apiladas + side. -->
+  <div aria-busy="true" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+    <div class="xl:col-span-8 flex flex-col gap-4">
+      <p-skeleton width="100%" height="10rem" borderRadius="1rem" />
+      <p-skeleton width="100%" height="6rem" borderRadius="1rem" />
+      <p-skeleton width="100%" height="12rem" borderRadius="1rem" />
+    </div>
+    <div class="xl:col-span-4 flex flex-col gap-4">
+      <p-skeleton width="100%" height="8rem" borderRadius="1rem" />
+      <p-skeleton width="100%" height="12rem" borderRadius="1rem" />
+    </div>
+  </div>
+} @else if (loadError()) {
+  <app-empty-state
+    icon="fa-triangle-exclamation"
+    title="No pudimos cargar la alerta"
+    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+    [bordered]="true"
+    actionLabel="Reintentar"
+    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+    (actionClick)="retry()"
+  />
+} @else if (alert(); as a) {
+  <!--
+    Header card — patrón compartido con `obs-service-detail`. La acción
+    primaria ("Acusar recibo") vive en el sidebar como CTA destacado; las
+    acciones secundarias (Resolver/Silenciar) van en el header toolbar.
+    Esto sigue el patrón PagerDuty: ack es el commit principal (sidebar),
+    resolve/mute son post-triage (header).
+  -->
+  <div
+    class="border border-surface rounded-2xl p-6 mb-6 flex flex-col xl:flex-row xl:items-start gap-4"
+  >
+    <div class="flex-1 flex flex-col gap-2">
+      <div class="flex items-center gap-3 flex-wrap">
+        <app-severity-chip [value]="a.severity" />
+        @if (acked() && a.status === 'firing') {
+          <app-status-chip value="acknowledged" />
+        } @else if (a.status !== 'firing') {
+          <app-status-chip [value]="a.status" />
+        }
+        <span class="text-xs text-muted-color">
+          {{ a.firedAt | relativeTime }}
+        </span>
+      </div>
+      <h1 class="text-color text-3xl font-bold leading-normal">
+        {{ a.title }}
+      </h1>
+      <div class="text-muted-color leading-6 flex items-center gap-2 flex-wrap">
+        <span>Servicio afectado:</span>
+        <a
+          [routerLink]="['/observability/services', a.serviceId]"
+          class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150"
+          >{{ a.serviceName }}</a
+        >
+      </div>
+      <p class="text-muted-color leading-6">{{ a.description }}</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <p-button
+        label="Resolver"
+        severity="secondary"
+        [outlined]="true"
+        icon="fa-sharp fa-regular fa-check-double"
+      />
+      <p-button
+        label="Silenciar"
+        severity="secondary"
+        [outlined]="true"
+        icon="fa-sharp fa-regular fa-bell-slash"
+      />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+    <!-- Main -->
+    <div class="xl:col-span-8 flex flex-col gap-4">
+
+      <!-- Regla -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-2">Regla</h3>
+        <code
+          class="block text-sm font-mono bg-surface-100 dark:bg-surface-800 text-color p-3 rounded-lg"
+        >
+          {{ a.rule }}
+        </code>
+      </div>
+
+      <!-- Runbook embebido -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-2">Runbook</h3>
+        @if (a.runbookMarkdown) {
+          <pre
+            class="text-sm text-color leading-6 whitespace-pre-wrap font-sans"
+            >{{ a.runbookMarkdown }}</pre>
+        } @else {
+          <p class="text-muted-color text-sm leading-5">
+            Este servicio aún no tiene runbook. Agregalo en el manifiesto.
+          </p>
+        }
+      </div>
+
+      <!-- Logs relacionados -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-4">
+          Logs relacionados
+        </h3>
+        <ul class="divide-y divide-surface-200 dark:divide-surface-800">
+          @for (log of a.relatedLogs; track log.at) {
+            <li class="py-2 text-sm flex items-center gap-3">
+              <span
+                class="text-xs font-mono text-muted-color leading-4 shrink-0 w-20"
+                >{{ log.at | relativeTime }}</span
+              >
+              <p-tag
+                [severity]="logTagSeverity(log.level)"
+                [value]="log.level.toUpperCase()"
+                class="shrink-0 font-mono text-xs"
+              />
+              <span class="flex-1 text-color font-mono truncate">
+                {{ log.message }}
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Side -->
+    <div class="xl:col-span-4 flex flex-col gap-4">
+      <!--
+        Ack CTA destacado: la acción primaria de un firing alert es
+        "Acusar recibo" — vive en el sidebar como botón full-width para
+        máxima visibilidad. Resolver/Silenciar viven en el header toolbar
+        porque son post-triage (después de acusar).
+      -->
+      <div class="border border-surface rounded-2xl p-6">
+        @if (a.status === 'firing' && !acked()) {
+          <p-button
+            label="Acusar recibo"
+            severity="primary"
+            icon="fa-sharp fa-regular fa-check"
+            styleClass="w-full"
+            (onClick)="ack()"
+          />
+        } @else {
+          <div class="flex items-center gap-3">
+            <i
+              class="fa-sharp fa-regular fa-circle-check text-green-500 text-xl"
+              aria-hidden="true"
+            ></i>
+            <div class="flex flex-col">
+              <span class="text-color font-medium leading-6">Acusada</span>
+              @if (a.acknowledgedBy && a.acknowledgedAt) {
+                <span class="text-xs text-muted-color">
+                  Por {{ a.acknowledgedBy.name }} ·
+                  {{ a.acknowledgedAt | relativeTime }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Timeline de historia -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-4">Historial</h3>
+        <p-timeline [value]="$any(a.history)" align="left" class="!m-0">
+          <ng-template let-entry #content>
+            <div class="flex flex-col pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-color font-medium leading-6">
+                  {{ entry.actor }}
+                </span>
+                <span class="text-sm text-muted-color">
+                  {{ actionLabel(entry.action) }}
+                </span>
+              </div>
+              <span class="text-xs text-muted-color leading-4">
+                {{ entry.at | relativeTime }}
+              </span>
+              @if (entry.note) {
+                <p class="text-sm text-color leading-5 mt-1">{{ entry.note }}</p>
+              }
+            </div>
+          </ng-template>
+          <ng-template let-entry #marker>
+            <i
+              [class]="actionIcon(entry.action)"
+              class="text-base text-color"
+              aria-hidden="true"
+            ></i>
+          </ng-template>
+        </p-timeline>
+      </div>
+
+      <!-- Enlaces externos -->
+      <div class="border border-surface rounded-2xl p-6">
+        <h3 class="text-color font-semibold leading-6 mb-4">Fuente</h3>
+        <a
+          [href]="a.externalUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 flex items-center gap-2"
+        >
+          <i
+            class="fa-sharp fa-regular fa-arrow-up-right-from-square"
+            aria-hidden="true"
+          ></i>
+          Ver en Sentry
+        </a>
+      </div>
+    </div>
+  </div>
+} @else {
+  <app-empty-state
+    icon="fa-circle-question"
+    title="Alerta no encontrada"
+    description="El id solicitado no existe o ya fue archivada."
+    [bordered]="true"
+    actionLabel="Volver al listado"
+    actionIcon="fa-sharp fa-regular fa-arrow-left"
+    (actionClick)="backToList()"
+  />
+}

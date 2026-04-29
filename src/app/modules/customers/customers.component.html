@@ -1,3 +1,4 @@
+<!-- Header -->
 <div class="flex items-start gap-2 justify-between flex-wrap">
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
@@ -6,219 +7,1098 @@
     </div>
   </div>
   <!--
-    Count pill: clarifica que "activos" = subset del total (no "conectados").
-    Se oculta en mobile (<sm) para no competir con el título — la info se
-    puede recuperar filtrando la tabla por estado. En sm+ vuelve a aparecer.
+    Header right slot: solo info (count pill). Las acciones (Crear,
+    Refresh) viven en el toolbar abajo — patrón Datadog: actions
+    cluster en toolbar, info en header como identidad de la sección.
   -->
-  <p-button
-    icon="fa-sharp fa-solid fa-circle text-green-500"
-    label="950 clientes activos"
-    outlined
-    severity="secondary"
-    styleClass="hidden sm:inline-flex"
-    ariaLabel="950 clientes con estado activo (de un total mayor)"
-  />
+  @if (totalCount() > 0) {
+    <div
+      class="hidden sm:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
+      role="status"
+      [attr.aria-label]="
+        activeCount() + ' de ' + totalCount() + ' clientes activos'
+      "
+    >
+      <i
+        class="fa-sharp fa-solid fa-circle text-green-500"
+        aria-hidden="true"
+      ></i>
+      <span>{{ activeCount() }} de {{ totalCount() }} activos</span>
+    </div>
+  }
 </div>
+
 <!--
-  Action toolbar. Mobile (<lg): wrap a 2 filas — search full-width arriba,
-  acciones abajo. Desktop (lg+): lado a lado con search a la izquierda.
-  Paginación compact en mobile (sólo chevrons + contador) por ancho
-  restringido.
--->
-<div class="mt-6 lg:mt-10 mb-4 flex items-center justify-between gap-2 flex-wrap lg:flex-nowrap">
-  <p-iconfield iconPosition="left" class="w-full lg:w-auto">
-    <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass"> </p-inputicon>
-    <input pInputText type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Buscar" aria-label="Buscar" class="w-full" />
-  </p-iconfield>
-  <div class="flex items-center gap-2 lg:gap-3 shrink-0">
-    <p-button icon="fa-sharp fa-regular fa-filter" outlined severity="secondary" ariaLabel="Filtrar" pTooltip="Filtrar" tooltipPosition="bottom" />
-    <p-divider layout="vertical" class="m-0 p-0 hidden lg:inline-flex" />
-    <p-button icon="fa-sharp fa-regular fa-arrows-rotate" outlined severity="secondary" ariaLabel="Actualizar" pTooltip="Actualizar" tooltipPosition="bottom" />
-    <!--
-      Paginador condicional: cuando el filtro activo no devuelve resultados,
-      mostrar `1/15` + chevrons es engañoso ("estás en página 1 de 15" pero
-      la tabla está vacía). Con 0 resultados ocultamos el bloque entero —
-      el empty state del table cubre el feedback. Patrón Linear / Stripe
-      Dashboard / GitHub: paginador solo visible cuando hay datos paginables.
-    -->
-    @if (filteredTableData().length > 0) {
-      <p-button label="1/15" outlined severity="secondary" ariaLabel="Página 1 de 15" styleClass="whitespace-nowrap" />
-      <p-button icon="fa-sharp fa-regular fa-chevron-left" outlined severity="secondary" ariaLabel="Página anterior" pTooltip="Página anterior" tooltipPosition="bottom" />
-      <p-button icon="fa-sharp fa-regular fa-chevron-right" outlined severity="secondary" ariaLabel="Página siguiente" pTooltip="Página siguiente" tooltipPosition="bottom" />
-    }
-  </div>
-</div>
-<!--
-  Container de la tabla. El scroll horizontal ocurre DENTRO del p-table
-  (en `.p-datatable-table-container`, PrimeNG maneja su propio scroll
-  wrapper), así que el `scroll-fade-x` se aplica vía `[pt]` directamente
-  a ese elemento — no al wrapper externo. Un fade en el wrapper no
-  serviría porque el wrapper nunca overflowea: PrimeNG clipea el overflow
-  internamente.
+  Toolbar — split bigtech (Linear / Notion / Airtable / Stripe / GitHub):
+  view-state al borde izquierdo, data-state + CTA al borde derecho.
+  Whitespace entre los dos clusters comunica la jerarquía info-arch sin
+  necesidad de divisores visuales.
 -->
 <div
-  class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full"
+  class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap"
 >
   <!--
-    `min-width: 50rem` fuerza overflow horizontal en viewports angostos.
-    Sin esto PrimeNG table colapsa los cells con text-wrap, produciendo
-    filas de altura inconsistente con strings como "Gerente / de / producto"
-    quebrados. Bigtech data tables (Stripe, Linear, GitHub) prefieren scroll
-    horizontal + filas alineadas sobre cell-wrap.
-    El scroll-fade-x del wrapper padre detecta este overflow y muestra el
-    gradient affordance automáticamente.
+    Column toggle — patrón PrimeNG oficial (primeng.org/table#column-toggle).
+    `display="chip"` con `[maxSelectedLabels]` dinámico (signal `chipsMaxLabels`
+    en .ts) que decide entre chip vs texto según si el width estimado cabe en
+    el container `w-72`. 0 → placeholder, 1-2 con space → chips, 1-2 sin space
+    → texto, 3+ → siempre texto (cap explícito = comportamiento del demo).
+
+    Ancho fijo `w-72` evita layout shift en el toolbar. El SVG default del
+    remove icon se reemplaza por `fa-sharp fa-regular fa-xmark` via el slot
+    `<ng-template #chipicon>`; el centering + hover treatment del button viven
+    en styles.scss sobre `.p-multiselect-chip-item .p-chip-remove-icon`.
   -->
-  <p-table
-    [value]="filteredTableData()"
-    [selection]="selectedRows()" (selectionChange)="selectedRows.set($event)"
-    dataKey="id"
-    [rows]="10"
-    [dt]="tableTokens"
-    [tableStyle]="{ 'min-width': '50rem' }"
-    [pt]="{ tableContainer: { class: 'scroll-fade-x' } }"
+  <p-multiselect
+    [options]="columnDefs"
+    optionLabel="label"
+    optionValue="key"
+    [ngModel]="selectedColumnKeys()"
+    (ngModelChange)="selectedColumnKeys.set($event)"
+    display="chip"
+    [maxSelectedLabels]="chipsMaxLabels()"
+    selectedItemsLabel="{0} columnas seleccionadas"
+    placeholder="Columnas"
+    ariaLabel="Mostrar/ocultar columnas"
+    class="w-72"
   >
-    <ng-template #header>
-      <tr>
-        <th scope="col" class="w-4">
-          <p-tableHeaderCheckbox />
-        </th>
-        <th scope="col">Nombre</th>
-        <th scope="col">Cargo</th>
-        <th scope="col">Empresa</th>
-        <th scope="col">Correo electrónico</th>
-        <th scope="col">Origen</th>
-        <th scope="col">Estado</th>
-        <th scope="col">Más</th>
-      </tr>
+    <!--
+      Override del remove icon del chip — el default de PrimeNG es un
+      times-circle SVG (X dentro de círculo, peso visual alto). Bigtech
+      (Linear/Notion/GitHub/Stripe/Slack) usan plain xmark sin círculo:
+      más liviano, deja al texto del chip ser protagonista.
+    -->
+    <ng-template #chipicon>
+      <i
+        class="fa-sharp fa-regular fa-xmark text-xs"
+        aria-hidden="true"
+      ></i>
     </ng-template>
-    <ng-template #body let-data>
-      <tr>
-        <td class="w-4">
-          <p-tableCheckbox [value]="data" />
-        </td>
-        <td class="whitespace-nowrap">
-          <div class="flex items-center">
-            <p-overlayBadge
-              [severity]="
-                data.active === undefined
-                  ? 'contrast'
-                  : data.active
-                  ? 'success'
-                  : 'danger'
-              "
-              class="w-fit"
+  </p-multiselect>
+  <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
+    @if (lastFetchedAt(); as ts) {
+      <span
+        class="text-sm text-muted-color leading-5 hidden sm:inline"
+        aria-live="polite"
+      >
+        Actualizado {{ ts | relativeTime }}
+      </span>
+    }
+    <p-button
+      [icon]="
+        'fa-sharp fa-regular fa-arrows-rotate' +
+        (loading() ? ' animate-spin' : '')
+      "
+      [disabled]="loading()"
+      styleClass="p-button-tonal"
+      ariaLabel="Actualizar"
+      pTooltip="Actualizar"
+      tooltipPosition="bottom"
+      (onClick)="retry()"
+    />
+    <p-button
+      label="Crear cliente"
+      icon="fa-sharp fa-regular fa-plus"
+      iconPos="left"
+      ariaLabel="Crear nuevo cliente"
+      (onClick)="onCreateCustomer()"
+    />
+  </div>
+</div>
+
+@if (tableData().length === 0 && loadError()) {
+  <app-empty-state
+    icon="fa-triangle-exclamation"
+    title="No pudimos cargar los clientes"
+    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+    [bordered]="true"
+    actionLabel="Reintentar"
+    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+    (actionClick)="retry()"
+  />
+} @else {
+  @if (loadError() && tableData().length > 0) {
+    <div
+      class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
+      role="alert"
+    >
+      <i
+        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
+        aria-hidden="true"
+      ></i>
+      <span class="flex-1 text-muted-color leading-5">
+        No pudimos refrescar los datos. Estás viendo la última versión
+        disponible.
+      </span>
+      <p-button
+        label="Reintentar"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        icon="fa-sharp fa-regular fa-arrows-rotate"
+        (onClick)="retry()"
+      />
+    </div>
+  }
+  <div class="rounded-lg border border-surface w-full overflow-hidden">
+    <p-table
+      [value]="$any(tableData())"
+      [loading]="loading()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [stripedRows]="true"
+      [showGridlines]="true"
+      [rowHover]="true"
+      sortMode="single"
+      [tableStyle]="{ 'min-width': '88rem' }"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} clientes"
+    >
+      <ng-template #header>
+        <tr>
+          <!--
+            Columna "Nombre" — display unificado: razón social para
+            Empresa B2B, nombre completo chileno para Persona B2C.
+            Sort por `sortKey` que es apellido paterno (Persona,
+            convención CL enterprise) o nombre completo (Empresa,
+            alfabético) — un campo único que ordena coherente
+            cross-tipo. Filter contains sobre `name` matchea cualquier
+            sub-string.
+          -->
+          <th
+            pSortableColumn="sortKey"
+            scope="col"
+            class="whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Nombre</span>
+                <p-sortIcon field="sortKey" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="name"
+                matchMode="contains"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <input
+                      type="text"
+                      pInputText
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Buscar nombre o razón social"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          @if (isColumnVisible('rut')) {
+            <th
+              pSortableColumn="rut"
+              scope="col"
+              class="w-44 whitespace-nowrap"
             >
-              <p-avatar
-                [image]="data.image"
-                [label]="!data.image ? data.capName : ''"
-                class="rounded-lg overflow-hidden flex"
-                [ngClass]="{
-                  '!bg-primary-100 !text-primary-950 text-xs font-medium': !data.image
-                }"
-              />
-            </p-overlayBadge>
-
-            <div class="ml-4 leading-6 text-color font-medium">
-              {{ data.name }}
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>RUT</span>
+                  <p-sortIcon field="rut" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="rut"
+                  matchMode="contains"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <input
+                        type="text"
+                        pInputText
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Buscar RUT"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </div>
+            </th>
+          }
+          @if (isColumnVisible('type')) {
+          <th
+            pSortableColumn="type"
+            scope="col"
+            class="w-32 whitespace-nowrap text-center"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex-1"></span>
+              <span class="flex items-center gap-1">
+                <span>Tipo</span>
+                <p-sortIcon field="type" />
+              </span>
+              <span class="flex-1 flex items-center justify-end">
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="type"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="typeOptions"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </span>
             </div>
-          </div>
-        </td>
-        <td class="whitespace-nowrap">
-          <div class="leading-6 text-muted-color">{{ data.title }}</div>
-        </td>
-        <td class="whitespace-nowrap">
-          <div class="flex items-center gap-2">
-            <!-- Logo decorativo: el nombre textual de la empresa va al lado
-                 (línea siguiente) — aria-hidden evita double-announce en SR
-                 ("Logo Mistranet, Mistranet"). Patrón WCAG: iconos
-                 acompañados de texto descriptivo deben ser aria-hidden. -->
-            <div
-              aria-hidden="true"
-              class="flex items-center justify-center"
-              [innerHTML]="companyLogos[data.company.logo]"
-            ></div>
-
-            <div class="leading-6 text-surface-600 dark:text-surface-400">
-              {{ data.company.name }}
+          </th>
+          }
+          @if (isColumnVisible('email')) {
+          <th
+            pSortableColumn="email"
+            scope="col"
+            class="w-64 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Contacto</span>
+                <p-sortIcon field="email" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="email"
+                matchMode="contains"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <input
+                      type="text"
+                      pInputText
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Buscar email"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
             </div>
-          </div>
-        </td>
-        <td class="whitespace-nowrap">
-          <div class="leading-6 text-muted-color">
-            {{ data.email }}
-          </div>
-        </td>
-        <td class="whitespace-nowrap">
-          <div class="leading-6 text-muted-color">{{ data.lead }}</div>
-        </td>
-        <td>
-          <p-tag
-            [severity]="
-              data.status === 'Activo'
-                ? 'success'
-                : data.status === 'Inactivo'
-                ? 'danger'
-                : 'info'
-            "
-            [value]="data.status"
-            class="font-medium"
-          />
-        </td>
-        <td>
-          <div class="flex justify-end w-full">
+          </th>
+          }
+          @if (isColumnVisible('lifecycle')) {
+          <th
+            pSortableColumn="lifecycle"
+            scope="col"
+            class="w-40 whitespace-nowrap text-center"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex-1"></span>
+              <span class="flex items-center gap-1">
+                <span>Ciclo de vida</span>
+                <p-sortIcon field="lifecycle" />
+              </span>
+              <span class="flex-1 flex items-center gap-1 justify-end">
+                <app-column-help
+                  title="Ciclo de vida comercial"
+                  description="Métrica de salud comercial separada del estado financiero (Cartera). Mira el comportamiento de compra del cliente."
+                  [entries]="lifecycleLegend"
+                />
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="lifecycle"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="lifecycleOptions"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('assignedSellers')) {
+          <th scope="col" class="whitespace-nowrap">
             <!--
-              Icono `fa-ellipsis` (no `fa-magnifying-glass`) porque el botón
-              abre un menú de ACCIONES (Detalles / Eliminar), no una vista
-              de búsqueda. Magnifying-glass = "search" semánticamente, el
-              uso anterior era semánticamente incorrecto.
+              Columna "Vendedores asignados" — NO sortable (sortar por
+              array no tiene semántica clara) pero filtrable con
+              matchMode="arrayIntersect" custom registrado en
+              `FilterService` (ver constructor de CustomersComponent).
             -->
+            <div class="flex w-full items-center justify-between gap-2">
+              <span>Vendedores asignados</span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="assignedSellers"
+                [matchMode]="arrayIntersectMatchMode"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <p-multiselect
+                      [options]="availableSellers()"
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Cualquier vendedor"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('availableCredit')) {
+          <th
+            pSortableColumn="availableCredit"
+            scope="col"
+            class="w-48 whitespace-nowrap"
+          >
+            <!--
+              Crédito disponible — sortable + filterable por rango
+              (slider) con matchMode="between". Step de $500.000 da
+              granularidad razonable sin saturar el slider.
+            -->
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Crédito disponible</span>
+                <p-sortIcon field="availableCredit" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="availableCredit"
+                matchMode="between"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <div class="flex flex-col gap-3 px-1">
+                      <span class="text-sm text-muted-color leading-5">
+                        {{ formatCredit((value && value[0]) ?? 0) }} –
+                        {{ formatCredit((value && value[1]) ?? maxCredit()) }}
+                      </span>
+                      <p-slider
+                        [ngModel]="value ?? [0, maxCredit()]"
+                        (ngModelChange)="filter($event)"
+                        [range]="true"
+                        [min]="0"
+                        [max]="maxCredit()"
+                        [step]="500000"
+                        class="w-full"
+                      />
+                    </div>
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('usedCredit')) {
+          <th
+            pSortableColumn="usedCredit"
+            scope="col"
+            class="w-44 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Crédito utilizado</span>
+                <p-sortIcon field="usedCredit" />
+              </span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('assignedCredit')) {
+          <th
+            pSortableColumn="assignedCredit"
+            scope="col"
+            class="w-44 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Crédito asignado</span>
+                <p-sortIcon field="assignedCredit" />
+              </span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('region')) {
+          <th
+            pSortableColumn="region"
+            scope="col"
+            class="w-56 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Región</span>
+                <p-sortIcon field="region" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="region"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <p-multiselect
+                      [options]="availableRegions()"
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Cualquier región"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('city')) {
+          <th
+            pSortableColumn="city"
+            scope="col"
+            class="w-48 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Ciudad</span>
+                <p-sortIcon field="city" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="city"
+                matchMode="contains"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <input
+                      type="text"
+                      pInputText
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Buscar ciudad"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('segmento')) {
+          <th
+            pSortableColumn="segmento"
+            scope="col"
+            class="w-32 whitespace-nowrap"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex items-center gap-1">
+                <span>Segmento</span>
+                <p-sortIcon field="segmento" />
+              </span>
+              <span pTooltip="Filtrar" tooltipPosition="bottom"
+                ><p-columnFilter
+                field="segmento"
+                matchMode="in"
+                display="menu"
+                [showMatchModes]="false"
+                [showOperator]="false"
+                [showAddButton]="false"
+                [pt]="columnFilterPt"
+              >
+                <ng-template
+                  #filter
+                  let-value
+                  let-filter="filterCallback"
+                >
+                  <app-table-filter-shell>
+                    <p-multiselect
+                      [options]="segmentoOptions"
+                      [ngModel]="value"
+                      (ngModelChange)="filter($event)"
+                      placeholder="Cualquiera"
+                      class="w-full"
+                    />
+                  </app-table-filter-shell>
+                </ng-template>
+              </p-columnFilter></span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('creditClassification')) {
+          <th
+            pSortableColumn="creditClassification"
+            scope="col"
+            class="w-32 whitespace-nowrap text-center"
+          >
+            <!--
+              Layout 3-zonas para centered headers con controls al lado:
+                [flex-1 spacer] [label+sort] [flex-1 controls justify-end]
+              Las dos zonas flex-1 se reparten el remaining space
+              equitativamente, el label queda centered horizontal aunque
+              haya help + filter buttons en la derecha. Mismo patrón en
+              Potencial y Grupo desc. para consistency.
+            -->
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex-1"></span>
+              <span class="flex items-center gap-1">
+                <span>Clasif. crédito</span>
+                <p-sortIcon field="creditClassification" />
+              </span>
+              <span class="flex-1 flex items-center gap-1 justify-end">
+                <app-column-help
+                  title="Clasif. crédito"
+                  description="Rating de riesgo crediticio. A1 es el rating más alto, D el más bajo."
+                  [entries]="classificationLegend"
+                />
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="creditClassification"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="classificationOptions"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('potencial')) {
+          <th
+            pSortableColumn="potencial"
+            scope="col"
+            class="w-28 whitespace-nowrap text-center"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex-1"></span>
+              <span class="flex items-center gap-1">
+                <span>Potencial</span>
+                <p-sortIcon field="potencial" />
+              </span>
+              <span class="flex-1 flex items-center gap-1 justify-end">
+                <app-column-help
+                  title="Potencial de venta"
+                  description="Proyección de revenue futuro de la cuenta. G1 representa máximo potencial, G4 el más bajo."
+                  [entries]="potencialLegend"
+                />
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="potencial"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="potencialOptions"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('discountGroup')) {
+          <th
+            pSortableColumn="discountGroup"
+            scope="col"
+            class="w-28 whitespace-nowrap text-center"
+          >
+            <!--
+              Grupo descuento — column numeric centered. Sin filter
+              propio: el valor ya queda cubierto por filtros de
+              segmento/cartera/clasificación que típicamente correlacionan
+              (ej. clientes A1 + Industrial = grupo 4-5). Help icon
+              expone la escala 0-5 con sus tiers de descuento.
+            -->
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex-1"></span>
+              <span class="flex items-center gap-1">
+                <span>Grupo desc.</span>
+                <p-sortIcon field="discountGroup" />
+              </span>
+              <span class="flex-1 flex items-center justify-end">
+                <app-column-help
+                  title="Grupo de descuento"
+                  description="Tier de descuento aplicado al cliente. 0 sin descuento, 5 tier premium."
+                  [entries]="discountGroupLegend"
+                />
+              </span>
+            </div>
+          </th>
+          }
+          @if (isColumnVisible('cartera')) {
+          <th
+            pSortableColumn="cartera"
+            scope="col"
+            class="w-32 whitespace-nowrap text-center"
+          >
+            <div class="flex w-full items-center justify-between gap-2">
+              <span class="flex-1"></span>
+              <span class="flex items-center gap-1">
+                <span>Cartera</span>
+                <p-sortIcon field="cartera" />
+              </span>
+              <span class="flex-1 flex items-center gap-1 justify-end">
+                <app-column-help
+                  title="Cartera (lifecycle)"
+                  description="Estado del cliente en el ciclo de relación. Determina a qué equipo se asigna la gestión."
+                  [entries]="carteraLegend"
+                />
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="cartera"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="carteraOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </span>
+            </div>
+          </th>
+          }
+          <th scope="col" class="w-12 whitespace-nowrap"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-data>
+        <tr>
+          <td class="whitespace-nowrap">
+            <span class="text-color font-medium">{{ data.name }}</span>
+          </td>
+          @if (isColumnVisible('rut')) {
+          <td class="whitespace-nowrap">
+            <!--
+              tabular-nums (no font-mono): los dígitos del RUT se
+              alinean verticalmente entre filas para escaneo predecible
+              de la columna, pero conservamos el font Inter del resto
+              de la tabla — sin la disonancia visual de cambiar a
+              monospace genérico. Patrón Stripe / Linear: numéricos
+              tabulares en cells de identificadores y montos.
+            -->
+            <span class="tabular-nums text-muted-color leading-6">{{
+              data.rut
+            }}</span>
+          </td>
+          }
+          @if (isColumnVisible('type')) {
+          <td class="whitespace-nowrap text-center">
+            <p-tag
+              [severity]="typeSeverity(data.type)"
+              [value]="data.type"
+              class="font-medium"
+            />
+          </td>
+          }
+          @if (isColumnVisible('email')) {
+          <td class="whitespace-nowrap">
+            <span class="text-muted-color leading-6">{{ data.email }}</span>
+          </td>
+          }
+          @if (isColumnVisible('lifecycle')) {
+          <td class="whitespace-nowrap text-center">
+            <p-tag
+              [severity]="lifecycleSeverity(data.lifecycle)"
+              [value]="data.lifecycle"
+              class="font-medium"
+              [pTooltip]="codeTooltip(lifecycleLegend, data.lifecycle)"
+              tooltipPosition="top"
+            />
+          </td>
+          }
+          @if (isColumnVisible('assignedSellers')) {
+          <td class="whitespace-nowrap">
+            <!--
+              Patrón Salesforce / HubSpot / Pipedrive: en CRM, ownership
+              de la cuenta es jerárquico y singular. Mostramos al
+              account manager con nombre completo (no truncado, no
+              avatar — lenguaje visual único en la celda) y declaramos
+              honestamente "N más" si hay equipo de soporte. Click en
+              la fila → detalle del cliente con team completo.
+              `· N más` es texto muted con tooltip de los nombres
+              restantes — overflow indicator visible (no oculto detrás
+              de un avatar disfrazado de control), zero ambigüedad
+              sobre qué hay vs qué falta.
+            -->
+            @if (data.assignedSellers.length > 0) {
+              <div class="flex items-center gap-1 leading-6">
+                <span class="text-color">{{ data.assignedSellers[0] }}</span>
+                @if (data.assignedSellers.length > 1) {
+                  <span
+                    class="text-muted-color"
+                    [pTooltip]="additionalSellersTooltip(data.assignedSellers)"
+                    tooltipPosition="top"
+                  >
+                    · {{ data.assignedSellers.length - 1 }} más
+                  </span>
+                }
+              </div>
+            } @else {
+              <span class="text-muted-color leading-6">—</span>
+            }
+          </td>
+          }
+          @if (isColumnVisible('availableCredit')) {
+          <td class="whitespace-nowrap">
+            <span class="tabular-nums text-color leading-6">{{
+              formatCredit(data.availableCredit)
+            }}</span>
+          </td>
+          }
+          @if (isColumnVisible('usedCredit')) {
+          <td class="whitespace-nowrap">
+            <span class="tabular-nums text-muted-color leading-6">{{
+              formatCredit(data.usedCredit)
+            }}</span>
+          </td>
+          }
+          @if (isColumnVisible('assignedCredit')) {
+          <td class="whitespace-nowrap">
+            <span class="tabular-nums text-muted-color leading-6">{{
+              formatCredit(data.assignedCredit)
+            }}</span>
+          </td>
+          }
+          @if (isColumnVisible('region')) {
+          <td class="whitespace-nowrap">
+            <span class="text-color leading-6">{{ data.region }}</span>
+          </td>
+          }
+          @if (isColumnVisible('city')) {
+          <td class="whitespace-nowrap">
+            <span class="text-color leading-6">{{ data.city }}</span>
+          </td>
+          }
+          @if (isColumnVisible('segmento')) {
+          <td class="whitespace-nowrap">
+            <span class="text-muted-color leading-6">{{ data.segmento }}</span>
+          </td>
+          }
+          @if (isColumnVisible('creditClassification')) {
+          <td class="whitespace-nowrap text-center">
+            <p-tag
+              [severity]="classificationSeverity(data.creditClassification)"
+              [value]="data.creditClassification"
+              class="font-medium min-w-10 justify-center"
+              [pTooltip]="
+                codeTooltip(classificationLegend, data.creditClassification)
+              "
+              tooltipPosition="top"
+            />
+          </td>
+          }
+          @if (isColumnVisible('potencial')) {
+          <td class="whitespace-nowrap text-center">
+            <span
+              class="text-muted-color leading-6"
+              [pTooltip]="codeTooltip(potencialLegend, data.potencial)"
+              tooltipPosition="top"
+            >
+              {{ data.potencial }}
+            </span>
+          </td>
+          }
+          @if (isColumnVisible('discountGroup')) {
+          <td class="whitespace-nowrap text-center">
+            <span
+              class="tabular-nums text-color leading-6"
+              [pTooltip]="
+                codeTooltip(discountGroupLegend, data.discountGroup.toString())
+              "
+              tooltipPosition="top"
+            >
+              {{ data.discountGroup }}
+            </span>
+          </td>
+          }
+          @if (isColumnVisible('cartera')) {
+          <td class="whitespace-nowrap text-center">
+            <p-tag
+              [severity]="carteraSeverity(data.cartera)"
+              [value]="carteraLabel(data.cartera)"
+              class="font-medium"
+              [pTooltip]="codeTooltip(carteraLegend, data.cartera)"
+              tooltipPosition="top"
+            />
+          </td>
+          }
+          <td class="text-right">
             <p-button
               (onClick)="displayPopover($event, op)"
               icon="fa-sharp fa-regular fa-ellipsis"
-              rounded
-              outlined
               severity="secondary"
+              [text]="true"
+              [rounded]="true"
               ariaLabel="Más acciones"
               pTooltip="Más acciones"
-              tooltipPosition="bottom"
+              tooltipPosition="left"
             />
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td [attr.colspan]="8">
-          <app-empty-state
-            icon="fa-users"
-            title="Sin clientes"
-            [description]="
-              search()
-                ? 'No encontramos clientes que coincidan con tu búsqueda. Prueba con otros términos.'
-                : 'Aún no hay clientes registrados. Los nuevos aparecerán aquí.'
-            "
-          />
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-  <p-popover #op>
-    <ng-template #content>
-      <div class="flex gap-2">
-        <p-button
-          label="Detalles"
-          size="small"
-          outlined
-          (onClick)="op.hide()"
-        ></p-button>
-        <p-button
-          label="Eliminar"
-          severity="danger"
-          size="small"
-          outlined
-          (onClick)="op.hide()"
-        ></p-button>
-      </div>
-    </ng-template>
-  </p-popover>
-</div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #loadingbody>
+        @for (i of skeletonPlaceholders; track i) {
+          <tr>
+            <td>
+              <p-skeleton width="70%" height="1rem" />
+            </td>
+            @if (isColumnVisible('rut')) {
+              <td>
+                <p-skeleton width="80%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('type')) {
+              <td>
+                <p-skeleton width="4rem" height="1.5rem" />
+              </td>
+            }
+            @if (isColumnVisible('email')) {
+              <td>
+                <p-skeleton width="80%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('lifecycle')) {
+              <td>
+                <p-skeleton width="6rem" height="1.5rem" />
+              </td>
+            }
+            @if (isColumnVisible('assignedSellers')) {
+              <td>
+                <p-skeleton width="60%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('availableCredit')) {
+              <td>
+                <p-skeleton width="50%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('usedCredit')) {
+              <td>
+                <p-skeleton width="50%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('assignedCredit')) {
+              <td>
+                <p-skeleton width="50%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('region')) {
+              <td>
+                <p-skeleton width="70%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('city')) {
+              <td>
+                <p-skeleton width="60%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('segmento')) {
+              <td>
+                <p-skeleton width="60%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('creditClassification')) {
+              <td>
+                <p-skeleton width="2.5rem" height="1.5rem" />
+              </td>
+            }
+            @if (isColumnVisible('potencial')) {
+              <td>
+                <p-skeleton width="40%" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('discountGroup')) {
+              <td>
+                <p-skeleton width="2rem" height="1rem" />
+              </td>
+            }
+            @if (isColumnVisible('cartera')) {
+              <td>
+                <p-skeleton width="5rem" height="1.5rem" />
+              </td>
+            }
+            <td>
+              <p-skeleton shape="circle" size="2rem" />
+            </td>
+          </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="visibleColumnCount()">
+            <app-empty-state
+              icon="fa-users"
+              title="Sin clientes"
+              description="No encontramos clientes que coincidan con los filtros aplicados. Limpia los filtros para ver el listado completo."
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+}
+
+<p-popover #op>
+  <ng-template #content>
+    <div class="flex gap-2">
+      <p-button
+        label="Detalles"
+        size="small"
+        outlined
+        (onClick)="op.hide()"
+      />
+      <p-button
+        label="Eliminar"
+        severity="danger"
+        size="small"
+        outlined
+        (onClick)="op.hide()"
+      />
+    </div>
+  </ng-template>
+</p-popover>
+

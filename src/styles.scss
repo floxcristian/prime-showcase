@@ -382,31 +382,276 @@ input:-webkit-autofill:focus-visible {
  * estandar via `.p-dark`. Sin transition — transitionDuration: '0s' del
  * preset aplica a cambios de color en hover (patron instant swap).
  */
-.p-button-tonal {
+/*
+ * Material 3 "tonal" variant — mixin reusable que encapsula bg primary
+ * tinted + color/border matching, con states hover/active progresivos
+ * (light + dark). Single source of truth: ajustes al variant propagan
+ * automáticamente a TODOS los consumers via `@include tonal-variant`.
+ *
+ * **Aplicar a**: cualquier elemento PrimeNG/HTML que necesite el variant
+ * tonal (secondary action filled-tinted, NO outlined neutro).
+ * Uso actual:
+ *   - `.p-button-tonal` — utility class para `<p-button>` (via styleClass
+ *     o root.class de PT en column filters).
+ *   - `.p-paginator-page-selected` — página activa del paginator de
+ *     `<p-table>` (auto-aplicado por PrimeNG, sin templates manuales).
+ *
+ * **Para agregar otro consumer**:
+ *
+ * ```scss
+ * .mi-elemento { @include tonal-variant; }
+ * ```
+ *
+ * NO copiar/pegar las reglas individuales — convención del DS.
+ */
+@mixin tonal-variant {
   background: var(--p-primary-100) !important;
   color: var(--p-primary-color) !important;
   border-color: var(--p-primary-100) !important;
+
+  &:hover {
+    background: var(--p-primary-200) !important;
+    border-color: var(--p-primary-200) !important;
+  }
+  &:active {
+    background: var(--p-primary-300) !important;
+    border-color: var(--p-primary-300) !important;
+  }
+
+  .p-dark & {
+    background: var(--p-primary-900) !important;
+    color: var(--p-primary-100) !important;
+    border-color: var(--p-primary-900) !important;
+
+    &:hover {
+      background: var(--p-primary-800) !important;
+      border-color: var(--p-primary-800) !important;
+    }
+    &:active {
+      background: var(--p-primary-700) !important;
+      border-color: var(--p-primary-700) !important;
+    }
+  }
 }
-.p-button-tonal:hover {
-  background: var(--p-primary-200) !important;
-  border-color: var(--p-primary-200) !important;
+
+.p-button-tonal { @include tonal-variant; }
+.p-paginator-page-selected { @include tonal-variant; }
+
+/*
+ * Hovers en headers de tabla — TH sortable hover sutil.
+ *
+ * **Layout big-tech estándar** (Linear / Datadog / Stripe / Material UI X
+ * DataGrid / Jira):
+ *
+ *   [Label][SortIcon] ............................ [FilterButton]
+ *      └─ unidad de sort (todo el TH es trigger)        └─ control discreto
+ *
+ * El TH completo es el trigger de sort — `pSortableColumn` captura el
+ * click en cualquier parte del cell. El `<p-sortIcon>` es solo un
+ * INDICADOR visual del estado actual de sort (asc/desc/none), NO un
+ * botón discreto. Por eso no recibe hover/cursor/styling propio: si lo
+ * hiciera, mentiría al usuario sobre la zona clickeable (el área es el
+ * TH entero, no el icono).
+ *
+ * Default Aura del TH sortable hover es `surface-200`, demasiado fuerte —
+ * lo bajamos a `surface-100` para que sea un tinte sutil que comunica
+ * "este header es interactivo" sin gritar. El filter button SÍ tiene
+ * hover propio (es un button real con popover) — definido más abajo en
+ * la regla de icon-only text-secondary.
+ */
+:root {
+  --p-datatable-header-cell-hover-background: var(--p-surface-100);
 }
-.p-button-tonal:active {
-  background: var(--p-primary-300) !important;
-  border-color: var(--p-primary-300) !important;
+.p-dark {
+  --p-datatable-header-cell-hover-background: var(--p-surface-800);
 }
-.p-dark .p-button-tonal {
-  background: var(--p-primary-900) !important;
-  color: var(--p-primary-100) !important;
-  border-color: var(--p-primary-900) !important;
+
+/*
+ * Reemplazo de iconos PrimeNG (sort + filter) por Font Awesome Sharp.
+ *
+ * **Por qué**: PrimeNG renderiza sus iconos como SVG inline. El
+ * proyecto usa Font Awesome Pro 7 Sharp como sistema de iconografía
+ * principal (CLAUDE.md). Los iconos default de PrimeNG (sort-alt,
+ * filter) chocan visualmente con los iconos del resto del app
+ * (toolbar, action buttons, etc.). Reemplazándolos con FA Sharp
+ * Regular el sistema queda visual unified.
+ *
+ * **Estrategia**: hide el SVG del componente PrimeNG y renderizar
+ * el icon FA via pseudo-element `::before`. PrimeNG mantiene su
+ * lógica (click, sort cycle, filter popup, etc.) — solo cambia el
+ * visual. El `font-family: "Font Awesome 7 Sharp"` matchea el
+ * @font-face cargado vía angular.json.
+ *
+ * **Sort icon**: tres estados por aria-sort del `<th>`, todos sharp
+ * solid (font-weight 900) para consistency visual:
+ *   - `none` o ausente → \e6c1 (fa-down-up) muted, indica
+ *     "ordenable pero no ordenado"
+ *   - `ascending`  → \f885 (fa-arrow-up-short-wide), full opacity
+ *   - `descending` → \f884 (fa-arrow-down-short-wide), full opacity
+ *
+ * Patrón Notion/Airtable/Google Sheets/Linear: las flechas con
+ * stacked-lines comunican "ordenado en esta dirección" mejor que
+ * las flechas simples (sort-up/sort-down) — el "short-wide" hint
+ * visualiza el resultado del sort (líneas más cortas arriba o
+ * abajo según ascending/descending).
+ *
+ * **Filter icon**: \f0b0 (fa-filter) en el button trigger del
+ * `<p-columnFilter>`. PrimeNG ya estiliza `data-p-active` cuando
+ * hay filtros activos — el icon se mantiene igual, el bg del
+ * button cambia (ya manejado por el theme).
+ */
+// Double backslash en SCSS → single backslash en CSS para que el
+// browser interprete `\e6c1` como unicode escape (codepoint 0xE6C1).
+// SCSS double-quoted strings tratan `\` como escape character —
+// `"\e6c1"` se compilaría a `"e6c1"` (sin el backslash).
+// PrimeNG renderiza sus iconos con class `.p-icon` que tiene
+// `display: inline-block` (specificity 0,1,0). Para hacer override
+// con selector de elemento (specificity 0,0,2) hace falta `!important`.
+p-sorticon svg,
+.p-datatable-column-filter-button svg {
+  display: none !important;
 }
-.p-dark .p-button-tonal:hover {
-  background: var(--p-primary-800) !important;
-  border-color: var(--p-primary-800) !important;
+
+p-sorticon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.875rem;
+  height: 0.875rem;
 }
-.p-dark .p-button-tonal:active {
-  background: var(--p-primary-700) !important;
-  border-color: var(--p-primary-700) !important;
+
+p-sorticon::before {
+  font-family: "Font Awesome 7 Sharp";
+  font-weight: 900;
+  font-size: 0.75rem;
+  line-height: 1;
+  content: "\e6c1";
+  opacity: 0.6;
+  display: inline-block;
+}
+
+th[aria-sort="ascending"] p-sorticon::before {
+  content: "\f885";
+  opacity: 1;
+}
+
+th[aria-sort="descending"] p-sorticon::before {
+  content: "\f884";
+  opacity: 1;
+}
+
+.p-datatable-column-filter-button::before {
+  font-family: "Font Awesome 7 Sharp";
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1;
+  content: "\f0b0";
+  display: inline-block;
+}
+
+/*
+ * Chip remove button (column toggle multiselect) — flex centering + hover.
+ *
+ * **Por qué**: cuando proveemos un `<ng-template #chipicon>` custom (FA
+ * xmark), el render del chip queda como:
+ *
+ *   p-chip
+ *     div.p-chip-label                         ← texto (centrado vía flex
+ *                                                 del p-chip)
+ *     span.p-chip-remove-icon                   ← OUTER, role=button,
+ *                                                 tabindex=0, click target
+ *       span.p-multiselect-chip-icon            ← INNER wrapper de PrimeNG
+ *         i.fa-sharp.fa-regular.fa-xmark        ← nuestro icon
+ *
+ * El OUTER (`.p-chip-remove-icon`) es el verdadero hit target — tiene
+ * `role="button"` y `tabindex="0"` para keyboard nav. PrimeNG lo
+ * renderiza con dimensiones default ~16×16 sin flex centering ni hover.
+ * Por eso el icon FA queda baseline-aligned (visualmente "chueco") y
+ * sin feedback hover.
+ *
+ * **Estrategia**: targeting CSS sobre `.p-chip-remove-icon` scoped a
+ * `.p-multiselect-chip-item` (no afecta otros usos de p-chip si los
+ * hubiera). Hit target 20×20 circular flex-centered, bg sutil en hover.
+ * Receta bigtech convergente (Linear/GitHub/Notion/Stripe).
+ *
+ * No usamos `[pt]="{ chipIcon: { class: ... } }"` porque la key
+ * `chipIcon` existe en runtime (via `ptm('chipIcon')`) pero NO está
+ * declarada en `MultiSelectPassThroughOptions` — Angular strict
+ * templates rechaza el binding. Mismo patrón que sort/filter icon
+ * overrides arriba: CSS directo sobre clases de PrimeNG.
+ */
+.p-multiselect-chip-item .p-chip-remove-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 150ms;
+}
+.p-multiselect-chip-item .p-chip-remove-icon:hover {
+  background: var(--p-content-hover-background);
+}
+
+/*
+ * Hover bg para todos los icon-only text-secondary buttons (filter
+ * trigger, row action buttons, etc.).
+ *
+ * **Por qué surface-300 / surface-600** (bump desde surface-200 /
+ * surface-700):
+ *   El p-table tiene `[rowHover]="true"` + `[stripedRows]="true"`.
+ *   Cuando el cursor entra a una fila, PrimeNG aplica
+ *   `--p-datatable-row-hover-background` = surface-100 (light) /
+ *   surface-800 (dark) al `<tr>`. Si dentro de esa fila el button
+ *   también está hovered, el hover del button DEBE contrastar contra
+ *   el hover del row — no contra el bg idle.
+ *
+ *   Light mode con button hover surface-200 vs row hover surface-100
+ *   → solo 7 unidades de gris de diferencia, casi invisible. Bump a
+ *   surface-300 (#cbd5e1) crea step claro (~25 unidades).
+ *
+ *   Dark mode con button hover surface-700 vs row hover surface-800
+ *   ya tenía step (button BRIGHTER que row), pero subimos a
+ *   surface-600 para mantener contraste similar al light mode.
+ *
+ *   Mismo nivel que el hover de outlined-secondary icon-only buttons
+ *   (surface-300) — consistency cross-variant.
+ */
+.p-button.p-button-icon-only.p-button-text.p-button-secondary:hover {
+  background: var(--p-surface-300) !important;
+}
+.p-dark .p-button.p-button-icon-only.p-button-text.p-button-secondary:hover {
+  background: var(--p-surface-600) !important;
+}
+
+/*
+ * Hover más visible para outlined icon-only buttons (refresh, column
+ * filter triggers, etc.).
+ *
+ * **Por qué**: el `--p-content-hover-background` default de Aura
+ * (surface-200 = #e2e8f0) es CASI idéntico al `--p-surface-border-color`
+ * que usa el outlined button. En hover, el bg cambia a un tono que
+ * matchea el border → visualmente el button "se funde" con el border y
+ * el hover se vuelve imperceptible. Especialmente notable en buttons
+ * icon-only sobre superficies claras (toolbar uptime, column filter
+ * triggers en headers de tabla).
+ *
+ * Subir el hover a `surface-300` (#cbd5e1 / dark surface-700) da
+ * contraste claro contra el border + bg de la card. Aplica solo a
+ * icon-only outlined-secondary — los outlined con label tienen su
+ * propio peso visual y el hover sutil ahí está OK.
+ */
+.p-button.p-button-icon-only.p-button-outlined.p-button-secondary:not(:disabled):hover {
+  background: var(--p-surface-300) !important;
+  border-color: var(--p-surface-300) !important;
+}
+.p-dark
+  .p-button.p-button-icon-only.p-button-outlined.p-button-secondary:not(
+    :disabled
+  ):hover {
+  background: var(--p-surface-700) !important;
+  border-color: var(--p-surface-700) !important;
 }
 
 /*
@@ -496,18 +741,29 @@ input:-webkit-autofill:focus-visible {
 }
 
 /*
- * Tooltips solo en dispositivos con hover real (desktop con mouse/trackpad).
- * En mobile/tablet los taps momentáneamente disparan pTooltip creando ruido
- * visual — el tap ya ejecutó la acción del botón, el tooltip es redundante.
- * Patrón bigtech (GitHub, Linear, Stripe mobile) de esconder tooltips donde
- * el input primario no soporta hover.
- * `@media (hover: none)` = semántica oficial CSS4 para "sin hover disponible".
+ * NO hay media query para ocultar tooltips en mobile.
+ *
+ * **Por qué** (verificado empíricamente con Chrome devtools touch
+ * emulation que reproduce exacto el caso Win11 touch laptop):
+ *   `hover: none`     → true   en Win11 con touchscreen, incluso con mouse
+ *   `any-hover: none` → true   ídem
+ *   `pointer: coarse` → true   ídem
+ *   `pointer: fine`   → false  Chrome ignora el mouse cuando OS reporta touch
+ *
+ * Es decir: NINGUNA combinación de `hover`/`any-hover`/`pointer` puede
+ * distinguir "Win11 touch laptop con mouse activo" de "tablet puro".
+ * Chrome unifica ambos como "touch device" y oculta el hover capability
+ * incluso para mouses externos. Cualquier media query CSS para "ocultar
+ * tooltip en touch" termina ocultándolo también en laptops touch que
+ * son el caso mayoritario en enterprise (Surface, ThinkPad Yoga, etc.).
+ *
+ * **Tradeoff aceptado**: en mobile real el tap puede disparar mouseenter
+ * del PrimeNG TooltipDirective y mostrar un tooltip por unos segundos.
+ * Bigtech (GitHub, Stripe, Linear) lo aceptan — no hay UX bigtech que
+ * "luchen" contra esto vía CSS, todos lo dejan al default de PrimeNG/
+ * Material/Mantine. Los aria-label cumplen el a11y; el tooltip pasajero
+ * en tap mobile es un quirk menor, no un bug bloqueante.
  */
-@media (hover: none) {
-  .p-tooltip {
-    display: none !important;
-  }
-}
 
 /*
  * app-settings-drawer > p-drawer host transparente al layout. El content
@@ -563,6 +819,20 @@ app-settings-drawer > p-drawer {
   left: auto !important;
   right: 13px;
 }
+
+/*
+ * Column help popovers (`<app-column-help>`) — siempre abajo del
+ * trigger con arrow apuntando hacia él.
+ *
+ * El componente fuerza la posición vía `(onShow)` callback que
+ * override-a la lógica de auto-flip de PrimeNG (ver
+ * column-help.component.ts → forcePositionBelow). El arrow.left
+ * también se recalcula ahí para apuntar al ⓘ exactamente.
+ *
+ * No removemos la clase `.p-popover-flipped` que PrimeNG agrega antes
+ * del onShow — la limpia el componente. Margin del gutter se hereda
+ * de los tokens de popover.
+ */
 
 /*
  * Search dropdown popover (on-focus desktop search).
@@ -637,6 +907,48 @@ app-settings-drawer > p-drawer {
     @include arrow-pointer;
     top: -0.4375rem; /* -7px — medio fuera, medio dentro del overlay */
     right: 1rem;
+  }
+}
+
+/*
+ * Column filter overlay arrow — patrón unificado con menu-with-arrow.
+ *
+ * El popup del `<p-columnFilter>` (display="menu") aparece como un
+ * floating overlay ANCLADO al filter button. Sin un arrow connector,
+ * la conexión visual entre trigger → popup queda implícita: el user
+ * tiene que asociar mentalmente "esto vino de aquel botón". Bigtech
+ * (Linear / Datadog / Stripe Sigma / Notion) usan arrow para hacer
+ * el anchor explícito — Material Design "popovers" lo recomiendan
+ * igualmente para conmunicar source.
+ *
+ * Tokens:
+ *   bg = `--p-datatable-filter-overlay-popover-background` que el
+ *   preset Aura resuelve a `{overlay.popover.background}` →
+ *   `--p-overlay-popover-background` → surface-0/surface-900.
+ *
+ * **Position**: la popup se ancla por default con left-edge del popup
+ * = left-edge del trigger button. Como el trigger es ~32px wide y el
+ * popup ~256px (w-64 del table-filter-shell), el arrow va a `left: 1rem`
+ * para apuntar al centro del trigger button. PrimeNG no setea ningún
+ * `--p-popover-arrow-left` para este overlay (a diferencia de `<p-popover>`
+ * que sí tiene arrow built-in), así que la position fija left aplica
+ * estable cross-columna.
+ *
+ * **`overflow: visible`** para que el ::before pueda sobresalir del
+ * popup (que tiene rounded corners + clipping interno). margin-top crea
+ * el espacio para el arrow + breathing room respecto al trigger.
+ */
+.p-datatable-filter-overlay-popover {
+  overflow: visible;
+  margin-top: 0.5rem;
+
+  &::before {
+    @include arrow-pointer(
+      var(--p-datatable-filter-overlay-popover-background),
+      var(--p-datatable-filter-overlay-popover-border-color)
+    );
+    top: -0.4375rem;
+    left: 1rem;
   }
 }
 

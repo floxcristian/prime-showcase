@@ -1,0 +1,287 @@
+<!-- Header — patrón compartido con CRM > Clientes -->
+<div class="flex items-start gap-2 justify-between flex-wrap mb-6">
+  <div class="min-w-0">
+    <h1 class="text-2xl leading-8 text-color font-medium">Servicios</h1>
+    <div class="mt-1 leading-6 text-muted-color">
+      Listado de los servicios que monitorea tu equipo. Hacé click en uno
+      para ver salud, errores recientes y deploys.
+    </div>
+    <div class="mt-2 text-sm text-muted-color leading-5">
+      <span class="text-color font-semibold">{{ resultCount() }}</span>
+      servicios visibles
+    </div>
+  </div>
+  <div class="flex gap-2 whitespace-nowrap">
+    <p-button
+      label="Nuevo servicio"
+      icon="fa-sharp fa-regular fa-plus"
+      severity="secondary"
+      [outlined]="true"
+    />
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="border border-surface rounded-2xl p-4 mb-6 flex flex-col gap-3">
+  <div class="flex flex-wrap gap-3 items-center">
+    <p-iconfield iconPosition="left" class="flex-1 min-w-60">
+      <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
+      <input
+        type="text"
+        pInputText
+        placeholder="Buscar por nombre, slug, equipo o tag..."
+        [ngModel]="searchInput()"
+        (ngModelChange)="searchInput.set($event)"
+        class="w-full"
+      />
+    </p-iconfield>
+
+    <p-multiselect
+      [options]="availableTeams()"
+      [ngModel]="selectedTeams()"
+      (ngModelChange)="selectedTeams.set($event)"
+      placeholder="Equipo"
+      [showHeader]="false"
+      [filter]="false"
+      class="w-full sm:w-44"
+    />
+
+    <p-multiselect
+      [options]="healthOptions"
+      [ngModel]="selectedHealth()"
+      (ngModelChange)="selectedHealth.set($event)"
+      placeholder="Estado"
+      optionLabel="label"
+      optionValue="value"
+      [showHeader]="false"
+      [filter]="false"
+      class="w-full sm:w-44"
+    />
+  </div>
+  <div class="flex flex-wrap items-center gap-4 justify-between">
+    <div class="flex items-center gap-2">
+      <p-toggleswitch
+        [ngModel]="onlyMine()"
+        (ngModelChange)="onlyMine.set($event)"
+        inputId="only-mine"
+      />
+      <label
+        for="only-mine"
+        class="text-color font-semibold leading-6 cursor-pointer hover:text-color-emphasis transition-colors select-none"
+      >
+        Solo mis servicios
+      </label>
+    </div>
+    <div class="flex items-center gap-2">
+      <p-button
+        label="Limpiar filtros"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        icon="fa-sharp fa-regular fa-rotate-left"
+        (onClick)="resetFilters()"
+      />
+      <p-selectbutton
+        [options]="viewModeOptions"
+        [ngModel]="viewMode()"
+        (ngModelChange)="viewMode.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        [allowEmpty]="false"
+      >
+        <ng-template let-option #item>
+          <i [class]="option.icon" aria-hidden="true"></i>
+          <span class="ml-2">{{ option.label }}</span>
+        </ng-template>
+      </p-selectbutton>
+    </div>
+  </div>
+</div>
+
+@if (loading()) {
+  <div aria-busy="true" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    @for (i of [0, 1, 2, 3, 4, 5]; track i) {
+      <p-skeleton width="100%" height="16rem" borderRadius="1rem" />
+    }
+  </div>
+} @else if (loadError()) {
+  <app-empty-state
+    icon="fa-triangle-exclamation"
+    title="No pudimos cargar los servicios"
+    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+    [bordered]="true"
+    actionLabel="Reintentar"
+    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+    (actionClick)="retry()"
+  />
+} @else if (filteredServices().length === 0) {
+  <app-empty-state
+    icon="fa-magnifying-glass"
+    title="Sin resultados"
+    description="Ningún servicio coincide con los filtros actuales. Probá ajustar la búsqueda o limpiar los filtros."
+    [bordered]="true"
+    actionLabel="Limpiar filtros"
+    actionIcon="fa-sharp fa-regular fa-rotate-left"
+    (actionClick)="resetFilters()"
+  />
+} @else if (viewMode() === 'grid') {
+  <!-- Grid de cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    @for (svc of filteredServices(); track svc.id) {
+      <a
+        [routerLink]="['/observability/services', svc.id]"
+        class="block border border-surface rounded-2xl p-6 cursor-pointer hover:bg-emphasis transition-colors flex flex-col gap-4"
+      >
+        <div class="flex items-start gap-3">
+          <!--
+            Slot fijo para health-badge: alinea verticalmente los nombres
+            de los servicios entre cards adyacentes en el grid (sin slot,
+            "Saludable" 110px vs "Crítico" 85px desplazaba el name col
+            entre cards de la misma fila).
+          -->
+          <div class="w-28 shrink-0">
+            <app-health-badge [state]="svc.health" />
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-color font-bold leading-6 truncate">
+              {{ svc.name }}
+            </div>
+            <div class="text-muted-color text-sm leading-5 truncate">
+              {{ svc.team }} · {{ svc.slug }}
+            </div>
+          </div>
+          @if (svc.activeAlertsCount > 0) {
+            <app-pill icon="fa-sharp fa-regular fa-bell">
+              {{ svc.activeAlertsCount }}
+            </app-pill>
+          }
+        </div>
+
+        <p class="text-sm text-muted-color leading-5 line-clamp-2">
+          {{ svc.description }}
+        </p>
+
+        <!-- Mini-métricas en una fila -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="flex flex-col">
+            <span class="text-xs font-medium text-muted-color leading-4">
+              Error rate 24h
+            </span>
+            <span class="text-color font-semibold leading-6">
+              {{ formatPercent(svc.errorRate24h.value) }}
+            </span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs font-medium text-muted-color leading-4">
+              p99
+            </span>
+            <span class="text-color font-semibold leading-6">
+              {{ svc.p99Latency.value }}ms
+            </span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs font-medium text-muted-color leading-4">
+              Uptime 30d
+            </span>
+            <span class="text-color font-semibold leading-6">
+              {{ formatPercent(svc.uptime30d.value) }}
+            </span>
+          </div>
+        </div>
+
+        <div
+          class="flex items-center gap-2 text-xs text-muted-color leading-4 pt-2 border-t border-surface-200 dark:border-surface-800"
+        >
+          <i class="fa-sharp fa-regular fa-rocket-launch" aria-hidden="true"></i>
+          <span>Deploy {{ svc.lastDeployAt | relativeTime }}</span>
+          @if (svc.lastAlertAt) {
+            <span class="text-muted-color">·</span>
+            <i
+              class="fa-sharp fa-regular fa-bell"
+              aria-hidden="true"
+            ></i>
+            <span>Última alerta {{ svc.lastAlertAt | relativeTime }}</span>
+          }
+        </div>
+      </a>
+    }
+  </div>
+} @else {
+  <!-- Vista tabla -->
+  <p-table
+    [value]="filteredServices()"
+    [paginator]="filteredServices().length > 25"
+    [rows]="25"
+    [rowsPerPageOptions]="[25, 50, 100]"
+    [tableStyle]="{ 'min-width': '60rem' }"
+  >
+    <ng-template #header>
+      <tr>
+        <!--
+          Headers `whitespace-nowrap` defensivo: invariante del DS — los
+          headers de tabla nunca wrappean a 2 líneas (Linear/Stripe/
+          Datadog). Si el label no cabe, ajustar el width.
+        -->
+        <th class="w-32 whitespace-nowrap">Estado</th>
+        <th class="w-56 whitespace-nowrap">Servicio</th>
+        <th class="w-32 whitespace-nowrap">Equipo</th>
+        <th class="w-28 whitespace-nowrap">Error 24h</th>
+        <th class="w-24 whitespace-nowrap">p99</th>
+        <th class="w-32 whitespace-nowrap">Uptime 30d</th>
+        <th class="w-40 whitespace-nowrap">Última alerta</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-svc>
+      <!--
+        Stretched-link pattern: el `<a>` dentro de la celda primaria extiende
+        un `::after` absoluto que cubre todo el `<tr>` (anclado a `relative`).
+        Ventaja vs. `<tr [routerLink]>`: queda accesible por teclado (Tab →
+        Enter), SR anuncia "link" y mantiene semántica de tabla.
+      -->
+      <tr
+        class="relative cursor-pointer hover:bg-emphasis focus-within:bg-emphasis transition-colors"
+      >
+        <td>
+          <app-health-badge [state]="svc.health" size="sm" />
+        </td>
+        <td>
+          <div class="flex flex-col">
+            <a
+              [routerLink]="['/observability/services', svc.id]"
+              class="text-color font-medium leading-6 hover:text-color-emphasis cursor-pointer transition-colors after:absolute after:inset-0 after:content-['']"
+              >{{ svc.name }}</a
+            >
+            <span class="text-xs text-muted-color leading-4">{{
+              svc.slug
+            }}</span>
+          </div>
+        </td>
+        <td>
+          <span class="text-color">{{ svc.team }}</span>
+        </td>
+        <td>
+          <span class="text-color font-medium">{{
+            formatPercent(svc.errorRate24h.value)
+          }}</span>
+        </td>
+        <td>
+          <span class="text-color font-medium">{{ svc.p99Latency.value }}ms</span>
+        </td>
+        <td>
+          <span class="text-color font-medium">{{
+            formatPercent(svc.uptime30d.value)
+          }}</span>
+        </td>
+        <td>
+          @if (svc.lastAlertAt) {
+            <span class="text-muted-color">{{
+              svc.lastAlertAt | relativeTime
+            }}</span>
+          } @else {
+            <span class="text-muted-color">—</span>
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}

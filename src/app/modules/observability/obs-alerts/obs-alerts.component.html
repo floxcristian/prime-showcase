@@ -1,0 +1,225 @@
+<!-- Header — patrón compartido con CRM > Clientes -->
+<div class="flex items-start gap-2 justify-between flex-wrap mb-6">
+  <div class="min-w-0">
+    <h1 class="text-2xl leading-8 text-color font-medium">Alertas</h1>
+    <div class="mt-1 leading-6 text-muted-color">
+      Alertas activas y resueltas de todos los servicios. Acá investigás qué
+      las disparó y las marcás como acusadas cuando ya estás trabajando una.
+    </div>
+    <div class="mt-2 text-sm text-muted-color leading-5">
+      <span class="text-color font-semibold">{{ resultCount() }}</span>
+      visibles
+    </div>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="border border-surface rounded-2xl p-4 mb-6 flex flex-col gap-3">
+  <div class="flex flex-wrap gap-3 items-center">
+    <p-iconfield iconPosition="left" class="flex-1 min-w-60">
+      <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
+      <input
+        type="text"
+        pInputText
+        placeholder="Buscar por título o servicio..."
+        [ngModel]="searchInput()"
+        (ngModelChange)="searchInput.set($event)"
+        class="w-full"
+      />
+    </p-iconfield>
+
+    <p-multiselect
+      [options]="severityOptions"
+      [ngModel]="selectedSeverities()"
+      (ngModelChange)="selectedSeverities.set($event)"
+      placeholder="Severidad"
+      optionLabel="label"
+      optionValue="value"
+      [showHeader]="false"
+      [filter]="false"
+      class="w-full sm:w-44"
+    />
+
+    <p-multiselect
+      [options]="statusOptions"
+      [ngModel]="selectedStatuses()"
+      (ngModelChange)="selectedStatuses.set($event)"
+      placeholder="Estado"
+      optionLabel="label"
+      optionValue="value"
+      [showHeader]="false"
+      [filter]="false"
+      class="w-full sm:w-44"
+    />
+  </div>
+  <div class="flex flex-wrap items-center gap-4 justify-between">
+    <div class="flex items-center gap-2">
+      <p-toggleswitch
+        [ngModel]="onlyUnacked()"
+        (ngModelChange)="onlyUnacked.set($event)"
+        inputId="only-unacked"
+      />
+      <label
+        for="only-unacked"
+        class="text-color font-semibold leading-6 cursor-pointer hover:text-color-emphasis transition-colors select-none"
+      >
+        Solo no acusadas
+      </label>
+    </div>
+    <p-button
+      label="Limpiar filtros"
+      severity="secondary"
+      size="small"
+      [text]="true"
+      icon="fa-sharp fa-regular fa-rotate-left"
+      (onClick)="resetFilters()"
+    />
+  </div>
+</div>
+
+@if (loading()) {
+  <p-skeleton width="100%" height="32rem" borderRadius="1rem" />
+} @else if (loadError()) {
+  <app-empty-state
+    icon="fa-triangle-exclamation"
+    title="No pudimos cargar las alertas"
+    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+    [bordered]="true"
+    actionLabel="Reintentar"
+    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+    (actionClick)="retry()"
+  />
+} @else if (filtered().length === 0) {
+  <app-empty-state
+    icon="fa-bell-slash"
+    title="Sin alertas"
+    description="Ningún resultado para los filtros actuales."
+    [bordered]="true"
+    actionLabel="Limpiar filtros"
+    actionIcon="fa-sharp fa-regular fa-rotate-left"
+    (actionClick)="resetFilters()"
+  />
+} @else {
+  <!--
+    Mobile fallback: tabla requiere `min-width: 60rem` y se vuelve scroll
+    horizontal incómodo en <md. Bajo esa breakpoint renderizamos cards
+    apiladas con la misma jerarquía de datos. Pattern GitHub/Linear:
+    same data, different layout per viewport class.
+  -->
+  <ul class="md:hidden flex flex-col gap-3">
+    @for (alert of filtered(); track alert.id) {
+      <li
+        class="relative cursor-pointer border border-surface rounded-2xl p-4 flex flex-col gap-2 hover:bg-emphasis focus-within:bg-emphasis transition-colors"
+      >
+        <!--
+          Slot fijo por chip: severity y status varían por label
+          (severity: "Crítico" 7c vs "Advertencia" 11c; status: "Activa"
+          6c vs "Silenciada" 10c). Slots fijos alinean el resto del row
+          incluso cuando flex-wrap no está activo.
+        -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="w-32 shrink-0">
+            <app-severity-chip [value]="alert.severity" />
+          </div>
+          <div class="w-32 shrink-0">
+            <app-status-chip [value]="alert.status" />
+          </div>
+          <span class="text-xs text-muted-color ml-auto">{{
+            alert.firedAt | relativeTime
+          }}</span>
+        </div>
+        <a
+          [routerLink]="['/observability/alerts', alert.id]"
+          class="text-color font-medium leading-6 line-clamp-2 hover:text-color-emphasis cursor-pointer transition-colors after:absolute after:inset-0 after:content-['']"
+          >{{ alert.title }}</a
+        >
+        <div class="text-xs text-muted-color leading-4 flex items-center gap-2">
+          <a
+            [routerLink]="['/observability/services', alert.serviceId]"
+            class="relative z-10 font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150"
+            >{{ alert.serviceName }}</a
+          >
+          @if (alert.acknowledgedBy) {
+            <span>·</span>
+            <span>Por {{ alert.acknowledgedBy.name }}</span>
+          }
+        </div>
+      </li>
+    }
+  </ul>
+
+  <p-table
+    class="hidden md:block"
+    [value]="filtered()"
+    [paginator]="true"
+    [rows]="20"
+    [rowsPerPageOptions]="[20, 50, 100]"
+    [tableStyle]="{ 'min-width': '60rem' }"
+  >
+    <ng-template #header>
+      <tr>
+        <!--
+          `whitespace-nowrap` defensivo: invariante del DS — los headers de
+          tabla nunca wrappean (Linear/Stripe/Datadog).
+        -->
+        <th class="w-32 whitespace-nowrap">Severidad</th>
+        <th class="w-56 whitespace-nowrap">Servicio</th>
+        <th class="whitespace-nowrap">Título</th>
+        <th class="w-32 whitespace-nowrap">Disparada</th>
+        <th class="w-32 whitespace-nowrap">Estado</th>
+        <th class="w-32 whitespace-nowrap">Acciones</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-alert>
+      <!--
+        Stretched-link pattern: el `<a>` del título abarca toda la fila vía
+        `::after` absoluto. Los elementos accionables (link al servicio,
+        botón Acusar) llevan `relative z-10` para quedar por encima del
+        pseudo y capturar clics/focus sin triggerar la navegación del row.
+      -->
+      <tr
+        class="relative cursor-pointer hover:bg-emphasis focus-within:bg-emphasis transition-colors"
+      >
+        <td>
+          <app-severity-chip [value]="alert.severity" />
+        </td>
+        <td>
+          <a
+            [routerLink]="['/observability/services', alert.serviceId]"
+            class="relative z-10 font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150"
+            >{{ alert.serviceName }}</a
+          >
+        </td>
+        <td>
+          <div class="flex flex-col">
+            <a
+              [routerLink]="['/observability/alerts', alert.id]"
+              class="text-color font-medium leading-6 hover:text-color-emphasis truncate cursor-pointer transition-colors after:absolute after:inset-0 after:content-['']"
+              >{{ alert.title }}</a
+            >
+            <span class="text-xs text-muted-color leading-4 truncate">{{
+              alert.description
+            }}</span>
+          </div>
+        </td>
+        <td>
+          <span class="text-muted-color">{{
+            alert.firedAt | relativeTime
+          }}</span>
+        </td>
+        <td>
+          <app-status-chip [value]="alert.status" />
+        </td>
+        <td class="relative z-10">
+          @if (alert.status === 'firing') {
+            <p-button label="Acusar" severity="secondary" size="small" />
+          } @else if (alert.status === 'acknowledged' && alert.acknowledgedBy) {
+            <span class="text-xs text-muted-color"
+              >Por {{ alert.acknowledgedBy.name }}</span
+            >
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+}
