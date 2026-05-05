@@ -97,7 +97,7 @@
       (onClick)="retry()"
     />
     <p-button
-      label="Crear cliente"
+      label="Crear Cliente"
       icon="fa-sharp fa-regular fa-plus"
       iconPos="left"
       ariaLabel="Crear nuevo cliente"
@@ -140,6 +140,87 @@
       />
     </div>
   }
+  <!--
+    Active filters chip bar (Linear/Notion/Stripe/Datadog convergente).
+    Surface de discoverability + recoverability para el state de filtros
+    — sin esto el user tendría que abrir cada column header para saber
+    qué está filtrado. Render condicional: sólo cuando hay 1+ filtros
+    activos. Cada chip es un `<button>` clickeable que remueve el filter
+    via `Table.filter(null, field, matchMode)`. "Limpiar todo" aparece
+    desde 2+ filtros (no tiene sentido con 1, basta con clickear el chip).
+  -->
+  @if (activeFilters().length > 0) {
+    <div
+      class="flex flex-wrap items-center gap-2 mb-4"
+      role="region"
+      aria-label="Filtros activos"
+    >
+      @for (
+        filter of activeFilters();
+        track filter.field + filter.matchMode
+      ) {
+        <!--
+          Filter chip — STATE indicator, no action en sí mismo. Chrome
+          neutral surface (gris), no tonal primary. El color queda
+          reservado para acciones reales (CTAs del toolbar + Limpiar).
+          Patrón Stripe/HubSpot/Datadog: state = neutral, action =
+          color. El X removal queda como sub-affordance (icon visible)
+          pero el chip entero es clickable como hit target ampliado.
+
+          surface-200 idle (no surface-100) — surface-100 es bg de
+          "secciones alternadas" (page-level), surface-200 es el peso
+          correcto para un componente con identidad propia. Hover
+          surface-300/600 sigue el mismo override que styles.scss
+          aplica a icon-only text-secondary buttons.
+        -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 pl-3 pr-2 py-1 rounded-lg bg-surface-200 text-color dark:bg-surface-700 leading-6 cursor-pointer hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"
+          [attr.aria-label]="
+            'Quitar filtro ' + filter.label + ': ' + filter.display
+          "
+          (click)="removeFilter(filter)"
+        >
+          <span>
+            <span class="font-semibold">{{ filter.label }}:</span>
+            {{ filter.display }}
+          </span>
+          <i
+            class="fa-sharp fa-regular fa-xmark text-xs text-muted-color"
+            aria-hidden="true"
+          ></i>
+        </button>
+      }
+      @if (activeFilters().length > 1) {
+        <!--
+          "Limpiar" — ACTION (clear bulk filter state). Tonal-primary
+          intencional: matchea el botón "Actualizar" del toolbar para
+          consistency cross-cluster. Jerarquía resultante en la página:
+            1. Filled-primary "Crear cliente" (CTA principal)
+            2. Tonal-primary "Actualizar" + "Limpiar" (utility actions)
+            3. Surface-neutral chips (state read-out)
+          Patrón Stripe/Linear/Notion: color reservado para acciones,
+          neutral para estado. El usuario aprende: "azul = puedo
+          hacer algo".
+
+          Icon `fa-filter-slash` por precisión léxica — comunica
+          "remover filtros" específicamente, no genérico (vs fa-xmark
+          que el chip individual usa para "remover este uno").
+        -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100 font-medium leading-6 cursor-pointer hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+          (click)="clearAllFilters()"
+        >
+          <i
+            class="fa-sharp fa-regular fa-filter-slash text-xs"
+            aria-hidden="true"
+          ></i>
+          <span>Limpiar</span>
+        </button>
+      }
+    </div>
+  }
   <div class="rounded-lg border border-surface w-full overflow-hidden">
     <p-table
       [value]="$any(tableData())"
@@ -154,6 +235,7 @@
       [tableStyle]="{ 'min-width': '88rem' }"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} clientes"
+      (onFilter)="onTableFilter($event)"
     >
       <ng-template #header>
         <tr>

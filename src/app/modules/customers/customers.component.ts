@@ -7,6 +7,7 @@ import {
   effect,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +20,7 @@ import type { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
 import { Skeleton } from 'primeng/skeleton';
 import { Slider } from 'primeng/slider';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule, type TableFilterEvent } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 // Local
@@ -72,6 +73,20 @@ const LOCAL_COMPONENTS = [
  * todos los clientes de Carla, Felipe o Diego".
  */
 const ARRAY_INTERSECT_MATCHMODE = 'arrayIntersect';
+
+/**
+ * Representación normalizada de un filtro activo, surface del chip bar.
+ * `field` y `matchMode` son los inputs canónicos para la API
+ * `Table.filter(value, field, matchMode)` — al remover, los pasamos
+ * directo. `display` es el texto formateado pre-computado para evitar
+ * re-formatear en cada render.
+ */
+interface ActiveFilter {
+  field: string;
+  label: string;
+  display: string;
+  matchMode: string;
+}
 
 @Component({
   selector: 'app-customers',
@@ -578,6 +593,142 @@ export class CustomersComponent {
    * y typed.
    */
   protected readonly arrayIntersectMatchMode = ARRAY_INTERSECT_MATCHMODE;
+
+  // ── Active filters chip bar ────────────────────────────────────────
+  //
+  // Surface bigtech estándar (Linear/Notion/Airtable/Stripe/Datadog
+  // convergente): chip bar arriba de la tabla con un pill por cada
+  // filter activo, removible con click. Resuelve el problema de
+  // discoverability/recoverability del state — sin el bar, el user
+  // tiene que abrir cada column header para saber qué está filtrado.
+  //
+  // Implementación enterprise-grade:
+  //   1. ViewChild signal-based (`viewChild(Table)`) sobre la instancia
+  //      de PrimeNG Table — evita @ViewChild legacy + null-checking
+  //      manual; el signal expone undefined cuando aún no rendereó.
+  //   2. Hook (onFilter) emitido por PrimeNG después de cada apply →
+  //      re-derivamos `activeFilters` desde `table.filters` (state
+  //      oficial, single source of truth).
+  //   3. Removal via Table.filter(null, field, matchMode) — API pública
+  //      documentada de PrimeNG; clear all via Table.clear() + manual
+  //      refresh (defensive: algunas versions no emiten onFilter en
+  //      clear programático).
+  //   4. Format polimórfico por matchMode: between (rango CLP), in /
+  //      arrayIntersect (lista ≤2 o "N seleccionados"), contains
+  //      ("texto"). Field-aware: cartera mapea CA → "Activa".
+
+  protected readonly clientsTable = viewChild(Table);
+
+  protected readonly activeFilters = signal<readonly ActiveFilter[]>([]);
+
+  protected onTableFilter(_event: TableFilterEvent): void {
+    this.refreshActiveFilters();
+  }
+
+  protected removeFilter(filter: ActiveFilter): void {
+    this.clientsTable()?.filter(null, filter.field, filter.matchMode);
+  }
+
+  protected clearAllFilters(): void {
+    const t = this.clientsTable();
+    if (!t) return;
+    t.clear();
+    this.refreshActiveFilters();
+  }
+
+  private refreshActiveFilters(): void {
+    const t = this.clientsTable();
+    if (!t) {
+      this.activeFilters.set([]);
+      return;
+    }
+    const filters = t.filters;
+    const result: ActiveFilter[] = [];
+    for (const field of Object.keys(filters)) {
+      const meta = filters[field];
+      const arr = Array.isArray(meta) ? meta : [meta];
+      for (const m of arr) {
+        const display = this.formatFilterDisplay(field, m.matchMode, m.value);
+        if (display !== null) {
+          result.push({
+            field,
+            label: this.labelForField(field),
+            display,
+            matchMode: m.matchMode ?? 'equals',
+          });
+        }
+      }
+    }
+    this.activeFilters.set(result);
+  }
+
+  /**
+   * Lookup del label legible para un field. Usa `columnDefs` (catálogo
+   * de columnas hideables) y fallback explícito para fixed columns
+   * que no aparecen ahí (Nombre — cuyo field técnico es 'sortKey').
+   */
+  private labelForField(field: string): string {
+    const def = this.columnDefs.find((c) => c.key === field);
+    if (def) return def.label;
+    if (field === 'name' || field === 'sortKey') return 'Nombre';
+    return field;
+  }
+
+  /**
+   * Formato del valor según matchMode. Retorna `null` si el filter
+   * no está activo (value vacío/null) — el caller skipea esos.
+   */
+  private formatFilterDisplay(
+    field: string,
+    matchMode: string | undefined,
+    value: unknown,
+  ): string | null {
+    if (value == null) return null;
+    if (typeof value === 'string' && value.trim() === '') return null;
+    if (Array.isArray(value) && value.length === 0) return null;
+
+    if (matchMode === 'between' && Array.isArray(value)) {
+      const [from, to] = value as [number | null, number | null];
+      if (from == null && to == null) return null;
+      if (this.isCreditField(field)) {
+        return `${this.formatCredit(from ?? 0)} – ${this.formatCredit(to ?? this.maxCredit())}`;
+      }
+      return `${from ?? '—'} – ${to ?? '—'}`;
+    }
+
+    if (matchMode === 'in' || matchMode === ARRAY_INTERSECT_MATCHMODE) {
+      if (!Array.isArray(value)) return null;
+      const labels = value.map((v) => this.displayLabelForValue(field, v));
+      if (labels.length <= 2) return labels.join(', ');
+      return `${labels.length} seleccionados`;
+    }
+
+    if (typeof value === 'string') return `"${value}"`;
+    return String(value);
+  }
+
+  private isCreditField(field: string): boolean {
+    return (
+      field === 'availableCredit' ||
+      field === 'usedCredit' ||
+      field === 'assignedCredit'
+    );
+  }
+
+  /**
+   * Lookup del label de display para un value específico de un field.
+   * Cartera almacena el código (`CA`) pero el chip muestra "Activa".
+   * Otros fields usan el value directo.
+   */
+  private displayLabelForValue(field: string, value: unknown): string {
+    if (field === 'cartera') {
+      return (
+        this.carteraOptions.find((o) => o.value === value)?.label ??
+        String(value)
+      );
+    }
+    return String(value);
+  }
 
   /**
    * Formateador de moneda CLP. Instanciado una vez (constructor de
