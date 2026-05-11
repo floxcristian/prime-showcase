@@ -3,10 +3,12 @@ name: PrimeNG Showcase
 version: 1.0.0
 description: >
   Design system del PrimeNG Showcase. Source of truth de runtime: preset Aura
-  en src/app/app.config.ts. Source of truth de escala: este archivo + las 19
-  reglas ESLint en tools/eslint/rules/*. Drift entre ambos detectado por
-  tools/design-tokens/sync.mjs (parte de `npm run lint`). Tool-agnostic —
-  leído por Claude Code, Codex, Cursor, reviewers humanos y contractors.
+  en src/app/app.preset.ts. Source of truth de escala: este archivo + las 19
+  reglas ESLint en tools/eslint/rules/*. Artefacto generado para consumidores
+  externos (Figma plugin, mobile, downstream repos): design-tokens/tokens.json.
+  Drift entre los tres detectado por tools/design-tokens/sync.mjs (parte de
+  `npm run lint`). Tool-agnostic — leído por Claude Code, Codex, Cursor,
+  reviewers humanos y contractors.
 
 # ─── Atmosphere ─────────────────────────────────────────────────────────
 # Calm density. ERP en español, sesiones de 8h, usuarios 25–60+.

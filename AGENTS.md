@@ -117,9 +117,10 @@ Estructura de componente y patrones de host class detallados en `.claude/rules/c
 
 | Comando | Qué hace | Cuándo correrlo |
 |---|---|---|
-| `npm run lint` | `ng lint` (HTML + TS) **+** `lint:rules:test` (RuleTester suites + drift detection vs PrimeNG type defs) **+** `design-tokens:check` (drift vs `app.preset.ts`) | Antes de cada commit |
+| `npm run lint` | `ng lint` (HTML + TS) **+** `lint:rules:test` (RuleTester suites) **+** `design-tokens:test` (resolver unit tests) **+** `design-tokens:check` (drift vs `app.preset.ts` + `tokens.json`) | Antes de cada commit |
 | `npm run lint:fix` | Igual que `lint` con autofix | Limpiar warnings mecánicas |
 | `npm run lint:rules:test` | Solo tests del plugin local | Al modificar `tools/eslint/rules/*` |
+| `npm run design-tokens:test` | Tests unitarios del resolver de tokens | Al modificar `tools/design-tokens/resolver.mjs` |
 | `npm test` | `ng test` → vitest sobre `src/**/*.spec.ts` | Cambios en componentes/servicios |
 | `npm run build` | Build de producción + valida budgets | Antes de PR |
 | `npm run test:ssr:smoke` | 4 cookie cases del dark-mode SSR (necesita `serve:ssr:prime-showcase` en `:4000`) | Cambios en SSR/theme/cookie |
@@ -128,7 +129,7 @@ Estructura de componente y patrones de host class detallados en `.claude/rules/c
 | `npm run build-storybook` | Build estático del catálogo a `dist/storybook/` | Antes de PR si tocaste stories |
 | `npm run visual` / `npm run visual:update` | Playwright golden-path baselines | Cambios visuales intencionales |
 | `npm run a11y` | axe-core scan vía Playwright | Cualquier cambio que afecte semántica/contraste |
-| `npm run design-tokens:check` / `:sync` | Drift detector / actualización del YAML de DESIGN.md | Después de modificar `app.preset.ts` |
+| `npm run design-tokens:check` / `:sync` | Drift detector (`DESIGN.md` + `design-tokens/tokens.json` vs preset) / regenerar ambos artefactos | Después de modificar `app.preset.ts` |
 
 CI (`.github/workflows/ci.yml`) corre el equivalente de `verify` en cada push a main y cada PR.
 

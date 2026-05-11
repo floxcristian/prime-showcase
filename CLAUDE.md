@@ -27,7 +27,7 @@ Workflows asociados:
 - `npm run build-storybook` — build estático a `dist/storybook/`.
 - `tests/visual/storybook.spec.ts` — baselines visuales a nivel componente.
 
-Preset Aura compartido (`src/app/app.preset.ts`): si modificás colores/tokens en el preset, corré `npm run design-tokens:sync -- --update` para reflejar en DESIGN.md, luego commit ambos archivos.
+Preset Aura compartido (`src/app/app.preset.ts`): si modificás colores/tokens en el preset, corré `npm run design-tokens:sync -- --update` para regenerar `DESIGN.md` (parche quirúrgico) y `design-tokens/tokens.json` (artefacto machine-readable, consumido por Figma plugin/mobile/repos externos). Commiteá los tres archivos juntos.
 
 ## MCP de PrimeNG (`@primeng/mcp`)
 
