@@ -680,20 +680,28 @@ th[aria-sort="descending"] p-sorticon::before {
 }
 
 /*
- * p-drawer mobile — el mask (backdrop semi-transparente) tiene sentido en
- * desktop (drawer de w-2xl desde la derecha, resto del canvas dimmed indica
- * modalidad). En mobile el drawer ocupa todo el ancho: no hay "outside"
- * visible que dimear, el mask solo crea franjas fantasma arriba del footer.
+ * p-drawer mobile — overrides scoped a drawers NO-bottom (settings drawer
+ * position=right, hipotéticamente top/left). El mask + reset de top/border
+ * tienen sentido en drawers full-width que cubren el viewport, donde no
+ * hay "outside" visible que dimear y el mask solo crea franjas fantasma.
  *
  * Patrón bigtech mobile: full-screen modal sin mask (Instagram settings,
  * WhatsApp config, Gmail compose). El panel solid-bg crea la modalidad
  * visual por sí mismo.
  *
- * El panel sigue constrained a `calc(100vh-4rem)` via styleClass para dejar
- * espacio al mobile footer.
+ * **Bottom drawers EXCEPTUADOS** (`.p-drawer-bottom`): son sheets parciales
+ * (e.g., customer filter sheet) que SÍ necesitan mask para indicar
+ * modalidad — la parte superior del viewport queda visible y debe
+ * dimearse, sino el user puede tappear breadcrumb/toolbar y romper flow.
+ * Tampoco aplicamos `top: 0` porque rompe el bottom-anchor (top:0 +
+ * bottom:0 + height fija → ancla al top en vez de al bottom).
+ *
+ * Selector `:not(.p-drawer-bottom)` para el panel + `body:has()` negation
+ * para el mask (que vive en body como sibling de la app, sin position
+ * class propia para identificar a qué drawer pertenece).
  */
 @media (max-width: 767.98px) {
-  .p-drawer-mask {
+  body:not(:has(.p-drawer-bottom.p-drawer-open)) .p-drawer-mask {
     display: none !important;
   }
   // Border-left del drawer position=right tiene sentido en desktop (separa
@@ -707,7 +715,7 @@ th[aria-sort="descending"] p-sorticon::before {
   // drawer aparezca instantáneamente, consistente con los otros overlays
   // (Menú, Más usan @if render sin animación). El `!important` vence los
   // inline styles que @angular/animations inyecta en el elemento.
-  .p-drawer {
+  .p-drawer:not(.p-drawer-bottom) {
     border: none !important;
     top: 0 !important;
     transition: none !important;

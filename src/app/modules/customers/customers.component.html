@@ -1,5 +1,8 @@
-<!-- Header -->
-<div class="flex items-start gap-2 justify-between flex-wrap">
+<!-- Header — `p-1` interno (4px) match al idiom de overview/home: el
+     parent layout aplica 8px (p-2) + este +4px da 12px total de
+     breathing top que separa el título del breadcrumb area sin
+     introducir un outer card visible. -->
+<div class="flex items-start gap-2 justify-between flex-wrap p-1">
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
     <div class="mt-1 leading-6 text-muted-color">
@@ -60,7 +63,7 @@
     selectedItemsLabel="{0} columnas seleccionadas"
     placeholder="Columnas"
     ariaLabel="Mostrar/ocultar columnas"
-    class="w-72"
+    class="hidden lg:inline-flex w-72"
   >
     <!--
       Override del remove icon del chip — el default de PrimeNG es un
@@ -96,11 +99,58 @@
       tooltipPosition="bottom"
       (onClick)="retry()"
     />
+    <!--
+      "Filtros" — solo en mobile. Reemplaza el surface de filter
+      access que en desktop vive en cada column header. Patrón Linear
+      / Airtable / Notion mobile: un punto único de filter access. El
+      badge muestra el count de filters activos (`activeFilters().length`)
+      para que el user sepa cuántos están aplicados sin abrir el drawer.
+    -->
     <p-button
-      label="Crear Cliente"
+      class="lg:hidden"
+      icon="fa-sharp fa-regular fa-filter"
+      [badge]="
+        activeFilters().length > 0
+          ? activeFilters().length.toString()
+          : undefined
+      "
+      badgeSeverity="contrast"
+      styleClass="p-button-tonal"
+      ariaLabel="Filtros y orden"
+      pTooltip="Filtros y orden"
+      tooltipPosition="bottom"
+      (onClick)="openFilterSheet()"
+    />
+    <!--
+      "Crear cliente" — labeled en desktop (lg+), icon-only en mobile.
+      En mobile el labeled toma 35% del toolbar y fuerza wrap; el
+      icon-only mantiene el CTA visible sin desplazar otros controles.
+      Patrón Stripe/Linear/Notion mobile: CTA primario reduce a icon
+      + tooltip cuando el viewport es estrecho.
+    -->
+    <p-button
+      class="hidden lg:inline-flex"
+      label="Crear cliente"
       icon="fa-sharp fa-regular fa-plus"
       iconPos="left"
       ariaLabel="Crear nuevo cliente"
+      (onClick)="onCreateCustomer()"
+    />
+    <!--
+      Mobile icon-only Crear: tonal en lugar de filled para visual
+      uniformity con Refresh y Filtros (los 3 icon-only del toolbar).
+      En desktop el Crear sí va filled (labeled, ancho mayor) por
+      jerarquía CTA. Bigtech mobile (Stripe, Linear) priorizan
+      consistency cromática cuando todos son icon-only — la
+      distinción CTA queda asignada al icono "+" semánticamente.
+    -->
+    <p-button
+      class="lg:hidden"
+      icon="fa-sharp fa-regular fa-plus"
+      styleClass="p-button-tonal"
+      ariaLabel="Crear nuevo cliente"
+      pTooltip="Crear cliente"
+      tooltipPosition="bottom"
       (onClick)="onCreateCustomer()"
     />
   </div>
@@ -221,7 +271,191 @@
       }
     </div>
   }
-  <div class="rounded-lg border border-surface w-full overflow-hidden">
+  <!--
+    MOBILE CARD-LIST VIEW (visible bajo `lg:`, < 1024px).
+
+    **Por qué custom card-list y no PrimeNG `responsiveLayout="stack"`**:
+    Stack mode renderiza cada `<td>` como línea vertical con data-label —
+    viable con tablas de 3-5 columnas (Stripe Notifications, GitHub),
+    inviable con nuestras 11 visibles default (genera "wall of text" por
+    cliente, destruye el escaneo). Bigtech con tablas densas (Salesforce,
+    HubSpot, Linear) convergen en card-list custom con jerarquía: campo
+    primario grande + secundarios resumidos + resto en detalle.
+
+    **Jerarquía implementada** (3 niveles visuales):
+      1. Header: Nombre (font-medium) + ··· action button
+      2. Subtitle: RUT (tabular-nums muted) + Tipo tag inline
+      3. Body grid: Vendedor / Crédito / Cartera (los 3 fields críticos
+         para identificar y priorizar al cliente en field work)
+
+    El resto de columnas (segmento, clasif, potencial, etc.) viven en
+    el detalle (tap card → futuro detail view) — patrón Stripe/HubSpot
+    Card list. v1 omite filtros y sort en mobile (deferred a bottom
+    sheet); el chip bar de filtros activos sí es visible y removible.
+
+    **Sincronización con filter state**: el `(onFilter)` del p-table
+    desktop publica `event.filteredValue`. Si el user filtra en una
+    sesión desktop y luego pasa a mobile, los cards muestran los datos
+    filtrados (ver `mobileSourceData` en .ts).
+  -->
+  <div class="lg:hidden flex-1 overflow-y-auto flex flex-col gap-3">
+    @if (loading()) {
+      @for (i of skeletonPlaceholders; track i) {
+        <article
+          class="border border-surface rounded-2xl p-4"
+          aria-busy="true"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <p-skeleton width="70%" height="1.25rem" />
+              <div class="mt-2 flex items-center gap-2">
+                <p-skeleton width="40%" height="1rem" />
+                <p-skeleton width="4rem" height="1.5rem" />
+              </div>
+            </div>
+            <p-skeleton shape="circle" size="2rem" />
+          </div>
+          <div class="mt-3 flex flex-col gap-2">
+            <p-skeleton width="80%" height="1rem" />
+            <p-skeleton width="60%" height="1rem" />
+            <p-skeleton width="50%" height="1.5rem" />
+          </div>
+        </article>
+      }
+    } @else if (mobileSourceData().length === 0) {
+      <app-empty-state
+        icon="fa-users"
+        title="Sin clientes"
+        description="No encontramos clientes que coincidan con los filtros aplicados. Limpia los filtros para ver el listado completo."
+        [bordered]="true"
+      />
+    } @else {
+      @for (item of mobilePagedData(); track item.id) {
+        <!--
+          Card body es full click target → openDetail. El ··· button
+          stopPropagation interno via `onCardClick` (que detecta target
+          dentro de p-button y aborta). Patrón Linear/HubSpot/Stripe:
+          tap card body → detail panel; ··· menu queda para acciones
+          rápidas (Eliminar) sin abrir detail.
+        -->
+        <article
+          class="border border-surface rounded-2xl p-4 cursor-pointer hover:bg-emphasis transition-colors"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="item.name + ' ' + item.rut"
+          (click)="onCardClick(item, $event)"
+          (keydown.enter)="openDetail(item)"
+          (keydown.space)="$event.preventDefault(); openDetail(item)"
+        >
+          <header class="flex items-start justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <h2 class="text-color font-medium leading-6 truncate">
+                {{ item.name }}
+              </h2>
+              <div class="mt-1 flex items-center gap-2 flex-wrap">
+                <span
+                  class="tabular-nums text-muted-color text-sm leading-5"
+                  >{{ item.rut }}</span
+                >
+                <p-tag
+                  [severity]="typeSeverity(item.type)"
+                  [value]="item.type"
+                  class="font-medium"
+                />
+              </div>
+            </div>
+            <p-button
+              (onClick)="displayPopover($event, op)"
+              icon="fa-sharp fa-regular fa-ellipsis"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              ariaLabel="Más acciones"
+              pTooltip="Más acciones"
+              tooltipPosition="left"
+            />
+          </header>
+          <dl
+            class="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm"
+          >
+            <dt class="text-muted-color leading-5">Vendedor</dt>
+            <dd class="text-color leading-5 min-w-0">
+              @if (item.assignedSellers.length > 0) {
+                <span>{{ item.assignedSellers[0] }}</span>
+                @if (item.assignedSellers.length > 1) {
+                  <span
+                    class="text-muted-color"
+                    [pTooltip]="
+                      additionalSellersTooltip(item.assignedSellers)
+                    "
+                    tooltipPosition="top"
+                    >· {{ item.assignedSellers.length - 1 }} más</span
+                  >
+                }
+              } @else {
+                <span class="text-muted-color">—</span>
+              }
+            </dd>
+            <dt class="text-muted-color leading-5">Crédito</dt>
+            <dd class="tabular-nums text-color leading-5">
+              {{ formatCredit(item.availableCredit) }}
+            </dd>
+            <!--
+              Cartera + Ciclo: dimensiones ortogonales del estado del
+              cliente. Cartera = salud financiera (paga al día / morosa
+              / inactiva). Ciclo = salud comercial / engagement
+              (recurrente, en peligro, fugado). Un cliente puede estar
+              "Activa" (Cartera) y simultáneamente "PELIGRO FUGA"
+              (Ciclo) — paga al día pero compra menos. Mostrarlas
+              juntas permite priorizar retención vs cobranza vs
+              upsell con un vistazo. Patrón HubSpot mobile: lifecycle
+              stage badge alongside financial state.
+            -->
+            <dt class="text-muted-color leading-5">Cartera</dt>
+            <dd>
+              <p-tag
+                [severity]="carteraSeverity(item.cartera)"
+                [value]="carteraLabel(item.cartera)"
+                class="font-medium"
+              />
+            </dd>
+            <dt class="text-muted-color leading-5">Ciclo</dt>
+            <dd>
+              <p-tag
+                [severity]="lifecycleSeverity(item.lifecycle)"
+                [value]="item.lifecycle"
+                class="font-medium"
+              />
+            </dd>
+          </dl>
+        </article>
+      }
+    }
+    <!--
+      Paginator mobile — standalone, independiente del que vive dentro
+      del `<p-table>` desktop. Sticky bottom para mantener controls
+      visibles mientras el user scrollea cards. Sólo renderiza cuando
+      hay datos (no en loading ni empty state); evita layout shift al
+      hidratar y skeleton row visualmente confusa.
+    -->
+    @if (!loading() && mobileSourceData().length > 0) {
+      <p-paginator
+        [first]="mobileFirst()"
+        [rows]="mobileRows()"
+        [totalRecords]="mobileSourceData().length"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{first}–{last} de {totalRecords}"
+        class="!bg-transparent sticky bottom-0"
+        (onPageChange)="onMobilePageChange($event)"
+      />
+    }
+  </div>
+
+  <!-- DESKTOP TABLE VIEW (visible en lg+, >= 1024px) -->
+  <div
+    class="hidden lg:block rounded-lg border border-surface w-full overflow-hidden"
+  >
     <p-table
       [value]="$any(tableData())"
       [loading]="loading()"
@@ -1183,4 +1417,376 @@
     </div>
   </ng-template>
 </p-popover>
+
+<!--
+  ─── MOBILE FILTER & SORT DRAWER ────────────────────────────────────
+  Bottom-sheet drawer (PrimeNG `<p-drawer position="bottom">`) que
+  centraliza todos los filter controls + sort selection en un único
+  surface. Reemplaza los `<p-columnFilter>` per-th que en mobile son
+  inaccesibles (la tabla está oculta).
+
+  **Arquitectura del estado**: El drawer NO mantiene buffer state —
+  cada control bind directo a `sheetFilterValue('field')` (read del
+  source de verdad: `Table.filters`) y dispara `applySheetFilter()`
+  on change → `Table.filter()` realtime. Side-effect: las cards detrás
+  del drawer translucent re-render mientras el user ajusta. Patrón
+  Stripe/Notion mobile (vs Apply-button + buffer que requeriría
+  duplicación de state y rollback en cancel).
+
+  **Sort**: dropdown único con presets `field:dir` (Linear/Stripe
+  pattern) — más compacto que field+dir separados, menos taps.
+-->
+<!--
+  Override de geometría:
+    1. PrimeNG aplica `inset: 0` sobre el panel `.p-drawer-bottom`
+       (top/right/bottom/left todos en 0). Combinado con height explícita
+       el browser ancla al TOP (top:0 + bottom:0 + height → top wins).
+       `!top-auto` cancela el top:0 → sólo `bottom:0` efectivo, altura
+       crece desde el bottom hacia arriba como bottom-sheet real.
+    2. `<app-mobile-footer>` (nav inferior mobile) tiene z-index 1200,
+       PrimeNG drawer default es 1102 → el nav queda ENCIMA del drawer
+       y oculta el footer Limpiar/Aplicar. `!z-[1300]` fuerza al drawer
+       a cubrir el nav cuando está abierto. Patrón bigtech: modal/sheet
+       overlay TODO el chrome, focus exclusivo en el drawer.
+-->
+<p-drawer
+  [(visible)]="filterSheetVisible"
+  position="bottom"
+  header="Filtros y orden"
+  [modal]="true"
+  styleClass="!h-[100dvh] !top-auto !z-[1300]"
+  [maskStyle]="{ 'z-index': 1290 }"
+>
+  <div class="flex flex-col gap-6 pb-6">
+    <!-- Sort -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="mobile-sort">
+        Ordenar por
+      </label>
+      <p-select
+        inputId="mobile-sort"
+        [options]="mobileSortOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="mobileSortOption()"
+        (ngModelChange)="mobileSortOption.set($event)"
+        placeholder="Sin orden"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <p-divider />
+
+    <!-- Tipo -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-type">
+        Tipo
+      </label>
+      <p-multiselect
+        inputId="sheet-type"
+        [options]="typeOptions"
+        [ngModel]="sheetFilterValue('type')"
+        (ngModelChange)="applySheetFilter($event, 'type', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Vendedor -->
+    <section class="flex flex-col gap-2">
+      <label
+        class="text-color font-semibold leading-6"
+        for="sheet-vendedor"
+      >
+        Vendedor asignado
+      </label>
+      <p-multiselect
+        inputId="sheet-vendedor"
+        [options]="availableSellers()"
+        [ngModel]="sheetFilterValue('assignedSellers')"
+        (ngModelChange)="
+          applySheetFilter($event, 'assignedSellers', arrayIntersectMatchMode)
+        "
+        placeholder="Cualquier vendedor"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Crédito disponible -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-credit">
+        Crédito disponible
+      </label>
+      <span class="text-sm text-muted-color leading-5">
+        {{
+          formatCredit(
+            ($any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()])[0]
+          )
+        }}
+        –
+        {{
+          formatCredit(
+            ($any(sheetFilterValue('availableCredit')) ??
+              [0, maxCredit()])[1]
+          )
+        }}
+      </span>
+      <p-slider
+        inputId="sheet-credit"
+        [ngModel]="
+          $any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()]
+        "
+        (ngModelChange)="
+          applySheetFilter($event, 'availableCredit', 'between')
+        "
+        [range]="true"
+        [min]="0"
+        [max]="maxCredit()"
+        [step]="500000"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Segmento -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-segmento">
+        Segmento
+      </label>
+      <p-multiselect
+        inputId="sheet-segmento"
+        [options]="segmentoOptions"
+        [ngModel]="sheetFilterValue('segmento')"
+        (ngModelChange)="applySheetFilter($event, 'segmento', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Clasif. crédito -->
+    <section class="flex flex-col gap-2">
+      <label
+        class="text-color font-semibold leading-6"
+        for="sheet-classification"
+      >
+        Clasif. crédito
+      </label>
+      <p-multiselect
+        inputId="sheet-classification"
+        [options]="classificationOptions"
+        [ngModel]="sheetFilterValue('creditClassification')"
+        (ngModelChange)="
+          applySheetFilter($event, 'creditClassification', 'in')
+        "
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Potencial -->
+    <section class="flex flex-col gap-2">
+      <label
+        class="text-color font-semibold leading-6"
+        for="sheet-potencial"
+      >
+        Potencial
+      </label>
+      <p-multiselect
+        inputId="sheet-potencial"
+        [options]="potencialOptions"
+        [ngModel]="sheetFilterValue('potencial')"
+        (ngModelChange)="applySheetFilter($event, 'potencial', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Cartera -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-cartera">
+        Cartera
+      </label>
+      <p-multiselect
+        inputId="sheet-cartera"
+        [options]="carteraOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="sheetFilterValue('cartera')"
+        (ngModelChange)="applySheetFilter($event, 'cartera', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+  </div>
+
+  <!--
+    Footer actions via slot `<ng-template #footer>` — PrimeNG drawer
+    renderiza este template FUERA del scroll body, en una zona footer
+    que NO scrollea con el contenido. Patrón correcto vs `position:
+    sticky` dentro del body (que se mueve con scroll porque el sticky
+    se ancla al containing block, no al viewport).
+
+    Anchos iguales via `flex-1` en host + `w-full` en styleClass (que
+    aplica al `<button>` interno; sin eso conserva natural width).
+    Limpiar usa `.p-button-tonal` por consistency con Refresh del
+    toolbar + Limpiar del chip bar. Aplicar queda filled-primary.
+  -->
+  <ng-template #footer>
+    <div
+      class="flex items-center gap-2 -mx-6 -mb-6 px-6 py-4 bg-surface-0 dark:bg-surface-950 border-t border-surface"
+    >
+      <p-button
+        label="Limpiar"
+        icon="fa-sharp fa-regular fa-filter-slash"
+        class="flex-1"
+        styleClass="w-full p-button-tonal"
+        [disabled]="activeFilters().length === 0"
+        (onClick)="clearAllFilters()"
+      />
+      <p-button
+        label="Aplicar"
+        class="flex-1"
+        styleClass="w-full"
+        (onClick)="closeFilterSheet()"
+      />
+    </div>
+  </ng-template>
+</p-drawer>
+
+<!--
+  ─── DETAIL DRAWER (universal mobile + desktop) ──────────────────────
+  Right-side drawer con info COMPLETA del cliente — todas las columnas
+  del modelo (no sólo las visibles en la tabla). Surface universal:
+  abierto desde tap card body en mobile, futuro click "Detalles" del
+  ··· menu en desktop. Patrón Linear/HubSpot/Stripe/Salesforce: detail
+  panel single-source, mismo componente cross-viewport.
+
+  Ancho responsive: 100% en mobile (sheet full-width), 480px en desktop
+  (panel side por defecto). Patrón GitHub PR sidebar / Linear issue
+  detail / Stripe customer detail.
+-->
+<p-drawer
+  [visible]="!!detailedCustomer()"
+  (visibleChange)="$event ? null : closeDetail()"
+  position="right"
+  styleClass="!w-full md:!w-[480px]"
+  [showCloseIcon]="true"
+  [dismissible]="true"
+>
+  <ng-template #header>
+    @if (detailedCustomer(); as c) {
+      <div class="flex flex-col gap-1 min-w-0 flex-1">
+        <h2 class="text-color font-bold leading-6 truncate">{{ c.name }}</h2>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="tabular-nums text-muted-color text-sm leading-5">{{
+            c.rut
+          }}</span>
+          <p-tag
+            [severity]="typeSeverity(c.type)"
+            [value]="c.type"
+            class="font-medium"
+          />
+        </div>
+      </div>
+    }
+  </ng-template>
+  @if (detailedCustomer(); as c) {
+    <dl
+      class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 leading-6 pb-6 border-b border-surface mb-6"
+    >
+      <dt class="text-muted-color">Email</dt>
+      <dd class="text-color truncate">{{ c.email }}</dd>
+
+      <dt class="text-muted-color">Vendedores</dt>
+      <dd class="text-color">
+        @if (c.assignedSellers.length > 0) {
+          {{ c.assignedSellers.join(", ") }}
+        } @else {
+          <span class="text-muted-color">—</span>
+        }
+      </dd>
+
+      <dt class="text-muted-color">Crédito disponible</dt>
+      <dd class="tabular-nums text-color">
+        {{ formatCredit(c.availableCredit) }}
+      </dd>
+      <dt class="text-muted-color">Crédito utilizado</dt>
+      <dd class="tabular-nums text-muted-color">
+        {{ formatCredit(c.usedCredit) }}
+      </dd>
+      <dt class="text-muted-color">Crédito asignado</dt>
+      <dd class="tabular-nums text-muted-color">
+        {{ formatCredit(c.assignedCredit) }}
+      </dd>
+
+      <dt class="text-muted-color">Segmento</dt>
+      <dd class="text-color">{{ c.segmento }}</dd>
+
+      <dt class="text-muted-color">Clasif. crédito</dt>
+      <dd>
+        <p-tag
+          [severity]="classificationSeverity(c.creditClassification)"
+          [value]="c.creditClassification"
+          class="font-medium"
+        />
+      </dd>
+
+      <dt class="text-muted-color">Potencial</dt>
+      <dd class="text-color">{{ c.potencial }}</dd>
+
+      <dt class="text-muted-color">Grupo descuento</dt>
+      <dd class="tabular-nums text-color">{{ c.discountGroup }}</dd>
+
+      <dt class="text-muted-color">Cartera</dt>
+      <dd>
+        <p-tag
+          [severity]="carteraSeverity(c.cartera)"
+          [value]="carteraLabel(c.cartera)"
+          class="font-medium"
+        />
+      </dd>
+
+      <dt class="text-muted-color">Ciclo de vida</dt>
+      <dd>
+        <p-tag
+          [severity]="lifecycleSeverity(c.lifecycle)"
+          [value]="c.lifecycle"
+          class="font-medium"
+        />
+      </dd>
+
+      <dt class="text-muted-color">Región</dt>
+      <dd class="text-color">{{ c.region }}</dd>
+      <dt class="text-muted-color">Ciudad</dt>
+      <dd class="text-color">{{ c.city }}</dd>
+    </dl>
+
+    <!-- Acciones: secundarias (Editar, Eliminar). Acción primaria
+         "Detalles" no aparece — el drawer ya ES el detalle. -->
+    <div class="flex items-center gap-2">
+      <p-button
+        label="Editar"
+        icon="fa-sharp fa-regular fa-pen"
+        severity="secondary"
+        outlined
+        class="flex-1"
+        (onClick)="closeDetail()"
+      />
+      <p-button
+        label="Eliminar"
+        icon="fa-sharp fa-regular fa-trash"
+        severity="danger"
+        outlined
+        class="flex-1"
+        (onClick)="closeDetail()"
+      />
+    </div>
+  }
+</p-drawer>
 

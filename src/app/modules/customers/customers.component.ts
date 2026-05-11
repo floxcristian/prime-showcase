@@ -14,10 +14,14 @@ import { FormsModule } from '@angular/forms';
 // PrimeNG
 import { FilterService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { Divider } from 'primeng/divider';
+import { Drawer } from 'primeng/drawer';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelect } from 'primeng/multiselect';
+import { Paginator, type PaginatorState } from 'primeng/paginator';
 import type { Popover } from 'primeng/popover';
 import { PopoverModule } from 'primeng/popover';
+import { Select } from 'primeng/select';
 import { Skeleton } from 'primeng/skeleton';
 import { Slider } from 'primeng/slider';
 import { Table, TableModule, type TableFilterEvent } from 'primeng/table';
@@ -46,9 +50,13 @@ import { CustomersMockService } from './services/customers-mock.service';
 const NG_MODULES = [CommonModule, FormsModule];
 const PRIME_MODULES = [
   ButtonModule,
+  Divider,
+  Drawer,
   InputTextModule,
   MultiSelect,
+  Paginator,
   PopoverModule,
+  Select,
   Skeleton,
   Slider,
   TableModule,
@@ -95,8 +103,18 @@ interface ActiveFilter {
   styleUrl: './customers.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    // Chrome del host responsive — patrón bigtech mobile (Stripe /
+    // Linear / Notion / HubSpot / Salesforce convergente):
+    //   Mobile (<lg): edge-to-edge sin border, sin rounded, sin
+    //     padding propio. El parent (`<app-main>` con `[class.p-2]`)
+    //     ya aplica 8px; el header interno usa `p-1` para que el
+    //     título tenga otros 4px de breathing — mismo idiom que
+    //     overview/home. Las cards individuales son los contenedores.
+    //   Desktop (lg+): outer card completo (`p-6 border rounded-2xl`)
+    //     porque la tabla es el contenido principal y necesita
+    //     containment visual + radius para integrarse al layout.
     class:
-      'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
+      'flex-1 h-full flex flex-col overflow-hidden lg:p-6 lg:border lg:border-surface lg:rounded-2xl',
   },
 })
 export class CustomersComponent {
@@ -621,8 +639,181 @@ export class CustomersComponent {
 
   protected readonly activeFilters = signal<readonly ActiveFilter[]>([]);
 
-  protected onTableFilter(_event: TableFilterEvent): void {
+  /**
+   * Filtered data eco para el card-list view mobile. PrimeNG Table emite
+   * `event.filteredValue` en `(onFilter)` con el resultado post-filter
+   * (NO post-paginate). Mobile cards leen de aquí cuando hay filtros
+   * activos; cuando no hay filtros este signal es `null` y mobile cae
+   * a `tableData()` (data completa). Asegura que un filter aplicado
+   * en una sesión desktop persiste correctamente al rotar a mobile.
+   */
+  private readonly _mobileFilteredData = signal<readonly Customer[] | null>(
+    null,
+  );
+
+  /**
+   * Source data del card-list mobile, con sort aplicado encima de
+   * filtered. Pipeline: tableData → filter → sort → paginate.
+   * Sort independiente del desktop (mobile tiene su propio dropdown
+   * de sort en el bottom-sheet) — patrón Stripe / Linear / Notion
+   * mobile: sort UI mobile ≠ column-header sort desktop.
+   */
+  protected readonly mobileSourceData = computed<readonly Customer[]>(() => {
+    const base = this._mobileFilteredData() ?? this.tableData();
+    const opt = this.mobileSortOption();
+    if (!opt || opt === '') return base;
+    const [field, dirStr] = opt.split(':') as [keyof Customer, '1' | '-1'];
+    const dir = dirStr === '-1' ? -1 : 1;
+    return [...base].sort((a, b) => {
+      const av = a[field];
+      const bv = b[field];
+      if (typeof av === 'string' && typeof bv === 'string') {
+        return av.localeCompare(bv) * dir;
+      }
+      if (typeof av === 'number' && typeof bv === 'number') {
+        return (av - bv) * dir;
+      }
+      return 0;
+    });
+  });
+
+  /**
+   * Slice paginado del card-list. Pagination state independiente del
+   * `<p-table>` desktop (que tiene su propio paginador interno).
+   * Reset a página 0 cuando cambia filter o sort (computed dependency
+   * a `mobileSourceData` produce nuevo array → reset via effect).
+   */
+  protected readonly mobilePagedData = computed<readonly Customer[]>(() => {
+    const data = this.mobileSourceData();
+    const first = this.mobileFirst();
+    const rows = this.mobileRows();
+    return data.slice(first, first + rows);
+  });
+
+  protected readonly mobileFirst = signal(0);
+  protected readonly mobileRows = signal(10);
+
+  protected onMobilePageChange(event: PaginatorState): void {
+    this.mobileFirst.set(event.first ?? 0);
+    this.mobileRows.set(event.rows ?? 10);
+  }
+
+  // ── Mobile filter & sort bottom-sheet ──────────────────────────────
+  //
+  // En mobile los `<p-columnFilter>` por header son inaccesibles (la
+  // tabla está oculta, el card-list no tiene headers). Reemplazamos
+  // con un `<p-drawer position="bottom">` que expone TODOS los filterables
+  // en un solo surface, plus un dropdown de Sort. Patrón Linear /
+  // Airtable / Notion mobile: filter+sort sheet único, scroll-friendly,
+  // dismiss con tap-outside o swipe-down.
+  //
+  // Apply pattern: realtime — cada cambio en un input dispara
+  // `Table.filter()` inmediatamente (no Apply button). UX preferido en
+  // mobile: feedback visual instantáneo en las cards detrás del drawer
+  // (parcialmente translúcido) deja al user ver el resultado mientras
+  // ajusta. Patrón Stripe/Notion. La alternativa (Apply button + buffer
+  // state) la considero pero overkill para este scope; agregable v3
+  // si la lista de cards crece y filtering en realtime se vuelve laggy.
+
+  protected readonly filterSheetVisible = signal(false);
+
+  /** Sort options del card-list mobile. Single select compacto: cada
+   * option es `field:dir` para que un solo click aplique ambas. Patrón
+   * Linear/Stripe mobile: presets sort en lugar de field+dir separados
+   * (más compacto, menos taps). */
+  protected readonly mobileSortOptions: { label: string; value: string }[] = [
+    { label: 'Sin orden', value: '' },
+    { label: 'Nombre (A → Z)', value: 'sortKey:1' },
+    { label: 'Nombre (Z → A)', value: 'sortKey:-1' },
+    { label: 'RUT (ascendente)', value: 'rut:1' },
+    { label: 'RUT (descendente)', value: 'rut:-1' },
+    { label: 'Crédito (mayor)', value: 'availableCredit:-1' },
+    { label: 'Crédito (menor)', value: 'availableCredit:1' },
+  ];
+
+  protected readonly mobileSortOption = signal<string>('');
+
+  protected openFilterSheet(): void {
+    this.filterSheetVisible.set(true);
+  }
+
+  protected closeFilterSheet(): void {
+    this.filterSheetVisible.set(false);
+  }
+
+  /** Helper genérico para que el drawer aplique cualquier filter. El
+   * value `null` o array vacío clear el filter (consistente con la
+   * API oficial `Table.filter()`). */
+  protected applySheetFilter(
+    value: unknown,
+    field: string,
+    matchMode: string,
+  ): void {
+    const normalized =
+      value == null ||
+      (Array.isArray(value) && value.length === 0) ||
+      value === ''
+        ? null
+        : value;
+    this.clientsTable()?.filter(normalized, field, matchMode);
+    this.mobileFirst.set(0);
+  }
+
+  /** Read del valor actual de un filter (para bind ngModel del drawer
+   * a la fuente de verdad — `table.filters`). Si el filter no existe
+   * o está null, devuelve undefined. */
+  protected sheetFilterValue<T>(field: string): T | undefined {
+    const t = this.clientsTable();
+    if (!t) return undefined;
+    const meta = t.filters[field];
+    if (!meta) return undefined;
+    const arr = Array.isArray(meta) ? meta[0] : meta;
+    return arr?.value as T | undefined;
+  }
+
+  // ── Detail drawer (universal mobile + desktop) ─────────────────────
+  //
+  // Tap card body (mobile) o click "Detalles" en el ··· menu (desktop)
+  // abre un drawer right-side con info COMPLETA del cliente — todas
+  // las columnas, no sólo las visibles en la tabla. Patrón Linear /
+  // HubSpot / Stripe / Salesforce: detail panel es UNIVERSAL, mismo
+  // surface para mobile y desktop, mismo único componente.
+
+  protected readonly detailedCustomer = signal<Customer | null>(null);
+
+  protected openDetail(customer: Customer): void {
+    this.detailedCustomer.set(customer);
+  }
+
+  protected closeDetail(): void {
+    this.detailedCustomer.set(null);
+  }
+
+  /** Click en card body → abre detail. Excluye click en el ··· button
+   * (chequeado via stopPropagation en el button mismo). */
+  protected onCardClick(customer: Customer, event: Event): void {
+    const target = event.target as HTMLElement | null;
+    // Si el click viene del ··· button o un descendiente, no abrir
+    // detail (el button maneja su propia acción via popover).
+    if (target?.closest('p-button')) return;
+    this.openDetail(customer);
+  }
+
+  protected onTableFilter(event: TableFilterEvent): void {
     this.refreshActiveFilters();
+    // Sync filtered data para mobile card-list. Si filteredValue es
+    // undefined o el array completo, dejamos null — mobile cae a
+    // tableData() (más eficiente, evita doble referencia al mismo array).
+    const filtered = event.filteredValue as Customer[] | undefined;
+    if (filtered && filtered.length !== this.tableData().length) {
+      this._mobileFilteredData.set(filtered);
+    } else {
+      this._mobileFilteredData.set(null);
+    }
+    // Reset mobile pagination al cambiar filters — caso típico:
+    // user en página 3 filtra y deja sólo 4 resultados; sin reset
+    // sigue intentando renderizar slice [20,30) sobre [0,4) → cards vacías.
+    this.mobileFirst.set(0);
   }
 
   protected removeFilter(filter: ActiveFilter): void {
@@ -633,6 +824,7 @@ export class CustomersComponent {
     const t = this.clientsTable();
     if (!t) return;
     t.clear();
+    this._mobileFilteredData.set(null);
     this.refreshActiveFilters();
   }
 
