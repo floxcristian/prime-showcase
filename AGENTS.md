@@ -128,6 +128,7 @@ Estructura de componente y patrones de host class detallados en `.claude/rules/c
 | `npm run storybook` | Dev server del catálogo en `:6006` | Construir/explorar primitivas y recipes |
 | `npm run build-storybook` | Build estático del catálogo a `dist/storybook/` | Antes de PR si tocaste stories |
 | `npm run visual` / `npm run visual:update` | Playwright golden-path baselines | Cambios visuales intencionales |
+| `npm run visual:baseline` | Orquestador: build + serve + install + `--update-snapshots` end-to-end | Refrescar baselines locales (preferir el workflow `Visual baselines (manual)` para evitar el flag local) |
 | `npm run a11y` | axe-core scan vía Playwright | Cualquier cambio que afecte semántica/contraste |
 | `npm run design-tokens:check` / `:sync` | Drift detector (`DESIGN.md` + `design-tokens/tokens.json` vs preset) / regenerar ambos artefactos | Después de modificar `app.preset.ts` |
 

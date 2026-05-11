@@ -15,6 +15,7 @@
     "design-tokens:sync": "node tools/design-tokens/sync.mjs --update",
     "visual": "playwright test --project=visual",
     "visual:update": "playwright test --project=visual --update-snapshots",
+    "visual:baseline": "tools/visual/baseline.sh",
     "a11y": "playwright test --project=a11y",
     "storybook": "ng run prime-showcase:storybook",
     "build-storybook": "ng run prime-showcase:build-storybook",
