@@ -13,6 +13,7 @@
 | `.claude/rules/primeng-patterns.md` | Cargado solo al tocar `src/**/*.{ts,html}` | Recetas detalladas de componentes PrimeNG |
 | `.claude/rules/component-architecture.md` | Cargado solo al tocar `src/app/**/*.component.ts` | Estructura, host class, signals, zoneless, imports Module vs Standalone |
 | `.claude/rules/ssr-and-runtime.md` | Cargado solo al tocar `src/**/*.{ts,html,scss}` | SSR guard, focus ring CSS-nativo, Chart.js, `<p-skeleton>`, `@defer hydrate` |
+| `.claude/rules/ux-patterns.md` | Cargado solo al tocar `src/**/*.{ts,html}` | Empty states, error states, toast, confirm dialogs, validación, forms |
 | `.claude/rules/eslint-plugin.md` | Cargado solo al tocar `tools/eslint/**/*` | Plugin local, reglas custom, agregar nuevas reglas |
 
 Path-scoped rules cargan **on demand** cuando los archivos matchean — saving de context window.

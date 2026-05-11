@@ -1,96 +1,223 @@
 ---
 name: PrimeNG Showcase
-version: alpha
+version: 1.0.0
 description: >
-  Design system del PrimeNG Showcase. Tokens derivados del preset Aura
-  (definido en src/app/app.config.ts) más restricciones de escala forzadas
-  por ESLint (tools/eslint/rules/*). Tool-agnostic — leído por Claude Code,
-  Codex, Cursor, reviewers humanos y contractors.
+  Design system del PrimeNG Showcase. Source of truth de runtime: preset Aura
+  en src/app/app.config.ts. Source of truth de escala: este archivo + las 19
+  reglas ESLint en tools/eslint/rules/*. Drift entre ambos detectado por
+  tools/design-tokens/sync.mjs (parte de `npm run lint`). Tool-agnostic —
+  leído por Claude Code, Codex, Cursor, reviewers humanos y contractors.
+
+# ─── Atmosphere ─────────────────────────────────────────────────────────
+# Calm density. ERP en español, sesiones de 8h, usuarios 25–60+.
+# 16px base → legibilidad gana a densidad. Single-hue 204° primary
+# (Pantone "Implementos blue") — lectura instantánea de marca sin pintar
+# todo de azul. Sin sombras: la elevación se construye con borde +
+# superficie. Motion casi ausente: animar solo color/opacidad/transform,
+# nunca layout. Vocabulario alineado con SAP Fiori 3+, ServiceNow,
+# Oracle Redwood — no con Linear/Stripe/Vercel (consumer-tech, target
+# distinto).
 
 colors:
+  # Primary palette — literal hex, single-hue 204°, generated from
+  # the brand logo (#006DB6). Synced from src/app/app.config.ts by
+  # tools/design-tokens/sync.mjs; do not hand-edit.
   primary:
-    50: "#eff8ff"
-    100: "#daeffc"
-    200: "#b2ddf9"
-    300: "#74c3f3"
-    400: "#27a0f1"
-    500: "#0074c2"
-    600: "#005c99"
-    700: "#004a7a"
-    800: "#00375c"
-    900: "#002842"
-    950: "#001829"
+    "50": "#eff8ff"
+    "100": "#daeffc"
+    "200": "#b2ddf9"
+    "300": "#74c3f3"
+    "400": "#27a0f1"
+    "500": "#0074c2"
+    "600": "#005c99"
+    "700": "#004a7a"
+    "800": "#00375c"
+    "900": "#002842"
+    "950": "#001829"
+  # Project-specific overrides on top of Aura defaults. Each entry
+  # is checked for drift against app.config.ts.
   semantic:
-    text: "var(--p-text-color)"
-    textMuted: "var(--p-text-muted-color)"
-    textPrimary: "{colors.primary.500}"
-    textPrimaryEmphasis: "{colors.primary.600}"
-    textPrimaryContrast: "var(--p-primary-contrast-color)"
-    surface0: "var(--p-surface-0)"
-    surface950: "var(--p-surface-950)"
-    emphasis: "var(--p-content-hover-background)"
-    borderSurface: "var(--p-surface-border-color)"
-    focusRingShadow: "0 0 0 0.2rem {colors.primary.200}"
+    textMutedColor:
+      light: "{surface.600}"   # AA-bumped from Aura default surface.500
+      dark: "{surface.300}"    # AAA-bumped from Aura default surface.400
+    focusRingShadow: "0 0 0 0.2rem {primary.200}"
+  # Semantic exceptions: nominal colors with FIXED meaning. Never used
+  # as general UI palette — only in indicators where the color carries
+  # information (status, brand, alert family).
+  exceptions:
+    violet: { fg: violet-950, bg: violet-100 }   # tags, categorías
+    orange: { fg: orange-950, bg: orange-100 }   # warnings, alertas
+    yellow: yellow-500                            # BTC icon
+    green: green-500                              # online / active dot
 
 typography:
   fontFamily: "Inter, system-ui, sans-serif"
-  base:
-    fontSize: 16px
-    lineHeight: 24px
   scale:
-    xs: { fontSize: 12px, lineHeight: 16px }
-    sm: { fontSize: 14px, lineHeight: 20px }
-    base: { fontSize: 16px, lineHeight: 24px }
-    xl: { fontSize: 20px, lineHeight: 28px }
+    xs:    { fontSize: 12px, lineHeight: 16px }
+    sm:    { fontSize: 14px, lineHeight: 20px }   # narrow containers only
+    base:  { fontSize: 16px, lineHeight: 24px }   # default for body/nav/input/label
+    xl:    { fontSize: 20px, lineHeight: 28px }
     "2xl": { fontSize: 24px, lineHeight: 32px }
     "3xl": { fontSize: 30px, lineHeight: 36px }
   weights:
-    normal: 400
-    medium: 500
-    semibold: 600
-    bold: 700
+    normal: 400      # ~5% of usage (checkbox/radio labels)
+    medium: 500      # default — ~85% of usage
+    semibold: 600    # input labels, nav active, last breadcrumb crumb
+    bold: 700        # card titles, hero text-3xl
 
 spacing:
   unit: 4px
-  gap: [4px, 8px, 12px, 16px, 20px, 24px, 32px]
-  padding: [4px, 8px, 12px, 16px, 24px]
-  margin: [0px, 4px, 8px, 16px, 24px]
+  scale:
+    "0":  0px
+    "1":  4px
+    "2":  8px       # default gap
+    "3":  12px
+    "4":  16px      # default padding, default mt/mb
+    "5":  20px
+    "6":  24px      # cards, sections
+    "8":  32px      # chat-only exception
 
 rounded:
   full: 9999px
-  lg: 8px
-  xl: 12px
-  "2xl": 16px
-  "3xl": 24px
+  lg:    8px        # buttons, inputs, badges, internal sub-containers
+  xl:    12px       # carousel items, media tiles, movie cards
+  "2xl": 16px       # data cards (most common)
+  "3xl": 24px       # form cards (profile, settings, file upload)
+
+# ─── Motion ─────────────────────────────────────────────────────────────
+# Aligned with Polaris (motion-fast, motion-base) and Carbon (productive
+# easing). Reduced-motion is honored globally via styles.scss.
+motion:
+  duration:
+    instant: 0ms      # color swap of PrimeNG components (preset override)
+    fast: 150ms       # default for transition-colors / transition-opacity
+    base: 250ms       # default for transition-transform on overlays
+  easing:
+    standard: "cubic-bezier(0.2, 0, 0, 1)"      # Aura default
+    decelerate: "cubic-bezier(0, 0, 0.2, 1)"
+    accelerate: "cubic-bezier(0.4, 0, 1, 1)"
+  reducedMotion:
+    strategy: "respect prefers-reduced-motion at all times; never animate layout."
+
+# ─── Z-index ladder ─────────────────────────────────────────────────────
+# Mirrors Primer's semantic ladder. Use named tokens, never raw numbers
+# beyond `z-10` (sticky headers).
+zIndex:
+  base:     0
+  sticky:   10        # in-page sticky headers (multi-panel scroll)
+  dropdown: 1000      # Aura PrimeNG default
+  overlay:  1100      # p-popover, p-menu (popup)
+  drawer:   1200      # p-drawer
+  modal:    1300      # p-dialog, p-confirmdialog
+  toast:    1400      # p-toast (above modals so errors mid-flow are visible)
+  tooltip:  1500      # always on top
+
+# ─── Opacity scale ──────────────────────────────────────────────────────
+opacity:
+  "0":  0
+  "20": 0.2          # disabled icons inside dark surfaces
+  "50": 0.5          # disabled controls
+  "70": 0.7          # hover on images and avatars (`hover:opacity-70`)
+  "100": 1
+
+# ─── Breakpoints ────────────────────────────────────────────────────────
+# Tailwind defaults; documented here so DESIGN.md is self-contained.
+breakpoints:
+  sm: 640px           # not used — `sm:` is forbidden by code review
+  md: 768px           # GRIDS ONLY (1col → 2col)
+  lg: 1024px          # secondary breakpoint (page chrome)
+  xl: 1280px          # PRIMARY breakpoint (panel layouts, navigation)
+touchTarget:
+  minSize: 44px       # WCAG 2.5.5 (and Apple HIG / Material) on coarse pointers
+  rule: "icon-only buttons must reach 44×44 hit-area via padding, even when the visible icon is smaller."
+
+# ─── Accessibility targets ──────────────────────────────────────────────
+# Every contrast ratio in this section is verified manually against the
+# resolved Aura preset. CI gate: `npm run a11y` (axe-core, see
+# .github/workflows/a11y.yml).
+accessibility:
+  contrastTargets:
+    bodyText: "WCAG 2.1 AA (4.5:1)"
+    largeText: "WCAG 2.1 AA (3:1)"
+    nonText: "WCAG 2.1 AA (3:1) — focus rings, icon buttons, dividers"
+    aspirational: "WCAG 2.1 AAA where reachable without dimming UX"
+  verifiedPairs:
+    primary500_on_surface0: "4.9:1 AA"
+    primary400_on_surface950: "7.0:1 AAA"
+    primary700_on_surface0: "10.5:1 AAA"
+    mutedText_light: "5.9:1 AA on surface.0; 5.0:1 AA on surface.200 hover"
+    mutedText_dark: "6.5:1 AAA on surface.950"
+  focusRing:
+    style: halo
+    width: 0.2rem
+    color: "{primary.200}"
+    enforcement: "global :focus-visible rule in styles.scss; never override per-component."
+
+# ─── Density ────────────────────────────────────────────────────────────
+# Single density today (productive). `compact` is reserved for future
+# power-user mode. Adding it requires a token in app.config.ts plus a
+# user toggle; do not attempt in components.
+density:
+  default: productive
+  productive:
+    bodyFontSize: 16px
+    rowHeight: 56px       # list items, chat rows, table cells
+    inputHeight: 40px
+  compact:
+    status: reserved      # not implemented; do not author components for it.
+
+# ─── Localization ───────────────────────────────────────────────────────
+localization:
+  primaryLanguage: es-CL
+  stringLengthBudget: "+25% vs English — every container must absorb this."
+  rtl:
+    status: "out of scope for v1; do not introduce ml-/mr-/pl-/pr- when ms-/me-/ps-/pe- exists."
+  numericFormatting: "format in component (.ts), never with template pipes (`| number`, `| date`)."
 
 components:
   button:
     rounded: "{rounded.lg}"
     padding: "0.25rem 1rem"
+    height: 40px
   card:
     rounded: "{rounded.2xl}"
     padding: "1.5rem"
-    backgroundColor: "{colors.semantic.surface0}"
-    borderColor: "{colors.semantic.borderSurface}"
+    border: "1px solid {surface-border-color}"
   formCard:
     rounded: "{rounded.3xl}"
     padding: "1.5rem"
   input:
     rounded: "{rounded.lg}"
+    height: 40px
   navItem:
     rounded: "{rounded.lg}"
     padding: "0.25rem 1rem"
+  formField:
+    invalidBorderColor:
+      light: "{rose.500}"   # softened from Aura red.500 → rose family (Apple HIG / Stripe / GitHub coral)
+      dark: "{rose.400}"
 ---
 
 # Overview
 
-Este documento define la identidad visual del PrimeNG Showcase. Es la **fuente de verdad de diseño** que cualquier agente o reviewer debe seguir. Las reglas se enforcen en tres capas:
+## Atmosphere
 
-1. **Tokens de runtime** — preset Aura en `src/app/app.config.ts` define los valores reales que sirve `tailwindcss-primeui`.
-2. **Lint rules** — `tools/eslint/rules/*` bloquean violaciones en CI (`showcase/no-hardcoded-colors`, `showcase/no-forbidden-spacing`, `showcase/no-forbidden-typography`, etc.). Detalle completo en `.claude/rules/eslint-plugin.md`.
-3. **Code review** — combinaciones tipográficas, jerarquía y receta-shopping que escapan al lint estático.
+PrimeNG Showcase **se siente quieto**. Los usuarios entran a las 9 AM y salen a las 18 PM; el chrome desaparece después de la primera media hora y lo único que queda es la tarea. Eso pide tres elecciones que el resto del documento solo ejecuta:
 
-**Filosofía:** consistencia interna sobre tendencias. Dominio ERP con sesiones de 8h en español → legibilidad gana a densidad. Patrón alineado con SAP Fiori 3+, ServiceNow, Oracle. No con Linear/Stripe/Vercel (target distinto).
+- **Calm density.** 16px en todo el chrome, gap-2 default, padding-4 default. El whitespace no es decoración — es la ergonomía que evita micro-frustraciones acumuladas.
+- **Low-saturation surfaces, single-hue accent.** Surfaces frías neutras; un solo hue (204°, "Implementos blue") en TODA la rampa primary. El acento es una señal, no una textura.
+- **Quiet motion.** Solo color/opacity/transform. Cero animaciones de layout. Cero "delight" gratuito. El usuario nota cuando algo se mueve, no cuando algo es bonito.
+
+Vocabulario alineado con SAP Fiori 3+, ServiceNow, Oracle Redwood. **No** con Linear/Stripe/Vercel — son consumer-tech, target distinto. Cuando dudes entre dos formas: la más quieta gana.
+
+## Enforcement layers
+
+Las reglas se enforcen en cuatro capas, de más fuerte a más débil:
+
+1. **Tokens de runtime** — preset Aura en `src/app/app.config.ts` es source of truth. `tools/design-tokens/sync.mjs` falla CI si DESIGN.md drift contra el preset.
+2. **ESLint plugin local** — 19 reglas en `tools/eslint/rules/*` bloquean violaciones de tokens, escala, tipografía, iconos, accesibilidad y patrones de PrimeNG. Detalle completo en `.claude/rules/eslint-plugin.md`.
+3. **Visual regression** — Playwright `toHaveScreenshot()` por módulo (ver `tests/visual/`). Captura cualquier cambio percibible que escape al lint estático.
+4. **Code review** — combinaciones tipográficas, jerarquía y receta-shopping que ningún linter atrapa. Si un reviewer humano no puede explicar por qué algo se ve "off", el system está bien.
 
 # Colors
 
@@ -442,6 +569,256 @@ rounded-3xl   → Form cards (profile, file upload, settings, price range)
 
 **Regla de jerarquía:** si un elemento vive DENTRO de un contenedor con `rounded-2xl` (host), usar `rounded-lg` para sub-contenedores internos. NO usar `rounded-2xl` para ambos — el radio interior debe ser menor que el exterior.
 
+# Motion
+
+## Filosofía
+
+**Animar el menor número posible de propiedades, durante el menor tiempo posible.** El usuario debe notar el cambio, no la animación. El proyecto desactiva las transiciones internas de PrimeNG (`transitionDuration: '0s'`) para evitar el flash de tema durante navegación client-side; las transiciones reales viven en clases Tailwind narrow.
+
+## Tokens
+
+```text
+DURATION
+  0ms     → cambios de tema PrimeNG (token de runtime, no propiedad CSS)
+  150ms   → transition-colors / transition-opacity (default narrow)
+  250ms   → transition-transform en overlays (sheets, panels)
+
+EASING
+  cubic-bezier(0.2, 0, 0, 1)   → standard (default Aura)
+  cubic-bezier(0, 0, 0.2, 1)   → decelerate (entradas)
+  cubic-bezier(0.4, 0, 1, 1)   → accelerate (salidas)
+```
+
+## Reglas
+
+- Usar `duration-150` SOLO con `<a>` de texto (regla de la receta de links).
+- Para todo lo demás: omitir `duration-*` y dejar que Aura aplique el default (que ya respeta el token de motion).
+- **Nunca** animar `width`, `height`, `top/left/right/bottom`, `margin`, `padding`. Son layout y causan reflow → jank perceptible.
+- Animar `transform: translate*` y `opacity` en su lugar.
+- `transition-all` está prohibido y enforced por `showcase/no-forbidden-transitions`.
+
+## `prefers-reduced-motion`
+
+El proyecto respeta la media query del sistema operativo. Cualquier animación añadida debe vivir dentro de:
+
+```scss
+@media (prefers-reduced-motion: no-preference) {
+  /* animations here */
+}
+```
+
+Validación: en CI corre `prefers-reduced-motion: reduce` como uno de los emulados de Playwright. Capturas con motion forzado a 0 deben ser estables (no pixel-jitter).
+
+# Z-Index
+
+## Escala semántica
+
+**Nunca** usar `z-[2000]` o números arbitrarios. Solo los tokens nombrados:
+
+```text
+0      base                                ← default, no z explícito
+10     sticky          (Tailwind: z-10)    ← sticky headers en multi-panel scroll
+1000   dropdown                            ← Aura default para overlays internos
+1100   overlay         (p-popover, p-menu) ← popups disparados desde botones
+1200   drawer          (p-drawer)          ← sheets laterales mobile
+1300   modal           (p-dialog, confirm) ← bloquean interacción con la página
+1400   toast           (p-toast)           ← arriba del modal: errores in-flow visibles
+1500   tooltip                             ← siempre on top, nunca tapado
+```
+
+## Reglas
+
+- Para sticky in-page: `class="sticky top-0 z-10"`.
+- Para overlays PrimeNG: el componente maneja z-index internamente — no override con `styleClass`.
+- Si necesitás un nuevo nivel: agregar al `zIndex` del front matter Y a `app.config.ts` como token semántico, nunca usar el número raw en el template.
+
+# Opacity
+
+## Escala
+
+```text
+opacity-0     → hidden (preferir `hidden` Tailwind o ngIf)
+opacity-20    → iconos disabled sobre superficies oscuras
+opacity-50    → controles disabled (default Aura aplica este via [disabled])
+opacity-70    → hover sobre imágenes y avatares (`hover:opacity-70`)
+opacity-100   → default
+```
+
+**No usar** valores arbitrarios (`opacity-[0.65]`) ni shades intermedios (`opacity-30`, `opacity-40`, `opacity-60`, `opacity-80`, `opacity-90`). La escala tiene exactamente cinco pasos.
+
+# Responsive Behavior
+
+## Breakpoints
+
+Tailwind defaults; documentados acá para que DESIGN.md sea autocontenido:
+
+```text
+sm:  640px    ← NO USAR (forbidden by code review)
+md:  768px    ← solo grids (1col → 2col)
+lg:  1024px   ← secundario (page chrome, panel padding)
+xl:  1280px   ← PRIMARY (panel layouts, navigation, side panels)
+```
+
+**Mobile-first:** sin prefijo es <md. Con `xl:` es ≥1280. Sin breakpoints intermedios — `sm:` está prohibido porque introduce un quinto nivel que confunde sin aportar.
+
+## Patrones responsive
+
+### Padding responsivo en cards data-heavy
+
+Cards que contienen charts/tablas tienen MÁS breathing room en desktop, MENOS en mobile:
+
+```html
+<div class="border border-surface rounded-2xl p-4 lg:py-5 lg:px-7">
+```
+
+Justificación: en mobile el espacio horizontal es escaso → `p-4` da más área útil al chart. En desktop hay aire de sobra → `py-5 px-7` mejora la jerarquía visual del header.
+
+### Colapso de panel secundario
+
+Multi-panel layouts ocultan el panel terciario por debajo de `xl:`:
+
+```html
+<div class="w-3/12 xl:block hidden min-w-40 overflow-auto">
+  <!-- panel oculto < 1280px -->
+</div>
+```
+
+### Touch targets
+
+Todo botón icon-only **debe** alcanzar 44×44px de hit-area en pointers gruesos (móvil/tablet). Si el ícono visible es más chico, expandir con padding:
+
+```html
+<button class="w-10 h-10 rounded-lg flex items-center justify-center ...">
+  <i class="fa-sharp fa-regular fa-arrow-left" aria-hidden="true"></i>
+</button>
+```
+
+`<p-button text>` ya respeta esto vía Aura. Validación: WCAG 2.5.5 (Target Size) y axe-core.
+
+# Accessibility
+
+## Contrast targets
+
+Todos los pares texto/fondo del proyecto cumplen **WCAG 2.1 AA** como mínimo. Pares verificados (manual + axe-core):
+
+| Par | Contraste | Nivel |
+|---|---:|---|
+| `primary.500` sobre `surface.0` | 4.9:1 | AA |
+| `primary.400` sobre `surface.950` (dark) | 7.0:1 | AAA |
+| `primary.700` sobre `surface.0` (active) | 10.5:1 | AAA |
+| `text-muted-color` light sobre `surface.0` | 5.9:1 | AA+ |
+| `text-muted-color` light sobre `surface.200` (hover) | 5.0:1 | AA |
+| `text-muted-color` dark sobre `surface.950` | 6.5:1 | AAA |
+
+**Para colores de excepción** (violet, orange, yellow, green): solo en indicadores con significado fijo, nunca como UI general. Cuando se usen sobre fondos custom, validar contraste en code review.
+
+## Focus management
+
+- **Halo único** definido por preset Aura: `box-shadow: 0 0 0 0.2rem {primary.200}`.
+- Aplicado globalmente vía `:focus-visible` en `styles.scss` — nunca per-componente.
+- Wrappers de PrimeNG (e.g. `p-autocomplete[multiple]`) usan `:focus-within` por sincronicidad CSS-nativa.
+- **Nunca** `outline: none` sin un focus indicator de reemplazo.
+
+## Keyboard navigation
+
+- `Tab`/`Shift+Tab` debe atravesar TODA la UI sin trampas.
+- Dialogs (`p-dialog`, `p-confirmdialog`) hacen focus trap automático — confirmar en review.
+- Menús (`p-menu` popup) deben abrirse con `Enter`/`Space`, navegarse con flechas, cerrarse con `Esc`.
+- Skip-links: para layouts multi-panel, agregar `<a href="#main" class="sr-only focus:not-sr-only">Saltar al contenido</a>`.
+
+## Live regions
+
+Contenido que cambia en runtime debe anunciarse a screen readers:
+
+```html
+<!-- Carousel pagination announcement -->
+<div class="sr-only" aria-live="polite" aria-atomic="true">
+  Página {{ page() + 1 }} de {{ maxPage() + 1 }}
+</div>
+
+<!-- Chat: nuevo mensaje recibido -->
+<div class="sr-only" aria-live="polite" aria-relevant="additions">
+  {{ lastIncomingMessage() }}
+</div>
+
+<!-- Toast / errores: ya manejado por p-toast con role=alert -->
+```
+
+`aria-live="polite"` no interrumpe; `assertive` solo para errores críticos.
+
+## Iconos decorativos vs informativos
+
+```html
+<!-- Decorativo (junto a texto que ya describe la acción) -->
+<i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
+
+<!-- Standalone (solo icono → necesita label) -->
+<button aria-label="Notificaciones">
+  <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
+</button>
+
+<!-- Botón PrimeNG icon-only — ariaLabel + pTooltip obligatorios -->
+<p-button icon="fa-sharp fa-regular fa-bell" ariaLabel="Notificaciones" pTooltip="Notificaciones" />
+```
+
+Enforced: `showcase/no-decorative-icon-without-aria-hidden`, `showcase/no-icon-button-without-tooltip`.
+
+## CI gate
+
+`npm run a11y` corre **axe-core** contra rutas clave (overview, chat, inbox, cards, customers). Falla en cualquier violación de severidad `serious` o `critical`. Workflow: `.github/workflows/a11y.yml`.
+
+# Density
+
+## Productive (default)
+
+Una única densidad: **productive**. Optimizada para sesiones de 8h en español.
+
+```text
+bodyFontSize:  16px
+rowHeight:     56px    ← list items, chat rows, table cells
+inputHeight:   40px
+```
+
+## Compact (futuro)
+
+`compact` está reservado para una futura modalidad power-user (admins, ops, sesiones rápidas). **No implementar componentes específicos para compact** — cuando llegue, será un toggle global que ajusta tokens (`--p-form-field-padding`, etc.) sin tocar templates.
+
+# Localization
+
+## Lengua principal
+
+**es-CL.** Spanish-first informa decisiones de tipografía (16px base) y de container sizing.
+
+## String length budget
+
+Toda etiqueta, botón, header debe absorber **+25%** de longitud vs el equivalente en inglés. "Save" → "Guardar" (×1.5). "Submit" → "Enviar" (×1.5). "Cancel" → "Cancelar" (×1.3). Containers fijos (`w-32`, `whitespace-nowrap`) son trampas — usar `min-w-*` + `flex-1` cuando sea posible.
+
+## RTL
+
+**Out of scope para v1.** No introducir markup right-to-left. Pero **sí** preferir logical properties (`ms-*`, `me-*`, `ps-*`, `pe-*`) cuando exista — facilita un eventual switch sin rewrite masivo.
+
+```html
+<!-- Preferido (LTR + RTL futuro) -->
+<div class="ms-2 pe-4">
+
+<!-- Aceptable (LTR-only) -->
+<div class="ml-2 pr-4">
+```
+
+## Numeric formatting
+
+Fechas, números y monedas se formatean en `.ts` (NO con pipes Angular `| date` `| number`). Usar `Intl.NumberFormat` y `Intl.DateTimeFormat` con locale `es-CL`. Razón: pipes invocan en CD; signals + computed + Intl es más eficiente y SSR-safe.
+
+```typescript
+private currencyFormatter = new Intl.NumberFormat('es-CL', {
+  style: 'currency',
+  currency: 'CLP',
+});
+
+// En el template: {{ formattedAmount() }}
+formattedAmount = computed(() => this.currencyFormatter.format(this.amount()));
+```
+
 # Components
 
 ## Estados interactivos
@@ -679,6 +1056,110 @@ El contraste outline/fill es lo que los usuarios reconocen instantáneamente (iO
 ### SVG inline
 
 Cuando se necesite SVG custom (logo), usar `fill="var(--p-primary-color)"` para respetar el tema.
+
+# Agent Prompt Guide
+
+Bloque self-contained con prompts re-usables para agentes (Claude Code, Codex, Cursor) que trabajan en este repo. Copiar-pegar funciona.
+
+## Quick reference cheat sheet
+
+```text
+COLORS       text-color | text-muted-color | text-primary | bg-surface-{0,50,100,200,800,900,950} | bg-emphasis | bg-primary | bg-primary-100
+TYPOGRAPHY   text-{xs,base,xl,2xl,3xl} + font-{normal,medium,semibold,bold} + leading-{4,5,6,7,8,normal,tight,none}
+SPACING      gap-{1,2,3,4,5,6,8} | p-{1,2,3,4,6} | m{t,b,x,y}-{0,1,2,4,6}
+ROUNDED      rounded-{full,lg,xl,2xl,3xl}
+TRANSITIONS  transition-{colors,opacity,transform} (NEVER transition-all)
+ICONS        fa-sharp fa-regular fa-{name}      ← inline default
+             fa-sharp fa-solid fa-{name}        ← toggle ON state only
+             fa-sharp-duotone fa-regular ≥ text-2xl ← decorative hero
+HOVER        hover:bg-emphasis (rows) | hover:opacity-70 (images) | hover:text-muted-color-emphasis (text)
+ACTIVE       text-primary-contrast bg-primary  (nav principal)
+             text-color bg-emphasis            (nav in-page, list items)
+DARK MODE    every bg-surface-* needs a dark:bg-surface-* counterpart
+```
+
+## Prompts ready-to-use
+
+### "Crear un nuevo módulo replicando el patrón de `customers`"
+
+```
+Crea un módulo `<feature>` en `src/app/modules/<feature>/`. Replica EXACTAMENTE
+la estructura de src/app/modules/customers (component .ts/.html/.scss vacío,
+constants/, mocks/, models/). Header de página con receta de DESIGN.md
+(text-3xl font-bold + subtítulo text-muted-color font-medium). <p-table>
+con [dt]=tableTokens, scrollHeight="flex", paginatorStyleClass="!bg-transparent".
+Cero CSS en el .scss. Antes de implementar: corre el MCP de PrimeNG para
+verificar APIs. Después: corre `npm run lint` y `npm run design-tokens:check`.
+```
+
+### "Agregar un componente nuevo de PrimeNG"
+
+```
+Necesito un <componente PrimeNG>. Antes de escribir código:
+1. Consulta el MCP @primeng/mcp para ver la API actual (props, eventos, slots).
+2. Busca en src/app/modules/ si ya hay un uso del mismo componente que pueda
+   replicar (regla #1: consistencia con lo existente).
+3. Verifica el receta para ese componente en .claude/rules/primeng-patterns.md.
+
+Reglas no negociables:
+- OnPush + standalone, signals para estado, inject() en lugar de constructor.
+- Cero CSS en .scss; todo Tailwind en el template usando design tokens del DESIGN.md.
+- Si es icon-only <p-button>: aria-label + pTooltip obligatorios (no excepciones).
+- Cualquier elemento con cursor-pointer DEBE tener un hover:* correspondiente.
+```
+
+### "Revisa este código contra el design system"
+
+```
+Revisa <archivo> contra DESIGN.md. Reporta cualquier violación de:
+- Tokens (text-gray-*, bg-blue-*, hex hardcodeado, etc.)
+- Escala de spacing/rounded/typography fuera de la permitida
+- Combinaciones tipográficas que no están en las recetas
+- Hover sin cursor-pointer (o viceversa) en HTML plano
+- transition-all
+- pButton aplicado a nav/list items
+- icon en <p-button> con clases que no son fa-*
+- bg-surface-* sin par dark:bg-surface-*
+- Iconos sharp-duotone inline o como toggle activo
+
+Output: lista priorizada por severidad (high/medium/low). Cita file:line.
+NO sugieras fixes — solo identifica.
+```
+
+### "Implementa estado de carga / error / vacío"
+
+```
+Para <feature>:
+- Loading: <p-skeleton> con dimensiones que matcheen el contenido real
+  (medir el componente real, reproducir alturas/anchos). aria-busy="true"
+  en el contenedor.
+- Empty state: <app-empty-state> con icono fa-sharp-duotone fa-regular text-4xl,
+  título text-2xl font-medium, descripción text-muted-color, CTA secundario
+  con outlined.
+- Error: toast severity="error" con mensaje accionable + posibilidad de retry.
+  Errores inline solo en form fields (Aura aplica invalidBorderColor automáticamente).
+
+Detalle completo en .claude/rules/ux-patterns.md.
+```
+
+### "Agrega una nueva regla ESLint al plugin local"
+
+```
+Crea showcase/<nueva-regla> en tools/eslint/rules/<nombre>.js:
+- // @ts-check + 'use strict'
+- meta.type='problem', meta.schema=[], meta.messages, meta.docs.description
+- Si necesita visitor de class strings: usa createClassAttrVisitor(context, fn)
+- Si necesita visitor element-level: visit Element con node.name === '<tag>'
+
+Crea suite RuleTester en tools/eslint/rules/__tests__/<nombre>.test.js:
+- Importa { RuleTester } de 'eslint' + templateParser de '@angular-eslint/template-parser'
+- Cubre: valid (5+ casos), invalid (5+ casos con messageId/data específicos),
+  bound attributes, ternarios, multiple violations en un mismo string.
+
+Registra en tools/eslint/plugin.js + eslint.config.js (severity error).
+Documenta en .claude/rules/eslint-plugin.md.
+Corre node --test tools/eslint/rules/__tests__/<nombre>.test.js antes de commit.
+```
 
 # Do's and Don'ts
 
