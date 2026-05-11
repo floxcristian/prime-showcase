@@ -71,10 +71,13 @@ const ALLOWED_TEXT_SIZE_EXCEPTIONS = new Set([
 
 // Matches text size utilities: text-xs, text-sm, text-base, text-lg, text-xl, text-2xl, etc.
 // Also matches arbitrary: text-[18px]
-const TEXT_SIZE_REGEX = /\btext-(?:xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl|\[\w+\])\b/g;
+// `(?!\w)` instead of trailing `\b` so bracketed arbitrary values match
+// — `\b` requires a word↔non-word transition which `]"` (both non-word)
+// doesn't satisfy, causing `text-[18px]` to silently fall through.
+const TEXT_SIZE_REGEX = /\btext-(?:xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl|\[[^\]]+\])(?!\w)/g;
 
 // Matches leading utilities: leading-5, leading-normal, leading-tight, leading-[1.5], etc.
-const LEADING_REGEX = /\bleading-(?:\d+|normal|none|tight|snug|relaxed|loose|\[.*?\])\b/g;
+const LEADING_REGEX = /\bleading-(?:\d+|normal|none|tight|snug|relaxed|loose|\[[^\]]+\])(?!\w)/g;
 
 // Matches font-weight utilities: font-thin, font-medium, font-bold, etc.
 const FONT_WEIGHT_REGEX = /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black)\b/g;
