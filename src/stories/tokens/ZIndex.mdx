@@ -1,0 +1,41 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Tokens/Z-Index" />
+
+# Z-Index
+
+Eight semantic tokens, no raw numbers. Mirrors Primer's ladder.
+
+```text
+0       base                                  ← default, no z explicit
+10      sticky          (Tailwind: z-10)      ← in-page sticky headers in multi-panel scroll
+1000    dropdown                              ← Aura default for internal overlays
+1100    overlay         (p-popover, p-menu)   ← popups anchored to a trigger
+1200    drawer          (p-drawer)            ← side sheets on mobile
+1300    modal           (p-dialog, confirm)   ← blocks page interaction
+1400    toast           (p-toast)             ← above modal — mid-flow errors stay visible
+1500    tooltip                               ← always on top, never occluded
+```
+
+## Rules
+
+- **In-page sticky**: `class="sticky top-0 z-10"` — only place where the
+  raw number `z-10` is used directly.
+- **PrimeNG overlays**: the component owns its z-index internally via
+  the Aura preset. Do NOT override with `styleClass`.
+- **New level needed?** Add a named entry to `zIndex` in the front matter
+  of `DESIGN.md` AND to `app.preset.ts` as a semantic token. Never use
+  a raw number in a template.
+
+## Why the toast sits above the modal
+
+Real-world flows: the user opens a confirm dialog (modal), confirms, the
+server returns an error. The toast must be visible WITHOUT closing the
+modal so the user can decide what to do next. Hence `toast = 1400 >
+modal = 1300`.
+
+## Verified usage
+
+- `class="sticky top-0 z-10 bg-surface-0 dark:bg-surface-950"` —
+  multi-panel sticky headers + chat / inbox / customers.
+- `p-toast` — appears above any open `p-dialog` in production.

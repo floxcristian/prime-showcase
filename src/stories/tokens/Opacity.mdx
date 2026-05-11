@@ -1,0 +1,49 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Tokens/Opacity" />
+
+# Opacity
+
+Five steps. No arbitrary values, no in-between shades.
+
+```text
+opacity-0     hidden (prefer `hidden` or @if for binary visibility)
+opacity-20    disabled icons on dark surfaces
+opacity-50    disabled controls (Aura applies this via [disabled])
+opacity-70    hover on images and avatars (`hover:opacity-70`)
+opacity-100   default
+```
+
+## Rules
+
+- **Hide** an element: prefer `hidden` Tailwind utility or `@if` over
+  `opacity-0`. Hidden elements should not occupy layout space; opacity-0
+  still takes space and remains focusable.
+- **Disabled state**: Aura already applies `opacity-50` via the
+  `[disabled]` attribute on `<p-button>`, `<input pInputText>`, etc.
+  Don't add it manually.
+- **Hover on images / avatars**:
+
+  ```html
+  <img class="hover:opacity-70 transition-opacity cursor-pointer" />
+  ```
+
+  Pair with `transition-opacity` so the change isn't a hard cut.
+
+## Forbidden
+
+- ❌ Arbitrary values: `opacity-[0.65]`, `opacity-[.85]`.
+- ❌ In-between named shades: `opacity-30`, `opacity-40`, `opacity-60`,
+  `opacity-80`, `opacity-90`. The scale has exactly five steps for a
+  reason — adding more dilutes the visual hierarchy of "active" vs
+  "muted" vs "hidden".
+
+## Where each step appears in production
+
+| Step | Where |
+|---|---|
+| `opacity-0` | Used internally by enter/leave animations, not in templates |
+| `opacity-20` | Drawer/dialog dimmer icons (e.g. close button on a busy backdrop) |
+| `opacity-50` | Disabled `<p-button>` / `<input>` (Aura-managed) |
+| `opacity-70` | Carousel image hover, avatar hover, link icon hover |
+| `opacity-100` | Default (omit the class) |

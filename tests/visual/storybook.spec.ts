@@ -72,6 +72,11 @@ const STORIES = [
   'recipes-page-header--with-count-pill',
   'recipes-form-card--profile',
   'recipes-form-card--minimal',
+  'recipes-multi-panel-layout--two-column',
+  'recipes-multi-panel-layout--three-column',
+  'recipes-data-table--basic',
+  'recipes-data-table--with-caption-toolbar',
+  'recipes-data-table--empty',
 ] as const;
 
 const THEMES = [
