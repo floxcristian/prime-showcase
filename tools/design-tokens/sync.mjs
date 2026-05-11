@@ -2,7 +2,7 @@
 /**
  * Design-token drift detector.
  *
- * **Why this exists.** The Aura preset in `src/app/app.config.ts` is the
+ * **Why this exists.** The Aura preset in `src/app/app.preset.ts` is the
  * runtime source of truth for every CSS variable PrimeNG emits. `DESIGN.md`
  * front matter mirrors a subset of those tokens for tool-agnostic consumers
  * (Codex, Cursor, Figma plugins, design reviewers). When the two drift, the
@@ -41,7 +41,10 @@ import { parseDocument } from 'yaml';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
-const PRESET_PATH = resolve(REPO_ROOT, 'src/app/app.config.ts');
+// Source of truth lives in app.preset.ts (extracted from app.config.ts so
+// that Storybook can consume the same preset without leaking app
+// providers). See src/app/app.preset.ts for the rationale.
+const PRESET_PATH = resolve(REPO_ROOT, 'src/app/app.preset.ts');
 const DESIGN_PATH = resolve(REPO_ROOT, 'DESIGN.md');
 
 const args = process.argv.slice(2);
@@ -237,7 +240,7 @@ function main() {
   const result = diff(expected, actual);
 
   if (result.ok) {
-    console.log('[design-tokens] DESIGN.md is in sync with src/app/app.config.ts ✓');
+    console.log('[design-tokens] DESIGN.md is in sync with src/app/app.preset.ts ✓');
     return;
   }
 
@@ -252,7 +255,7 @@ function main() {
     return;
   }
 
-  console.error('[design-tokens] DRIFT detected between DESIGN.md and src/app/app.config.ts:');
+  console.error('[design-tokens] DRIFT detected between DESIGN.md and src/app/app.preset.ts:');
   for (const d of result.diffs) console.error(`  • ${d}`);
   console.error('');
   console.error('  Resolve with: npm run design-tokens:sync -- --update');
