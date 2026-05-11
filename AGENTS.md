@@ -67,6 +67,19 @@ Agregar nuevas rutas como children en `src/app/app.routes.ts`:
 }
 ```
 
+## Storybook
+
+El catálogo vive en `src/stories/` y se publica en GitHub Pages en cada push a `main` (workflow `.github/workflows/storybook.yml`). Tres trees:
+
+```
+src/stories/
+  tokens/        ← Colors.mdx, Typography.mdx, …
+  primitives/    ← Button, Card, Tag, Avatar, ListItem, EmptyState
+  recipes/       ← PageHeader, FormCard, …
+```
+
+Al agregar un componente nuevo o una receta compuesta, **agregar story** en el tree correspondiente. Es el contrato visual que el equipo de 10+ devs consume para no divergir. Source of truth del preset: `src/app/app.preset.ts` (compartido entre runtime app y Storybook).
+
 ## Organización de archivos
 
 ```
@@ -104,13 +117,18 @@ Estructura de componente y patrones de host class detallados en `.claude/rules/c
 
 | Comando | Qué hace | Cuándo correrlo |
 |---|---|---|
-| `npm run lint` | `ng lint` (HTML + TS) **+** `lint:rules:test` (RuleTester suites + drift detection vs PrimeNG type defs) | Antes de cada commit |
+| `npm run lint` | `ng lint` (HTML + TS) **+** `lint:rules:test` (RuleTester suites + drift detection vs PrimeNG type defs) **+** `design-tokens:check` (drift vs `app.preset.ts`) | Antes de cada commit |
 | `npm run lint:fix` | Igual que `lint` con autofix | Limpiar warnings mecánicas |
 | `npm run lint:rules:test` | Solo tests del plugin local | Al modificar `tools/eslint/rules/*` |
 | `npm test` | `ng test` → vitest sobre `src/**/*.spec.ts` | Cambios en componentes/servicios |
 | `npm run build` | Build de producción + valida budgets | Antes de PR |
 | `npm run test:ssr:smoke` | 4 cookie cases del dark-mode SSR (necesita `serve:ssr:prime-showcase` en `:4000`) | Cambios en SSR/theme/cookie |
 | `npm run verify` | `lint && build && bundle:check && smoke` end-to-end | **Antes de pushear** — paridad exacta con CI |
+| `npm run storybook` | Dev server del catálogo en `:6006` | Construir/explorar primitivas y recipes |
+| `npm run build-storybook` | Build estático del catálogo a `dist/storybook/` | Antes de PR si tocaste stories |
+| `npm run visual` / `npm run visual:update` | Playwright golden-path baselines | Cambios visuales intencionales |
+| `npm run a11y` | axe-core scan vía Playwright | Cualquier cambio que afecte semántica/contraste |
+| `npm run design-tokens:check` / `:sync` | Drift detector / actualización del YAML de DESIGN.md | Después de modificar `app.preset.ts` |
 
 CI (`.github/workflows/ci.yml`) corre el equivalente de `verify` en cada push a main y cada PR.
 

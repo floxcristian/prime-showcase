@@ -18,6 +18,17 @@
 
 Path-scoped rules cargan **on demand** cuando los archivos matchean — saving de context window.
 
+## Storybook (`src/stories/**`)
+
+El catálogo de design system del proyecto. **Si agregás un componente nuevo o una receta compuesta**, agregá story en el tree correspondiente (`primitives/`, `recipes/`, `tokens/`). El catálogo se publica a GitHub Pages en push a `main`.
+
+Workflows asociados:
+- `npm run storybook` — dev server local en `:6006`.
+- `npm run build-storybook` — build estático a `dist/storybook/`.
+- `tests/visual/storybook.spec.ts` — baselines visuales a nivel componente.
+
+Preset Aura compartido (`src/app/app.preset.ts`): si modificás colores/tokens en el preset, corré `npm run design-tokens:sync -- --update` para reflejar en DESIGN.md, luego commit ambos archivos.
+
 ## MCP de PrimeNG (`@primeng/mcp`)
 
 Este proyecto tiene configurado el MCP oficial de PrimeNG (`.mcp.json`). **Usarlo siempre** antes de implementar o recomendar un componente PrimeNG para:

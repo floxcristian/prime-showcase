@@ -61,6 +61,10 @@ testem.log
 /test-results/
 /playwright/.cache/
 
+# Storybook build output (regenerated on every CI run, published to Pages)
+/dist/storybook/
+/storybook-static/
+
 # Claude Code local settings
 .claude/settings.local.json
 

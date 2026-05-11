@@ -212,12 +212,13 @@ Vocabulario alineado con SAP Fiori 3+, ServiceNow, Oracle Redwood. **No** con Li
 
 ## Enforcement layers
 
-Las reglas se enforcen en cuatro capas, de más fuerte a más débil:
+Las reglas se enforcen en cinco capas, de más fuerte a más débil:
 
-1. **Tokens de runtime** — preset Aura en `src/app/app.config.ts` es source of truth. `tools/design-tokens/sync.mjs` falla CI si DESIGN.md drift contra el preset.
+1. **Tokens de runtime** — preset Aura en `src/app/app.preset.ts` es source of truth (consumido por la app, por Storybook, y por el sync script). `tools/design-tokens/sync.mjs` falla CI si DESIGN.md drift contra el preset.
 2. **ESLint plugin local** — 19 reglas en `tools/eslint/rules/*` bloquean violaciones de tokens, escala, tipografía, iconos, accesibilidad y patrones de PrimeNG. Detalle completo en `.claude/rules/eslint-plugin.md`.
-3. **Visual regression** — Playwright `toHaveScreenshot()` por módulo (ver `tests/visual/`). Captura cualquier cambio percibible que escape al lint estático.
-4. **Code review** — combinaciones tipográficas, jerarquía y receta-shopping que ningún linter atrapa. Si un reviewer humano no puede explicar por qué algo se ve "off", el system está bien.
+3. **Storybook component catalog** — `src/stories/**` con primitivas, recipes y tokens documentados. Publicado a GitHub Pages en cada push a `main`. Diseñadores y nuevos devs consumen aquí.
+4. **Visual regression** — Playwright `toHaveScreenshot()` a nivel ruta (`tests/visual/golden-paths.spec.ts`) y a nivel componente (`tests/visual/storybook.spec.ts`). Captura cualquier cambio percibible que escape al lint estático.
+5. **Code review** — combinaciones tipográficas, jerarquía y receta-shopping que ningún linter atrapa. Si un reviewer humano no puede explicar por qué algo se ve "off", el system está bien.
 
 # Colors
 
