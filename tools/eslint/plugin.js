@@ -12,6 +12,7 @@
  *   showcase/no-forbidden-spacing  — Enforces spacing scale (gap, padding, margin)
  *   showcase/no-missing-dark-pair  — Requires dark: counterpart for bg-surface-* classes
  *   showcase/no-icon-button-without-tooltip — Requires pTooltip on icon-only <p-button>
+ *   showcase/no-color-on-pbutton-icon — Forbids non-fa-* tokens inside <p-button> `icon=` (color is owned by severity/skin)
  *   showcase/no-forbidden-transitions — Forbids transition-all / bare `transition` (use narrow variants)
  *   showcase/hover-requires-cursor-pointer — Requires cursor-pointer and hover:* to appear together
  *   showcase/no-bare-fa-without-sharp — Forbids fa-regular/fa-solid without fa-sharp prefix (invisible icon)
@@ -35,6 +36,7 @@ module.exports = {
     'no-missing-dark-pair': require('./rules/no-missing-dark-pair'),
     'no-forbidden-typography': require('./rules/no-forbidden-typography'),
     'no-icon-button-without-tooltip': require('./rules/no-icon-button-without-tooltip'),
+    'no-color-on-pbutton-icon': require('./rules/no-color-on-pbutton-icon'),
     'no-forbidden-transitions': require('./rules/no-forbidden-transitions'),
     'hover-requires-cursor-pointer': require('./rules/hover-requires-cursor-pointer'),
     'no-bare-fa-without-sharp': require('./rules/no-bare-fa-without-sharp'),
