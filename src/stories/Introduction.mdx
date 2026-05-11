@@ -1,0 +1,77 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Introduction" />
+
+# PrimeNG Showcase — Design System
+
+This catalog is the visual contract of the application. Every primitive,
+recipe, and token surface lives here and matches what production renders.
+
+## How this catalog is organized
+
+- **Tokens** — Colors, Typography, Spacing, Motion, Z-Index, Opacity. The
+  raw values defined in `src/app/app.preset.ts` (Aura preset) and verified
+  for drift against `DESIGN.md` by `tools/design-tokens/sync.mjs`.
+- **Primitives** — Single-component stories with every argType wired up
+  (Button, Card, Tag, Avatar, ListItem, EmptyState). Reviewers can flip
+  severity / state via the Controls panel and see the result live.
+- **Recipes** — Composed compositions from `DESIGN.md` (PageHeader,
+  FormCard, MultiPanel, DataTable). These are the patterns we copy-paste
+  into modules; if a recipe drifts here, modules drift too.
+
+## How the design system enforces itself
+
+Four layers, from strongest to weakest:
+
+1. **Runtime tokens** — `app.preset.ts` is the single source of truth.
+   The preset defines the Aura override that PrimeNG resolves at runtime.
+2. **ESLint design rules** — 19 custom rules in `tools/eslint/rules/*`
+   block design-system violations in PRs (forbidden colors, spacing
+   off-scale, transition-all, etc.).
+3. **Drift detection** — `npm run design-tokens:check` (part of `lint`)
+   asserts `DESIGN.md` mirrors `app.preset.ts`. Any drift fails CI.
+4. **Visual regression** — Playwright `toHaveScreenshot()` per route
+   (`tests/visual/`) plus Storybook-level captures planned via Chromatic.
+5. **Accessibility CI** — `@axe-core/playwright` scans every route and
+   gates on `serious`/`critical` violations. Mirrored in this catalog
+   via `@storybook/addon-a11y` (toggle "Accessibility" tab on any story).
+
+## Working with the catalog
+
+- **Toggle theme** — Sun/moon icon in the toolbar applies the `p-dark`
+  class to `<html>`, identical to the running app.
+- **Toggle viewport** — Device icon in the toolbar selects from mobile
+  (375), tablet (768), desktop (1280), wide (1440). Use this to validate
+  responsive recipes.
+- **Inspect accessibility** — "Accessibility" tab in the addons panel
+  shows axe-core results for the current story. Failures here will fail
+  the route-level a11y workflow too.
+- **Edit args live** — "Controls" tab lets you change props on the
+  rendered story. Useful for "what does this button look like with
+  severity=danger + outlined + loading?" without writing code.
+
+## Where things live
+
+| File | What |
+|---|---|
+| `DESIGN.md` | YAML token front matter + canonical recipes |
+| `AGENTS.md` | Stack, commands, architecture rules |
+| `src/app/app.preset.ts` | Aura preset definition (source of truth) |
+| `.claude/rules/*.md` | Path-scoped rules for agents |
+| `tools/eslint/rules/*` | Design-system ESLint rules |
+| `tools/design-tokens/sync.mjs` | Drift detector |
+| `src/stories/**` | This catalog |
+
+## Contributing
+
+A new component story should:
+
+1. Live in `src/stories/primitives/<Component>.stories.ts` (or
+   `recipes/`, `patterns/` depending on scope).
+2. Use `moduleMetadata` to import the PrimeNG/host component.
+3. Declare every meaningful `argType` so Controls work.
+4. Cover at minimum: default state, every severity/state used in the
+   app, and the disabled/loading variant if applicable.
+5. Tag with `'autodocs'` so the Docs page is generated.
+
+See `Button.stories.ts` for the canonical pattern.
