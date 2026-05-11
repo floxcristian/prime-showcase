@@ -53,6 +53,13 @@ testem.log
 *-detail.md
 *.png
 *.jpeg
+# Allow committed Playwright visual baselines (whitelisted by directory).
+!tests/visual/__screenshots__/**/*.png
+
+# Playwright artifacts (transient — uploaded as workflow artifacts on failure)
+/playwright-report/
+/test-results/
+/playwright/.cache/
 
 # Claude Code local settings
 .claude/settings.local.json
