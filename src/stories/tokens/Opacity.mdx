@@ -2,48 +2,48 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="Tokens/Opacity" />
 
-# Opacity
+# Opacidad
 
-Five steps. No arbitrary values, no in-between shades.
+Cinco pasos. Sin valores arbitrarios, sin tonos intermedios.
 
 ```text
-opacity-0     hidden (prefer `hidden` or @if for binary visibility)
-opacity-20    disabled icons on dark surfaces
-opacity-50    disabled controls (Aura applies this via [disabled])
-opacity-70    hover on images and avatars (`hover:opacity-70`)
-opacity-100   default
+opacity-0     oculto (preferir `hidden` o @if para visibilidad binaria)
+opacity-20    iconos disabled sobre surfaces oscuras
+opacity-50    controles disabled (Aura lo aplica vía [disabled])
+opacity-70    hover sobre imágenes y avatares (`hover:opacity-70`)
+opacity-100   por defecto
 ```
 
-## Rules
+## Reglas
 
-- **Hide** an element: prefer `hidden` Tailwind utility or `@if` over
-  `opacity-0`. Hidden elements should not occupy layout space; opacity-0
-  still takes space and remains focusable.
-- **Disabled state**: Aura already applies `opacity-50` via the
-  `[disabled]` attribute on `<p-button>`, `<input pInputText>`, etc.
-  Don't add it manually.
-- **Hover on images / avatars**:
+- **Ocultar** un elemento: preferir la utility `hidden` de Tailwind o `@if` antes que
+  `opacity-0`. Los elementos ocultos no deberían ocupar espacio de layout; opacity-0
+  igual ocupa espacio y sigue siendo focuseable.
+- **Estado disabled**: Aura ya aplica `opacity-50` vía el
+  atributo `[disabled]` en `<p-button>`, `<input pInputText>`, etc.
+  No agregarlo manualmente.
+- **Hover en imágenes / avatares**:
 
   ```html
   <img class="hover:opacity-70 transition-opacity cursor-pointer" />
   ```
 
-  Pair with `transition-opacity` so the change isn't a hard cut.
+  Combinarlo con `transition-opacity` para que el cambio no sea un corte duro.
 
-## Forbidden
+## Prohibido
 
-- ❌ Arbitrary values: `opacity-[0.65]`, `opacity-[.85]`.
-- ❌ In-between named shades: `opacity-30`, `opacity-40`, `opacity-60`,
-  `opacity-80`, `opacity-90`. The scale has exactly five steps for a
-  reason — adding more dilutes the visual hierarchy of "active" vs
+- ❌ Valores arbitrarios: `opacity-[0.65]`, `opacity-[.85]`.
+- ❌ Tonos nombrados intermedios: `opacity-30`, `opacity-40`, `opacity-60`,
+  `opacity-80`, `opacity-90`. La escala tiene exactamente cinco pasos por una
+  razón — agregar más diluye la jerarquía visual de "activo" vs
   "muted" vs "hidden".
 
-## Where each step appears in production
+## Dónde aparece cada paso en producción
 
-| Step | Where |
+| Paso | Dónde |
 |---|---|
-| `opacity-0` | Used internally by enter/leave animations, not in templates |
-| `opacity-20` | Drawer/dialog dimmer icons (e.g. close button on a busy backdrop) |
-| `opacity-50` | Disabled `<p-button>` / `<input>` (Aura-managed) |
-| `opacity-70` | Carousel image hover, avatar hover, link icon hover |
-| `opacity-100` | Default (omit the class) |
+| `opacity-0` | Usado internamente por animaciones de enter/leave, no en templates |
+| `opacity-20` | Iconos atenuados de drawer/dialog (ej. botón de cerrar sobre un backdrop cargado) |
+| `opacity-50` | `<p-button>` / `<input>` disabled (manejado por Aura) |
+| `opacity-70` | Hover de imagen en carousel, hover de avatar, hover de icono en link |
+| `opacity-100` | Default (omitir la clase) |

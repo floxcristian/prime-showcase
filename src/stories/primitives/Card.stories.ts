@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 
 /**
- * In this design system "Card" is a Tailwind composition, not a PrimeNG
- * component. Two variants are canonical:
- *   - Data card  → `rounded-2xl` (16px) for dashboards, list panels, charts.
- *   - Form card  → `rounded-3xl` (24px) for profile, settings, file upload.
+ * En este design system "Card" es una composición de Tailwind, no un componente
+ * de PrimeNG. Dos variantes son canónicas:
+ *   - Data card  → `rounded-2xl` (16px) para dashboards, paneles de listas, charts.
+ *   - Form card  → `rounded-3xl` (24px) para perfil, settings, file upload.
  *
- * Both share `border border-surface p-6`. Internal sub-containers step DOWN
- * to `rounded-lg` so the radius hierarchy reads correctly to the eye.
+ * Ambos comparten `border border-surface p-6`. Los sub-contenedores internos bajan
+ * a `rounded-lg` para que la jerarquía de radius se lea bien visualmente.
  *
- * No `shadow-*` — elevation is communicated via border, not light. This is
- * a deliberate DS choice; see `DESIGN.md` § Elevation & Depth.
+ * Sin `shadow-*` — la elevación se comunica vía borde, no vía luz. Es una decisión
+ * deliberada del design system; ver `DESIGN.md` § Elevation & Depth.
  */
 
 const meta: Meta = {
@@ -24,7 +24,7 @@ export const DataCard: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default card for dashboards and data panels. `rounded-2xl p-6`.',
+        story: 'Card default para dashboards y paneles de datos. `rounded-2xl p-6`.',
       },
     },
   },
@@ -47,7 +47,7 @@ export const FormCard: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form card with bigger radius (`rounded-3xl`) for profile / settings.',
+        story: 'Form card con radius más grande (`rounded-3xl`) para perfil / settings.',
       },
     },
   },
@@ -75,7 +75,7 @@ export const ExpandedHeader: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Card with the documented expanded header (`py-5 px-7`).',
+        story: 'Card con el header expandido documentado (`py-5 px-7`).',
       },
     },
   },

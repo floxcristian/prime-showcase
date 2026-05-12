@@ -3,13 +3,13 @@ import { moduleMetadata } from '@storybook/angular';
 import { Avatar } from 'primeng/avatar';
 
 /**
- * The list-item recipe is the most-used pattern in the app (chat list,
- * inbox, customers panel, notifications). Five variants are canonical
- * and locked in DESIGN.md § Components → Recipes de nav/list items.
+ * La receta de list-item es el patrón más usado de la app (chat list,
+ * inbox, panel de customers, notificaciones). Cinco variantes son canónicas
+ * y están fijadas en DESIGN.md § Components → Recipes de nav/list items.
  *
- * Don't add a new list-item shape here without updating DESIGN.md AND
- * checking with reviewers — the recipe consistency is what makes the
- * app feel like one system.
+ * No agregar una nueva forma de list-item acá sin actualizar DESIGN.md Y
+ * revisar con el equipo — la consistencia de la receta es lo que hace que
+ * la app se sienta como un solo sistema.
  */
 
 const meta: Meta = {
@@ -24,7 +24,7 @@ export const ChatRow: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Chat list row — avatar + name + preview + timestamp.',
+        story: 'Fila de chat list — avatar + nombre + preview + timestamp.',
       },
     },
   },
@@ -53,7 +53,7 @@ export const ChatRow: Story = {
 export const InboxRow: Story = {
   parameters: {
     docs: {
-      description: { story: 'Inbox/email row — unread state via font weight.' },
+      description: { story: 'Fila de inbox/email — estado no leído vía font weight.' },
     },
   },
   render: () => ({
@@ -78,7 +78,7 @@ export const InboxRow: Story = {
 export const NavInPage: Story = {
   parameters: {
     docs: {
-      description: { story: 'In-page navigation pill (active + inactive states).' },
+      description: { story: 'Pill de navegación in-page (estados activo + inactivo).' },
     },
   },
   render: () => ({
@@ -104,7 +104,7 @@ export const NavInPage: Story = {
 export const SettingsRow: Story = {
   parameters: {
     docs: {
-      description: { story: 'Settings row — icon + label + interactive control.' },
+      description: { story: 'Fila de settings — icono + label + control interactivo.' },
     },
   },
   render: () => ({

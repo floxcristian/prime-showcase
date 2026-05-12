@@ -17,12 +17,12 @@ const meta: Meta<TagArgs> = {
     docs: {
       description: {
         component: [
-          '`<p-tag>` for status badges, categories, and small inline indicators.',
-          'Use `severity` to map semantic meaning: `success` for active/online,',
-          '`danger` for inactive/error, `warn` for pending, `info` for informational.',
+          '`<p-tag>` para badges de estado, categorías e indicadores inline pequeños.',
+          'Usar `severity` para mapear el significado semántico: `success` para activo/online,',
+          '`danger` para inactivo/error, `warn` para pendiente, `info` para informativo.',
           '',
-          'Always pair with `value` (visible text). Icon-only tags are forbidden —',
-          'they degrade screen-reader experience and lose meaning in monochrome.',
+          'Siempre acompañar con `value` (texto visible). Los tags icon-only están prohibidos —',
+          'degradan la experiencia de screen readers y pierden significado en monocromo.',
         ].join(' '),
       },
     },
@@ -33,8 +33,8 @@ const meta: Meta<TagArgs> = {
       control: 'select',
       options: [undefined, 'secondary', 'success', 'info', 'warn', 'danger', 'contrast'],
     },
-    rounded: { control: 'boolean', description: 'Capsule shape.' },
-    icon: { control: 'text', description: 'Optional FA class string.' },
+    rounded: { control: 'boolean', description: 'Forma de cápsula.' },
+    icon: { control: 'text', description: 'String de clase FA opcional.' },
   },
   render: (args) => ({
     props: args,
@@ -48,7 +48,7 @@ type Story = StoryObj<TagArgs>;
 export const Success: Story = { args: { value: 'Activo', severity: 'success' } };
 export const Danger: Story = { args: { value: 'Inactivo', severity: 'danger' } };
 export const Warn: Story = { args: { value: 'Pendiente', severity: 'warn' } };
-export const Info: Story = { args: { value: 'Info', severity: 'info' } };
+export const Info: Story = { args: { value: 'Información', severity: 'info' } };
 export const Secondary: Story = { args: { value: 'Borrador', severity: 'secondary' } };
 
 export const WithIcon: Story = {
@@ -57,7 +57,7 @@ export const WithIcon: Story = {
 
 export const SeverityGrid: Story = {
   parameters: {
-    docs: { description: { story: 'Every severity at a glance for review.' } },
+    docs: { description: { story: 'Todas las severities de un vistazo para revisión.' } },
   },
   render: () => ({
     template: `
@@ -65,9 +65,9 @@ export const SeverityGrid: Story = {
         <p-tag value="Activo" severity="success" />
         <p-tag value="Pendiente" severity="warn" />
         <p-tag value="Inactivo" severity="danger" />
-        <p-tag value="Info" severity="info" />
+        <p-tag value="Información" severity="info" />
         <p-tag value="Borrador" severity="secondary" />
-        <p-tag value="Contrast" severity="contrast" />
+        <p-tag value="Destacado" severity="contrast" />
       </div>
     `,
   }),

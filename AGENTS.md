@@ -80,6 +80,50 @@ src/stories/
 
 Al agregar un componente nuevo o una receta compuesta, **agregar story** en el tree correspondiente. Es el contrato visual que el equipo de 10+ devs consume para no divergir. Source of truth del preset: `src/app/app.preset.ts` (compartido entre runtime app y Storybook).
 
+### Idioma del catálogo
+
+**Default: español.** El equipo trabaja en español, así que toda la documentación de stories (JSDoc, `parameters.docs.description.*`, `argTypes[*].description`) se escribe en español primero. La opción de inglés del toolbar (🇪🇸/🇬🇧) cambia únicamente el **contenido interactivo** de las stories que opt-in (labels de botón, captions, table cells de demo) — no las descripciones de docs, que `autodocs` evalúa estáticamente al cargar el meta.
+
+**Default ergonómico — solo español (90 % de las stories)**:
+
+```ts
+export const Primary: Story = {
+  args: { label: 'Guardar' },
+};
+```
+
+Sin imports, sin ceremonia. Si la story no necesita demo bilingüe (la mayoría) — no envolver con `tr()` ni `bilingualRender()`.
+
+**Demo bilingüe** (cuando el demo sirve para validar copy localizado o para revisores externos):
+
+```ts
+import { bilingualRender } from '../i18n';
+
+export const Primary: Story = {
+  render: bilingualRender(
+    { label: { es: 'Guardar', en: 'Save' } },
+    `<p-button [label]="label" />`,
+  ),
+};
+```
+
+El helper `bilingualRender(dict, template, extraProps?)` toma:
+1. Un dict de props bilingües (`Record<string, { es, en? }>`).
+2. El template Angular.
+3. Opcionalmente, props no-traducidos que se mergean tal cual.
+
+Helpers expuestos en [`src/stories/i18n.ts`](src/stories/i18n.ts):
+- `tr(str, locale)` — traducción puntual cuando `bilingualRender` es overkill.
+- `getLocale(ctx)` — narrowing seguro de `ctx.globals.locale` (typed `unknown`) a `Locale`. Usar siempre este helper en vez de leer el global directo — un typo en el key falla silencioso de otro modo.
+
+El campo `en` siempre es opcional — si se omite, el helper cae al `es`.
+
+Patrones de referencia:
+- [`src/stories/primitives/Button.stories.ts`](src/stories/primitives/Button.stories.ts) — 11 stories bilingües con `bilingualRender`.
+- [`src/stories/primitives/DensityToggle.stories.ts`](src/stories/primitives/DensityToggle.stories.ts) — wrapper component con `input<Locale>()` reactivo a cambios del toolbar.
+
+Configuración del toolbar: `.storybook/preview.ts → globalTypes.locale` + `initialGlobals.locale: 'es'`.
+
 ## Organización de archivos
 
 ```

@@ -2,73 +2,73 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="Tokens/Motion" />
 
-# Motion
+# Movimiento
 
-**Animate the minimum number of properties for the minimum time.** The
-user should notice the change, not the animation. PrimeNG internal
-transitions are disabled at runtime (`transitionDuration: '0s'` in
-`app.preset.ts`) to avoid the theme-flash during client-side navigation;
-all real transitions live in narrow Tailwind classes on the template.
+**Animar el mínimo de propiedades en el mínimo tiempo.** El
+usuario debería notar el cambio, no la animación. Las transiciones internas
+de PrimeNG están deshabilitadas en runtime (`transitionDuration: '0s'` en
+`app.preset.ts`) para evitar el theme-flash durante navegación client-side;
+todas las transiciones reales viven en clases narrow de Tailwind en el template.
 
 ## Tokens
 
 ```text
 DURATION
-  0ms     PrimeNG theme swap (runtime token, not a CSS property)
-  150ms   transition-colors / transition-opacity (default narrow)
-  250ms   transition-transform on overlays (sheets, panels)
+  0ms     PrimeNG theme swap (token de runtime, no es una propiedad CSS)
+  150ms   transition-colors / transition-opacity (narrow por default)
+  250ms   transition-transform en overlays (sheets, panels)
 
 EASING
-  cubic-bezier(0.2, 0, 0, 1)   standard (Aura default)
-  cubic-bezier(0, 0, 0.2, 1)   decelerate (entries)
-  cubic-bezier(0.4, 0, 1, 1)   accelerate (exits)
+  cubic-bezier(0.2, 0, 0, 1)   estándar (default Aura)
+  cubic-bezier(0, 0, 0.2, 1)   decelerate (entradas)
+  cubic-bezier(0.4, 0, 1, 1)   accelerate (salidas)
 ```
 
-## Allowed transition properties
+## Propiedades de transition permitidas
 
-| Property | Class | When |
+| Propiedad | Clase | Cuándo |
 |---|---|---|
-| Color / background | `transition-colors` | Default for interactive elements |
-| Opacity | `transition-opacity` | Images, avatars with hover-by-opacity |
-| Movement | `transition-transform` | Carousel, sheets, panels |
-| Specific axis | `transition-[transform]` | Narrowly-scoped overrides |
+| Color / fondo | `transition-colors` | Default para elementos interactivos |
+| Opacity | `transition-opacity` | Imágenes, avatares con hover por opacidad |
+| Movimiento | `transition-transform` | Carousel, sheets, panels |
+| Eje específico | `transition-[transform]` | Overrides narrowly-scoped |
 
-## Forbidden
+## Prohibido
 
-- ❌ `transition-all` — animates every changed property, hides reflow jank.
-  Blocked by `showcase/no-forbidden-transitions`.
-- ❌ Bare `transition` — same problem, ambiguous scope.
-- ❌ Animating `width`, `height`, `top/left/right/bottom`, `margin`,
-  `padding` — they trigger layout, cause reflow, look janky.
+- ❌ `transition-all` — anima toda propiedad que cambie, esconde jank por reflow.
+  Bloqueado por `showcase/no-forbidden-transitions`.
+- ❌ Bare `transition` — mismo problema, scope ambiguo.
+- ❌ Animar `width`, `height`, `top/left/right/bottom`, `margin`,
+  `padding` — gatillan layout, causan reflow, se ven con jank.
 
-Use `transform: translate*()` + `opacity` for movement instead. Position
-changes via transform are GPU-composited; layout properties aren't.
+Usar `transform: translate*()` + `opacity` para movimiento. Los cambios
+de posición vía transform son GPU-composited; las propiedades de layout no.
 
 ## `prefers-reduced-motion`
 
-The project respects the user's system setting. Any animation must live
-inside:
+El proyecto respeta el setting del sistema del usuario. Cualquier animación debe vivir
+dentro de:
 
 ```scss
 @media (prefers-reduced-motion: no-preference) {
-  /* animations here */
+  /* animaciones acá */
 }
 ```
 
-CI emulates `prefers-reduced-motion: reduce` in one Playwright suite
-configuration. Screenshots with motion forced to 0 must be stable
-(no pixel-jitter).
+CI emula `prefers-reduced-motion: reduce` en una configuración de Playwright suite.
+Los screenshots con motion forzado a 0 deben ser estables
+(sin pixel-jitter).
 
-## Duration recipe
+## Receta de duration
 
-The only place to declare `duration-*` explicitly is the canonical link
-recipe — text `<a>` elements:
+El único lugar donde se declara `duration-*` explícitamente es la receta
+canónica de link — elementos `<a>` de texto:
 
 ```html
 <a class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150">
-  Link text
+  Texto del enlace
 </a>
 ```
 
-For everything else: omit `duration-*` and let Aura's default apply (it
-already respects the motion token).
+Para todo lo demás: omitir `duration-*` y dejar que aplique el default de Aura (que
+ya respeta el motion token).

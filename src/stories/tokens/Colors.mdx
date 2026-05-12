@@ -2,26 +2,26 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="Tokens/Colors" />
 
-# Color tokens
+# Tokens de color
 
-Every color in the app comes from one of three layers, in order of preference:
+Cada color de la app viene de una de tres capas, en orden de preferencia:
 
 1. **Aura semantic tokens** (`text-color`, `text-muted-color`, `bg-surface-*`,
-   `bg-primary`, …). Use these for **everything UI**.
-2. **Project overrides** declared in `src/app/app.preset.ts`:
+   `bg-primary`, …). Usar estos para **todo lo de UI**.
+2. **Overrides del proyecto** declarados en `src/app/app.preset.ts`:
    `formField.invalidBorderColor: rose.500`, `text.muted.color: surface.600`
-   (light) / `surface.300` (dark). Drift-checked against `DESIGN.md` by
-   `tools/design-tokens/sync.mjs` on every `npm run lint`.
-3. **Semantic exceptions** — named Tailwind colors with FIXED meaning:
-   `green-500` (online / active dot), `yellow-500` (BTC), `violet-100` /
-   `orange-100` (status badges). Never used as general UI palette.
+   (light) / `surface.300` (dark). Validados con drift detection contra `DESIGN.md`
+   por `tools/design-tokens/sync.mjs` en cada `npm run lint`.
+3. **Excepciones semánticas** — colores nombrados de Tailwind con significado FIJO:
+   `green-500` (dot online / activo), `yellow-500` (BTC), `violet-100` /
+   `orange-100` (status badges). Nunca se usan como paleta general de UI.
 
-## Primary palette
+## Paleta primary
 
-Single-hue 204° (Pantone "Implementos blue"). Derived from the brand logo
-`public/implementos-logo.svg` (`#006DB6`). The entire ramp shares H=204, with
-S=100% except `.400` (88%, dropped to soften electric blue on dark) and
-the natural tints `.50`–`.300`.
+Single-hue 204° (Pantone "Implementos blue"). Derivada del logo de marca
+`public/implementos-logo.svg` (`#006DB6`). Toda la rampa comparte H=204, con
+S=100% excepto `.400` (88%, bajado para suavizar el azul eléctrico en dark) y
+las tintas naturales `.50`–`.300`.
 
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
   {[
@@ -47,25 +47,25 @@ the natural tints `.50`–`.300`.
   ))}
 </div>
 
-### Verified contrast
+### Contraste verificado
 
-| Pair | Contrast | Level |
+| Par | Contraste | Nivel |
 |---|---:|---|
-| `primary.500` on `surface.0` | 4.9:1 | WCAG 2.1 AA |
-| `primary.400` on `surface.950` (dark) | 7.0:1 | AAA |
-| `primary.700` on `surface.0` (active) | 10.5:1 | AAA |
+| `primary.500` sobre `surface.0` | 4.9:1 | WCAG 2.1 AA |
+| `primary.400` sobre `surface.950` (dark) | 7.0:1 | AAA |
+| `primary.700` sobre `surface.0` (active) | 10.5:1 | AAA |
 
-## Forbidden colors
+## Colores prohibidos
 
-- ❌ Generic Tailwind colors: `text-gray-500`, `bg-blue-100`, `text-slate-700`, etc.
-- ❌ Hex / rgb literals: `#fff`, `rgb(0, 0, 0)` — except inside Chart.js datasets where the
-  legend is built outside the Angular cascade.
-- ❌ `var(--p-…)` strings in TypeScript components that aren't reading runtime CSS.
+- ❌ Colores genéricos de Tailwind: `text-gray-500`, `bg-blue-100`, `text-slate-700`, etc.
+- ❌ Literales hex / rgb: `#fff`, `rgb(0, 0, 0)` — excepto dentro de datasets de Chart.js
+  donde la legend se construye fuera de la cascade de Angular.
+- ❌ Strings `var(--p-…)` en componentes TypeScript que no estén leyendo CSS en runtime.
 
-Enforced by:
+Enforcement vía:
 
-- `showcase/no-hardcoded-colors` — blocks generic / hex.
-- `showcase/no-missing-dark-pair` — every `bg-surface-*` needs a `dark:bg-surface-*`.
-- `tools/design-tokens/sync.mjs` — guards `DESIGN.md` against drift vs the preset.
+- `showcase/no-hardcoded-colors` — bloquea genéricos / hex.
+- `showcase/no-missing-dark-pair` — cada `bg-surface-*` necesita un `dark:bg-surface-*`.
+- `tools/design-tokens/sync.mjs` — protege `DESIGN.md` contra drift vs el preset.
 
-See `Primitives/Button` and `Primitives/Tag` for token usage in component context.
+Ver `Primitives/Button` y `Primitives/Tag` para uso de tokens en contexto de componente.

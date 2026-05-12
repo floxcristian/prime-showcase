@@ -19,17 +19,17 @@ const meta: Meta<AvatarArgs> = {
     docs: {
       description: {
         component: [
-          '`<p-avatar>` for user/entity representation. Always prefer an image;',
-          'fall back to initials only when no image is available. Initials avatars',
-          'use a SINGLE color across the app (`!bg-primary-100 !text-primary-950`)',
-          'so users see them as "no photo yet" rather than as a colorful taxonomy.',
+          '`<p-avatar>` para representar usuarios o entidades. Siempre preferir una imagen;',
+          'usar iniciales como fallback solo cuando no hay imagen disponible. Los avatares con iniciales',
+          'usan UN SOLO color en toda la app (`!bg-primary-100 !text-primary-950`)',
+          'para que el usuario los lea como "todavía sin foto" y no como una taxonomía de colores.',
         ].join(' '),
       },
     },
   },
   argTypes: {
     image: { control: 'text' },
-    label: { control: 'text', description: 'Initials (use when no image).' },
+    label: { control: 'text', description: 'Iniciales (usar cuando no hay imagen).' },
     shape: { control: 'inline-radio', options: ['square', 'circle'] },
     size: { control: 'select', options: ['normal', 'large', 'xlarge'] },
     styleClass: { control: 'text' },
@@ -72,7 +72,7 @@ export const StatusBadge: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Avatar wrapped in `<p-overlayBadge>` for online/notification dots.',
+        story: 'Avatar envuelto en `<p-overlayBadge>` para dots de estado online/notificaciones.',
       },
     },
   },
@@ -90,7 +90,7 @@ export const StatusBadge: Story = {
 };
 
 export const SizeScale: Story = {
-  parameters: { docs: { description: { story: 'Normal / large / xlarge.' } } },
+  parameters: { docs: { description: { story: 'Escala normal / large / xlarge.' } } },
   render: () => ({
     template: `
       <div style="display: flex; align-items: center; gap: 1rem;">

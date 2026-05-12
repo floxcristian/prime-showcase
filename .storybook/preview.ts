@@ -136,9 +136,57 @@ const preview: Preview = {
     },
   },
 
-  // Global toolbar args — every story can read these via `args` for
-  // consistent behavior (e.g. demonstrating RTL when it ships).
-  globalTypes: {},
+  /**
+   * Global toolbar args — every story puede leerlos via el segundo
+   * argumento de `render(args, context)` para variar contenido demo
+   * según el locale activo.
+   *
+   * **Locale**: cambia el idioma del **contenido interactivo** de las
+   * stories (labels de botón, captions de demo, contenido de tabla).
+   *
+   * **No cambia** las descripciones de docs (`parameters.docs.
+   * description.component`) — autodocs las evalúa estáticamente al
+   * cargar el meta, no en cada render. La documentación es siempre
+   * **español-primario** porque el equipo del proyecto trabaja en
+   * español; ese también es el default del toolbar. La opción EN
+   * existe para revisores externos o para validar copies localizados
+   * en los demos. Migrar las descripciones a bilingüe completo requiere
+   * MDX cards custom — fuera de scope para esta iteración.
+   *
+   * Pattern de uso en stories:
+   *
+   * ```ts
+   * import { tr } from './i18n';
+   * render: (args, ctx) => ({
+   *   props: { label: tr({ es: 'Guardar', en: 'Save' }, ctx.globals['locale']) },
+   *   template: `<p-button [label]="label" />`,
+   * }),
+   * ```
+   */
+  globalTypes: {
+    locale: {
+      name: 'Idioma',
+      description:
+        'Idioma del contenido interactivo (la documentación estática queda en español)',
+      toolbar: {
+        title: 'Idioma',
+        icon: 'globe',
+        items: [
+          { value: 'es', title: 'Español', right: '🇪🇸' },
+          { value: 'en', title: 'English', right: '🇬🇧' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+
+  // Storybook 8+ deprecó `defaultValue` dentro de globalTypes en favor
+  // de `initialGlobals` top-level — única forma soportada de fijar el
+  // valor inicial del toolbar. Tener ambos era redundante y rompería
+  // silenciosamente cuando Storybook remueva el path deprecado.
+  initialGlobals: {
+    locale: 'es',
+  },
 
   tags: ['autodocs'],
 };

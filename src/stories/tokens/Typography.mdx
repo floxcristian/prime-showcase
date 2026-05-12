@@ -2,94 +2,94 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="Tokens/Typography" />
 
-# Typography
+# Tipografía
 
-**16px** is the base size across the entire chrome of the application —
-body, nav, inputs, buttons, menus, labels, breadcrumbs, list items.
-Spanish-first ERP + 8h sessions = legibility wins over density.
+**16px** es el tamaño base en todo el chrome de la aplicación —
+body, nav, inputs, buttons, menús, labels, breadcrumbs, list items.
+ERP en español + sesiones de 8h = legibilidad le gana a densidad.
 
-The font is **Inter Variable**, self-hosted from `@fontsource-variable/inter`
-to avoid the Google Fonts CDN.
+La fuente es **Inter Variable**, self-hosted desde `@fontsource-variable/inter`
+para evitar el CDN de Google Fonts.
 
-## Scale (6 steps)
+## Escala (6 pasos)
 
 <div style={{ marginTop: '1rem', fontFamily: 'Inter Variable, system-ui, sans-serif' }}>
   <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #e4e4e7' }}>
     <span style={{ fontSize: '0.75rem', color: '#52525b' }}>text-xs · 12 / 16</span>
-    <div style={{ fontSize: '12px', lineHeight: '16px' }}>The quick brown fox jumps over the lazy dog</div>
+    <div style={{ fontSize: '12px', lineHeight: '16px' }}>El veloz murciélago hindú comía feliz cardillo y kiwi</div>
   </div>
   <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #e4e4e7' }}>
-    <span style={{ fontSize: '0.75rem', color: '#52525b' }}>text-sm · 14 / 20 (narrow containers only)</span>
-    <div style={{ fontSize: '14px', lineHeight: '20px' }}>The quick brown fox jumps over the lazy dog</div>
+    <span style={{ fontSize: '0.75rem', color: '#52525b' }}>text-sm · 14 / 20 (solo en contenedores estrechos)</span>
+    <div style={{ fontSize: '14px', lineHeight: '20px' }}>El veloz murciélago hindú comía feliz cardillo y kiwi</div>
   </div>
   <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #e4e4e7' }}>
     <span style={{ fontSize: '0.75rem', color: '#52525b' }}>text-base · 16 / 24 (DEFAULT)</span>
-    <div style={{ fontSize: '16px', lineHeight: '24px' }}>The quick brown fox jumps over the lazy dog</div>
+    <div style={{ fontSize: '16px', lineHeight: '24px' }}>El veloz murciélago hindú comía feliz cardillo y kiwi</div>
   </div>
   <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #e4e4e7' }}>
     <span style={{ fontSize: '0.75rem', color: '#52525b' }}>text-xl · 20 / 28</span>
-    <div style={{ fontSize: '20px', lineHeight: '28px' }}>The quick brown fox jumps over the lazy dog</div>
+    <div style={{ fontSize: '20px', lineHeight: '28px' }}>El veloz murciélago hindú comía feliz cardillo y kiwi</div>
   </div>
   <div style={{ padding: '0.5rem 0', borderBottom: '1px solid #e4e4e7' }}>
     <span style={{ fontSize: '0.75rem', color: '#52525b' }}>text-2xl · 24 / 32</span>
-    <div style={{ fontSize: '24px', lineHeight: '32px' }}>The quick brown fox jumps</div>
+    <div style={{ fontSize: '24px', lineHeight: '32px' }}>El veloz murciélago hindú</div>
   </div>
   <div style={{ padding: '0.5rem 0' }}>
     <span style={{ fontSize: '0.75rem', color: '#52525b' }}>text-3xl · 30 / 36</span>
-    <div style={{ fontSize: '30px', lineHeight: '36px', fontWeight: 700 }}>The quick brown fox</div>
+    <div style={{ fontSize: '30px', lineHeight: '36px', fontWeight: 700 }}>El veloz murciélago</div>
   </div>
 </div>
 
-## Approved combinations
+## Combinaciones aprobadas
 
-Each combination below is canonical. Anything outside this list goes through
-code review.
+Cada combinación más abajo es canónica. Cualquier cosa fuera de esta lista
+pasa por code review.
 
 ```text
-TITLES
-  text-3xl font-bold     leading-normal    ← hero (text-3xl ALWAYS bold, ESLint-enforced)
-  text-2xl font-medium   leading-8         ← section
-  text-xl  font-medium   leading-7         ← subsection (inbox / movies headers)
+TÍTULOS
+  text-3xl font-bold     leading-normal    ← hero (text-3xl SIEMPRE bold, enforced por ESLint)
+  text-2xl font-medium   leading-8         ← sección
+  text-xl  font-medium   leading-7         ← subsección (headers de inbox / movies)
 
-SUBTITLES
-  text-muted-color font-medium leading-normal   ← page subtitle
-  text-color       font-bold   leading-6        ← card title
+SUBTÍTULOS
+  text-muted-color font-medium leading-normal   ← subtítulo de página
+  text-color       font-bold   leading-6        ← título de card
 
 LABELS
-  text-color font-semibold leading-6   ← input label (above the field)
-  text-color font-normal   leading-6   ← checkbox/radio label (beside the control)
+  text-color font-semibold leading-6   ← label de input (arriba del control)
+  text-color font-normal   leading-6   ← label de checkbox/radio (al lado del control)
 
 LINKS
   font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150
 
 BODY / NAV
-  text-color leading-6                  ← body default
+  text-color leading-6                  ← body por defecto
   font-medium leading-6                 ← nav item (L1, L2, breadcrumb)
-  font-semibold leading-6               ← nav active / breadcrumb last crumb
+  font-semibold leading-6               ← nav activo / último crumb del breadcrumb
 
-SMALL
-  text-xs font-medium                   ← badges / counters / pills
+PEQUEÑO
+  text-xs font-medium                   ← badges / contadores / pills
   text-xs leading-4                     ← emails / sub-labels / timestamps
 
-SPECIAL (narrow containers only)
+ESPECIAL (solo contenedores estrechos)
   text-sm font-medium leading-tight     ← movie titles
-  text-sm font-medium leading-none      ← avatar overlay labels
+  text-sm font-medium leading-none      ← labels de avatar overlay
 ```
 
-## Weight distribution
+## Distribución de pesos
 
-| Weight | Usage |
+| Peso | Uso |
 |---|---|
-| `font-medium` (500) | DEFAULT — ~85% of usage |
-| `font-semibold` (600) | Input labels, nav active, breadcrumb last crumb |
-| `font-bold` (700) | Card title, `text-3xl` hero |
-| `font-normal` (400) | Checkbox / radio labels only |
+| `font-medium` (500) | DEFAULT — ~85% del uso |
+| `font-semibold` (600) | Labels de input, nav activo, último crumb del breadcrumb |
+| `font-bold` (700) | Título de card, hero `text-3xl` |
+| `font-normal` (400) | Solo labels de checkbox / radio |
 
 Enforcement:
 
-- `showcase/text-3xl-requires-bold` — hero text-3xl must be `font-bold`.
-- `showcase/label-requires-semibold` — input labels must be `font-semibold`;
-  checkbox / radio labels must be `font-normal` (and never `font-semibold`).
-- `showcase/no-forbidden-typography` — blocks off-scale sizes / weights.
+- `showcase/text-3xl-requires-bold` — hero text-3xl debe ser `font-bold`.
+- `showcase/label-requires-semibold` — labels de input deben ser `font-semibold`;
+  labels de checkbox / radio deben ser `font-normal` (y nunca `font-semibold`).
+- `showcase/no-forbidden-typography` — bloquea tamaños / pesos fuera de escala.
 
-See `Primitives/Button`, `Recipes/Page Header`, `Recipes/Form Card` for live examples.
+Ver `Primitives/Button`, `Recipes/Page Header`, `Recipes/Form Card` para ejemplos en vivo.

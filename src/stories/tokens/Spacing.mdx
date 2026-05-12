@@ -4,21 +4,21 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Spacing
 
-One scale, three families. Every gap / padding / margin in the chrome
-must resolve to one of these values. Violations are blocked by
+Una escala, tres familias. Cada gap / padding / margin del chrome
+debe resolver a uno de estos valores. Las violaciones están bloqueadas por
 `showcase/no-forbidden-spacing`.
 
-## Scale
+## Escala
 
 <div style={{ marginTop: '1rem', fontFamily: 'Inter Variable, system-ui, sans-serif' }}>
   {[
     { name: '1', px: 4 },
-    { name: '2', px: 8, note: 'gap default' },
+    { name: '2', px: 8, note: 'gap por defecto' },
     { name: '3', px: 12 },
-    { name: '4', px: 16, note: 'padding default, mt/mb default' },
+    { name: '4', px: 16, note: 'padding por defecto, mt/mb por defecto' },
     { name: '5', px: 20 },
-    { name: '6', px: 24, note: 'cards, sections' },
-    { name: '8', px: 32, note: 'chat-only exception' },
+    { name: '6', px: 24, note: 'cards, secciones' },
+    { name: '8', px: 32, note: 'excepción solo de chat' },
   ].map(({ name, px, note }) => (
     <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.25rem 0' }}>
       <div style={{ width: '4rem', textAlign: 'right', fontFamily: 'monospace', fontSize: '0.875rem' }}>
@@ -30,39 +30,39 @@ must resolve to one of these values. Violations are blocked by
   ))}
 </div>
 
-## Family-specific rules
+## Reglas por familia
 
 ```text
 GAP     gap-1 | gap-2 ← DEFAULT | gap-3 | gap-4 | gap-5 | gap-6 ← CARDS | gap-8
 PADDING p-1 | p-2 ← DEFAULT | p-3 | p-4 | p-6 ← CARDS | px-4 py-1 (buttons) | px-7 py-5 (header)
-MARGIN  mt-1 (subtle) | mt-2/mb-2 | mt-4/mb-4 | mt-6/mb-6 | mb-0
-FLEX    grow | shrink-0 (avatars) | flex-1
+MARGIN  mt-1 (sutil) | mt-2/mb-2 | mt-4/mb-4 | mt-6/mb-6 | mb-0
+FLEX    grow | shrink-0 (avatares) | flex-1
 ```
 
-## Forbidden
+## Prohibido
 
-- `gap-9` and above (except documented chat `gap-7`, `gap-8`).
-- `p-7`, `p-8` outside chat (`py-8`) and login marketing (`px-12`).
-- `m-7+` (no documented exceptions).
-- Any arbitrary spacing like `gap-[13px]`, `p-[20px]`, `m-[1rem]`.
+- `gap-9` y más arriba (excepto los documentados `gap-7`, `gap-8` de chat).
+- `p-7`, `p-8` fuera de chat (`py-8`) y del marketing panel de login (`px-12`).
+- `m-7+` (sin excepciones documentadas).
+- Cualquier spacing arbitrario como `gap-[13px]`, `p-[20px]`, `m-[1rem]`.
 
-## Documented exceptions
+## Excepciones documentadas
 
-Pre-existing patterns accepted in code review and tracked in
+Patrones preexistentes aceptados en code review y registrados en
 `AUDIT_BASELINE.md`:
 
-| Class | Where | Why |
+| Clase | Dónde | Por qué |
 |---|---|---|
-| `p-5` | side-menu | Between p-4 and p-6 for the navigation density |
-| `gap-7`, `gap-8`, `py-8` | chat | Message area breathing room |
-| `px-12` | login marketing panel | Stripe/Linear-style hero spacing |
-| `p-[1px]` | badge indicator | Pixel-perfect alignment of overlay badge |
-| `mt-3`, `mt-5`, `mb-5`, `mt-10` | layouts / chat media | Pre-existing fine spacing |
+| `p-5` | side-menu | Entre p-4 y p-6 para la densidad de navegación |
+| `gap-7`, `gap-8`, `py-8` | chat | Aire para el área de mensajes |
+| `px-12` | panel de marketing del login | Spacing tipo hero estilo Stripe/Linear |
+| `p-[1px]` | indicador de badge | Alineación pixel-perfect del overlay badge |
+| `mt-3`, `mt-5`, `mb-5`, `mt-10` | layouts / chat media | Spacing fino preexistente |
 
-Adding a new exception requires:
-1. Document the use case in the PR description.
-2. Add to `tools/eslint/rules/no-forbidden-spacing.js` `ALLOWED_EXCEPTIONS`.
-3. Link to the rationale in `AUDIT_BASELINE.md`.
+Agregar una nueva excepción requiere:
+1. Documentar el caso de uso en la descripción del PR.
+2. Agregar a `ALLOWED_EXCEPTIONS` en `tools/eslint/rules/no-forbidden-spacing.js`.
+3. Linkear al rationale en `AUDIT_BASELINE.md`.
 
-See `Recipes/Page Header`, `Recipes/Form Card`, `Recipes/Multi-Panel Layout`
-for spacing in real composition.
+Ver `Recipes/Page Header`, `Recipes/Form Card`, `Recipes/Multi-Panel Layout`
+para spacing en composición real.

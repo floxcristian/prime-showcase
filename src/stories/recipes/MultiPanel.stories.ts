@@ -3,16 +3,16 @@ import { moduleMetadata } from '@storybook/angular';
 import { Avatar } from 'primeng/avatar';
 
 /**
- * Multi-panel layout recipe — canonical 2-pane (inbox) and 3-pane (chat)
- * shells. Each panel:
- *   - has a fixed header with `p-4 border-b border-surface`,
- *   - scrolls independently (`overflow-hidden` parent + `flex-1
- *     overflow-auto` body),
- *   - declares width in fractions (`w-4/12 w-8/12 w-3/12`) on desktop
- *     and collapses the tertiary panel below `xl:` via `xl:block hidden`.
+ * Recipe de layout multi-panel — shells canónicos de 2 paneles (inbox) y
+ * 3 paneles (chat). Cada panel:
+ *   - tiene un header fijo con `p-4 border-b border-surface`,
+ *   - scrollea independientemente (padre `overflow-hidden` + body
+ *     `flex-1 overflow-auto`),
+ *   - declara su ancho en fracciones (`w-4/12 w-8/12 w-3/12`) en desktop
+ *     y colapsa el panel terciario bajo `xl:` vía `xl:block hidden`.
  *
- * The full spec lives in `DESIGN.md` § Layout → Layouts multi-panel.
- * Modules using the recipe today: `inbox`, `chat`.
+ * La spec completa vive en `DESIGN.md` § Layout → Layouts multi-panel.
+ * Módulos que usan el recipe hoy: `inbox`, `chat`.
  */
 
 const meta: Meta = {
@@ -23,15 +23,15 @@ const meta: Meta = {
     docs: {
       description: {
         component: [
-          'Two canonical shells for app pages whose surface is a navigable',
-          'list + one or two detail panels. Use TwoColumn for inbox-style',
-          'features (folders + main list); use ThreeColumn when the detail',
-          'view itself has secondary metadata (chat: list + conversation +',
-          'profile).',
+          'Dos shells canónicos para páginas cuya superficie es una lista',
+          'navegable + uno o dos paneles de detalle. Usar TwoColumn para',
+          'features estilo inbox (carpetas + lista principal); usar ThreeColumn',
+          'cuando la vista de detalle tiene metadata secundaria propia',
+          '(chat: lista + conversación + perfil).',
           '',
-          'Reviewer note: a new module that needs a multi-panel shell must',
-          'pick one of these two — do not invent a fourth panel or a new',
-          'split ratio without explicit design approval.',
+          'Nota para reviewers: un módulo nuevo que necesite un shell',
+          'multi-panel debe elegir uno de estos dos — no inventar un cuarto',
+          'panel ni un nuevo split ratio sin aprobación explícita de diseño.',
         ].join(' '),
       },
     },
@@ -41,22 +41,22 @@ export default meta;
 type Story = StoryObj;
 
 /**
- * 2-panel shell (inbox). Fixed-width left panel + flex-1 main.
+ * Shell de 2 paneles (inbox). Panel izquierdo de ancho fijo + main flex-1.
  */
 export const TwoColumn: Story = {
   parameters: {
     docs: {
       description: {
         story:
-          'Inbox-style layout: 256-pixel folder panel + flex-1 main. ' +
-          'No collapse — the folder panel stays on every viewport.',
+          'Layout estilo inbox: panel de carpetas de 256px + main flex-1. ' +
+          'Sin colapso — el panel de carpetas se mantiene en todo viewport.',
       },
     },
   },
   render: () => ({
     template: `
       <div class="flex gap-4 h-96 max-w-5xl">
-        <!-- Folders panel -->
+        <!-- Panel de carpetas -->
         <div class="w-64 h-full overflow-hidden border border-surface rounded-2xl flex flex-col">
           <div class="flex items-center justify-between gap-2 p-4 border-b border-surface">
             <h2 class="text-color font-semibold leading-6">Carpetas</h2>
@@ -77,7 +77,7 @@ export const TwoColumn: Story = {
           </div>
         </div>
 
-        <!-- Main panel -->
+        <!-- Panel principal -->
         <div class="flex-1 h-full border border-surface rounded-2xl overflow-hidden flex flex-col">
           <div class="flex items-center justify-between gap-2 p-4 border-b border-surface">
             <h2 class="text-color font-semibold leading-6">Bandeja</h2>
@@ -92,24 +92,24 @@ export const TwoColumn: Story = {
 };
 
 /**
- * 3-panel shell (chat). List on the left + main conversation + profile.
- * Profile panel collapses below `xl:`.
+ * Shell de 3 paneles (chat). Lista a la izquierda + conversación principal +
+ * perfil. El panel de perfil colapsa bajo `xl:`.
  */
 export const ThreeColumn: Story = {
   parameters: {
     docs: {
       description: {
         story:
-          'Chat-style layout: list (3-4/12) + conversation (6-8/12) + ' +
-          'profile (3/12). Profile column hidden below xl: via ' +
-          '`xl:block hidden`. Each panel scrolls independently.',
+          'Layout estilo chat: lista (3-4/12) + conversación (6-8/12) + ' +
+          'perfil (3/12). La columna de perfil queda oculta bajo xl: vía ' +
+          '`xl:block hidden`. Cada panel scrollea independientemente.',
       },
     },
   },
   render: () => ({
     template: `
       <div class="flex border border-surface rounded-2xl h-96 max-w-7xl overflow-hidden">
-        <!-- List panel -->
+        <!-- Panel de lista -->
         <div class="w-4/12 xl:w-3/12 min-w-40 h-full overflow-hidden flex flex-col">
           <div class="flex items-center justify-between gap-2 p-4 border-b border-surface">
             <h1 class="text-2xl font-medium leading-8 text-color">Chats</h1>
@@ -136,7 +136,7 @@ export const ThreeColumn: Story = {
           </div>
         </div>
 
-        <!-- Conversation panel -->
+        <!-- Panel de conversación -->
         <div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
           <div class="flex items-center p-4 border-b border-surface gap-2">
             <p-avatar label="JD" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
@@ -150,7 +150,7 @@ export const ThreeColumn: Story = {
           </div>
         </div>
 
-        <!-- Profile panel (hidden < xl) -->
+        <!-- Panel de perfil (oculto < xl) -->
         <div class="w-3/12 xl:block hidden min-w-40 overflow-auto p-6">
           <div class="flex flex-col items-center text-center gap-2">
             <p-avatar label="JD" shape="circle" size="xlarge" styleClass="!bg-primary-100 !text-primary-950" />
@@ -164,10 +164,10 @@ export const ThreeColumn: Story = {
 };
 
 /**
- * Mobile / narrow viewport (< xl). The tertiary panel collapses and the
- * first two stack into a single column flow. Reviewer should switch the
- * Storybook viewport to `mobile` to verify this story renders the
- * collapsed shape.
+ * Viewport mobile / angosto (< xl). El panel terciario colapsa y los
+ * primeros dos se stackean en un solo flow de columna. El reviewer debe
+ * cambiar el viewport de Storybook a `mobile` para verificar que esta
+ * story renderiza la forma colapsada.
  */
 export const MobileCollapse: Story = {
   parameters: {
@@ -175,10 +175,10 @@ export const MobileCollapse: Story = {
     docs: {
       description: {
         story:
-          'Same ThreeColumn template at a 375px viewport: profile panel ' +
-          '(`xl:block hidden`) disappears, primary two panels keep their ' +
-          'fractions and remain horizontally split. Switch viewport in the ' +
-          'toolbar to verify visually.',
+          'El mismo template de ThreeColumn a 375px de viewport: el panel ' +
+          'de perfil (`xl:block hidden`) desaparece, los dos paneles ' +
+          'primarios mantienen sus fracciones y siguen split horizontalmente. ' +
+          'Cambiar el viewport en la toolbar para verificarlo visualmente.',
       },
     },
   },
@@ -208,7 +208,7 @@ export const MobileCollapse: Story = {
           </div>
         </div>
         <div class="w-3/12 xl:block hidden min-w-40 overflow-auto p-6">
-          <p class="text-color">Profile (hidden &lt; xl)</p>
+          <p class="text-color">Perfil (oculto &lt; xl)</p>
         </div>
       </div>
     `,

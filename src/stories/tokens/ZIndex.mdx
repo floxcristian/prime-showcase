@@ -4,38 +4,38 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Z-Index
 
-Eight semantic tokens, no raw numbers. Mirrors Primer's ladder.
+Ocho tokens semánticos, sin números crudos. Espejo de la escala de Primer.
 
 ```text
-0       base                                  ← default, no z explicit
-10      sticky          (Tailwind: z-10)      ← in-page sticky headers in multi-panel scroll
-1000    dropdown                              ← Aura default for internal overlays
-1100    overlay         (p-popover, p-menu)   ← popups anchored to a trigger
-1200    drawer          (p-drawer)            ← side sheets on mobile
-1300    modal           (p-dialog, confirm)   ← blocks page interaction
-1400    toast           (p-toast)             ← above modal — mid-flow errors stay visible
-1500    tooltip                               ← always on top, never occluded
+0       base                                  ← default, sin z explícito
+10      sticky          (Tailwind: z-10)      ← sticky headers in-page en scroll multi-panel
+1000    dropdown                              ← default de Aura para overlays internos
+1100    overlay         (p-popover, p-menu)   ← popups anclados a un trigger
+1200    drawer          (p-drawer)            ← side sheets en mobile
+1300    modal           (p-dialog, confirm)   ← bloquea la interacción de la página
+1400    toast           (p-toast)             ← sobre el modal — errores mid-flow quedan visibles
+1500    tooltip                               ← siempre arriba, nunca tapado
 ```
 
-## Rules
+## Reglas
 
-- **In-page sticky**: `class="sticky top-0 z-10"` — only place where the
-  raw number `z-10` is used directly.
-- **PrimeNG overlays**: the component owns its z-index internally via
-  the Aura preset. Do NOT override with `styleClass`.
-- **New level needed?** Add a named entry to `zIndex` in the front matter
-  of `DESIGN.md` AND to `app.preset.ts` as a semantic token. Never use
-  a raw number in a template.
+- **Sticky in-page**: `class="sticky top-0 z-10"` — único lugar donde el
+  número crudo `z-10` se usa directamente.
+- **Overlays de PrimeNG**: el componente maneja su z-index internamente vía
+  el preset de Aura. NO sobreescribir con `styleClass`.
+- **¿Se necesita un nivel nuevo?** Agregar una entrada nombrada a `zIndex` en el front matter
+  de `DESIGN.md` Y a `app.preset.ts` como design token semántico. Nunca usar
+  un número crudo en un template.
 
-## Why the toast sits above the modal
+## Por qué el toast queda sobre el modal
 
-Real-world flows: the user opens a confirm dialog (modal), confirms, the
-server returns an error. The toast must be visible WITHOUT closing the
-modal so the user can decide what to do next. Hence `toast = 1400 >
+Flujos del mundo real: el usuario abre un confirm dialog (modal), confirma, el
+servidor devuelve un error. El toast debe ser visible SIN cerrar el
+modal para que el usuario pueda decidir qué hacer. De ahí `toast = 1400 >
 modal = 1300`.
 
-## Verified usage
+## Uso verificado
 
 - `class="sticky top-0 z-10 bg-surface-0 dark:bg-surface-950"` —
-  multi-panel sticky headers + chat / inbox / customers.
-- `p-toast` — appears above any open `p-dialog` in production.
+  sticky headers de multi-panel + chat / inbox / customers.
+- `p-toast` — aparece sobre cualquier `p-dialog` abierto en runtime de producción.

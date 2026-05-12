@@ -3,13 +3,13 @@ import { moduleMetadata } from '@storybook/angular';
 import { Button } from 'primeng/button';
 
 /**
- * Empty state pattern (the recipe lives in `.claude/rules/ux-patterns.md`).
+ * Patrón de empty state (la receta vive en `.claude/rules/ux-patterns.md`).
  *
- * Shape: icon (sharp-duotone text-4xl) → title (`text-2xl font-medium`) →
- * description (`text-muted-color`) → optional CTA (outlined secondary).
+ * Forma: icono (sharp-duotone text-4xl) → título (`text-2xl font-medium`) →
+ * descripción (`text-muted-color`) → CTA opcional (outlined secondary).
  *
- * Centered via the parent flex container. The same shape is used for
- * onboarding tiles, file upload drop zones, and post-filter zero-results.
+ * Centrado vía el flex container padre. La misma forma se usa para
+ * tiles de onboarding, drop zones de file upload, y zero-results post-filtrado.
  */
 
 const meta: Meta = {
@@ -22,7 +22,7 @@ type Story = StoryObj;
 
 export const NoData: Story = {
   parameters: {
-    docs: { description: { story: 'Initial empty list — no data yet.' } },
+    docs: { description: { story: 'Lista vacía inicial — todavía sin datos.' } },
   },
   render: () => ({
     template: `
@@ -44,7 +44,7 @@ export const NoResults: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Zero results after filtering — distinct copy from initial empty.',
+        story: 'Cero resultados después de filtrar — copy distinto al empty inicial.',
       },
     },
   },
@@ -68,7 +68,7 @@ export const ErrorState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Feature-level error — same shape, neutral icon, "Reintentar" CTA.',
+        story: 'Error a nivel feature — misma forma, icono neutral, CTA "Reintentar".',
       },
     },
   },

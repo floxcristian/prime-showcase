@@ -4,74 +4,121 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # PrimeNG Showcase — Design System
 
-This catalog is the visual contract of the application. Every primitive,
-recipe, and token surface lives here and matches what production renders.
+Este catálogo es el contrato visual de la aplicación. Cada primitive,
+recipe y token surface vive acá y matchea exactamente lo que producción
+renderiza.
 
-## How this catalog is organized
+## Idioma
 
-- **Tokens** — Colors, Typography, Spacing, Motion, Z-Index, Opacity. The
-  raw values defined in `src/app/app.preset.ts` (Aura preset) and verified
-  for drift against `DESIGN.md` by `tools/design-tokens/sync.mjs`.
-- **Primitives** — Single-component stories with every argType wired up
-  (Button, Card, Tag, Avatar, ListItem, EmptyState). Reviewers can flip
-  severity / state via the Controls panel and see the result live.
-- **Recipes** — Composed compositions from `DESIGN.md` (PageHeader,
-  FormCard, MultiPanel, DataTable). These are the patterns we copy-paste
-  into modules; if a recipe drifts here, modules drift too.
+El catálogo está en **español** porque es el idioma del equipo del
+proyecto. El toolbar incluye un selector **🇪🇸 Español / 🇬🇧 English**
+que cambia el contenido **interactivo** de las stories (labels de
+botón, captions de demo) pero no la documentación estática — las
+descripciones de los componentes son siempre español-primario. Ver
+`.storybook/preview.ts → globalTypes.locale` para el detalle del
+tradeoff.
 
-## How the design system enforces itself
+Stories que opt-in a contenido bilingüe usan el helper
+[`src/stories/i18n.ts`](https://github.com/floxcristian/prime-showcase/blob/main/src/stories/i18n.ts).
 
-Four layers, from strongest to weakest:
+**Caso normal (90 % de las stories — solo español)**:
 
-1. **Runtime tokens** — `app.preset.ts` is the single source of truth.
-   The preset defines the Aura override that PrimeNG resolves at runtime.
-2. **ESLint design rules** — 19 custom rules in `tools/eslint/rules/*`
-   block design-system violations in PRs (forbidden colors, spacing
-   off-scale, transition-all, etc.).
-3. **Drift detection** — `npm run design-tokens:check` (part of `lint`)
-   asserts `DESIGN.md` mirrors `app.preset.ts`. Any drift fails CI.
-4. **Visual regression** — Playwright `toHaveScreenshot()` per route
-   (`tests/visual/`) plus Storybook-level captures planned via Chromatic.
-5. **Accessibility CI** — `@axe-core/playwright` scans every route and
-   gates on `serious`/`critical` violations. Mirrored in this catalog
-   via `@storybook/addon-a11y` (toggle "Accessibility" tab on any story).
+```ts
+export const Primary: Story = {
+  args: { label: 'Guardar' },
+};
+```
 
-## Working with the catalog
+**Caso bilingüe** (cuando el demo sirve para validar copy localizado):
 
-- **Toggle theme** — Sun/moon icon in the toolbar applies the `p-dark`
-  class to `<html>`, identical to the running app.
-- **Toggle viewport** — Device icon in the toolbar selects from mobile
-  (375), tablet (768), desktop (1280), wide (1440). Use this to validate
-  responsive recipes.
-- **Inspect accessibility** — "Accessibility" tab in the addons panel
-  shows axe-core results for the current story. Failures here will fail
-  the route-level a11y workflow too.
-- **Edit args live** — "Controls" tab lets you change props on the
-  rendered story. Useful for "what does this button look like with
-  severity=danger + outlined + loading?" without writing code.
+```ts
+import { bilingualRender } from '../i18n';
 
-## Where things live
+export const Primary: Story = {
+  render: bilingualRender(
+    { label: { es: 'Guardar', en: 'Save' } },
+    `<p-button [label]="label" />`,
+  ),
+};
+```
 
-| File | What |
+## Cómo está organizado el catálogo
+
+- **Tokens** — Colors, Typography, Spacing, Motion, Z-Index, Opacity.
+  Los valores raw definidos en `src/app/app.preset.ts` (preset Aura)
+  validados contra drift por `tools/design-tokens/sync.mjs`.
+- **Primitives** — Stories de un solo componente con todos los
+  argTypes configurados (Button, Card, Tag, Avatar, ListItem,
+  EmptyState, DensityToggle). El reviewer cambia severity / state
+  en el panel Controls y ve el resultado en vivo.
+- **Recipes** — Composiciones canónicas extraídas de `DESIGN.md`
+  (PageHeader, FormCard, MultiPanel, DataTable). Son los patrones
+  que se copy-paste a los módulos; si un recipe acá derrapa, los
+  módulos derrapan también.
+
+## Cómo el design system se hace cumplir
+
+Cuatro capas, de más fuerte a más débil:
+
+1. **Tokens runtime** — `app.preset.ts` es la fuente única de verdad.
+   El preset define el override Aura que PrimeNG resuelve en runtime.
+2. **Reglas ESLint del design system** — 19 reglas custom en
+   `tools/eslint/rules/*` bloquean violaciones en PRs (colores
+   prohibidos, spacing off-scale, transition-all, etc.).
+3. **Drift detection** — `npm run design-tokens:check` (parte de
+   `lint`) asserts que `DESIGN.md` espeja `app.preset.ts`. Cualquier
+   drift falla CI.
+4. **Visual regression** — Playwright `toHaveScreenshot()` por ruta
+   (`tests/visual/`) más captures a nivel Storybook planeados via
+   Chromatic.
+5. **Accessibility CI** — `@axe-core/playwright` escanea cada ruta y
+   gate-ea en violaciones `serious`/`critical`. Mirrored en este
+   catálogo via `@storybook/addon-a11y` (toggle el tab "Accessibility"
+   en cualquier story).
+
+## Trabajando con el catálogo
+
+- **Toggle tema** — el icon sol/luna del toolbar aplica la clase
+  `p-dark` al `<html>`, idéntico al app corriendo.
+- **Toggle viewport** — el icon device del toolbar selecciona entre
+  mobile (375), tablet (768), desktop (1280), wide (1440). Útil para
+  validar recipes responsive.
+- **Toggle idioma** — el flag 🇪🇸/🇬🇧 del toolbar cambia el contenido
+  interactivo. La documentación estática queda en español.
+- **Inspect accessibility** — el tab "Accessibility" en el addons
+  panel muestra resultados de axe-core para la story actual.
+  Failures acá fallarán también el workflow de a11y a nivel ruta.
+- **Editar args en vivo** — el tab "Controls" deja cambiar props
+  del componente renderizado. Útil para "¿cómo se ve este botón con
+  severity=danger + outlined + loading?" sin escribir código.
+
+## Dónde viven las cosas
+
+| Archivo | Qué contiene |
 |---|---|
-| `DESIGN.md` | YAML token front matter + canonical recipes |
-| `AGENTS.md` | Stack, commands, architecture rules |
-| `src/app/app.preset.ts` | Aura preset definition (source of truth) |
-| `.claude/rules/*.md` | Path-scoped rules for agents |
-| `tools/eslint/rules/*` | Design-system ESLint rules |
+| `DESIGN.md` | Token YAML front matter + recipes canónicas |
+| `AGENTS.md` | Stack, comandos, reglas de arquitectura |
+| `src/app/app.preset.ts` | Definición del preset Aura (fuente de verdad) |
+| `.claude/rules/*.md` | Reglas path-scoped para agentes |
+| `tools/eslint/rules/*` | Reglas ESLint del design system |
 | `tools/design-tokens/sync.mjs` | Drift detector |
-| `src/stories/**` | This catalog |
+| `src/stories/**` | Este catálogo |
+| `src/stories/i18n.ts` | Helper `tr()` para contenido bilingüe |
 
-## Contributing
+## Contribuir una story nueva
 
-A new component story should:
+Una story nueva debe:
 
-1. Live in `src/stories/primitives/<Component>.stories.ts` (or
-   `recipes/`, `patterns/` depending on scope).
-2. Use `moduleMetadata` to import the PrimeNG/host component.
-3. Declare every meaningful `argType` so Controls work.
-4. Cover at minimum: default state, every severity/state used in the
-   app, and the disabled/loading variant if applicable.
-5. Tag with `'autodocs'` so the Docs page is generated.
+1. Vivir en `src/stories/primitives/<Component>.stories.ts` (o
+   `recipes/`, `patterns/` según scope).
+2. Usar `moduleMetadata` para importar el host/PrimeNG component.
+3. Declarar cada `argType` significativo para que Controls funcione.
+4. Cubrir al mínimo: estado default, cada severity/state usada en el
+   app, y la variante disabled/loading cuando aplique.
+5. Taggear con `'autodocs'` para que la Docs page se autogenere.
+6. **Documentación en español** — descripciones, comentarios JSDoc,
+   captions de templates. Si el contenido de demo tiene paridad
+   bilingüe, usar `tr({ es, en }, ctx.globals?.['locale'])` (ver
+   `Button.stories.ts → Primary` para el patrón canónico).
 
-See `Button.stories.ts` for the canonical pattern.
+Ver `Button.stories.ts` para el patrón canónico.

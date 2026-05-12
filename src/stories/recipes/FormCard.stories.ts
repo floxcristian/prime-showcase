@@ -5,12 +5,12 @@ import { InputText } from 'primeng/inputtext';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 
 /**
- * Canonical form-card recipe (profile, settings, file upload).
- * `rounded-3xl` distinguishes it from data cards (`rounded-2xl`).
- * Labels for inputs carry `font-semibold`; labels for checkbox/radio carry
- * `font-normal` — enforced by `showcase/label-requires-semibold`.
+ * Recipe canónico de form-card (profile, settings, file upload).
+ * `rounded-3xl` lo distingue de las data cards (`rounded-2xl`).
+ * Los labels de input llevan `font-semibold`; los labels de checkbox/radio
+ * llevan `font-normal` — enforced por `showcase/label-requires-semibold`.
  *
- * Spec lives in `DESIGN.md` § Layout → Formularios dentro de cards.
+ * La spec vive en `DESIGN.md` § Layout → Formularios dentro de cards.
  */
 
 const meta: Meta = {
@@ -24,7 +24,7 @@ type Story = StoryObj;
 export const Profile: Story = {
   parameters: {
     docs: {
-      description: { story: 'Profile form — input + toggle + paired action buttons.' },
+      description: { story: 'Form de perfil — input + toggle + botones de acción en par.' },
     },
   },
   render: () => ({
@@ -54,7 +54,7 @@ export const Profile: Story = {
 
 export const Minimal: Story = {
   parameters: {
-    docs: { description: { story: 'Single-field form (search-as-a-form, OTP, etc.).' } },
+    docs: { description: { story: 'Form de un solo campo (búsqueda como form, OTP, etc.).' } },
   },
   render: () => ({
     template: `

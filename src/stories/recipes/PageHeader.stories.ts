@@ -6,11 +6,11 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 
 /**
- * Page header recipe — canonical placement of title + subtitle + actions.
- * Single source of truth for what a module's top bar should look like;
- * any drift here means the modules drift too.
+ * Recipe de page header — placement canónico de título + subtítulo + acciones.
+ * Single source of truth de cómo debería verse la top bar de un módulo;
+ * cualquier drift acá implica que los módulos también driftean.
  *
- * Spec lives in `DESIGN.md` § Layout → Header de página.
+ * La spec vive en `DESIGN.md` § Layout → Header de página.
  */
 
 const meta: Meta = {
@@ -29,7 +29,7 @@ export const Standard: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Title + subtitle, search field on the right. The 90% case.',
+        story: 'Título + subtítulo, campo de búsqueda a la derecha. El caso del 90%.',
       },
     },
   },
@@ -56,7 +56,7 @@ export const TitleOnly: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Minimal variant — no subtitle, no action. For deep pages.',
+        story: 'Variante minimal — sin subtítulo, sin acción. Para páginas profundas.',
       },
     },
   },
@@ -74,8 +74,8 @@ export const WithCountPill: Story = {
     docs: {
       description: {
         story:
-          'Variant from `/customers`: active-count pill replaces subtitle, ' +
-          'visible only on `sm+` (≥ 640) so it doesn\'t compete with the title on mobile.',
+          'Variante de `/customers`: el pill con conteo de activos reemplaza al subtítulo, ' +
+          'visible solo en `sm+` (≥ 640) para que no compita con el título en mobile.',
       },
     },
   },

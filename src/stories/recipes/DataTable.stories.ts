@@ -6,13 +6,13 @@ import { Tag } from 'primeng/tag';
 import { Button } from 'primeng/button';
 
 /**
- * Canonical data-table recipe. Wraps `<p-table>` with the project's
- * design-token configuration: `[dt]=tableTokens`, scrollable / paginated,
- * paginator transparent. Used in `customers` and `overview`.
+ * Recipe canónico de data-table. Envuelve `<p-table>` con la configuración
+ * de design tokens del proyecto: `[dt]=tableTokens`, scrollable / paginado,
+ * paginator transparente. Se usa en `customers` y `overview`.
  *
  * Spec: `.claude/rules/primeng-patterns.md` § Tablas + DESIGN.md
- * § Layout (multi-panel headers use the same `p-4 border-b border-surface`
- * pattern in `<ng-template #caption>`).
+ * § Layout (los headers multi-panel usan el mismo patrón
+ * `p-4 border-b border-surface` en `<ng-template #caption>`).
  */
 
 interface DataRow {
@@ -20,20 +20,20 @@ interface DataRow {
   name: string;
   initials: string;
   email: string;
-  status: 'Active' | 'Inactive' | 'Pending';
+  status: 'Activo' | 'Inactivo' | 'Pendiente';
 }
 
 const SAMPLE_ROWS: DataRow[] = [
-  { id: 1001, name: 'Cody Fisher', initials: 'CF', email: 'cody@empresa.cl', status: 'Active' },
-  { id: 1002, name: 'Esther Howard', initials: 'EH', email: 'esther@empresa.cl', status: 'Pending' },
-  { id: 1003, name: 'Jerome Bell', initials: 'JB', email: 'jerome@empresa.cl', status: 'Inactive' },
-  { id: 1004, name: 'Kristin Watson', initials: 'KW', email: 'kristin@empresa.cl', status: 'Active' },
-  { id: 1005, name: 'Ronald Richards', initials: 'RR', email: 'ronald@empresa.cl', status: 'Active' },
+  { id: 1001, name: 'Cody Fisher', initials: 'CF', email: 'cody@empresa.cl', status: 'Activo' },
+  { id: 1002, name: 'Esther Howard', initials: 'EH', email: 'esther@empresa.cl', status: 'Pendiente' },
+  { id: 1003, name: 'Jerome Bell', initials: 'JB', email: 'jerome@empresa.cl', status: 'Inactivo' },
+  { id: 1004, name: 'Kristin Watson', initials: 'KW', email: 'kristin@empresa.cl', status: 'Activo' },
+  { id: 1005, name: 'Ronald Richards', initials: 'RR', email: 'ronald@empresa.cl', status: 'Activo' },
 ];
 
-// Same dt tokens the customers module ships. Kept inline here so the
-// story is self-contained — reviewers can copy-paste this object as the
-// starting point for a new module.
+// Mismos dt tokens que usa el módulo customers. Se mantienen inline acá
+// para que la story sea self-contained — los reviewers pueden copiar este
+// objeto como punto de partida para un módulo nuevo.
 const tableTokens = {
   bodyCell: { padding: '1rem' },
   headerCell: { padding: '1rem' },
@@ -49,17 +49,17 @@ const meta: Meta = {
     docs: {
       description: {
         component: [
-          '`<p-table>` with the project\'s canonical design-token wiring.',
-          'Every data list / dashboard table in the app uses this shape:',
+          '`<p-table>` con el wiring canónico de design tokens del proyecto.',
+          'Cada lista de datos / tabla de dashboard en la app usa esta forma:',
           '',
-          '  - `[dt]=tableTokens` overrides padding so cells align with the',
-          '    16px chrome spacing scale.',
-          '  - `scrollable` + `scrollHeight="flex"` so the table grows to its',
-          '    container and the paginator stays anchored to the bottom.',
-          '  - `paginatorStyleClass="!bg-transparent"` removes the paginator',
-          '    background so it inherits the parent surface.',
-          '  - Tags for status use `severity` mapping (success / warn /',
-          '    danger) — no hex strings.',
+          '  - `[dt]=tableTokens` sobrescribe el padding para que las celdas',
+          '    se alineen con la escala de spacing de 16px del chrome.',
+          '  - `scrollable` + `scrollHeight="flex"` para que la tabla crezca',
+          '    hasta su contenedor y el paginator quede anclado abajo.',
+          '  - `paginatorStyleClass="!bg-transparent"` elimina el fondo del',
+          '    paginator para que herede la surface del padre.',
+          '  - Los tags de estado usan mapeo de `severity` (success / warn /',
+          '    danger) — sin strings hex.',
         ].join(' '),
       },
     },
@@ -69,8 +69,8 @@ export default meta;
 type Story = StoryObj;
 
 /**
- * Plain data table. Pagination on, 3 rows per page so the paginator is
- * always visible in the story preview.
+ * Data table simple. Paginación activa, 3 filas por página para que el
+ * paginator esté siempre visible en el preview de la story.
  */
 export const Basic: Story = {
   render: () => ({
@@ -78,7 +78,7 @@ export const Basic: Story = {
       rows: SAMPLE_ROWS,
       tableTokens,
       severityFor: (status: DataRow['status']) =>
-        status === 'Active' ? 'success' : status === 'Pending' ? 'warn' : 'danger',
+        status === 'Activo' ? 'success' : status === 'Pendiente' ? 'warn' : 'danger',
     },
     template: `
       <div class="border border-surface rounded-2xl overflow-hidden max-w-4xl">
@@ -126,18 +126,18 @@ export const Basic: Story = {
 };
 
 /**
- * Data table with `#caption` toolbar — bulk actions + search field.
- * The pattern customers / overview / inbox use when a list needs filtering.
+ * Data table con toolbar `#caption` — acciones bulk + campo de búsqueda.
+ * El patrón que usan customers / overview / inbox cuando una lista necesita filtrado.
  */
 export const WithCaptionToolbar: Story = {
   parameters: {
     docs: {
       description: {
         story:
-          '`<ng-template #caption>` replaces the table header with a ' +
-          'toolbar bar: bulk actions on the left, search on the right. ' +
+          '`<ng-template #caption>` reemplaza el header de la tabla con una ' +
+          'barra toolbar: acciones bulk a la izquierda, búsqueda a la derecha. ' +
           'Layout: `flex xl:items-center justify-between gap-2 flex-col xl:flex-row` ' +
-          '(stack on mobile, inline on desktop).',
+          '(stack en mobile, inline en desktop).',
       },
     },
   },
@@ -146,7 +146,7 @@ export const WithCaptionToolbar: Story = {
       rows: SAMPLE_ROWS,
       tableTokens,
       severityFor: (status: DataRow['status']) =>
-        status === 'Active' ? 'success' : status === 'Pending' ? 'warn' : 'danger',
+        status === 'Activo' ? 'success' : status === 'Pendiente' ? 'warn' : 'danger',
     },
     template: `
       <div class="border border-surface rounded-2xl overflow-hidden max-w-4xl">
@@ -203,16 +203,16 @@ export const WithCaptionToolbar: Story = {
 };
 
 /**
- * Empty state inside a table body — `#emptymessage` slot.
+ * Empty state dentro del body de una tabla — slot `#emptymessage`.
  */
 export const Empty: Story = {
   parameters: {
     docs: {
       description: {
         story:
-          '`<ng-template #emptymessage>` renders when `value` is an empty ' +
-          'array. The cell spans all columns and uses the same EmptyState ' +
-          'recipe (icon + title + description + CTA).',
+          '`<ng-template #emptymessage>` se renderiza cuando `value` es un ' +
+          'array vacío. La celda ocupa todas las columnas y usa el mismo ' +
+          'recipe de EmptyState (ícono + título + descripción + CTA).',
       },
     },
   },
