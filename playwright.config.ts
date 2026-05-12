@@ -37,6 +37,17 @@ export default defineConfig({
   workers: CI ? 2 : undefined,
   reporter: CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   timeout: 30_000,
+  // Snapshot path canónico — Playwright por default escribe a
+  // `<spec-file>.ts-snapshots/<arg>.png` (junto al spec). El proyecto
+  // tiene `.gitignore` whitelisteando `tests/visual/__screenshots__/
+  // **/*.png` (todas las PNGs son ignoradas globalmente excepto ese
+  // path). Sin este template, las baselines se generaban en el path
+  // default y `.gitignore` las descartaba como untracked → el workflow
+  // `Visual baselines` no detectaba ningún cambio.
+  //
+  // Template segmenta por nombre del spec así golden-paths y
+  // storybook viven en directorios distintos sin colisión.
+  snapshotPathTemplate: '{testFileDir}/__screenshots__/{testFileName}/{arg}{ext}',
   expect: {
     // Visual regression threshold. 0.2 matches Chromatic's default.
     // Anything higher hides real regressions; lower flakes on font rendering.

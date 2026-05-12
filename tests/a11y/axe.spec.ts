@@ -77,6 +77,13 @@ const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
   // hereda el aria-label del wrapper `<p-autocomplete ariaLabel>`,
   // dispara `aria-input-field-name` y `select-name`. Library gap.
   '.p-autocomplete-input-multiple',
+  // Autocomplete host — `<p-autocomplete ariaLabel>` aplica al
+  // wrapper sin role, dispara `aria-prohibited-attr`. Library gap.
+  'p-autocomplete',
+  // Slider range handles — `<span role="slider">` sin
+  // `aria-valuenow` ni accessible name. PrimeNG necesita
+  // `[ariaLabel]` per-handle pero no se honra. Library gap.
+  '.p-slider-handle',
 ];
 
 for (const route of ROUTES) {
