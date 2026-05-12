@@ -73,6 +73,10 @@ const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
   // label, disparando `aria-input-field-name`. PrimeNG library gap.
   'p-toggleswitch',
   '.p-toggleswitch-input',
+  // Autocomplete multi-select — la `<ul role="listbox">` interna no
+  // hereda el aria-label del wrapper `<p-autocomplete ariaLabel>`,
+  // dispara `aria-input-field-name` y `select-name`. Library gap.
+  '.p-autocomplete-input-multiple',
 ];
 
 for (const route of ROUTES) {

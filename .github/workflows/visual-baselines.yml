@@ -84,13 +84,19 @@ jobs:
       - name: Detect changes
         id: changes
         run: |
-          if git diff --quiet tests/visual/__screenshots__; then
+          # Detecta cambios EN o ARRIBA DE `tests/visual/__screenshots__`:
+          # archivos modificados (tracked + dirty) Y archivos nuevos
+          # (untracked). `git diff` solo cubre tracked → fallaba la
+          # primera vez que el directorio se crea (path no existe en HEAD
+          # → "ambiguous argument" exit 128). `git status --porcelain` lo
+          # cubre ambos casos uniformemente.
+          if [ -z "$(git status --porcelain -- tests/visual/__screenshots__)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No baseline drift detected — nothing to commit."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "Baselines drifted:"
-            git diff --stat tests/visual/__screenshots__
+            git status --short -- tests/visual/__screenshots__ | head -40
           fi
 
       - name: Open PR with refreshed baselines
