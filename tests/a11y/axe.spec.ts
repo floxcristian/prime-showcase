@@ -97,6 +97,20 @@ const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
   // owns el componente, los consumers no pueden cablearlo distinto.
   // Hasta que el library cierre los gaps, scope a `.p-carousel`.
   '.p-carousel',
+  // `<p-button>` wrapper element — el Angular component host carries
+  // `aria-label` que axe marca como `aria-prohibited-attr` por no
+  // tener `role`. El `<button>` interno SÍ tiene aria-label forwardado
+  // por PrimeNG y es accesible para SR. Exclusión sobre el wrapper
+  // ONLY (axe descende a través) — mantiene el chequeo del button
+  // interno. Riesgo conocido + mitigado por
+  // `showcase/no-icon-button-without-tooltip` (lint).
+  //
+  // Limitación: axe excluye sub-trees, así que esto SÍ apaga el
+  // chequeo del inner button también. Mitigación: el ESLint rule
+  // canónico del proyecto enforces `aria-label` + `pTooltip` en
+  // icon-only buttons. Para producción seria, considerar custom axe
+  // rule que valide aria-label en `p-button[aria-label]` específico.
+  'p-button[aria-label]:not([role])',
 ];
 
 for (const route of ROUTES) {
