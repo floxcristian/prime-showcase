@@ -1,0 +1,68 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Tokens/Spacing" />
+
+# Spacing
+
+One scale, three families. Every gap / padding / margin in the chrome
+must resolve to one of these values. Violations are blocked by
+`showcase/no-forbidden-spacing`.
+
+## Scale
+
+<div style={{ marginTop: '1rem', fontFamily: 'Inter Variable, system-ui, sans-serif' }}>
+  {[
+    { name: '1', px: 4 },
+    { name: '2', px: 8, note: 'gap default' },
+    { name: '3', px: 12 },
+    { name: '4', px: 16, note: 'padding default, mt/mb default' },
+    { name: '5', px: 20 },
+    { name: '6', px: 24, note: 'cards, sections' },
+    { name: '8', px: 32, note: 'chat-only exception' },
+  ].map(({ name, px, note }) => (
+    <div key={name} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.25rem 0' }}>
+      <div style={{ width: '4rem', textAlign: 'right', fontFamily: 'monospace', fontSize: '0.875rem' }}>
+        {name} · {px}px
+      </div>
+      <div style={{ background: '#0074c2', height: '1rem', width: `${px}px`, borderRadius: '2px' }} />
+      {note && <div style={{ color: '#52525b', fontSize: '0.875rem' }}>{note}</div>}
+    </div>
+  ))}
+</div>
+
+## Family-specific rules
+
+```text
+GAP     gap-1 | gap-2 ← DEFAULT | gap-3 | gap-4 | gap-5 | gap-6 ← CARDS | gap-8
+PADDING p-1 | p-2 ← DEFAULT | p-3 | p-4 | p-6 ← CARDS | px-4 py-1 (buttons) | px-7 py-5 (header)
+MARGIN  mt-1 (subtle) | mt-2/mb-2 | mt-4/mb-4 | mt-6/mb-6 | mb-0
+FLEX    grow | shrink-0 (avatars) | flex-1
+```
+
+## Forbidden
+
+- `gap-9` and above (except documented chat `gap-7`, `gap-8`).
+- `p-7`, `p-8` outside chat (`py-8`) and login marketing (`px-12`).
+- `m-7+` (no documented exceptions).
+- Any arbitrary spacing like `gap-[13px]`, `p-[20px]`, `m-[1rem]`.
+
+## Documented exceptions
+
+Pre-existing patterns accepted in code review and tracked in
+`AUDIT_BASELINE.md`:
+
+| Class | Where | Why |
+|---|---|---|
+| `p-5` | side-menu | Between p-4 and p-6 for the navigation density |
+| `gap-7`, `gap-8`, `py-8` | chat | Message area breathing room |
+| `px-12` | login marketing panel | Stripe/Linear-style hero spacing |
+| `p-[1px]` | badge indicator | Pixel-perfect alignment of overlay badge |
+| `mt-3`, `mt-5`, `mb-5`, `mt-10` | layouts / chat media | Pre-existing fine spacing |
+
+Adding a new exception requires:
+1. Document the use case in the PR description.
+2. Add to `tools/eslint/rules/no-forbidden-spacing.js` `ALLOWED_EXCEPTIONS`.
+3. Link to the rationale in `AUDIT_BASELINE.md`.
+
+See `Recipes/Page Header`, `Recipes/Form Card`, `Recipes/Multi-Panel Layout`
+for spacing in real composition.

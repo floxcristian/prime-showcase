@@ -1,0 +1,64 @@
+name: Accessibility
+
+# axe-core CI gate. Runs the same matrix of routes as the visual suite,
+# fails the PR on any WCAG 2.1 AA violation of `serious` or `critical`
+# severity. Lower severities are reported (HTML artifact) but don't block.
+#
+# Why a separate workflow vs folding into `ci.yml`:
+#   - axe runs against the SSR build (same as visual), separate from the
+#     unit + bundle gates.
+#   - Different timeout/retention policies.
+#   - Clearer red light to the contributor when accessibility specifically
+#     breaks (vs a generic "CI failed").
+#
+# Pairs with the visual workflow on Playwright install + SSR boot. Sharing
+# the chromium cache across both jobs is left as a future optimization;
+# under 15min each they don't justify the YAML complexity yet.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  a11y:
+    name: axe-core scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build (production)
+        run: npm run build
+
+      - name: Run axe-core suite
+        env:
+          CI: 'true'
+        run: npx playwright test --project=a11y
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-a11y-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

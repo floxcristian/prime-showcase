@@ -55,7 +55,7 @@ export class AppErrorHandler implements ErrorHandler {
     // Ref: https://angular.dev/api/core/ErrorHandler (el ErrorHandler
     // default de Angular tampoco re-throw; solo logea).
     //
-    // eslint-disable-next-line no-console
+     
     console.error(`[${scope} error]`, payload);
   }
 

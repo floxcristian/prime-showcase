@@ -1,0 +1,37 @@
+<!--
+  Preview head — inserted into every story's iframe <head>.
+
+  We mirror what angular.json injects globally in the production build:
+    - FontAwesome Sharp families (regular + solid + duotone) + brands
+    - Inter Variable preload
+
+  Without these, icon glyphs and typography don't render in stories and
+  the catalog misrepresents what the running app looks like.
+
+  Paths are absolute against the Storybook static root, which is mapped
+  to `public/` via .storybook/main.ts `staticDirs`.
+-->
+<link rel="stylesheet" href="/fontawesome/css/fontawesome.min.css" />
+<link rel="stylesheet" href="/fontawesome/css/sharp-regular.css" />
+<link rel="stylesheet" href="/fontawesome/css/sharp-solid.min.css" />
+<link rel="stylesheet" href="/fontawesome/css/sharp-duotone-regular.css" />
+<link rel="stylesheet" href="/fontawesome/css/brands.min.css" />
+
+<!--
+  Apply a sensible base background that follows the theme toggle. Storybook
+  manages `.p-dark` on `<html>` via addon-themes; we propagate it to body so
+  the surface read matches production (which sets surface-0/950 at the
+  layout level).
+-->
+<style>
+  html,
+  body {
+    background-color: var(--p-surface-0, #ffffff);
+    color: var(--p-text-color, #18181b);
+    margin: 0;
+  }
+  html.p-dark,
+  html.p-dark body {
+    background-color: var(--p-surface-950, #09090b);
+  }
+</style>

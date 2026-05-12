@@ -1,0 +1,74 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Tokens/Motion" />
+
+# Motion
+
+**Animate the minimum number of properties for the minimum time.** The
+user should notice the change, not the animation. PrimeNG internal
+transitions are disabled at runtime (`transitionDuration: '0s'` in
+`app.preset.ts`) to avoid the theme-flash during client-side navigation;
+all real transitions live in narrow Tailwind classes on the template.
+
+## Tokens
+
+```text
+DURATION
+  0ms     PrimeNG theme swap (runtime token, not a CSS property)
+  150ms   transition-colors / transition-opacity (default narrow)
+  250ms   transition-transform on overlays (sheets, panels)
+
+EASING
+  cubic-bezier(0.2, 0, 0, 1)   standard (Aura default)
+  cubic-bezier(0, 0, 0.2, 1)   decelerate (entries)
+  cubic-bezier(0.4, 0, 1, 1)   accelerate (exits)
+```
+
+## Allowed transition properties
+
+| Property | Class | When |
+|---|---|---|
+| Color / background | `transition-colors` | Default for interactive elements |
+| Opacity | `transition-opacity` | Images, avatars with hover-by-opacity |
+| Movement | `transition-transform` | Carousel, sheets, panels |
+| Specific axis | `transition-[transform]` | Narrowly-scoped overrides |
+
+## Forbidden
+
+- ❌ `transition-all` — animates every changed property, hides reflow jank.
+  Blocked by `showcase/no-forbidden-transitions`.
+- ❌ Bare `transition` — same problem, ambiguous scope.
+- ❌ Animating `width`, `height`, `top/left/right/bottom`, `margin`,
+  `padding` — they trigger layout, cause reflow, look janky.
+
+Use `transform: translate*()` + `opacity` for movement instead. Position
+changes via transform are GPU-composited; layout properties aren't.
+
+## `prefers-reduced-motion`
+
+The project respects the user's system setting. Any animation must live
+inside:
+
+```scss
+@media (prefers-reduced-motion: no-preference) {
+  /* animations here */
+}
+```
+
+CI emulates `prefers-reduced-motion: reduce` in one Playwright suite
+configuration. Screenshots with motion forced to 0 must be stable
+(no pixel-jitter).
+
+## Duration recipe
+
+The only place to declare `duration-*` explicitly is the canonical link
+recipe — text `<a>` elements:
+
+```html
+<a class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150">
+  Link text
+</a>
+```
+
+For everything else: omit `duration-*` and let Aura's default apply (it
+already respects the motion token).

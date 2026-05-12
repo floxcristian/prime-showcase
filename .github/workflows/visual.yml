@@ -1,0 +1,73 @@
+name: Visual regression
+
+# Visual regression pipeline. Runs on every PR + every push to main.
+#
+# Mirrors the approach Polaris/Primer/Chromatic use:
+#   1. Production build, then start the SSR server on :4000 (same as the
+#      smoke job in ci.yml — single-environment screenshots, no devserver
+#      variance).
+#   2. Install ONLY the chromium browser (cuts ~80s vs the default install).
+#   3. Run the `visual` Playwright project against the boot. Baselines live
+#      in `tests/visual/__screenshots__` and are committed to the repo.
+#   4. On failure, upload `playwright-report/` + the diff `test-results/`
+#      directory so reviewers can see actual vs expected without re-running.
+#
+# Re-baselining flow (for the contributor):
+#   1. Make the intentional UI change in your branch.
+#   2. Run `npm run visual:update` locally — regenerates baselines.
+#   3. Review the diff IMAGE BY IMAGE before committing. Anything you can't
+#      explain is a regression hiding in the changeset.
+#   4. Commit `tests/visual/__screenshots__/**` together with the source change.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    name: Playwright visual regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # chromium only — visual diffs across browsers add noise without
+      # catching design-system bugs (see playwright.config.ts rationale).
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      # The visual suite needs the production SSR build, not the dev server.
+      # Token resolution + Tailwind purge + bundle splitting are all
+      # production behaviors we want pixel-locked.
+      - name: Build (production)
+        run: npm run build
+
+      - name: Run visual regression
+        env:
+          CI: 'true'
+        run: npx playwright test --project=visual
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-visual-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

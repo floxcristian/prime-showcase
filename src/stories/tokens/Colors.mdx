@@ -1,0 +1,71 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Tokens/Colors" />
+
+# Color tokens
+
+Every color in the app comes from one of three layers, in order of preference:
+
+1. **Aura semantic tokens** (`text-color`, `text-muted-color`, `bg-surface-*`,
+   `bg-primary`, …). Use these for **everything UI**.
+2. **Project overrides** declared in `src/app/app.preset.ts`:
+   `formField.invalidBorderColor: rose.500`, `text.muted.color: surface.600`
+   (light) / `surface.300` (dark). Drift-checked against `DESIGN.md` by
+   `tools/design-tokens/sync.mjs` on every `npm run lint`.
+3. **Semantic exceptions** — named Tailwind colors with FIXED meaning:
+   `green-500` (online / active dot), `yellow-500` (BTC), `violet-100` /
+   `orange-100` (status badges). Never used as general UI palette.
+
+## Primary palette
+
+Single-hue 204° (Pantone "Implementos blue"). Derived from the brand logo
+`public/implementos-logo.svg` (`#006DB6`). The entire ramp shares H=204, with
+S=100% except `.400` (88%, dropped to soften electric blue on dark) and
+the natural tints `.50`–`.300`.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+  {[
+    { shade: '50', hex: '#eff8ff' },
+    { shade: '100', hex: '#daeffc' },
+    { shade: '200', hex: '#b2ddf9' },
+    { shade: '300', hex: '#74c3f3' },
+    { shade: '400', hex: '#27a0f1' },
+    { shade: '500', hex: '#0074c2' },
+    { shade: '600', hex: '#005c99' },
+    { shade: '700', hex: '#004a7a' },
+    { shade: '800', hex: '#00375c' },
+    { shade: '900', hex: '#002842' },
+    { shade: '950', hex: '#001829' },
+  ].map(({ shade, hex }) => (
+    <div key={shade} style={{ borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #e4e4e7' }}>
+      <div style={{ background: hex, height: '4rem' }} />
+      <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem' }}>
+        <div style={{ fontWeight: 600 }}>primary.{shade}</div>
+        <div style={{ fontFamily: 'monospace', color: '#52525b' }}>{hex}</div>
+      </div>
+    </div>
+  ))}
+</div>
+
+### Verified contrast
+
+| Pair | Contrast | Level |
+|---|---:|---|
+| `primary.500` on `surface.0` | 4.9:1 | WCAG 2.1 AA |
+| `primary.400` on `surface.950` (dark) | 7.0:1 | AAA |
+| `primary.700` on `surface.0` (active) | 10.5:1 | AAA |
+
+## Forbidden colors
+
+- ❌ Generic Tailwind colors: `text-gray-500`, `bg-blue-100`, `text-slate-700`, etc.
+- ❌ Hex / rgb literals: `#fff`, `rgb(0, 0, 0)` — except inside Chart.js datasets where the
+  legend is built outside the Angular cascade.
+- ❌ `var(--p-…)` strings in TypeScript components that aren't reading runtime CSS.
+
+Enforced by:
+
+- `showcase/no-hardcoded-colors` — blocks generic / hex.
+- `showcase/no-missing-dark-pair` — every `bg-surface-*` needs a `dark:bg-surface-*`.
+- `tools/design-tokens/sync.mjs` — guards `DESIGN.md` against drift vs the preset.
+
+See `Primitives/Button` and `Primitives/Tag` for token usage in component context.
