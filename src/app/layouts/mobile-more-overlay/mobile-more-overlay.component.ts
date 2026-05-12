@@ -92,7 +92,7 @@ export class MobileMoreOverlayComponent {
     },
     {
       id: 'legal',
-      label: 'Informaciones legales',
+      label: 'Información legal',
       icon: 'fa-sharp fa-regular fa-circle-info',
       action: () => {
         /* placeholder — página de términos y condiciones */

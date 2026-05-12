@@ -43,18 +43,26 @@
             class="hidden lg:inline-flex"
           />
         </div>
-        <p-selectbutton
-          [ngModel]="selectedSidebarOption()"
-          (ngModelChange)="selectedSidebarOption.set($event)"
-          [options]="sidebarOptions"
-          [allowEmpty]="false"
-          class="w-full px-2 py-3 lg:px-6 flex-1"
-          styleClass="flex-1 w-full"
-        >
-          <ng-template #item let-item>
-            <span>{{ item }}</span>
-          </ng-template>
-        </p-selectbutton>
+        <!--
+          Scroll horizontal wrapper: en viewports angostos (drawer en mobile)
+          4 opciones "Registros | Preferencias | Estadísticas | Oportunidades"
+          no caben — "Oportunidades" truncaba a "Oportunidad..." con ellipsis.
+          `overflow-x-auto no-scrollbar` permite swipe horizontal para ver el
+          último tab. Patrón Instagram/Netflix mobile para tab strips.
+        -->
+        <div class="w-full px-2 py-3 lg:px-6 flex-1 overflow-x-auto no-scrollbar">
+          <p-selectbutton
+            [ngModel]="selectedSidebarOption()"
+            (ngModelChange)="selectedSidebarOption.set($event)"
+            [options]="sidebarOptions"
+            [allowEmpty]="false"
+            styleClass="flex-nowrap"
+          >
+            <ng-template #item let-item>
+              <span class="whitespace-nowrap">{{ item }}</span>
+            </ng-template>
+          </p-selectbutton>
+        </div>
       </div>
 
       <!-- Registros de interacción -->
