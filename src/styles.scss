@@ -406,7 +406,13 @@ input:-webkit-autofill:focus-visible {
  */
 @mixin tonal-variant {
   background: var(--p-primary-100) !important;
-  color: var(--p-primary-color) !important;
+  // Color foreground: primary-700 (no primary-color/500) para satisfacer
+  // WCAG AA contrast ratio 4.5:1 sobre primary-100. Verificado por axe:
+  // primary-color (#0074c2) sobre primary-100 (#daeffc) daba 4.14:1
+  // (insuficiente para texto small <14pt). primary-700 sube a ~6:1.
+  // Material 3 "on-secondary-container" sigue el mismo principio —
+  // foreground oscuro sobre container tinted-light, no primary-base.
+  color: var(--p-primary-700) !important;
   border-color: var(--p-primary-100) !important;
 
   &:hover {
