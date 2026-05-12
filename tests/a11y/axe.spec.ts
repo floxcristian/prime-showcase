@@ -84,6 +84,9 @@ const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
   // `aria-valuenow` ni accessible name. PrimeNG necesita
   // `[ariaLabel]` per-handle pero no se honra. Library gap.
   '.p-slider-handle',
+  // InputOtp digits — N inputs sin aria-label individual. PrimeNG
+  // no genera `aria-label="Dígito 1 de 6"` automático. Library gap.
+  '.p-inputotp-input',
 ];
 
 for (const route of ROUTES) {

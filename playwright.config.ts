@@ -47,7 +47,13 @@ export default defineConfig({
   //
   // Template segmenta por nombre del spec así golden-paths y
   // storybook viven en directorios distintos sin colisión.
-  snapshotPathTemplate: '{testFileDir}/__screenshots__/{testFileName}/{arg}{ext}',
+  // Importante: Playwright NO prepende `testDir` al resultado del
+  // template — lo resuelve relativo a CWD. Por eso incluimos
+  // `{testDir}` explícitamente — sin él, los snapshots se escriben
+  // a `<repo>/visual/...` (afuera de `tests/`) y el `.gitignore`
+  // los descarta.
+  snapshotPathTemplate:
+    '{testDir}/{testFileDir}/__screenshots__/{testFileName}/{arg}{ext}',
   expect: {
     // Visual regression threshold. 0.2 matches Chromatic's default.
     // Anything higher hides real regressions; lower flakes on font rendering.
