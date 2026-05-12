@@ -219,7 +219,18 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
   protected readonly isOpen = signal(false);
 
   constructor() {
-    if (isPlatformBrowser(this.platformId)) {
+    // Solo browser real: `isPlatformBrowser` es true tanto en producción
+    // como en jsdom (vitest), pero jsdom NO implementa `matchMedia`. El
+    // typeof check distingue ambos sin shimear matchMedia globalmente
+    // (un mock en setup contaminaría cualquier futuro consumer que sí
+    // dependa del valor real). En jsdom el componente se monta con
+    // `canHover = false` (touch-style), que es el comportamiento safe
+    // por default para tests.
+    if (
+      isPlatformBrowser(this.platformId) &&
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function'
+    ) {
       this.canHover.set(window.matchMedia('(hover: hover)').matches);
     }
   }
