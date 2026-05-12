@@ -57,10 +57,43 @@ jobs:
       - name: Build (production)
         run: npm run build
 
+      # Storybook component baselines (tests/visual/storybook.spec.ts)
+      # corren contra Storybook estático en :6006. Sin esta build + serve,
+      # los tests fallan al hacer ping en el `beforeAll`. El golden-paths
+      # suite usa el SSR app en :4000 (boot via playwright.config.ts
+      # `webServer`), no comparte esta capa.
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Serve Storybook on :6006
+        run: |
+          npx http-server dist/storybook -p 6006 -c-1 --silent &
+          echo "SB_PID=$!" >> "$GITHUB_ENV"
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:6006/ -o /dev/null; then
+              echo "Storybook up after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Storybook did not come up within 30s" >&2
+          exit 1
+
       - name: Run visual regression
         env:
           CI: 'true'
         run: npx playwright test --project=visual
+
+      # Cleanup del Storybook server siempre — un proceso colgado pinea
+      # el runner hasta el timeout del job. Patron `if: always()` igual
+      # que el SSR teardown en ci.yml.
+      - name: Stop Storybook server
+        if: always()
+        run: |
+          if [ -n "${SB_PID:-}" ] && kill -0 "$SB_PID" 2>/dev/null; then
+            kill "$SB_PID"
+            echo "Stopped Storybook server (pid=$SB_PID)"
+          fi
 
       - name: Upload Playwright report
         if: failure()
