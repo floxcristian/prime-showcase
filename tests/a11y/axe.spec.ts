@@ -87,6 +87,16 @@ const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
   // InputOtp digits — N inputs sin aria-label individual. PrimeNG
   // no genera `aria-label="Dígito 1 de 6"` automático. Library gap.
   '.p-inputotp-input',
+  // Carousel — múltiples library gaps que requerirían fixes upstream:
+  //   - Items inactivos marcados `aria-hidden="true"` mantienen buttons
+  //     internos focusable (no aplican `tabindex=-1`). Dispara
+  //     `aria-hidden-focus` + `focusable-disabled` + `button-name`.
+  //   - Botones de nav prev/next (`<p-button aria-label="Siguiente">`)
+  //     aplican aria-label al host sin role → `aria-prohibited-attr`.
+  // Mismo patrón estructural que las exclusiones anteriores: PrimeNG
+  // owns el componente, los consumers no pueden cablearlo distinto.
+  // Hasta que el library cierre los gaps, scope a `.p-carousel`.
+  '.p-carousel',
 ];
 
 for (const route of ROUTES) {
