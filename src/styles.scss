@@ -1155,3 +1155,75 @@ app-settings-drawer > p-drawer {
   background: var(--p-surface-600);
 }
 
+/*
+ * Customers table — compact density variant.
+ *
+ * **Por qué CSS extra encima del dt padding token:** medimos que el row
+ * floor de la tabla estaba dominado por el botón ··· (40px host) y no
+ * por el padding de cell. Solo bajar el padding daba 8px de ahorro
+ * (~12%), imperceptible. Linear/Stripe/Notion compact rows están en
+ * 36-40px (vs 56-64px en cómodo) — necesitamos también escalar:
+ *
+ *   - Action button ··· (icon-only, [rounded][text]): h/w 32→28px,
+ *     icon scaling implícita via font-size.
+ *   - Tag badges (RECURRENTE, lifecycle, etc.): py reducido, font 12px.
+ *   - Texto secundario (RUT, email): line-height tightened.
+ *
+ * Selector scope: `.customers-table--compact` se aplica al wrapper de
+ * la tabla, no a la página entera — los demás componentes (avatars,
+ * popovers, etc.) mantienen el sizing default. Patrón Notion/Linear:
+ * la densidad es propiedad de UN dataset, no global.
+ *
+ * `!important` necesario porque PrimeNG inyecta inline-styles (avatar
+ * height/width via host bindings) que ganan sin él.
+ */
+.customers-table--compact {
+  // Action button (··· menu trigger) — icon-only, rounded, text variant.
+  // PrimeNG default es 2.5rem (40px). En compact bajamos a 1.75rem (28px).
+  .p-button.p-button-icon-only.p-button-rounded {
+    height: 1.75rem !important;
+    width: 1.75rem !important;
+    min-width: 1.75rem !important;
+  }
+  // Tags un poco más compactos — reduce vertical padding solamente.
+  .p-tag {
+    padding-block: 0.125rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+}
+
+/*
+ * Customers toast — eleva el snackbar sobre el FAB extended en mobile.
+ *
+ * **Por qué:** el módulo Clientes monta un Extended FAB ("Crear
+ * cliente") en `lg:hidden` anclado a `bottom: calc(5rem + safe-inset)`.
+ * El toast del módulo (key="customers-toast") por default queda en
+ * `bottom: 20px`, lo que produce un overlap completo (medido: 166×48px
+ * a 393×852 iPhone 14). El "Deshacer" del toast quedaba bajo el FAB
+ * tap zone, ergo inaccesible para confirmar un undo en mobile.
+ *
+ * **Material 3 spec** (m3.material.io/components/snackbar/guidelines#
+ * snackbar-fab): "When a FAB is present, the snackbar should appear
+ * above it." Implementación: en mobile elevamos el ancla del toast a
+ * `bottom = FAB.bottom + FAB.height + gap` = 5rem + 3rem + 1rem = 9rem
+ * sobre el safe-inset.
+ *
+ * **Por qué no `position="top"`:** los snackbars en mobile están
+ * convencionalmente anclados al bottom (Material 3, iOS Notification
+ * Center, Sonner default mobile). Cambiar la posición global solo por
+ * el FAB rompería la consistencia con `inbox`/`chat`/otros módulos
+ * que también muestran toasts mobile-bottom. Local override es más
+ * preciso.
+ *
+ * **`!important`:** PrimeNG inyecta `bottom: 20px` inline via su
+ * directive de positioning (no via CSS rule), así que el override
+ * necesita prioridad. Localizado al breakpoint mobile + selector
+ * scoped a este toast — sin efecto colateral en otros toasts.
+ */
+@media (max-width: 1023.98px) {
+  .customers-toast-anchor.p-toast-bottom-right {
+    bottom: calc(9rem + env(safe-area-inset-bottom)) !important;
+  }
+}
+

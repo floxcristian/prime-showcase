@@ -2,7 +2,14 @@
   "mcpServers": {
     "primeng": {
       "command": "npx",
-      "args": ["-y", "@primeng/mcp"]
+      "args": [
+        "-y",
+        "-p",
+        "@primeng/mcp@21.1.6",
+        "-p",
+        "@modelcontextprotocol/sdk@1.27.1",
+        "primeng-mcp"
+      ]
     },
     "playwright": {
       "command": "npx",

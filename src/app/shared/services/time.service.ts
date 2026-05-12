@@ -34,6 +34,23 @@ export class TimeService {
   /** Tick reactivo de "now" en ms epoch. Se actualiza cada 60s en browser. */
   readonly now = this._now.asReadonly();
 
+  /**
+   * Fuerza un tick sincrónico de "now". Útil cuando un consumer acaba
+   * de generar un timestamp fresco (ej: `_lastFetchedAt = new Date()`)
+   * y necesita que pipes relativos comparen contra un "now" igualmente
+   * fresco — sin esto, el pipe puede ver `value > now` (porque el
+   * signal aún tiene el `_now` del tick anterior, hasta 60s atrás) y
+   * renderizar "en el futuro" durante la ventana siguiente.
+   *
+   * Patrón GitHub/Linear: cualquier mutación que genere timestamps
+   * push-updatea el time-source. Mantiene la invariante `now ≥ valor`
+   * en data acabada de fetchear, sin esperar al próximo tick natural.
+   */
+  bump(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    this._now.set(Date.now());
+  }
+
   /** Hora 0-23 reactiva — útil para greetings que cambian con el día. */
   readonly hour = computed(() => new Date(this._now()).getHours());
 

@@ -35,10 +35,31 @@ export class RelativeTimePipe implements PipeTransform {
   }
 }
 
+/**
+ * Tolerancia simétrica para reportar "ahora mismo".
+ *
+ * **Defensa secundaria** — el mecanismo primario es que los consumers
+ * llamen `TimeService.bump()` después de generar timestamps frescos
+ * (ver `time.service.ts:bump`). Esto mantiene `now ≥ value` para data
+ * recién creada en el cliente.
+ *
+ * Esta tolerancia solo queda como red de seguridad para:
+ *   - Server clock skew (cuando el value viene del backend adelantado).
+ *   - Caso de que un consumer olvide llamar `bump()`.
+ *
+ * 5s es lo que Linear/Vercel usan para ese único caso residual. Más
+ * lenient (30s era el valor anterior) ocultaba resolución legítima
+ * "hace 15s" / "hace 25s" que el pipe maneja correctamente.
+ */
+const NOW_TOLERANCE_S = 5;
+
 function formatRelative(deltaMs: number): string {
-  if (deltaMs < 0) return 'en el futuro';
   const seconds = Math.floor(deltaMs / 1000);
-  if (seconds < 30) return 'ahora mismo';
+  // Symmetric clamp — pasado/futuro reciente ambos = "ahora mismo".
+  // Sólo después de la zona de tolerancia mostramos "en el futuro" para
+  // valores genuinamente programados (ej: ETA de un job).
+  if (Math.abs(seconds) < NOW_TOLERANCE_S) return 'ahora mismo';
+  if (seconds < 0) return 'en el futuro';
   if (seconds < 60) return `hace ${seconds} s`;
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return minutes === 1 ? 'hace 1 min' : `hace ${minutes} min`;
