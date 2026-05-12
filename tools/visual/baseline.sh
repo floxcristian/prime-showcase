@@ -111,7 +111,14 @@ if [[ "$TARGET" == "all" || "$TARGET" == "storybook" ]]; then
   done
 
   log "Generating component-level baselines"
-  STORYBOOK_BASE_URL=http://127.0.0.1:$SB_PORT npx playwright test --project=visual --update-snapshots=all tests/visual/storybook.spec.ts
+  # `E2E_BASE_URL` se exporta aquí AUNQUE estos tests usen
+  # STORYBOOK_BASE_URL — Playwright's `webServer` config se activa
+  # cuando `E2E_BASE_URL` está ausente, intentando levantar el SSR app
+  # en :4000. Si el target del run fue "storybook" pero el orquestador
+  # YA levantó SSR en este shell (target=all), el webServer choca con
+  # "address already in use". Pasar E2E_BASE_URL le dice a Playwright
+  # "no levantes nada — el server externo está corriendo".
+  E2E_BASE_URL=http://127.0.0.1:$SSR_PORT STORYBOOK_BASE_URL=http://127.0.0.1:$SB_PORT npx playwright test --project=visual --update-snapshots=all tests/visual/storybook.spec.ts
 fi
 
 log "Done. Review the diff before committing."

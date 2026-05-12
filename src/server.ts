@@ -92,6 +92,12 @@ app.use(
     limit: 300,
     standardHeaders: true,
     legacyHeaders: false,
+    // Skip rate-limit en CI: los suites de axe + visual escanean 6
+    // rutas × dozen assets cada una en segundos, lo que excede 300/min
+    // y rebota con "Too many requests" → falsa-falla del workflow.
+    // El bypass es env-gated (no impacta producción): el CI runner
+    // exporta `CI=true` automáticamente (GitHub Actions, GitLab, etc.).
+    skip: () => process.env['CI'] === 'true',
   }),
 );
 
