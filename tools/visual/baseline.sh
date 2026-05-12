@@ -53,10 +53,12 @@ trap cleanup EXIT INT TERM
 log() { echo -e "\n\033[1;34m▶ $*\033[0m"; }
 
 # ─── Playwright browser ──────────────────────────────────────────────
-log "Ensuring Playwright chromium is installed"
-if ! npx playwright install chromium --dry-run >/dev/null 2>&1; then
-  npx playwright install --with-deps chromium
-fi
+# Idempotente: Playwright skipea download si los binarios + el version
+# stamp matchean. El --dry-run check anterior fallaba en 1.50+ porque
+# el headless shell se shippea aparte y la flag no lo cubría. Mejor
+# always-install: ~5s no-op cuando ya está, ~60s cuando falta.
+log "Installing Playwright chromium (idempotent)"
+npx playwright install --with-deps chromium
 
 # ─── SSR server (routes) ─────────────────────────────────────────────
 if [[ "$TARGET" == "all" || "$TARGET" == "routes" ]]; then

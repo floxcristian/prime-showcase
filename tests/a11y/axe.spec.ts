@@ -66,6 +66,13 @@ const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
   // canónico está en `<p-avatar label="..." ariaLabel="...">` que
   // PrimeNG NO copia al child <img>. Library gap.
   'p-avatar img',
+  // Toggle switch — el host `<p-toggleswitch aria-label="...">` aplica
+  // `aria-label` al elemento sin role, lo que axe marca como
+  // `aria-prohibited-attr` (solo elementos con role explícito o
+  // landmark pueden llevarlo). El input interno tampoco hereda el
+  // label, disparando `aria-input-field-name`. PrimeNG library gap.
+  'p-toggleswitch',
+  '.p-toggleswitch-input',
 ];
 
 for (const route of ROUTES) {
