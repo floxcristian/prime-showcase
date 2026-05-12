@@ -1,53 +1,48 @@
 {
-  "generatedAt": "2026-04-24T02:50:39.950Z",
+  "generatedAt": "2026-05-12T21:37:32.514Z",
   "initial": {
-    "raw": 742204,
-    "gzip": 195482,
+    "raw": 774863,
+    "gzip": 202442,
     "files": [
       {
         "type": "chunk",
-        "raw": 36858,
-        "gzip": 11777
+        "raw": 120284,
+        "gzip": 34185
       },
       {
         "type": "chunk",
-        "raw": 47386,
+        "raw": 236421,
+        "gzip": 77258
+      },
+      {
+        "type": "chunk",
+        "raw": 47387,
         "gzip": 15626
       },
       {
         "type": "chunk",
-        "raw": 1263,
-        "gzip": 708
+        "raw": 1264,
+        "gzip": 714
       },
       {
         "type": "chunk",
-        "raw": 83521,
-        "gzip": 22984
-      },
-      {
-        "type": "chunk",
-        "raw": 228143,
-        "gzip": 74728
-      },
-      {
-        "type": "chunk",
-        "raw": 1740,
-        "gzip": 825
+        "raw": 1741,
+        "gzip": 826
       },
       {
         "type": "main",
-        "raw": 113346,
-        "gzip": 16769
+        "raw": 119763,
+        "gzip": 19126
       },
       {
         "type": "styles",
-        "raw": 229947,
-        "gzip": 52065
+        "raw": 248003,
+        "gzip": 54707
       }
     ]
   },
   "totalJs": {
-    "raw": 1830522,
-    "fileCount": 40
+    "raw": 2319232,
+    "fileCount": 77
   }
 }

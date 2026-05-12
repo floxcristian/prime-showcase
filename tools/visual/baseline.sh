@@ -82,7 +82,7 @@ if [[ "$TARGET" == "all" || "$TARGET" == "routes" ]]; then
   done
 
   log "Generating route-level baselines"
-  E2E_BASE_URL=http://127.0.0.1:$SSR_PORT npx playwright test --project=visual --update-snapshots tests/visual/golden-paths.spec.ts
+  E2E_BASE_URL=http://127.0.0.1:$SSR_PORT npx playwright test --project=visual --update-snapshots=all tests/visual/golden-paths.spec.ts
 fi
 
 # ─── Storybook static server (component-level) ───────────────────────
@@ -109,7 +109,7 @@ if [[ "$TARGET" == "all" || "$TARGET" == "storybook" ]]; then
   done
 
   log "Generating component-level baselines"
-  STORYBOOK_BASE_URL=http://127.0.0.1:$SB_PORT npx playwright test --project=visual --update-snapshots tests/visual/storybook.spec.ts
+  STORYBOOK_BASE_URL=http://127.0.0.1:$SB_PORT npx playwright test --project=visual --update-snapshots=all tests/visual/storybook.spec.ts
 fi
 
 log "Done. Review the diff before committing."

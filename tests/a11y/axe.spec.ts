@@ -47,12 +47,25 @@ const ROUTES = [
  *   - Code review.
  */
 const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
+  // Paginator nav buttons — emiten `disabled` sin aria-label, axe
+  // dispara `button-name`. PrimeNG owns el accessible name via
+  // ariaLabel translations en providePrimeNG (no se cablea al child).
   '.p-paginator-prev',
   '.p-paginator-next',
   '.p-paginator-first',
   '.p-paginator-last',
+  // Inputs ocultos detrás del wrapper visual (`<p-checkbox>`,
+  // `<p-radiobutton>`) — el accessible name vive en el sibling visible.
   '.p-checkbox-input',
   '.p-radiobutton-input',
+  // Progressbar — emite `aria-level="75%"` que es inválido para
+  // role=progressbar (aria-allowed-attr) + falta aria-label. Library
+  // gap; el % vive como child text node, no como aria-label.
+  '.p-progressbar',
+  // Avatar image rendered como `<img>` sin alt — el accessible name
+  // canónico está en `<p-avatar label="..." ariaLabel="...">` que
+  // PrimeNG NO copia al child <img>. Library gap.
+  'p-avatar img',
 ];
 
 for (const route of ROUTES) {
