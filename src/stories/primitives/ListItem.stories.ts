@@ -59,7 +59,7 @@ export const InboxRow: Story = {
   render: () => ({
     template: `
       <div class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors border border-surface rounded-lg max-w-md">
-        <p-avatar label="JD" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+        <p-avatar label="JD" shape="circle" styleClass="app-avatar-initials" />
         <div class="flex-1 min-w-0">
           <div class="flex items-start gap-1 justify-between">
             <div class="text-color font-medium leading-6 truncate">Juan Díaz</div>

@@ -56,7 +56,7 @@
                 [image]="chat.image"
                 [label]="!chat.image ? chat.capName : ''"
                 class="text-base font-medium flex"
-                [ngClass]="{ '!bg-primary-100 !text-primary-950': !chat.image }"
+                [ngClass]="{ 'app-avatar-initials': !chat.image }"
                 size="large"
                 shape="circle"
                 />
@@ -329,7 +329,7 @@
                                       [image]="member.image"
                                       [label]="!member.image ? member.capName : ''"
                                       class="font-medium text-xs"
-                                      [ngClass]="{ '!bg-primary-100 !text-primary-950': !member.image }"
+                                      [ngClass]="{ 'app-avatar-initials': !member.image }"
                                       shape="circle"
                                       />
                                       <div

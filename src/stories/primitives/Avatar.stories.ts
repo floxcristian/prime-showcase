@@ -21,7 +21,8 @@ const meta: Meta<AvatarArgs> = {
         component: [
           '`<p-avatar>` para representar usuarios o entidades. Siempre preferir una imagen;',
           'usar iniciales como fallback solo cuando no hay imagen disponible. Los avatares con iniciales',
-          'usan UN SOLO color en toda la app (`!bg-primary-100 !text-primary-950`)',
+          'usan UN SOLO color en toda la app vía la utility class `app-avatar-initials`',
+          '(que consume `--app-avatar-initials-*` desde `PROJECT_TOKENS.avatar` en `app.preset.ts`)',
           'para que el usuario los lea como "todavía sin foto" y no como una taxonomía de colores.',
         ].join(' '),
       },
@@ -56,7 +57,7 @@ export const Initials: Story = {
     label: 'JD',
     shape: 'circle',
     size: 'large',
-    styleClass: '!bg-primary-100 !text-primary-950',
+    styleClass: 'app-avatar-initials',
   },
 };
 
@@ -94,9 +95,9 @@ export const SizeScale: Story = {
   render: () => ({
     template: `
       <div style="display: flex; align-items: center; gap: 1rem;">
-        <p-avatar label="JD" shape="circle" size="normal" styleClass="!bg-primary-100 !text-primary-950" />
-        <p-avatar label="JD" shape="circle" size="large" styleClass="!bg-primary-100 !text-primary-950" />
-        <p-avatar label="JD" shape="circle" size="xlarge" styleClass="!bg-primary-100 !text-primary-950" />
+        <p-avatar label="JD" shape="circle" size="normal" styleClass="app-avatar-initials" />
+        <p-avatar label="JD" shape="circle" size="large" styleClass="app-avatar-initials" />
+        <p-avatar label="JD" shape="circle" size="xlarge" styleClass="app-avatar-initials" />
       </div>
     `,
   }),

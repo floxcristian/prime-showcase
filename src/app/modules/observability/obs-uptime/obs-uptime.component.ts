@@ -19,6 +19,7 @@ import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 
+import { DEFAULT_APP_LOCALE } from '../../../core/locale';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { TableFilterShellComponent } from '../../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../../shared/directives/tooltip-dismiss-on-click.directive';
@@ -70,9 +71,21 @@ const SEVERITY_RANK: Record<HealthState, number> = {
 /**
  * Formateadores reusables — uno solo a nivel módulo en vez de N por
  * segmento. `Intl.DateTimeFormat` es relativamente caro de instanciar.
+ *
+ * **Locale source**: el tag `es-CL` viene del default exportado por
+ * `src/app/core/locale/locale.config.ts` (`DEFAULT_APP_LOCALE`).
+ * Importamos la constante en vez del literal para que cambios de
+ * default no requieran tocar este módulo. Para multi-tenant /
+ * language picker, los componentes consumen `AppLocaleService` via
+ * DI (ver `src/app/core/locale/locale.service.ts`); este módulo
+ * está pendiente de migración a esa forma (issue de seguimiento:
+ * "obs-uptime: mover makeSegment dentro de la clase para inyectar
+ * AppLocaleService", trackeado en `docs/DEPRECATION.md`).
  */
-const DATE_FMT = new Intl.DateTimeFormat('es-CL', { dateStyle: 'medium' });
-const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
+const DATE_FMT = new Intl.DateTimeFormat(DEFAULT_APP_LOCALE, {
+  dateStyle: 'medium',
+});
+const TIME_FMT = new Intl.DateTimeFormat(DEFAULT_APP_LOCALE, {
   hour: '2-digit',
   minute: '2-digit',
 });

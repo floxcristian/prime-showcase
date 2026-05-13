@@ -36,6 +36,7 @@ import { Tag } from 'primeng/tag';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 // Local
+import { AppLocaleService } from '../../core/locale';
 import {
   ColumnHelpComponent,
   type ColumnHelpEntry,
@@ -1726,14 +1727,17 @@ export class CustomersComponent {
   }
 
   /**
-   * Formateador de moneda CLP. Instanciado una vez (constructor de
-   * `Intl.NumberFormat` es relativamente caro) y reusado por
-   * `formatCredit` + el filter shell. `maximumFractionDigits: 0`
+   * Formateador de moneda CLP. Inyectado vía `AppLocaleService` que
+   * cachea por `(locale, options)` a nivel root — Polaris / Atlassian
+   * pattern. Single source of truth para el locale: cambiar
+   * `APP_LOCALE` / `APP_CURRENCY` en `app.config.ts` reformatea todo
+   * el app sin tocar este componente. `maximumFractionDigits: 0`
    * porque el peso chileno no usa decimales.
    */
-  private readonly clpFormatter = new Intl.NumberFormat('es-CL', {
+  private readonly locale = inject(AppLocaleService);
+  private readonly clpFormatter = this.locale.getNumberFormatter({
     style: 'currency',
-    currency: 'CLP',
+    currency: this.locale.currencyCode,
     maximumFractionDigits: 0,
   });
 

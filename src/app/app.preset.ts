@@ -1,10 +1,23 @@
 /**
- * @fileoverview Single source of truth for the PrimeNG Aura preset.
+ * @fileoverview Single source of truth for the PrimeNG Aura preset
+ * AND for the project-extra design tokens (motion, z-index, density,
+ * elevation, avatar) that Aura does not natively model.
  *
  * Consumed by:
  *   - src/app/app.config.ts        → application bootstrap (production runtime)
  *   - .storybook/preview.ts        → Storybook decorator (component catalog)
  *   - tools/design-tokens/sync.mjs → drift check vs DESIGN.md
+ *   - tools/design-tokens/codegen.mjs → emits CSS vars + Tailwind theme
+ *                                       + ESLint scale tables
+ *
+ * Two exports:
+ *   - `AppPreset` — passed to `providePrimeNG({ theme: { preset } })`.
+ *     Contains ONLY tokens Aura's `definePreset` knows how to emit.
+ *   - `PROJECT_TOKENS` — project-extra tokens emitted as CSS vars by
+ *     a generated stylesheet (see `src/generated/tokens.css` and
+ *     `tools/design-tokens/codegen.mjs`). Adding new tokens here
+ *     auto-propagates to the resolver, the JSON artifact, Tailwind,
+ *     and ESLint scale rules.
  *
  * Why a separate file:
  *   Embedding the preset inside `app.config.ts` couples the runtime
@@ -13,6 +26,16 @@
  *   `app.config.ts` from Storybook leaks orthogonal providers. Extracting
  *   the preset isolates "what the design system IS" from "how the app
  *   wires it up" — same separation Polaris / Primer / Carbon enforce.
+ *
+ * Why a SECOND export for project-extra tokens (PROJECT_TOKENS):
+ *   `@primeuix/themes/definePreset` only emits keys Aura already models.
+ *   Motion easings, named z-index ladder rungs, density variants,
+ *   elevation primitives — none are Aura natives. Polaris, Carbon,
+ *   Spectrum all face the same constraint when building on top of a
+ *   third-party token system: they keep "vendor preset" and "project
+ *   semantic" separated, then merge at emission. We do the same: Aura
+ *   tokens go through `definePreset`; project tokens go through our
+ *   codegen → generated CSS vars. The resolver knows about both.
  */
 
 import Aura from '@primeuix/themes/aura';
@@ -147,6 +170,116 @@ export const AppPreset = definePreset(Aura, {
     },
   },
 });
+
+/**
+ * Project-extra semantic tokens — emitted as CSS vars by
+ * `tools/design-tokens/codegen.mjs` into `src/generated/tokens.css`.
+ * Aura's `definePreset` does not surface these (motion easings,
+ * named z-index ladder, density variants, elevation, avatar tonal),
+ * but we still own them as data — DESIGN.md drift, tokens.json,
+ * Tailwind `@theme`, and ESLint scale rules all consume this object.
+ *
+ * **Layered model (W3C Design Tokens Format inspired):**
+ *
+ *   reference (Aura primary/surface palettes)
+ *      └─ system  (named semantics — `motion.duration.fast`)
+ *            └─ component (component-scoped — `avatar.initialsBackground`)
+ *
+ * Adding a token here:
+ *   1. Add it to PROJECT_TOKENS below with a literal or `{ref}` value.
+ *   2. The resolver picks it up automatically; tokens.json regenerates
+ *      on next `npm run design-tokens:sync -- --update`.
+ *   3. The codegen emits the CSS var (`--app-<group>-<key>`); the new
+ *      var is consumable from any stylesheet and (via Tailwind `@theme`
+ *      passthrough) as utility classes.
+ *   4. Documentation in DESIGN.md will drift-fail until you `--update`.
+ *
+ * **DO NOT** put colour tokens here — colours belong in `AppPreset`
+ * because Aura already models them and the resolver knows how to walk
+ * the colorScheme tree. PROJECT_TOKENS is for tokens Aura does not
+ * model.
+ */
+export const PROJECT_TOKENS = {
+  motion: {
+    duration: {
+      // 0 keeps PrimeNG cross-route theme swaps instant (see
+      // `transitionDuration` in AppPreset above). The named tokens
+      // below cover purposeful animations — narrow Tailwind classes
+      // like `transition-colors` use these via `--app-motion-*` vars.
+      instant: '0ms',
+      fast: '150ms',
+      base: '250ms',
+      slow: '400ms',
+    },
+    easing: {
+      // cubic-bezier defaults from Material 3 / Carbon — battle-tested
+      // for productivity UIs where users notice motion but should not
+      // be entertained by it.
+      standard: 'cubic-bezier(0.2, 0, 0, 1)',
+      decelerate: 'cubic-bezier(0, 0, 0.2, 1)',
+      accelerate: 'cubic-bezier(0.4, 0, 1, 1)',
+    },
+  },
+  // Named z-index ladder. DESIGN.md "Z-Index" section is the
+  // human-readable view; this is the machine-readable one. Changing
+  // a value here requires `npm run design-tokens:sync -- --update`
+  // before the lint passes.
+  zIndex: {
+    base: 0,
+    sticky: 10,
+    dropdown: 1000,
+    overlay: 1100,
+    drawer: 1200,
+    modal: 1300,
+    toast: 1400,
+    tooltip: 1500,
+  },
+  // Elevation — the project policy is "borders, not shadows". We still
+  // model elevation as data because the navigation overlay panel is
+  // a documented exception that DOES use a shadow, and external
+  // consumers (Figma plugin) want a single elevation source.
+  elevation: {
+    // Card-like surface — only border. No shadow tokens (intentional).
+    card: 'border:1px solid var(--p-surface-border-color)',
+    // Floating panel — the documented exception. Used by the nav
+    // overlay. Light + dark variants live in styles.scss; this is
+    // the canonical light value.
+    overlay:
+      '0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.06)',
+    overlayDark:
+      '0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3)',
+  },
+  density: {
+    // Default productive density — DESIGN.md "Density".
+    productive: {
+      rowHeight: '56px',
+      inputHeight: '40px',
+      fontSize: '16px',
+    },
+    // Reserved for a future power-user toggle (admins, ops). The
+    // compact tokens DO ship today so customers-table can stop using
+    // `!important` against the productive baseline.
+    compact: {
+      rowHeight: '40px',
+      inputHeight: '32px',
+      fontSize: '14px',
+    },
+  },
+  // Avatar tonal pair — replaces the `!bg-primary-100 !text-primary-950`
+  // hardcoded in 5+ templates. Resolves to `{primary.100}` / `{primary.950}`
+  // in light, `{primary.900}` / `{primary.100}` in dark — same shape
+  // as the Material 3 "tonal" pattern documented in styles.scss.
+  avatar: {
+    initialsBackground: {
+      light: '{primary.100}',
+      dark: '{primary.900}',
+    },
+    initialsColor: {
+      light: '{primary.950}',
+      dark: '{primary.100}',
+    },
+  },
+} as const;
 
 /**
  * Shared providePrimeNG options consumed by app.config.ts and Storybook.

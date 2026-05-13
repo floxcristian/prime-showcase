@@ -255,6 +255,20 @@ export function resolveColorByMode(preset, path, mode) {
 }
 
 /**
+ * Resolves a `{primary.N}` or `{surface.N}` reference inside the
+ * PROJECT_TOKENS avatar block against the preset palettes. Avatar
+ * tokens are declared as references (`'{primary.100}'`) so that
+ * brand recolours propagate without manual edits.
+ */
+function resolveAvatarColor(preset, value, mode) {
+  if (typeof value !== 'string') return undefined;
+  const m = value.match(/^\{(primary|surface)\.(\d+)\}$/);
+  if (!m) return value;
+  const r = resolveShade(preset, mode, m[1], m[2]);
+  return typeof r === 'string' ? r : undefined;
+}
+
+/**
  * Top-level export: produces the canonical resolved token map.
  *
  * Shape:
@@ -268,13 +282,23 @@ export function resolveColorByMode(preset, path, mode) {
  *       textMutedColor:     { light: '#52525b', dark: '#d4d4d8' },
  *       invalidBorderColor: { light: '#f43f5e', dark: '#fb7185' },
  *       focusRingShadow:    '0 0 0 0.2rem #b2ddf9',
+ *       motion: { duration: { fast: '150ms', … }, easing: { … } },
+ *       zIndex: { sticky: 10, overlay: 1100, … },
+ *       avatar: { initials: { light: { background, color }, dark: … } },
  *     },
  *   }
  *
+ * **Project-extra tokens** (motion, zIndex, avatar, density) are
+ * sourced from `PROJECT_TOKENS` if it is exported by the preset
+ * module. They live alongside the colour tokens in the JSON
+ * artifact so external consumers (Figma plugin, mobile theme,
+ * downstream repos) see one document, not two.
+ *
  * @param {object} preset — merged preset (definePreset(Aura, overrides))
+ * @param {object} [projectTokens] — PROJECT_TOKENS export from preset module
  */
-export function exportTokens(preset) {
-  return {
+export function exportTokens(preset, projectTokens) {
+  const base = {
     primary: resolvePrimaryPalette(preset),
     surface: {
       light: resolveSurfacePalette(preset, 'light'),
@@ -297,4 +321,41 @@ export function exportTokens(preset) {
       })(),
     },
   };
+
+  if (!projectTokens) return base;
+
+  base.semantic.motion = projectTokens.motion;
+  base.semantic.zIndex = projectTokens.zIndex;
+  base.semantic.density = projectTokens.density;
+  base.semantic.elevation = projectTokens.elevation;
+  base.semantic.avatar = {
+    initials: {
+      light: {
+        background: resolveAvatarColor(
+          preset,
+          projectTokens.avatar?.initialsBackground?.light,
+          'light',
+        ),
+        color: resolveAvatarColor(
+          preset,
+          projectTokens.avatar?.initialsColor?.light,
+          'light',
+        ),
+      },
+      dark: {
+        background: resolveAvatarColor(
+          preset,
+          projectTokens.avatar?.initialsBackground?.dark,
+          'dark',
+        ),
+        color: resolveAvatarColor(
+          preset,
+          projectTokens.avatar?.initialsColor?.dark,
+          'dark',
+        ),
+      },
+    },
+  };
+
+  return base;
 }

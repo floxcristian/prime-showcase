@@ -47,5 +47,6 @@ module.exports = {
     'text-3xl-requires-bold': require('./rules/text-3xl-requires-bold'),
     'label-requires-semibold': require('./rules/label-requires-semibold'),
     'anchor-link-classes': require('./rules/anchor-link-classes'),
+    'no-arbitrary-duration': require('./rules/no-arbitrary-duration'),
   },
 };

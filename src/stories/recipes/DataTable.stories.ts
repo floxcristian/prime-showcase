@@ -107,7 +107,7 @@ export const Basic: Story = {
               </td>
               <td class="w-5/12">
                 <div class="flex items-center gap-2">
-                  <p-avatar [label]="row.initials" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+                  <p-avatar [label]="row.initials" shape="circle" styleClass="app-avatar-initials" />
                   <div class="text-color font-medium leading-6">{{ row.name }}</div>
                 </div>
               </td>
@@ -184,7 +184,7 @@ export const WithCaptionToolbar: Story = {
               </td>
               <td class="w-5/12">
                 <div class="flex items-center gap-2">
-                  <p-avatar [label]="row.initials" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+                  <p-avatar [label]="row.initials" shape="circle" styleClass="app-avatar-initials" />
                   <div class="text-color font-medium leading-6">{{ row.name }}</div>
                 </div>
               </td>

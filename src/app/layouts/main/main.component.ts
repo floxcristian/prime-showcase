@@ -11,10 +11,12 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { Skeleton } from 'primeng/skeleton';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 import { filter } from 'rxjs';
 
 import { BackButtonComponent } from '../../shared/back-button/back-button.component';
+import { SkeletonListItemGroupComponent } from '../../shared/components/skeleton-list-item/skeleton-list-item.component';
 import { BreadcrumbBarComponent } from '../breadcrumb-bar/breadcrumb-bar.component';
 import { MobileFooterComponent } from '../mobile-footer/mobile-footer.component';
 import { MobileMoreOverlayComponent } from '../mobile-more-overlay/mobile-more-overlay.component';
@@ -27,7 +29,7 @@ import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-t
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 const NG_MODULES = [RouterOutlet];
-const PRIME_MODULES = [Skeleton];
+const PRIME_MODULES = [Toast, ConfirmDialog];
 const COMPONENTS = [
   BackButtonComponent,
   BreadcrumbBarComponent,
@@ -38,6 +40,7 @@ const COMPONENTS = [
   NavOverlayComponent,
   PageTitleBarComponent,
   PrimaryTitleToolbarComponent,
+  SkeletonListItemGroupComponent,
   ToolbarComponent,
 ];
 

@@ -116,7 +116,7 @@ export const ThreeColumn: Story = {
           </div>
           <div class="flex-1 flex flex-col overflow-auto">
             <div class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors">
-              <p-avatar label="PT" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+              <p-avatar label="PT" shape="circle" styleClass="app-avatar-initials" />
               <div class="flex-1 min-w-0">
                 <div class="text-color font-medium leading-6 truncate">PrimeTek</div>
                 <div class="text-muted-color text-sm leading-5 line-clamp-1 mt-1">
@@ -125,7 +125,7 @@ export const ThreeColumn: Story = {
               </div>
             </div>
             <div class="flex items-center gap-2 p-4 cursor-pointer bg-emphasis transition-colors">
-              <p-avatar label="JD" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+              <p-avatar label="JD" shape="circle" styleClass="app-avatar-initials" />
               <div class="flex-1 min-w-0">
                 <div class="text-color font-medium leading-6 truncate">Juan Díaz</div>
                 <div class="text-muted-color text-sm leading-5 line-clamp-1 mt-1">
@@ -139,7 +139,7 @@ export const ThreeColumn: Story = {
         <!-- Panel de conversación -->
         <div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
           <div class="flex items-center p-4 border-b border-surface gap-2">
-            <p-avatar label="JD" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+            <p-avatar label="JD" shape="circle" styleClass="app-avatar-initials" />
             <div class="flex-1">
               <div class="text-color font-medium leading-6">Juan Díaz</div>
               <div class="text-muted-color text-sm leading-5">en línea</div>
@@ -153,7 +153,7 @@ export const ThreeColumn: Story = {
         <!-- Panel de perfil (oculto < xl) -->
         <div class="w-3/12 xl:block hidden min-w-40 overflow-auto p-6">
           <div class="flex flex-col items-center text-center gap-2">
-            <p-avatar label="JD" shape="circle" size="xlarge" styleClass="!bg-primary-100 !text-primary-950" />
+            <p-avatar label="JD" shape="circle" size="xlarge" styleClass="app-avatar-initials" />
             <div class="text-color font-medium leading-6 mt-2">Juan Díaz</div>
             <div class="text-muted-color text-sm leading-5">&#64;juandiaz</div>
           </div>
@@ -191,7 +191,7 @@ export const MobileCollapse: Story = {
           </div>
           <div class="flex-1 flex flex-col overflow-auto">
             <div class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors">
-              <p-avatar label="PT" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+              <p-avatar label="PT" shape="circle" styleClass="app-avatar-initials" />
               <div class="flex-1 min-w-0">
                 <div class="text-color font-medium leading-6 truncate">PrimeTek</div>
               </div>
@@ -200,7 +200,7 @@ export const MobileCollapse: Story = {
         </div>
         <div class="w-8/12 xl:w-6/12 border-x border-surface flex flex-col">
           <div class="flex items-center p-4 border-b border-surface gap-2">
-            <p-avatar label="JD" shape="circle" styleClass="!bg-primary-100 !text-primary-950" />
+            <p-avatar label="JD" shape="circle" styleClass="app-avatar-initials" />
             <div class="text-color font-medium leading-6">Juan Díaz</div>
           </div>
           <div class="flex-1 overflow-auto p-4">

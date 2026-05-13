@@ -14,6 +14,7 @@ MADR-inspired. Each ADR:
 | # | Title | Status | Last updated |
 |---|---|---|---|
 | 001 | [SSR hydration and PrimeNG theming](./001-ssr-hydration-and-primeng-theming.md) | Accepted | 2026-04-17 |
+| 002 | [Semantic token layer (motion, z-index, density)](./002-semantic-token-layer.md) | Accepted | 2026-05-13 |
 
 ## Adding a new ADR
 

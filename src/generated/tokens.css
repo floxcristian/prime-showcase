@@ -1,0 +1,48 @@
+/*
+ * AUTO-GENERATED — do not edit by hand.
+ * Source: src/app/app.preset.ts (PROJECT_TOKENS export).
+ * Generator: tools/design-tokens/codegen.mjs.
+ * Regenerate: `npm run design-tokens:codegen` (alias of `:sync -- --update`).
+ * Drift check: `npm run design-tokens:codegen -- --check`.
+ */
+
+@theme {
+  --app-motion-duration-instant: 0ms;
+  --app-motion-duration-fast: 150ms;
+  --app-motion-duration-base: 250ms;
+  --app-motion-duration-slow: 400ms;
+  --app-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --app-motion-easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --app-motion-easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --app-z-base: 0;
+  --app-z-sticky: 10;
+  --app-z-dropdown: 1000;
+  --app-z-overlay: 1100;
+  --app-z-drawer: 1200;
+  --app-z-modal: 1300;
+  --app-z-toast: 1400;
+  --app-z-tooltip: 1500;
+  --app-density-productive-row-height: 56px;
+  --app-density-productive-input-height: 40px;
+  --app-density-productive-font-size: 16px;
+  --app-density-compact-row-height: 40px;
+  --app-density-compact-input-height: 32px;
+  --app-density-compact-font-size: 14px;
+  --app-elevation-card: border:1px solid var(--p-surface-border-color);
+  --app-elevation-overlay: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.06);
+  --app-elevation-overlay-dark: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+}
+
+/*
+ * Avatar tonal — consumed by `.app-avatar-initials` in styles.scss.
+ * Dark cascade flips via `.p-dark` on <html>, matching the rest of
+ * the design system (PrimeNG cssLayer + Tailwind @custom-variant).
+ */
+:root {
+  --app-avatar-initials-bg: var(--p-primary-100);
+  --app-avatar-initials-color: var(--p-primary-950);
+}
+.p-dark {
+  --app-avatar-initials-bg: var(--p-primary-900);
+  --app-avatar-initials-color: var(--p-primary-100);
+}

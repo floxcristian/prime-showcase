@@ -70,6 +70,12 @@ module.exports = tseslint.config(
       'showcase/text-3xl-requires-bold': 'error',
       'showcase/label-requires-semibold': 'error',
       'showcase/anchor-link-classes': 'error',
+      // Forbids arbitrary `duration-<N>` Tailwind classes outside the
+      // anchor recipe (which already enforces `duration-150` via
+      // `showcase/anchor-link-classes`). Use the motion tokens emitted
+      // by PROJECT_TOKENS via `--app-motion-duration-*` instead. Ref:
+      // tools/eslint/rules/no-arbitrary-duration.js, ADR-002.
+      'showcase/no-arbitrary-duration': 'error',
 
       // ── Angular template best practices ───────────────────────────
       // Prefer @if/@for over *ngIf/*ngFor

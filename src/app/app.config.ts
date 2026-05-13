@@ -12,12 +12,14 @@ import {
   withEventReplay,
   withIncrementalHydration,
 } from '@angular/platform-browser';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { AppErrorHandler } from './core/services/error-handler/app-error-handler';
 import { BrowserPreloadingStrategy } from './core/strategies/browser-preloading.strategy';
 import { AppConfigService } from './core/services/app-config/app-config.service';
+import { provideAppLocale } from './core/locale';
 import { AppPreset, PRIMENG_OPTIONS } from './app.preset';
 
 export const appConfig: ApplicationConfig = {
@@ -38,6 +40,19 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: AppErrorHandler },
     provideRouter(routes, withPreloading(BrowserPreloadingStrategy)),
     provideHttpClient(withFetch()),
+    // Centralised feedback services — `<p-toast>` and `<p-confirmdialog>`
+    // live in MainComponent's template; `MessageService` /
+    // `ConfirmationService` reach them via DI. Wrapped by
+    // `AppToastService` / `AppConfirmService` in `core/services/*` to
+    // freeze the severity vocabulary, timing, and copy contract.
+    MessageService,
+    ConfirmationService,
+    // Locale tokens (`APP_LOCALE`, `APP_CURRENCY`, `APP_TIME_ZONE`)
+    // and the `AppLocaleService` formatter cache. Defaults to `es-CL` /
+    // `CLP` / `America/Santiago`; override individual tokens after
+    // this in the providers array for multi-tenant SaaS, language
+    // pickers, or pseudo-localisation in CI.
+    ...provideAppLocale(),
     // Incremental Hydration: el SSR sigue emitiendo HTML completo, pero los bloques
     // marcados con `@defer (hydrate on <trigger>)` posponen la hidratacion (registro
     // de event listeners + creacion de instancias de componentes) hasta que el

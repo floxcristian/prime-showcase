@@ -62,10 +62,21 @@
         />
       </app-primary-title-toolbar>
       <div class="flex-1 overflow-hidden flex flex-col p-4 gap-3">
-        @for (i of [1, 2, 3, 4, 5]; track i) {
-          <p-skeleton width="100%" height="4rem" borderRadius="0.5rem" />
-        }
+        <app-skeleton-list-item-group [rows]="5" />
       </div>
     </div>
   }
+  <!-- Root <p-toast> — single instance for the whole app. Modules
+       call AppToastService (wraps MessageService) so severity,
+       timing, and copy follow `.claude/rules/ux-patterns.md`.
+       Customers module's FAB-aware variant uses styleClass
+       "customers-toast-anchor" (styles.scss) to elevate above the
+       floating action button on mobile. -->
+  <p-toast position="bottom-right" />
+  <!-- Root <p-confirmdialog> — single instance for destructive and
+       benign confirmations. AppConfirmService wraps the underlying
+       ConfirmationService to freeze button labels, danger severity,
+       and warning icon. Modules must call `.destructive()` /
+       `.benign()`, never `ConfirmationService.confirm` directly. -->
+  <p-confirmdialog />
 </div>

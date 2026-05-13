@@ -2,6 +2,24 @@
 @plugin 'tailwindcss-primeui';
 
 /*
+ * Generated design-token CSS vars — auto-emitted from `app.preset.ts`
+ * PROJECT_TOKENS by `tools/design-tokens/codegen.mjs`. Source of truth
+ * is the preset; this file is overwritten by the codegen and MUST NOT
+ * be edited by hand (the header comment in the generated file restates
+ * this). Run `npm run design-tokens:sync -- --update` after preset
+ * edits.
+ *
+ * Provides:
+ *   --app-motion-duration-fast / -base / -slow
+ *   --app-motion-easing-standard / -decelerate / -accelerate
+ *   --app-z-* (sticky / dropdown / overlay / drawer / modal / toast / tooltip)
+ *   --app-avatar-initials-bg / -color (per mode)
+ *   --app-density-* (productive / compact)
+ *   --app-elevation-overlay (the documented exception)
+ */
+@import './generated/tokens.css';
+
+/*
  * Tailwind variant overrides vivien en un archivo CSS separado porque Sass no
  * tolera el block form `@custom-variant name { @media (...) { &:X } }` (el `&`
  * dentro de `@media` sin parent context falla el parser de Sass). Al tener
@@ -442,6 +460,35 @@ input:-webkit-autofill:focus-visible {
 
 .p-button-tonal { @include tonal-variant; }
 .p-paginator-page-selected { @include tonal-variant; }
+
+/*
+ * Avatar initials utility — single source of truth for the monochrome
+ * fallback rendered when a `<p-avatar>` has no image. Before this
+ * existed, eight templates hard-coded `!bg-primary-100 !text-primary-950`
+ * (users, overview, chat × 3, inbox, Avatar.stories.ts × 2). Changing
+ * the avatar tonal would have meant touching every consumer plus a
+ * Storybook recipe.
+ *
+ * Consumers apply `class="app-avatar-initials"` conditionally:
+ *
+ *   <p-avatar [label]="initials" [ngClass]="{ 'app-avatar-initials': !item.image }" />
+ *
+ * The utility consumes the `--app-avatar-initials-*` vars emitted by
+ * the codegen from `PROJECT_TOKENS.avatar`. To change the tonal pair,
+ * edit `app.preset.ts` PROJECT_TOKENS.avatar and run
+ * `npm run design-tokens:sync -- --update`.
+ *
+ * Why `!important` here (and not at the consumer): the consumer
+ * conditional class is what fights `<p-avatar>`'s internal styles
+ * (Aura sets the background via tokens at component level). The
+ * utility hides that fight at the design-system layer instead of
+ * leaking `!` syntax to every template. Matches Polaris' approach
+ * to `tokens.color.bg-primary-subdued` consumers.
+ */
+.app-avatar-initials {
+  background-color: var(--app-avatar-initials-bg) !important;
+  color: var(--app-avatar-initials-color) !important;
+}
 
 /*
  * Hovers en headers de tabla — TH sortable hover sutil.

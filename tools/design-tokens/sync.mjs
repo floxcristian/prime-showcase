@@ -55,7 +55,7 @@ import { resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseDocument } from 'yaml';
 
-import { AppPreset } from '../../src/app/app.preset.ts';
+import { AppPreset, PROJECT_TOKENS } from '../../src/app/app.preset.ts';
 import { exportTokens } from './resolver.mjs';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
@@ -312,7 +312,7 @@ function writeJsonArtifact(resolved) {
 // Main
 // ───────────────────────────────────────────────────────────────────────
 
-const resolved = exportTokens(AppPreset);
+const resolved = exportTokens(AppPreset, PROJECT_TOKENS);
 const designSource = readText(DESIGN_PATH);
 
 const { checks, drifts: designDrifts } = runDesignDrift(designSource, AppPreset);
