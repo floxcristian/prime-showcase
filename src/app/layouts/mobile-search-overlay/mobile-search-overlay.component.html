@@ -10,29 +10,18 @@
     <!-- Header sticky: back + search input. Misma altura h-16 que el toolbar
          real + mismo bg primary para que se perciba como "extensión" del
          topbar, no como un modal flotante desconectado. -->
-    <div
-      class="h-16 shrink-0 flex items-center gap-2 px-2 toolbar-brand-bg relative z-10"
-    >
+    <div class="h-16 shrink-0 flex items-center gap-2 px-2 toolbar-brand-bg relative z-10">
       <button
         type="button"
         (click)="close()"
         aria-label="Cerrar búsqueda"
         class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
       >
-        <i
-          class="fa-sharp fa-regular fa-arrow-left text-xl"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-arrow-left text-xl" aria-hidden="true"></i>
       </button>
       <p-iconfield iconPosition="left" class="block flex-1">
         <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
-        <input
-          cdkFocusInitial
-          type="text"
-          pInputText
-          placeholder="¿Qué estás buscando?"
-          class="w-full h-11"
-        />
+        <input cdkFocusInitial type="text" pInputText placeholder="¿Qué estás buscando?" class="w-full h-11" />
       </p-iconfield>
     </div>
 

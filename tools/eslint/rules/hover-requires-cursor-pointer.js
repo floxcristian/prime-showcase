@@ -117,9 +117,7 @@ module.exports = {
         const loc = parserServices.convertNodeSourceSpanToLoc(node.sourceSpan);
 
         // Find a static `class` attribute on this element to target for suggestions.
-        const staticClassAttr = staticAttrs.find(
-          (a) => a.name === 'class' && typeof a.value === 'string',
-        );
+        const staticClassAttr = staticAttrs.find((a) => a.name === 'class' && typeof a.value === 'string');
 
         if (hasCursor) {
           context.report({
@@ -178,8 +176,7 @@ function buildClassAppender(sourceCode, classAttr, element, token) {
     // No static class attr — add one right after the tag name.
     // element.startSourceSpan points at `<tagName`, so insert after the tag name.
     if (element.startSourceSpan) {
-      const tagOpenEnd =
-        element.startSourceSpan.start.offset + element.name.length + 1; /* `<` + name */
+      const tagOpenEnd = element.startSourceSpan.start.offset + element.name.length + 1; /* `<` + name */
       return fixer.insertTextBeforeRange([tagOpenEnd, tagOpenEnd], ` class="${token}"`);
     }
     return null;

@@ -1,11 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  DestroyRef,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-  signal,
-} from '@angular/core';
+import { DestroyRef, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
 
@@ -113,9 +107,7 @@ export class CustomersKeyboardService {
     const frozen = shortcuts.map((s) => ({ ...s }));
     this.shortcuts.update((curr) => [...curr, ...frozen]);
     return () => {
-      this.shortcuts.update((curr) =>
-        curr.filter((s) => !frozen.includes(s)),
-      );
+      this.shortcuts.update((curr) => curr.filter((s) => !frozen.includes(s)));
     };
   }
 
@@ -146,9 +138,7 @@ export class CustomersKeyboardService {
 
   private handleKeydown(event: KeyboardEvent): void {
     const combo = this.normalizeCombo(event);
-    const matches = this.shortcuts().filter((s) =>
-      this.matchCombo(s.combo, combo),
-    );
+    const matches = this.shortcuts().filter((s) => this.matchCombo(s.combo, combo));
     if (matches.length === 0) return;
 
     if (this.isInputContext(event.target as Element | null)) {
@@ -156,9 +146,7 @@ export class CustomersKeyboardService {
       // El check se hace sobre los matches DECLARADOS por el caller —
       // si un consumer declara `cmd+k` Y `n`, ambos matches pueden
       // estar acá; filtramos por allow-list.
-      const alwaysOn = matches.filter((m) =>
-        ALWAYS_ON_COMBOS.has(m.combo.toLowerCase()),
-      );
+      const alwaysOn = matches.filter((m) => ALWAYS_ON_COMBOS.has(m.combo.toLowerCase()));
       // Honor `ignoreInInputs: false` explícito como override del
       // consumer (raro, pero permitido — ej: para shortcuts dentro de
       // un mini-editor donde Cmd+B debe bold).
@@ -238,8 +226,7 @@ function detectMac(platformId: object): boolean {
   if (typeof navigator === 'undefined') return false;
   // UA-CH primario (no deprecated). Tipo `unknown` porque la API es
   // experimental en lib.dom; cast seguro via runtime checks.
-  const uaData = (navigator as Navigator & { userAgentData?: { platform?: string } })
-    .userAgentData;
+  const uaData = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData;
   if (uaData && typeof uaData.platform === 'string') {
     return /mac|ios/i.test(uaData.platform);
   }

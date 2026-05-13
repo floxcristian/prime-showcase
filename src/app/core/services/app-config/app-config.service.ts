@@ -1,17 +1,6 @@
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
-import {
-  DOCUMENT,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-  REQUEST,
-  Signal,
-  signal,
-} from '@angular/core';
-import {
-  parseThemeCookie,
-  serializeThemeCookie,
-} from './theme-cookie.util';
+import { DOCUMENT, inject, Injectable, PLATFORM_ID, REQUEST, Signal, signal } from '@angular/core';
+import { parseThemeCookie, serializeThemeCookie } from './theme-cookie.util';
 
 /**
  * Owns the only user preference the app currently persists: dark-mode.
@@ -113,10 +102,7 @@ export class AppConfigService {
     // method is unreachable from SSR (guarded above). Pass the HTTPS signal
     // to the pure serializer rather than have it sniff globals itself.
     const secure = location.protocol === 'https:';
-    this.document.cookie = serializeThemeCookie(
-      dark ? 'dark' : 'light',
-      { secure },
-    );
+    this.document.cookie = serializeThemeCookie(dark ? 'dark' : 'light', { secure });
   }
 
   private applyThemeTransition(dark: boolean): void {
@@ -150,6 +136,6 @@ export class AppConfigService {
   }
 
   private notifyThemeChanged(): void {
-    this._themeChanged.update(v => v + 1);
+    this._themeChanged.update((v) => v + 1);
   }
 }

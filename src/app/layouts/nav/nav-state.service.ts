@@ -11,11 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  ActivatedRouteSnapshot,
-  NavigationEnd,
-  Router,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
 import { NAV_MODULES } from './constants/nav-modules';
@@ -26,12 +22,7 @@ import { NavModule } from './models/nav-module.interface';
  * full-viewport (mobile) o full-screen-blocking (desktop mega-menu, drawer)
  * debe ser mutuamente exclusiva con las demás para evitar stacking visual.
  */
-export type OverlayKind =
-  | 'nav'
-  | 'account'
-  | 'search'
-  | 'more'
-  | 'notifications';
+export type OverlayKind = 'nav' | 'account' | 'search' | 'more' | 'notifications';
 
 /**
  * Clase toggled en <html> cuando hay cualquier overlay abierto — permite al
@@ -60,10 +51,7 @@ export class NavStateService {
   private destroyRef = inject(DestroyRef);
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
-  private renderer: Renderer2 = inject(RendererFactory2).createRenderer(
-    null,
-    null,
-  );
+  private renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null);
 
   readonly modules: readonly NavModule[] = NAV_MODULES;
 
@@ -82,17 +70,11 @@ export class NavStateService {
 
   readonly sidebarOpen = computed(() => this._currentOverlay() === 'nav');
   /** Drawer "Mi cuenta" — datos personales del usuario. */
-  readonly accountDrawerOpen = computed(
-    () => this._currentOverlay() === 'account',
-  );
+  readonly accountDrawerOpen = computed(() => this._currentOverlay() === 'account');
   /** Full-screen search overlay mobile. */
-  readonly searchOverlayOpen = computed(
-    () => this._currentOverlay() === 'search',
-  );
+  readonly searchOverlayOpen = computed(() => this._currentOverlay() === 'search');
   /** Full-screen "Más" overlay mobile. */
-  readonly moreOverlayOpen = computed(
-    () => this._currentOverlay() === 'more',
-  );
+  readonly moreOverlayOpen = computed(() => this._currentOverlay() === 'more');
   /**
    * Full-screen notifications overlay mobile. En desktop las notificaciones
    * se ven vía popover + la ruta /notifications; en mobile este overlay
@@ -100,9 +82,7 @@ export class NavStateService {
    * fondo (p.ej. Overview) y re-dispare su ciclo de animación de charts.
    * La ruta /notifications sigue existiendo como deep-link fallback.
    */
-  readonly notificationsOverlayOpen = computed(
-    () => this._currentOverlay() === 'notifications',
-  );
+  readonly notificationsOverlayOpen = computed(() => this._currentOverlay() === 'notifications');
 
   /**
    * True si CUALQUIERA de los 5 overlays/drawers globales está abierto. Usado
@@ -194,11 +174,7 @@ export class NavStateService {
     for (const section of mod.sections) {
       const leaf = section.children.find((c) => c.url === url);
       if (leaf) {
-        return [
-          { title: mod.title, icon: mod.icon },
-          { title: section.title },
-          { title: leaf.title, url: leaf.url },
-        ];
+        return [{ title: mod.title, icon: mod.icon }, { title: section.title }, { title: leaf.title, url: leaf.url }];
       }
     }
     return [{ title: mod.title, icon: mod.icon }];
@@ -253,10 +229,7 @@ export class NavStateService {
       // residual. En runtime normal es no-op porque el singleton vive hasta
       // que el app root muere.
       this.destroyRef.onDestroy(() => {
-        this.renderer.removeClass(
-          this.document.documentElement,
-          OVERLAY_OPEN_CLASS,
-        );
+        this.renderer.removeClass(this.document.documentElement, OVERLAY_OPEN_CLASS);
       });
     }
   }
@@ -339,13 +312,9 @@ export class NavStateService {
 
   private syncActiveModuleFromUrl(url: string): void {
     const current = this.activeModule();
-    const currentHasUrl = current?.sections.some((s) =>
-      s.children.some((c) => c.url === url),
-    );
+    const currentHasUrl = current?.sections.some((s) => s.children.some((c) => c.url === url));
     if (currentHasUrl) return;
-    const match = this.modules.find((m) =>
-      m.sections.some((s) => s.children.some((c) => c.url === url)),
-    );
+    const match = this.modules.find((m) => m.sections.some((s) => s.children.some((c) => c.url === url)));
     if (match && match.id !== this.activeModuleId()) {
       this.activeModuleId.set(match.id);
     }
@@ -367,8 +336,7 @@ export class NavStateService {
    *          como señal de "fallback al legacy nav-tree".
    */
   private readRouteBreadcrumb(): BreadcrumbCrumb[] | null {
-    let snapshot: ActivatedRouteSnapshot | null =
-      this.router.routerState.snapshot.root;
+    let snapshot: ActivatedRouteSnapshot | null = this.router.routerState.snapshot.root;
     while (snapshot?.firstChild) snapshot = snapshot.firstChild;
     const data = snapshot?.data?.['breadcrumb'];
     // Validación defensiva: data es `Record<string, any>` (Angular type).

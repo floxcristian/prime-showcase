@@ -54,8 +54,7 @@ test('no-inline-styles', () => {
       },
       // Long value is truncated in the message — verify the rule reports
       {
-        code:
-          '<div style="display: flex; gap: 8px; padding: 12px; border-radius: 8px"></div>',
+        code: '<div style="display: flex; gap: 8px; padding: 12px; border-radius: 8px"></div>',
         errors: [{ messageId: 'noInlineStyle' }],
       },
       // Empty style attribute is still a violation if present with a value

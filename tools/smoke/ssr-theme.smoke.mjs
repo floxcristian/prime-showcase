@@ -84,27 +84,21 @@ async function runCase({ name, cookie, expectedClassOnHtml }) {
   const hasDark = classes.split(/\s+/).includes('p-dark');
 
   if (hasDark !== expectedClassOnHtml) {
-    throw new Error(
-      `${name}: expected p-dark=${expectedClassOnHtml}, got p-dark=${hasDark} (class="${classes}")`,
-    );
+    throw new Error(`${name}: expected p-dark=${expectedClassOnHtml}, got p-dark=${hasDark} (class="${classes}")`);
   }
 
   // Vary: Cookie is non-negotiable — without it a shared cache would serve
   // the dark HTML to light-theme users and vice versa.
   const vary = response.headers.get('vary') ?? '';
   if (!/\bcookie\b/i.test(vary)) {
-    throw new Error(
-      `${name}: missing "Vary: Cookie" header — cache fragmentation risk (got "${vary}")`,
-    );
+    throw new Error(`${name}: missing "Vary: Cookie" header — cache fragmentation risk (got "${vary}")`);
   }
 
   // Cache-Control: s-maxage lets CDNs cache per-cookie-variant HTML. Dropping
   // it would silently regress hit-rate on every themed request.
   const cacheControl = response.headers.get('cache-control') ?? '';
   if (!/\bs-maxage=\d+/i.test(cacheControl)) {
-    throw new Error(
-      `${name}: missing "s-maxage" in Cache-Control (got "${cacheControl}")`,
-    );
+    throw new Error(`${name}: missing "s-maxage" in Cache-Control (got "${cacheControl}")`);
   }
 
   return `  ✓ ${name}`;
@@ -132,7 +126,7 @@ async function main() {
   console.log(`\nAll ${cases.length} cases passed.`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('Fatal:', err.message);
   process.exit(2);
 });

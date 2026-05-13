@@ -16,10 +16,8 @@ export interface PermissionModule {
   icon: string;
 }
 
-export const PERMISSION_MODULES: readonly PermissionModule[] = NAV_MODULES.map(
-  (m) => ({
-    id: m.id,
-    title: m.title,
-    icon: m.icon,
-  }),
-);
+export const PERMISSION_MODULES: readonly PermissionModule[] = NAV_MODULES.map((m) => ({
+  id: m.id,
+  title: m.title,
+  icon: m.icon,
+}));

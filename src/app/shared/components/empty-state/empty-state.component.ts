@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 
 /**
@@ -27,9 +21,7 @@ import { ButtonModule } from 'primeng/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div [class]="wrapperClass()">
-      <div
-        class="flex flex-col items-center justify-center text-center gap-3 py-8 px-6"
-      >
+      <div class="flex flex-col items-center justify-center text-center gap-3 py-8 px-6">
         <i [class]="iconClass()" aria-hidden="true"></i>
         <div class="flex flex-col gap-1 max-w-sm">
           <h3 class="text-color font-bold leading-6">{{ title() }}</h3>
@@ -38,12 +30,7 @@ import { ButtonModule } from 'primeng/button';
           }
         </div>
         @if (actionLabel()) {
-          <p-button
-            [label]="actionLabel()"
-            [icon]="actionIcon()"
-            severity="secondary"
-            (onClick)="actionClick.emit()"
-          />
+          <p-button [label]="actionLabel()" [icon]="actionIcon()" severity="secondary" (onClick)="actionClick.emit()" />
         }
         <ng-content />
       </div>
@@ -69,11 +56,7 @@ export class EmptyStateComponent {
   readonly actionIcon = input<string>('');
   readonly actionClick = output<void>();
 
-  protected readonly iconClass = computed(
-    () => `fa-sharp-duotone fa-regular ${this.icon()} text-4xl text-color`,
-  );
+  protected readonly iconClass = computed(() => `fa-sharp-duotone fa-regular ${this.icon()} text-4xl text-color`);
 
-  protected readonly wrapperClass = computed(() =>
-    this.bordered() ? 'border border-surface rounded-2xl' : '',
-  );
+  protected readonly wrapperClass = computed(() => (this.bordered() ? 'border border-surface rounded-2xl' : ''));
 }

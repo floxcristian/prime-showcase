@@ -84,9 +84,14 @@ module.exports = {
         // Build a synthetic "match" with correct index/text for per-match loc.
         const tokenMatch = Object.assign([fullMatchText], { index: tokenIndex, input: value });
 
-        ctx.report(tokenMatch, 'noForbiddenTransition', { className: fullMatchText }, {
-          suggest: buildSuggestions(ctx, tokenMatch, value),
-        });
+        ctx.report(
+          tokenMatch,
+          'noForbiddenTransition',
+          { className: fullMatchText },
+          {
+            suggest: buildSuggestions(ctx, tokenMatch, value),
+          },
+        );
       }
 
       FORBIDDEN_ARBITRARY_REGEX.lastIndex = 0;
@@ -98,9 +103,14 @@ module.exports = {
         const tokenIndex = match.index + leadingSepLen;
         const tokenMatch = Object.assign([tokenText], { index: tokenIndex, input: value });
 
-        ctx.report(tokenMatch, 'noForbiddenArbitrary', { className: tokenText }, {
-          suggest: buildSuggestions(ctx, tokenMatch, value),
-        });
+        ctx.report(
+          tokenMatch,
+          'noForbiddenArbitrary',
+          { className: tokenText },
+          {
+            suggest: buildSuggestions(ctx, tokenMatch, value),
+          },
+        );
       }
     });
   },

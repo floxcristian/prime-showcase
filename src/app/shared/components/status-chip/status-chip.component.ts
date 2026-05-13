@@ -20,14 +20,7 @@ import type { AlertStatus } from '../../../modules/observability/models/observab
   selector: 'app-status-chip',
   imports: [Tag],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <p-tag
-      [severity]="severity()"
-      [value]="label()"
-      [icon]="icon()"
-      class="font-medium"
-    />
-  `,
+  template: ` <p-tag [severity]="severity()" [value]="label()" [icon]="icon()" class="font-medium" /> `,
 })
 export class StatusChipComponent {
   readonly value = input.required<AlertStatus>();

@@ -25,9 +25,7 @@ export interface SerializeThemeCookieOptions {
  *     like `theme=dark evil` don't silently capture `dark evil`.
  *   - Leftmost match wins on duplicates — documented and asserted in tests.
  */
-export function parseThemeCookie(
-  cookie: string | null | undefined,
-): ThemePreference | null {
+export function parseThemeCookie(cookie: string | null | undefined): ThemePreference | null {
   if (!cookie) return null;
   const match = cookie.match(/(?:^|;\s*)theme=([^;\s]+)/);
   if (!match) return null;
@@ -51,10 +49,7 @@ export function parseThemeCookie(
  * injection is the industry baseline for anything that writes `Set-Cookie` or
  * `document.cookie` (see OWASP ASVS V13.1.3).
  */
-export function serializeThemeCookie(
-  theme: ThemePreference,
-  options: SerializeThemeCookieOptions,
-): string {
+export function serializeThemeCookie(theme: ThemePreference, options: SerializeThemeCookieOptions): string {
   if (theme !== 'dark' && theme !== 'light') {
     throw new TypeError(`Invalid theme value: ${String(theme)}`);
   }

@@ -1,9 +1,4 @@
-export type NotificationCategory =
-  | 'finance'
-  | 'inventory'
-  | 'customer'
-  | 'logistics'
-  | 'system';
+export type NotificationCategory = 'finance' | 'inventory' | 'customer' | 'logistics' | 'system';
 
 export interface Notification {
   id: string;

@@ -84,9 +84,7 @@ export function isLocale(value: unknown): value is Locale {
  * tipo estructural mínimo — el caller pasa `ctx` directo sin import
  * de tipo extra.
  */
-export function getLocale(ctx: {
-  globals?: Record<string, unknown> | undefined;
-}): Locale {
+export function getLocale(ctx: { globals?: Record<string, unknown> | undefined }): Locale {
   const raw = ctx.globals?.['locale'];
   return isLocale(raw) ? raw : DEFAULT_LOCALE;
 }

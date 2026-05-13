@@ -94,7 +94,9 @@ test('no-forbidden-transitions', () => {
       // 9. transition-[box-shadow,color]
       {
         code: '<div class="transition-[box-shadow,color]"></div>',
-        errors: [{ messageId: 'noForbiddenArbitrary', data: { className: 'transition-[box-shadow,color]' }, suggestions: 3 }],
+        errors: [
+          { messageId: 'noForbiddenArbitrary', data: { className: 'transition-[box-shadow,color]' }, suggestions: 3 },
+        ],
       },
       // 10. [ngClass] with transition-all
       {

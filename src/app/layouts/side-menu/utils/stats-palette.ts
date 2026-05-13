@@ -40,10 +40,7 @@ export function resolveCssColor(doc: Document, css: string): string {
  *   - The browser does the math once during computed style; the canvas
  *     receives the baked-in result and never has to parse `color-mix`.
  */
-export function resolveStatsPalette(
-  doc: Document,
-  dark: boolean,
-): StatsPalette {
+export function resolveStatsPalette(doc: Document, dark: boolean): StatsPalette {
   const r = (css: string): string => resolveCssColor(doc, css);
   return {
     gauge: {

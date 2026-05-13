@@ -22,12 +22,7 @@
          supera 375px y el datepicker se trunca al borde derecho. Desktop
          (lg+) conserva el comportamiento natural side-by-side (lg:w-auto). -->
     <div class="flex items-center gap-2 w-full lg:w-auto">
-      <p-button
-        label="Descargar"
-        icon="fa-sharp fa-regular fa-download"
-        iconPos="right"
-        styleClass="!h-10"
-      />
+      <p-button label="Descargar" icon="fa-sharp fa-regular fa-download" iconPos="right" styleClass="!h-10" />
       <p-datepicker
         ngSkipHydration
         [ngModel]="dates()"
@@ -47,42 +42,22 @@
   <div class="flex flex-col gap-6 mt-6">
     <!-- Start::Crypto Analytics -->
     @defer (hydrate on viewport) {
-      <div
-        class="w-full border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col justify-between"
-      >
-        <div
-          class="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 mb-6"
-        >
-          <h2 class="lg:flex-1 text-color font-bold leading-6">
-            Análisis Cripto
-          </h2>
+      <div class="w-full border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col justify-between">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 mb-6">
+          <h2 class="lg:flex-1 text-color font-bold leading-6">Análisis Cripto</h2>
           <div class="flex flex-wrap items-center gap-x-4 gap-y-2 lg:gap-5">
             @for (item of chartData()?.datasets; track item.label) {
               <div class="flex items-center gap-2">
-                <div
-                  class="w-3 h-3 rounded-full shrink-0"
-                  [style.backgroundColor]="item.backgroundColor"
-                ></div>
-                <span
-                  class="font-medium text-color leading-6 whitespace-nowrap"
-                  >{{ item.label }}</span
-                >
+                <div class="w-3 h-3 rounded-full shrink-0" [style.backgroundColor]="item.backgroundColor"></div>
+                <span class="font-medium text-color leading-6 whitespace-nowrap">{{ item.label }}</span>
               </div>
             }
           </div>
         </div>
-        <app-chart
-          type="bar"
-          [data]="chartData()"
-          [options]="chartOptions()"
-          [height]="'20rem'"
-        />
+        <app-chart type="bar" [data]="chartData()" [options]="chartOptions()" [height]="'20rem'" />
       </div>
     } @placeholder {
-      <div
-        class="w-full border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col"
-        aria-busy="true"
-      >
+      <div class="w-full border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col" aria-busy="true">
         <p-skeleton width="12rem" height="1.5rem" class="mb-6" />
         <p-skeleton width="100%" height="20rem" />
       </div>
@@ -93,9 +68,7 @@
       @defer (hydrate on viewport) {
         <div class="flex-1 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7">
           <div class="flex items-center gap-6 mb-4">
-            <h2 class="flex-1 text-color font-bold leading-6">
-              Transacciones
-            </h2>
+            <h2 class="flex-1 text-color font-bold leading-6">Transacciones</h2>
             <p-button
               type="button"
               class="!-mr-6"
@@ -109,12 +82,7 @@
               aria-haspopup="true"
               aria-controls="overlay_menu_transactions"
             />
-            <p-menu
-              #transactionsMenu
-              id="overlay_menu_transactions"
-              [model]="menuItems"
-              [popup]="true"
-            />
+            <p-menu #transactionsMenu id="overlay_menu_transactions" [model]="menuItems" [popup]="true" />
           </div>
           <p-table
             dataKey="id"
@@ -131,20 +99,10 @@
             paginatorStyleClass="!bg-transparent"
           >
             <ng-template #paginatorpreviouspagelinkicon>
-              <i
-                class="fa-sharp fa-regular fa-chevron-left"
-                aria-hidden="true"
-                pTooltip="Página anterior"
-                tooltipPosition="bottom"
-              ></i>
+              <i class="fa-sharp fa-regular fa-chevron-left" aria-hidden="true" pTooltip="Página anterior" tooltipPosition="bottom"></i>
             </ng-template>
             <ng-template #paginatornextpagelinkicon>
-              <i
-                class="fa-sharp fa-regular fa-chevron-right"
-                aria-hidden="true"
-                pTooltip="Página siguiente"
-                tooltipPosition="bottom"
-              ></i>
+              <i class="fa-sharp fa-regular fa-chevron-right" aria-hidden="true" pTooltip="Página siguiente" tooltipPosition="bottom"></i>
             </ng-template>
             <ng-template #header>
               <tr>
@@ -163,11 +121,7 @@
                 </td>
                 <td class="w-1/4">
                   <div class="flex items-center">
-                    <p-avatar
-                      [label]="item.name.label"
-                      class="mr-2 text-xs font-medium !bg-primary-100 !text-primary-950"
-                      shape="circle"
-                    />
+                    <p-avatar [label]="item.name.label" class="mr-2 text-xs font-medium !bg-primary-100 !text-primary-950" shape="circle" />
                     <div class="leading-6 text-muted-color flex-1">
                       {{ item.name.text }}
                     </div>
@@ -190,11 +144,7 @@
                   <div class="text-muted-color">{{ item.date }}</div>
                 </td>
                 <td class="w-1/6">
-                  <p-tag
-                    [severity]="item.process.type"
-                    [value]="item.process.value"
-                    class="font-medium"
-                  ></p-tag>
+                  <p-tag [severity]="item.process.type" [value]="item.process.value" class="font-medium"></p-tag>
                 </td>
                 <td class="w-1/6">
                   <div class="text-muted-color text-right">
@@ -206,10 +156,7 @@
           </p-table>
         </div>
       } @placeholder {
-        <div
-          class="flex-1 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7"
-          aria-busy="true"
-        >
+        <div class="flex-1 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7" aria-busy="true">
           <div class="flex items-center justify-between mb-6">
             <p-skeleton width="10rem" height="1.5rem" />
             <p-skeleton shape="circle" size="2rem" />
@@ -223,14 +170,10 @@
       }
 
       <!-- Start::My Wallet -->
-      <div
-        class="xl:w-96 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col justify-between"
-      >
+      <div class="xl:w-96 border border-surface rounded-2xl p-4 lg:py-5 lg:px-7 flex flex-col justify-between">
         <div>
           <div class="flex items-center mb-6">
-            <h2 class="flex-1 text-color font-bold leading-6">
-              Mi Billetera
-            </h2>
+            <h2 class="flex-1 text-color font-bold leading-6">Mi Billetera</h2>
             <p-button
               type="button"
               class="!-mr-6"
@@ -244,13 +187,7 @@
               aria-haspopup="true"
               aria-controls="overlay_menu"
             />
-            <p-menu
-              #menu
-              id="overlay_menu"
-              [model]="menuItems"
-              [popup]="true"
-              class="ml-6"
-            />
+            <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" class="ml-6" />
           </div>
           <!-- `[attr.aria-label]` (no `ariaLabel`) — p-metergroup no expone
                @Input ariaLabel, así que la notación Angular camelCase cae a un
@@ -258,22 +195,13 @@
                ignoran. Forzar attr-binding garantiza el nombre canónico
                `aria-label` en el DOM. Patrón PrimeNG: verificar si el comp.
                tiene Input antes de usar `ariaLabel=`. -->
-          <p-metergroup
-            [value]="metersData"
-            labelPosition="end"
-            [attr.aria-label]="'Distribución de la billetera por moneda'"
-          >
+          <p-metergroup [value]="metersData" labelPosition="end" [attr.aria-label]="'Distribución de la billetera por moneda'">
             <ng-template #label>
               <div class="flex flex-col gap-6 mt-4">
                 @for (val of metersData; track val.label; let index = $index) {
                   <div class="flex items-center gap-2">
-                    <div
-                      class="w-2 h-2 rounded-full"
-                      [style.background-color]="val.color"
-                    ></div>
-                    <div
-                      class="text-color uppercase font-medium leading-6 flex-1"
-                    >
+                    <div class="w-2 h-2 rounded-full" [style.background-color]="val.color"></div>
+                    <div class="text-color uppercase font-medium leading-6 flex-1">
                       {{ val.label }}
                       <span class="text-muted-color">({{ val.value }}%)</span>
                     </div>
@@ -286,11 +214,7 @@
             </ng-template>
           </p-metergroup>
         </div>
-        <p-button
-          label="Mostrar todo"
-          class="mt-4 lg:mt-6"
-          styleClass="w-full p-button-tonal"
-        />
+        <p-button label="Mostrar todo" class="mt-4 lg:mt-6" styleClass="w-full p-button-tonal" />
       </div>
     </div>
   </div>

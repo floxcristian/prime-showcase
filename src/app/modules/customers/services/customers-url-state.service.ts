@@ -158,9 +158,7 @@ export class CustomersUrlStateService {
     }
 
     if (snapshot.columns !== undefined) {
-      queryParams[QP_COLS] = snapshot.columns.length
-        ? snapshot.columns.join(',')
-        : null;
+      queryParams[QP_COLS] = snapshot.columns.length ? snapshot.columns.join(',') : null;
     }
 
     if (snapshot.first !== undefined) {
@@ -168,14 +166,11 @@ export class CustomersUrlStateService {
     }
 
     if (snapshot.rows !== undefined) {
-      queryParams[QP_ROWS] =
-        snapshot.rows !== DEFAULT_PAGE_SIZE ? String(snapshot.rows) : null;
+      queryParams[QP_ROWS] = snapshot.rows !== DEFAULT_PAGE_SIZE ? String(snapshot.rows) : null;
     }
 
     if (snapshot.detailId !== undefined) {
-      queryParams[QP_DETAIL] = snapshot.detailId
-        ? String(snapshot.detailId)
-        : null;
+      queryParams[QP_DETAIL] = snapshot.detailId ? String(snapshot.detailId) : null;
     }
 
     this.router.navigate([], {
@@ -206,11 +201,7 @@ export class CustomersUrlStateService {
     if (Array.isArray(value)) {
       if (value.length === 0) return null;
       // between: [from, to] cuando ambos son numbers
-      if (
-        value.length === 2 &&
-        typeof value[0] === 'number' &&
-        typeof value[1] === 'number'
-      ) {
+      if (value.length === 2 && typeof value[0] === 'number' && typeof value[1] === 'number') {
         return `${TAG_RANGE}:${value[0]}|${value[1]}`;
       }
       // in/arrayIntersect: array genérico de strings/numbers
@@ -257,9 +248,7 @@ export class CustomersUrlStateService {
         const parts = payload.split('|');
         if (parts.length !== 2) return null;
         const [from, to] = parts.map(Number);
-        return Number.isFinite(from) && Number.isFinite(to)
-          ? [from, to]
-          : null;
+        return Number.isFinite(from) && Number.isFinite(to) ? [from, to] : null;
       }
       case TAG_NUMBER: {
         const n = Number(payload);
@@ -274,9 +263,7 @@ export class CustomersUrlStateService {
     }
   }
 
-  private parseSort(
-    raw: string | undefined,
-  ): { field: string; dir: 1 | -1 } | null {
+  private parseSort(raw: string | undefined): { field: string; dir: 1 | -1 } | null {
     if (!raw) return null;
     const [field, dirStr] = raw.split(':');
     if (!field) return null;
@@ -288,10 +275,7 @@ export class CustomersUrlStateService {
     return raw.split(',').filter(Boolean);
   }
 
-  private parseNumber<T extends number | null>(
-    raw: string | undefined,
-    fallback: T,
-  ): number | T {
+  private parseNumber<T extends number | null>(raw: string | undefined, fallback: T): number | T {
     if (!raw) return fallback;
     const n = Number(raw);
     return Number.isFinite(n) ? n : fallback;

@@ -125,20 +125,10 @@ test('no-deprecated-styleclass — DEPRECATED_STYLECLASS_ELEMENTS invariants', (
  * an override map.
  */
 test('no-deprecated-styleclass — drift detection vs PrimeNG type defs', () => {
-  const typesDir = path.resolve(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    '..',
-    'node_modules',
-    'primeng',
-    'types',
-  );
+  const typesDir = path.resolve(__dirname, '..', '..', '..', '..', 'node_modules', 'primeng', 'types');
   assert.ok(
     fs.existsSync(typesDir),
-    `PrimeNG types directory not found at ${typesDir}. ` +
-      'Run `npm install` before the ESLint rule tests.',
+    `PrimeNG types directory not found at ${typesDir}. ` + 'Run `npm install` before the ESLint rule tests.',
   );
 
   const DEPRECATION_MARKER = '@deprecated since v20.0.0, use `class` instead.';
@@ -147,9 +137,7 @@ test('no-deprecated-styleclass — drift detection vs PrimeNG type defs', () => 
   // `styleClass?: string;` variants.
   const STYLECLASS_PROPERTY_RE = /^\s*styleClass\??\s*:/;
 
-  const entries = fs
-    .readdirSync(typesDir)
-    .filter((name) => /^primeng-[a-z0-9]+\.d\.ts$/.test(name));
+  const entries = fs.readdirSync(typesDir).filter((name) => /^primeng-[a-z0-9]+\.d\.ts$/.test(name));
 
   assert.ok(
     entries.length > 10,
@@ -200,21 +188,14 @@ test('no-deprecated-styleclass — drift detection vs PrimeNG type defs', () => 
   const missing = [...canonical].filter((el) => !declared.has(el)).sort();
   const extra = [...declared].filter((el) => !canonical.has(el)).sort();
 
-  const format = (label, list) =>
-    list.length === 0 ? '' : `\n  ${label} (${list.length}): ${list.join(', ')}`;
+  const format = (label, list) => (list.length === 0 ? '' : `\n  ${label} (${list.length}): ${list.join(', ')}`);
 
   assert.deepStrictEqual(
     { missing, extra },
     { missing: [], extra: [] },
     'DEPRECATED_STYLECLASS_ELEMENTS drifted from PrimeNG type defs.' +
-      format(
-        'missing — add to rule (PrimeNG marks them @deprecated)',
-        missing,
-      ) +
-      format(
-        'extra — remove from rule (PrimeNG no longer marks them @deprecated)',
-        extra,
-      ) +
+      format('missing — add to rule (PrimeNG marks them @deprecated)', missing) +
+      format('extra — remove from rule (PrimeNG no longer marks them @deprecated)', extra) +
       `\n  Source of truth: ${typesDir}`,
   );
 });

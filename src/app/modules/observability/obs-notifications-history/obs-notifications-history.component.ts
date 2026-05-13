@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 
@@ -30,10 +24,7 @@ interface NotifEntry {
   readonly errorReason?: string;
 }
 
-const CHANNEL_META: Record<
-  NotifChannel,
-  { readonly label: string; readonly icon: string }
-> = {
+const CHANNEL_META: Record<NotifChannel, { readonly label: string; readonly icon: string }> = {
   push: { label: 'Push', icon: 'fa-sharp fa-regular fa-mobile' },
   email: { label: 'Email', icon: 'fa-sharp fa-regular fa-envelope' },
   'in-app': { label: 'In-app', icon: 'fa-sharp fa-regular fa-bell' },
@@ -79,29 +70,19 @@ const TITLES = [
  */
 @Component({
   selector: 'app-obs-notifications-history',
-  imports: [
-    CommonModule,
-    ButtonModule,
-    TableModule,
-    EmptyStateComponent,
-    PillComponent,
-    RelativeTimePipe,
-  ],
+  imports: [CommonModule, ButtonModule, TableModule, EmptyStateComponent, PillComponent, RelativeTimePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
   template: `
     <!-- Header — patrón compartido con CRM > Clientes -->
     <div class="flex items-start gap-2 justify-between flex-wrap mb-6">
       <div class="min-w-0">
-        <h1 class="text-2xl leading-8 text-color font-medium">
-          Historial de notificaciones
-        </h1>
+        <h1 class="text-2xl leading-8 text-color font-medium">Historial de notificaciones</h1>
         <div class="mt-1 leading-6 text-muted-color">
-          Lo que te llegó por cada canal en los últimos 30 días. Útil para
-          verificar entregas o entender por qué falló una.
+          Lo que te llegó por cada canal en los últimos 30 días. Útil para verificar entregas o entender por qué falló
+          una.
         </div>
       </div>
       <div class="flex gap-2 whitespace-nowrap">
@@ -125,7 +106,7 @@ const TITLES = [
           class="px-4 py-1 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-colors"
           [ngClass]="{
             'text-color bg-emphasis': channelFilter() === 'all',
-            'text-muted-color bg-transparent': channelFilter() !== 'all'
+            'text-muted-color bg-transparent': channelFilter() !== 'all',
           }"
         >
           <span class="font-medium">Todos</span>
@@ -139,7 +120,7 @@ const TITLES = [
             class="px-4 py-1 rounded-lg flex items-center gap-2 cursor-pointer hover:bg-emphasis transition-colors"
             [ngClass]="{
               'text-color bg-emphasis': channelFilter() === ch,
-              'text-muted-color bg-transparent': channelFilter() !== ch
+              'text-muted-color bg-transparent': channelFilter() !== ch,
             }"
           >
             <i [class]="channelIcon(ch)" aria-hidden="true"></i>
@@ -184,17 +165,11 @@ const TITLES = [
         <ng-template #body let-n>
           <tr>
             <td>
-              <span class="text-muted-color text-sm">{{
-                n.at | relativeTime
-              }}</span>
+              <span class="text-muted-color text-sm">{{ n.at | relativeTime }}</span>
             </td>
             <td>
               <div class="flex items-center gap-2">
-                <i
-                  [class]="channelIcon(n.channel)"
-                  class="text-color"
-                  aria-hidden="true"
-                ></i>
+                <i [class]="channelIcon(n.channel)" class="text-color" aria-hidden="true"></i>
                 <span class="text-color">{{ channelLabel(n.channel) }}</span>
               </div>
             </td>
@@ -269,15 +244,10 @@ export class ObsNotificationsHistoryComponent {
 function buildHistory(n: number): readonly NotifEntry[] {
   const rand = seededRandom('notif-history');
   const channels: readonly NotifChannel[] = ['push', 'email', 'in-app'];
-  const failureReasons = [
-    'Push token inválido o revocado',
-    'SMTP relay timeout',
-    'Device offline > 24h',
-  ];
+  const failureReasons = ['Push token inválido o revocado', 'SMTP relay timeout', 'Device offline > 24h'];
   return Array.from({ length: n }, (_, i) => {
     const r = rand();
-    const status: NotifStatus =
-      r < 0.7 ? 'delivered' : r < 0.9 ? 'pending' : 'failed';
+    const status: NotifStatus = r < 0.7 ? 'delivered' : r < 0.9 ? 'pending' : 'failed';
     const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
     return {
       id: `notif-${i.toString().padStart(3, '0')}`,
@@ -287,10 +257,7 @@ function buildHistory(n: number): readonly NotifEntry[] {
       serviceName: svc.name,
       title: TITLES[i % TITLES.length],
       status,
-      errorReason:
-        status === 'failed'
-          ? failureReasons[i % failureReasons.length]
-          : undefined,
+      errorReason: status === 'failed' ? failureReasons[i % failureReasons.length] : undefined,
     };
   });
 }

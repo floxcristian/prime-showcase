@@ -25,8 +25,7 @@ const NG_MODULES = [NgClass];
   styleUrl: './breadcrumb-bar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'h-10 lg:h-12 shrink-0 bg-surface-200 dark:bg-surface-700 flex items-center gap-3 px-3 lg:px-7 w-full',
+    class: 'h-10 lg:h-12 shrink-0 bg-surface-200 dark:bg-surface-700 flex items-center gap-3 px-3 lg:px-7 w-full',
   },
 })
 export class BreadcrumbBarComponent {

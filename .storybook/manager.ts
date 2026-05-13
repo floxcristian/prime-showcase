@@ -36,10 +36,8 @@ const theme = create({
   appBorderRadius: 8,
 
   // Typography — Inter Variable, matches production.
-  fontBase:
-    '"Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-  fontCode:
-    'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace',
+  fontBase: '"Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  fontCode: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", monospace',
 
   // Text
   textColor: '#18181b',

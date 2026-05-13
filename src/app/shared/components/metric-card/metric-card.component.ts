@@ -23,8 +23,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   imports: [NgClass],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'block border border-surface rounded-2xl p-4 lg:p-5 flex flex-col gap-2',
+    class: 'block border border-surface rounded-2xl p-4 lg:p-5 flex flex-col gap-2',
   },
   template: `
     <div class="flex items-center gap-2">
@@ -45,12 +44,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 
     @if (delta() !== null && delta() !== undefined) {
       <div class="flex items-center gap-1">
-        <i
-          [class]="deltaIcon()"
-          [ngClass]="deltaColorClass()"
-          class="text-xs"
-          aria-hidden="true"
-        ></i>
+        <i [class]="deltaIcon()" [ngClass]="deltaColorClass()" class="text-xs" aria-hidden="true"></i>
         <span [ngClass]="deltaColorClass()" class="text-xs font-medium">
           {{ deltaFormatted() }}
         </span>
@@ -76,9 +70,7 @@ export class MetricCardComponent {
   protected readonly deltaIcon = computed<string>(() => {
     const sign = this.deltaSign();
     if (sign === 0) return 'fa-sharp fa-regular fa-minus';
-    return sign === 1
-      ? 'fa-sharp fa-regular fa-arrow-trend-up'
-      : 'fa-sharp fa-regular fa-arrow-trend-down';
+    return sign === 1 ? 'fa-sharp fa-regular fa-arrow-trend-up' : 'fa-sharp fa-regular fa-arrow-trend-down';
   });
 
   protected readonly deltaColorClass = computed<string>(() => {

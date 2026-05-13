@@ -7,11 +7,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter, withPreloading } from '@angular/router';
-import {
-  provideClientHydration,
-  withEventReplay,
-  withIncrementalHydration,
-} from '@angular/platform-browser';
+import { provideClientHydration, withEventReplay, withIncrementalHydration } from '@angular/platform-browser';
 import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
 import { provideHttpClient, withFetch } from '@angular/common/http';
@@ -110,20 +106,24 @@ export const appConfig: ApplicationConfig = {
         fileChosenMessage: '{0} archivos',
         noFileChosenMessage: 'Sin archivos seleccionados',
         // Calendar
-        dayNames: [
-          'domingo', 'lunes', 'martes', 'miércoles',
-          'jueves', 'viernes', 'sábado',
-        ],
+        dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
         dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
         dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
         monthNames: [
-          'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-          'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+          'enero',
+          'febrero',
+          'marzo',
+          'abril',
+          'mayo',
+          'junio',
+          'julio',
+          'agosto',
+          'septiembre',
+          'octubre',
+          'noviembre',
+          'diciembre',
         ],
-        monthNamesShort: [
-          'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-          'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
-        ],
+        monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
         dateFormat: 'dd/mm/yy',
         firstDayOfWeek: 1, // lunes (España/LatAm convention)
         today: 'Hoy',

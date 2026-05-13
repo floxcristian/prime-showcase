@@ -16,10 +16,7 @@ import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { TooltipDismissOnClickDirective } from '../../directives/tooltip-dismiss-on-click.directive';
-import {
-  ColumnHelpInstance,
-  ColumnHelpService,
-} from './column-help.service';
+import { ColumnHelpInstance, ColumnHelpService } from './column-help.service';
 
 /**
  * Entry para una leyenda de columna codificada. `code` es el valor
@@ -33,13 +30,7 @@ export interface ColumnHelpEntry {
   code: string;
   label: string;
   description?: string;
-  severity?:
-    | 'success'
-    | 'info'
-    | 'warn'
-    | 'danger'
-    | 'secondary'
-    | 'contrast';
+  severity?: 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 }
 
 /**
@@ -61,13 +52,7 @@ export interface ColumnHelpEntry {
  */
 @Component({
   selector: 'app-column-help',
-  imports: [
-    ButtonModule,
-    PopoverModule,
-    Tag,
-    TooltipModule,
-    TooltipDismissOnClickDirective,
-  ],
+  imports: [ButtonModule, PopoverModule, Tag, TooltipModule, TooltipDismissOnClickDirective],
   template: `
     <!--
       Span wrapper con pTooltip para satisfacer
@@ -78,13 +63,7 @@ export interface ColumnHelpEntry {
       tooltip mientras el popover está visible — sino "Ver leyenda"
       flotaría sobre la legend que ya se está mostrando.
     -->
-    <span
-      #trigger
-      class="inline-flex"
-      pTooltip="Ver leyenda"
-      [tooltipDisabled]="isOpen()"
-      tooltipPosition="top"
-    >
+    <span #trigger class="inline-flex" pTooltip="Ver leyenda" [tooltipDisabled]="isOpen()" tooltipPosition="top">
       <p-button
         icon="fa-sharp fa-regular fa-circle-info"
         severity="secondary"
@@ -112,11 +91,7 @@ export interface ColumnHelpEntry {
           hay descripción rica: hierarquía visual clara, no requiere
           truncation, popover compacto en horizontal.
         -->
-        <div
-          class="w-96 max-w-[calc(100vw-2rem)]"
-          (mouseenter)="onContentEnter()"
-          (mouseleave)="onContentLeave()"
-        >
+        <div class="w-96 max-w-[calc(100vw-2rem)]" (mouseenter)="onContentEnter()" (mouseleave)="onContentLeave()">
           <h3 class="text-color font-bold leading-6 mb-1">
             {{ title() }}
           </h3>
@@ -147,11 +122,7 @@ export interface ColumnHelpEntry {
             scroll interno SOLO al ul (no al popover root), el arrow
             ::before del popover se mantiene visible.
           -->
-          <ul
-            #legendList
-            class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2"
-            [class.mt-2]="!description()"
-          >
+          <ul #legendList class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2" [class.mt-2]="!description()">
             @for (entry of entries(); track entry.code) {
               <li class="contents">
                 <p-tag
@@ -432,16 +403,12 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
     // document.scrollWidth → scrollbar horizontal extra. Clamp
     // mantiene arrow dentro: [0, popoverWidth-40] cubre todo el
     // ancho del popover con margin.
-    const triggerCenter =
-      triggerRect.left + window.scrollX + triggerRect.width / 2;
+    const triggerCenter = triggerRect.left + window.scrollX + triggerRect.width / 2;
     const arrowOffset = 20;
     const idealArrowLeft = triggerCenter - left - arrowOffset;
     const minArrowLeft = 0;
     const maxArrowLeft = popoverWidth - 40;
-    const arrowLeft = Math.max(
-      minArrowLeft,
-      Math.min(maxArrowLeft, idealArrowLeft),
-    );
+    const arrowLeft = Math.max(minArrowLeft, Math.min(maxArrowLeft, idealArrowLeft));
     popoverEl.style.setProperty('--p-popover-arrow-left', `${arrowLeft}px`);
 
     // Dynamic maxHeight on the inner <ul> ONLY si el popover excede

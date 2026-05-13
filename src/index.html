@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>PrimeShowcase</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <!--
+  <head>
+    <meta charset="utf-8" />
+    <title>PrimeShowcase</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
     Dashboard privado: SEO metadata deshabilitada porque no queremos
     indexación orgánica ni preview cards en redes sociales para una app de
     datos internos. `robots.txt` bloquea crawlers; estos meta tags adicionales
@@ -16,33 +16,33 @@
     afecta color del browser chrome en Chrome Android + Safari iOS PWA y es
     seguro aunque la app sea privada — lo dejamos activo.
   -->
-  <!--
+    <!--
   <meta name="description" content="ERP web Angular 21 + PrimeNG 21 — showcase mobile-first con CRM, inbox, overview analítico y gestión de clientes.">
   <meta property="og:title" content="PrimeShowcase">
   <meta property="og:description" content="ERP web Angular 21 + PrimeNG 21 — showcase mobile-first con CRM, inbox, overview analítico y gestión de clientes.">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   -->
-  <meta name="theme-color" content="#0074c2">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <script>
-    // Pre-hydration theme bootstrap: runs before any CSS paints to prevent
-    // dark-mode FOUC for first-time visitors. SSR already emits the correct
-    // class when the theme cookie is present; this script is the fallback for
-    // users whose preference comes from the OS `prefers-color-scheme`.
-    // Ref: ADR-001 §4
-    (function () {
-      try {
-        var m = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
-        var theme = m
-          ? m[1]
-          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        if (theme === 'dark') document.documentElement.classList.add('p-dark');
-      } catch (e) { /* no-op: CSP / sandbox; SSR class will still apply */ }
-    })();
-  </script>
-</head>
-<body>
-  <app-root></app-root>
-</body>
+    <meta name="theme-color" content="#0074c2" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      // Pre-hydration theme bootstrap: runs before any CSS paints to prevent
+      // dark-mode FOUC for first-time visitors. SSR already emits the correct
+      // class when the theme cookie is present; this script is the fallback for
+      // users whose preference comes from the OS `prefers-color-scheme`.
+      // Ref: ADR-001 §4
+      (function () {
+        try {
+          var m = document.cookie.match(/(?:^|;\s*)theme=(dark|light)/);
+          var theme = m ? m[1] : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          if (theme === 'dark') document.documentElement.classList.add('p-dark');
+        } catch (e) {
+          /* no-op: CSP / sandbox; SSR class will still apply */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>

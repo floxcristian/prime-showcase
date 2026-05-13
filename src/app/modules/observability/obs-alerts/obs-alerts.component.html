@@ -3,8 +3,8 @@
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Alertas</h1>
     <div class="mt-1 leading-6 text-muted-color">
-      Alertas activas y resueltas de todos los servicios. Acá investigás qué
-      las disparó y las marcás como acusadas cuando ya estás trabajando una.
+      Alertas activas y resueltas de todos los servicios. Acá investigás qué las disparó y las marcás como acusadas cuando ya estás
+      trabajando una.
     </div>
     <div class="mt-2 text-sm text-muted-color leading-5">
       <span class="text-color font-semibold">{{ resultCount() }}</span>
@@ -54,11 +54,7 @@
   </div>
   <div class="flex flex-wrap items-center gap-4 justify-between">
     <div class="flex items-center gap-2">
-      <p-toggleswitch
-        [ngModel]="onlyUnacked()"
-        (ngModelChange)="onlyUnacked.set($event)"
-        inputId="only-unacked"
-      />
+      <p-toggleswitch [ngModel]="onlyUnacked()" (ngModelChange)="onlyUnacked.set($event)" inputId="only-unacked" />
       <label
         for="only-unacked"
         class="text-color font-semibold leading-6 cursor-pointer hover:text-color-emphasis transition-colors select-none"
@@ -124,9 +120,7 @@
           <div class="w-32 shrink-0">
             <app-status-chip [value]="alert.status" />
           </div>
-          <span class="text-xs text-muted-color ml-auto">{{
-            alert.firedAt | relativeTime
-          }}</span>
+          <span class="text-xs text-muted-color ml-auto">{{ alert.firedAt | relativeTime }}</span>
         </div>
         <a
           [routerLink]="['/observability/alerts', alert.id]"
@@ -177,9 +171,7 @@
         botón Acusar) llevan `relative z-10` para quedar por encima del
         pseudo y capturar clics/focus sin triggerar la navegación del row.
       -->
-      <tr
-        class="relative cursor-pointer hover:bg-emphasis focus-within:bg-emphasis transition-colors"
-      >
+      <tr class="relative cursor-pointer hover:bg-emphasis focus-within:bg-emphasis transition-colors">
         <td>
           <app-severity-chip [value]="alert.severity" />
         </td>
@@ -197,15 +189,11 @@
               class="text-color font-medium leading-6 hover:text-color-emphasis truncate cursor-pointer transition-colors after:absolute after:inset-0 after:content-['']"
               >{{ alert.title }}</a
             >
-            <span class="text-xs text-muted-color leading-4 truncate">{{
-              alert.description
-            }}</span>
+            <span class="text-xs text-muted-color leading-4 truncate">{{ alert.description }}</span>
           </div>
         </td>
         <td>
-          <span class="text-muted-color">{{
-            alert.firedAt | relativeTime
-          }}</span>
+          <span class="text-muted-color">{{ alert.firedAt | relativeTime }}</span>
         </td>
         <td>
           <app-status-chip [value]="alert.status" />
@@ -214,9 +202,7 @@
           @if (alert.status === 'firing') {
             <p-button label="Acusar" severity="secondary" size="small" />
           } @else if (alert.status === 'acknowledged' && alert.acknowledgedBy) {
-            <span class="text-xs text-muted-color"
-              >Por {{ alert.acknowledgedBy.name }}</span
-            >
+            <span class="text-xs text-muted-color">Por {{ alert.acknowledgedBy.name }}</span>
           }
         </td>
       </tr>

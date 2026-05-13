@@ -3,8 +3,7 @@
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Inbox</h1>
     <div class="mt-1 leading-6 text-muted-color">
-      Tu bandeja de avisos: errores, alertas y deploys de los servicios que
-      seguís, agrupados por urgencia.
+      Tu bandeja de avisos: errores, alertas y deploys de los servicios que seguís, agrupados por urgencia.
     </div>
   </div>
 </div>
@@ -50,11 +49,7 @@
     @for (b of buckets(); track b.key) {
       <p-tabpanel [value]="b.key">
         @if (b.items.length === 0) {
-          <app-empty-state
-            [icon]="b.emptyIcon"
-            [title]="b.emptyTitle"
-            [description]="b.emptyDescription"
-          />
+          <app-empty-state [icon]="b.emptyIcon" [title]="b.emptyTitle" [description]="b.emptyDescription" />
         } @else {
           <ul class="flex flex-col gap-3 mt-2">
             @for (item of b.items; track item.id) {
@@ -62,7 +57,7 @@
               <li
                 class="border border-surface rounded-2xl p-4 flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 transition-colors"
                 [ngClass]="{
-                  'bg-surface-50 dark:bg-surface-900': acked
+                  'bg-surface-50 dark:bg-surface-900': acked,
                 }"
               >
                 <!--
@@ -74,14 +69,8 @@
                   largo + padding del p-tag.
                 -->
                 <div class="flex items-center gap-3 lg:shrink-0">
-                  <div
-                    class="w-10 h-10 rounded-lg bg-emphasis flex items-center justify-center text-color shrink-0"
-                  >
-                    <i
-                      [class]="typeIcon(item.type)"
-                      class="text-base"
-                      aria-hidden="true"
-                    ></i>
+                  <div class="w-10 h-10 rounded-lg bg-emphasis flex items-center justify-center text-color shrink-0">
+                    <i [class]="typeIcon(item.type)" class="text-base" aria-hidden="true"></i>
                   </div>
                   <div class="w-32 shrink-0">
                     <app-severity-chip [value]="item.severity" />
@@ -97,26 +86,20 @@
                       >{{ item.serviceName }}</a
                     >
                     <span class="text-xs text-muted-color">·</span>
-                    <span class="text-xs text-muted-color">{{
-                      item.occurredAt | relativeTime
-                    }}</span>
+                    <span class="text-xs text-muted-color">{{ item.occurredAt | relativeTime }}</span>
                   </div>
                   <div class="text-color font-medium leading-6 line-clamp-2">
                     {{ item.title }}
                   </div>
                   @if (item.detail) {
-                    <div
-                      class="text-muted-color text-sm leading-5 line-clamp-2"
-                    >
+                    <div class="text-muted-color text-sm leading-5 line-clamp-2">
                       {{ item.detail }}
                     </div>
                   }
                 </div>
 
                 <!-- Actions -->
-                <div
-                  class="flex items-center gap-2 lg:shrink-0 flex-wrap lg:flex-nowrap"
-                >
+                <div class="flex items-center gap-2 lg:shrink-0 flex-wrap lg:flex-nowrap">
                   @if (item.ackable && !acked) {
                     <p-button
                       label="Acusar"
@@ -127,16 +110,10 @@
                     />
                   }
                   @if (acked) {
-                    <app-pill icon="fa-sharp fa-regular fa-circle-check">
-                      Acusado
-                    </app-pill>
+                    <app-pill icon="fa-sharp fa-regular fa-circle-check"> Acusado </app-pill>
                   }
                   <p-button
-                    [routerLink]="
-                      item.type === 'alert'
-                        ? ['/observability/alerts', item.id]
-                        : ['/observability/services', item.serviceId]
-                    "
+                    [routerLink]="item.type === 'alert' ? ['/observability/alerts', item.id] : ['/observability/services', item.serviceId]"
                     label="Ver"
                     severity="secondary"
                     size="small"

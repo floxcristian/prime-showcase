@@ -1,9 +1,5 @@
 <ul tabindex="-1" (keydown)="onKeydown($event)">
-  @for (
-    section of module().sections;
-    track section.id;
-    let sectionIdx = $index
-  ) {
+  @for (section of module().sections; track section.id; let sectionIdx = $index) {
     @let headerId = 'nav-sec-' + section.id;
     <li role="group" [attr.aria-labelledby]="headerId">
       <!-- L2 header: border-t absorbido dentro del min-h-12 (box-sizing:
@@ -12,15 +8,10 @@
       <div
         class="flex items-center gap-3 px-4 min-h-12 py-2 bg-surface-100 dark:bg-surface-800"
         [ngClass]="{
-          'border-t border-surface-200 dark:border-surface-800':
-            sectionIdx > 0
+          'border-t border-surface-200 dark:border-surface-800': sectionIdx > 0,
         }"
       >
-        <i
-          [class]="section.icon"
-          class="w-5 text-center text-base shrink-0 text-color"
-          aria-hidden="true"
-        ></i>
+        <i [class]="section.icon" class="w-5 text-center text-base shrink-0 text-color" aria-hidden="true"></i>
         <h3 [id]="headerId" class="flex-1 font-semibold leading-6 text-color">
           {{ section.title }}
         </h3>
@@ -37,7 +28,7 @@
               #rla="routerLinkActive"
               [attr.aria-current]="rla.isActive ? 'page' : null"
               [ngClass]="{
-                'text-muted-color hover:text-color': !rla.isActive
+                'text-muted-color hover:text-color': !rla.isActive,
               }"
               class="flex items-center gap-3 px-4 min-h-12 py-2 bg-surface-0 dark:bg-surface-950 border-t border-surface-200 dark:border-surface-800 hover:bg-emphasis cursor-pointer transition-colors select-none font-medium leading-6"
             >

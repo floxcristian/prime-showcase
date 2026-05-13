@@ -1,17 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import {
-  computed,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-  REQUEST,
-  Signal,
-  signal,
-} from '@angular/core';
-import {
-  parseAuthCookie,
-  serializeAuthCookie,
-} from './auth-cookie.util';
+import { computed, inject, Injectable, PLATFORM_ID, REQUEST, Signal, signal } from '@angular/core';
+import { parseAuthCookie, serializeAuthCookie } from './auth-cookie.util';
 
 /**
  * Mock auth para el showcase: cualquier credencial es aceptada.
@@ -49,9 +38,7 @@ export class AuthService {
   private readonly _email = signal<string | null>(this.readInitial());
 
   readonly email: Signal<string | null> = this._email.asReadonly();
-  readonly isAuthenticated: Signal<boolean> = computed(
-    () => this._email() !== null,
-  );
+  readonly isAuthenticated: Signal<boolean> = computed(() => this._email() !== null);
 
   login(email: string): void {
     this._email.set(email);
@@ -107,8 +94,7 @@ export class AuthService {
    */
   private persist(email: string | null): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    const secure =
-      this.document.defaultView?.location?.protocol === 'https:';
+    const secure = this.document.defaultView?.location?.protocol === 'https:';
     this.document.cookie = serializeAuthCookie(email, { secure });
   }
 }

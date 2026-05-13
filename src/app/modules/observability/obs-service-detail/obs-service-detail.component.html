@@ -10,18 +10,8 @@
       }
     </div>
     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-      <p-skeleton
-        class="xl:col-span-8"
-        width="100%"
-        height="24rem"
-        borderRadius="1rem"
-      />
-      <p-skeleton
-        class="xl:col-span-4"
-        width="100%"
-        height="24rem"
-        borderRadius="1rem"
-      />
+      <p-skeleton class="xl:col-span-8" width="100%" height="24rem" borderRadius="1rem" />
+      <p-skeleton class="xl:col-span-4" width="100%" height="24rem" borderRadius="1rem" />
     </div>
   </div>
 } @else if (loadError()) {
@@ -42,9 +32,7 @@
       <flex-1> = title col: chips + h1 + meta + description
       <flex shrink-0> = actions toolbar (stacked en mobile, side-by-side en xl)
   -->
-  <div
-    class="border border-surface rounded-2xl p-6 mb-6 flex flex-col xl:flex-row xl:items-start gap-4"
-  >
+  <div class="border border-surface rounded-2xl p-6 mb-6 flex flex-col xl:flex-row xl:items-start gap-4">
     <div class="flex-1 flex flex-col gap-2">
       <div class="flex items-center gap-3 flex-wrap">
         <h1 class="text-color text-3xl font-bold leading-normal">
@@ -68,24 +56,9 @@
       <p class="text-muted-color leading-6">{{ svc.description }}</p>
     </div>
     <div class="flex flex-wrap gap-2">
-      <p-button
-        label="Editar"
-        severity="secondary"
-        [outlined]="true"
-        icon="fa-sharp fa-regular fa-pen"
-      />
-      <p-button
-        label="Silenciar"
-        severity="secondary"
-        [outlined]="true"
-        icon="fa-sharp fa-regular fa-bell-slash"
-      />
-      <p-button
-        [label]="'Runbook'"
-        severity="secondary"
-        icon="fa-sharp fa-regular fa-book-open"
-        [outlined]="true"
-      />
+      <p-button label="Editar" severity="secondary" [outlined]="true" icon="fa-sharp fa-regular fa-pen" />
+      <p-button label="Silenciar" severity="secondary" [outlined]="true" icon="fa-sharp fa-regular fa-bell-slash" />
+      <p-button [label]="'Runbook'" severity="secondary" icon="fa-sharp fa-regular fa-book-open" [outlined]="true" />
     </div>
   </div>
 
@@ -113,28 +86,17 @@
       [delta]="svc.p99Latency.delta"
       direction="up-bad"
     />
-    <app-metric-card
-      label="Alertas activas"
-      [value]="svc.activeAlertsCount"
-      icon="fa-sharp fa-regular fa-bell"
-    />
+    <app-metric-card label="Alertas activas" [value]="svc.activeAlertsCount" icon="fa-sharp fa-regular fa-bell" />
   </div>
 
   <!-- ── Main + Side ──────────────────────────────────────────────── -->
   <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
     <!-- Main: tabs (Salud / Errores / Performance / Deploys) -->
     <div class="xl:col-span-8 border border-surface rounded-2xl">
-      <p-tabs
-        [value]="activeTab()"
-        (valueChange)="activeTab.set($any($event))"
-        [lazy]="true"
-      >
+      <p-tabs [value]="activeTab()" (valueChange)="activeTab.set($any($event))" [lazy]="true">
         <p-tablist>
           <p-tab value="health">
-            <i
-              class="fa-sharp fa-regular fa-heart-pulse mr-2"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-heart-pulse mr-2" aria-hidden="true"></i>
             Salud
           </p-tab>
           <p-tab value="errors">
@@ -143,17 +105,11 @@
             <app-pill class="ml-2">{{ svc.errors.length }}</app-pill>
           </p-tab>
           <p-tab value="performance">
-            <i
-              class="fa-sharp fa-regular fa-gauge-high mr-2"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-gauge-high mr-2" aria-hidden="true"></i>
             Performance
           </p-tab>
           <p-tab value="deploys">
-            <i
-              class="fa-sharp fa-regular fa-rocket-launch mr-2"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-rocket-launch mr-2" aria-hidden="true"></i>
             Deploys
           </p-tab>
         </p-tablist>
@@ -165,42 +121,22 @@
               <span class="text-xs text-muted-color">Objetivos del servicio</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div
-                class="border border-surface-200 dark:border-surface-800 rounded-lg p-3"
-              >
-                <div class="text-xs text-muted-color leading-4 mb-1">
-                  Error rate target
-                </div>
-                <div class="text-color font-semibold leading-6">
-                  &lt; {{ formatPercent(svc.slos.errorRateTarget) }}
-                </div>
+              <div class="border border-surface-200 dark:border-surface-800 rounded-lg p-3">
+                <div class="text-xs text-muted-color leading-4 mb-1">Error rate target</div>
+                <div class="text-color font-semibold leading-6">&lt; {{ formatPercent(svc.slos.errorRateTarget) }}</div>
               </div>
-              <div
-                class="border border-surface-200 dark:border-surface-800 rounded-lg p-3"
-              >
-                <div class="text-xs text-muted-color leading-4 mb-1">
-                  Latency p99 target
-                </div>
-                <div class="text-color font-semibold leading-6">
-                  &lt; {{ svc.slos.latencyP99TargetMs }}ms
-                </div>
+              <div class="border border-surface-200 dark:border-surface-800 rounded-lg p-3">
+                <div class="text-xs text-muted-color leading-4 mb-1">Latency p99 target</div>
+                <div class="text-color font-semibold leading-6">&lt; {{ svc.slos.latencyP99TargetMs }}ms</div>
               </div>
-              <div
-                class="border border-surface-200 dark:border-surface-800 rounded-lg p-3"
-              >
-                <div class="text-xs text-muted-color leading-4 mb-1">
-                  Uptime target
-                </div>
-                <div class="text-color font-semibold leading-6">
-                  &gt; {{ formatPercent(svc.slos.uptimeTarget) }}
-                </div>
+              <div class="border border-surface-200 dark:border-surface-800 rounded-lg p-3">
+                <div class="text-xs text-muted-color leading-4 mb-1">Uptime target</div>
+                <div class="text-color font-semibold leading-6">&gt; {{ formatPercent(svc.slos.uptimeTarget) }}</div>
               </div>
             </div>
 
             <div class="border-t border-surface-200 dark:border-surface-800 pt-4">
-              <h3 class="text-color font-semibold leading-6 mb-4">
-                Endpoints monitoreados
-              </h3>
+              <h3 class="text-color font-semibold leading-6 mb-4">Endpoints monitoreados</h3>
               @if (svc.endpoints.length === 0) {
                 <app-empty-state
                   icon="fa-link-slash"
@@ -210,13 +146,8 @@
               } @else {
                 <ul class="flex flex-col gap-2">
                   @for (ep of svc.endpoints; track ep) {
-                    <li
-                      class="flex items-center gap-2 text-sm text-muted-color font-mono leading-5"
-                    >
-                      <i
-                        class="fa-sharp fa-solid fa-circle text-green-500 text-xs"
-                        aria-hidden="true"
-                      ></i>
+                    <li class="flex items-center gap-2 text-sm text-muted-color font-mono leading-5">
+                      <i class="fa-sharp fa-solid fa-circle text-green-500 text-xs" aria-hidden="true"></i>
                       {{ ep }}
                     </li>
                   }
@@ -237,29 +168,20 @@
             <ul class="divide-y divide-surface-200 dark:divide-surface-800">
               @for (err of svc.errors; track err.id) {
                 <li class="p-4 flex items-start gap-3">
-                  <div
-                    class="w-8 h-8 rounded-lg bg-emphasis flex items-center justify-center text-color shrink-0 mt-0.5"
-                  >
-                    <i
-                      class="fa-sharp fa-regular fa-bug text-sm"
-                      aria-hidden="true"
-                    ></i>
+                  <div class="w-8 h-8 rounded-lg bg-emphasis flex items-center justify-center text-color shrink-0 mt-0.5">
+                    <i class="fa-sharp fa-regular fa-bug text-sm" aria-hidden="true"></i>
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="flex items-baseline justify-between gap-2 flex-wrap">
                       <span class="text-color font-medium leading-6 truncate">
                         {{ err.title }}
                       </span>
-                      <span class="text-xs text-muted-color leading-4">
-                        Visto {{ err.lastSeen | relativeTime }}
-                      </span>
+                      <span class="text-xs text-muted-color leading-4"> Visto {{ err.lastSeen | relativeTime }} </span>
                     </div>
                     <div class="text-xs text-muted-color leading-4 mt-1">
                       <span class="font-medium text-color">{{ err.count }}</span>
                       eventos ·
-                      <span class="font-medium text-color">{{
-                        err.affectedUsers
-                      }}</span>
+                      <span class="font-medium text-color">{{ err.affectedUsers }}</span>
                       usuarios ·
                       <span class="text-muted-color">{{ err.type }}</span>
                     </div>
@@ -279,14 +201,10 @@
 
         <p-tabpanel value="performance">
           <div class="p-6 flex flex-col items-center text-center gap-3">
-            <i
-              class="fa-sharp-duotone fa-regular fa-chart-line text-4xl text-color"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp-duotone fa-regular fa-chart-line text-4xl text-color" aria-hidden="true"></i>
             <h3 class="text-color font-bold leading-6">Gráficos de performance</h3>
             <p class="text-muted-color leading-6 max-w-md">
-              p50/p95/p99 + throughput. Integración pendiente con Chart.js
-              cuando lleguen los time-series del backend.
+              p50/p95/p99 + throughput. Integración pendiente con Chart.js cuando lleguen los time-series del backend.
             </p>
           </div>
         </p-tabpanel>
@@ -313,11 +231,7 @@
                 </div>
               </ng-template>
               <ng-template let-deploy #marker>
-                <i
-                  [class]="deployIcon(deploy.status)"
-                  class="text-base text-color"
-                  aria-hidden="true"
-                ></i>
+                <i [class]="deployIcon(deploy.status)" class="text-base text-color" aria-hidden="true"></i>
               </ng-template>
             </p-timeline>
           </div>
@@ -333,11 +247,7 @@
         <ul class="flex flex-col gap-2">
           @for (owner of svc.owners; track owner.id) {
             <li class="flex items-center gap-3">
-              <p-avatar
-                [image]="owner.avatarUrl"
-                shape="circle"
-                size="normal"
-              />
+              <p-avatar [image]="owner.avatarUrl" shape="circle" size="normal" />
               <div class="flex-1 min-w-0">
                 <div class="text-color font-medium leading-6 truncate">
                   {{ owner.name }}
@@ -419,10 +329,7 @@
                 rel="noopener noreferrer"
                 class="font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150 flex items-center gap-2"
               >
-                <i
-                  class="fa-sharp fa-regular fa-chart-mixed"
-                  aria-hidden="true"
-                ></i>
+                <i class="fa-sharp fa-regular fa-chart-mixed" aria-hidden="true"></i>
                 Dashboard Grafana
               </a>
             </li>

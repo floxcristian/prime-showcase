@@ -14,9 +14,7 @@
       </div>
       <div class="flex flex-wrap gap-2">
         @for (item of history.recentSearches(); track item.id) {
-          <div
-            class="flex items-center gap-2 pl-3 pr-1 h-9 rounded-full border border-surface bg-surface-0 dark:bg-surface-950"
-          >
+          <div class="flex items-center gap-2 pl-3 pr-1 h-9 rounded-full border border-surface bg-surface-0 dark:bg-surface-950">
             <button
               type="button"
               (click)="onItemSelected()"
@@ -30,10 +28,7 @@
               [attr.aria-label]="'Remover búsqueda ' + item.query"
               class="w-6 h-6 rounded-full flex items-center justify-center text-muted-color hover:bg-emphasis cursor-pointer transition-colors bg-transparent"
             >
-              <i
-                class="fa-sharp fa-regular fa-xmark text-xs"
-                aria-hidden="true"
-              ></i>
+              <i class="fa-sharp fa-regular fa-xmark text-xs" aria-hidden="true"></i>
             </button>
           </div>
         }
@@ -54,9 +49,7 @@
           Limpiar
         </button>
       </div>
-      <ul
-        class="flex flex-col divide-y divide-surface-200 dark:divide-surface-800 border-y border-surface-200 dark:border-surface-800"
-      >
+      <ul class="flex flex-col divide-y divide-surface-200 dark:divide-surface-800 border-y border-surface-200 dark:border-surface-800">
         @for (view of history.recentViews(); track view.id) {
           <li class="flex items-center">
             <a
@@ -64,18 +57,12 @@
               (click)="onItemSelected()"
               class="flex-1 flex items-center gap-3 px-2 h-14 hover:bg-emphasis cursor-pointer transition-colors select-none"
             >
-              <i
-                [class]="view.icon"
-                class="w-5 text-center text-base shrink-0 text-muted-color"
-                aria-hidden="true"
-              ></i>
+              <i [class]="view.icon" class="w-5 text-center text-base shrink-0 text-muted-color" aria-hidden="true"></i>
               <div class="flex-1 min-w-0">
                 <div class="text-color font-medium leading-6 truncate">
                   {{ view.title }}
                 </div>
-                <div
-                  class="text-muted-color text-xs leading-4 truncate mt-0.5"
-                >
+                <div class="text-muted-color text-xs leading-4 truncate mt-0.5">
                   {{ view.subtitle }}
                 </div>
               </div>
@@ -86,10 +73,7 @@
               [attr.aria-label]="'Remover ' + view.title"
               class="w-11 h-11 rounded-lg flex items-center justify-center text-muted-color hover:bg-emphasis cursor-pointer transition-colors bg-transparent shrink-0 mr-2"
             >
-              <i
-                class="fa-sharp fa-regular fa-xmark"
-                aria-hidden="true"
-              ></i>
+              <i class="fa-sharp fa-regular fa-xmark" aria-hidden="true"></i>
             </button>
           </li>
         }
@@ -98,20 +82,11 @@
   }
 
   <!-- Empty state (both arrays vacíos) -->
-  @if (
-    history.recentSearches().length === 0 && history.recentViews().length === 0
-  ) {
-    <div
-      class="flex flex-col items-center justify-center gap-4 py-8 text-center"
-    >
-      <i
-        class="fa-sharp-duotone fa-regular fa-magnifying-glass text-4xl text-muted-color"
-        aria-hidden="true"
-      ></i>
+  @if (history.recentSearches().length === 0 && history.recentViews().length === 0) {
+    <div class="flex flex-col items-center justify-center gap-4 py-8 text-center">
+      <i class="fa-sharp-duotone fa-regular fa-magnifying-glass text-4xl text-muted-color" aria-hidden="true"></i>
       <div class="text-color font-semibold leading-6">Empieza a buscar</div>
-      <div class="text-muted-color leading-6">
-        Aquí aparecerán tus búsquedas y páginas recientes.
-      </div>
+      <div class="text-muted-color leading-6">Aquí aparecerán tus búsquedas y páginas recientes.</div>
     </div>
   }
 </div>

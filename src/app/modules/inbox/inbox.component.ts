@@ -1,10 +1,5 @@
 // Angular
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 // PrimeNG
@@ -24,10 +19,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { TRANSPARENT_TABLE_TOKENS } from '../../shared/tokens/table-tokens';
 import { InboxNavGroup, InboxMessage } from './models/inbox.interface';
-import {
-  INBOX_NAV_GROUPS,
-  INBOX_MESSAGES,
-} from './constants/inbox-data';
+import { INBOX_NAV_GROUPS, INBOX_MESSAGES } from './constants/inbox-data';
 
 const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
@@ -81,19 +73,17 @@ export class InboxComponent {
     const term = (this.search() ?? '').trim().toLowerCase();
     if (!term) return this.tableData();
     return this.tableData().filter(
-      m =>
+      (m) =>
         m.name.toLowerCase().includes(term) ||
         m.title.toLowerCase().includes(term) ||
-        m.message.toLowerCase().includes(term)
+        m.message.toLowerCase().includes(term),
     );
   });
 
   selectedRows = signal<InboxMessage[]>([]);
 
   toggleBookmark(message: InboxMessage): void {
-    this.tableData.update(data =>
-      data.map(d => d === message ? { ...d, bookmarked: !d.bookmarked } : d)
-    );
+    this.tableData.update((data) => data.map((d) => (d === message ? { ...d, bookmarked: !d.bookmarked } : d)));
   }
 
   /**
@@ -107,7 +97,7 @@ export class InboxComponent {
   }
 
   protected toggleFolderNav(): void {
-    this.folderNavOpen.update(v => !v);
+    this.folderNavOpen.update((v) => !v);
   }
 
   readonly tableTokens = {

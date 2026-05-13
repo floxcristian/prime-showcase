@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -23,38 +17,23 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { SeverityChipComponent } from '../../../shared/components/severity-chip/severity-chip.component';
 import { StatusChipComponent } from '../../../shared/components/status-chip/status-chip.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
-import type {
-  AlertSeverity,
-  AlertStatus,
-  AlertSummary,
-} from '../models/observability.interface';
+import type { AlertSeverity, AlertStatus, AlertSummary } from '../models/observability.interface';
 import { ObservabilityMockService } from '../services/observability-mock.service';
 
 const NG_MODULES = [CommonModule, FormsModule, RouterLink];
 const PRIME_MODULES = [ButtonModule, InputTextModule, TableModule];
 const PRIME_STANDALONE = [IconField, InputIcon, MultiSelect, Skeleton, ToggleSwitch];
-const LOCAL_COMPONENTS = [
-  EmptyStateComponent,
-  SeverityChipComponent,
-  StatusChipComponent,
-];
+const LOCAL_COMPONENTS = [EmptyStateComponent, SeverityChipComponent, StatusChipComponent];
 const LOCAL_PIPES = [RelativeTimePipe];
 
 @Component({
   selector: 'app-obs-alerts',
-  imports: [
-    NG_MODULES,
-    PRIME_MODULES,
-    PRIME_STANDALONE,
-    LOCAL_COMPONENTS,
-    LOCAL_PIPES,
-  ],
+  imports: [NG_MODULES, PRIME_MODULES, PRIME_STANDALONE, LOCAL_COMPONENTS, LOCAL_PIPES],
   templateUrl: './obs-alerts.component.html',
   styleUrl: './obs-alerts.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
 export class ObsAlertsComponent {
@@ -82,10 +61,9 @@ export class ObsAlertsComponent {
    * fluido + filtrado cost-effective sobre listas grandes.
    */
   protected readonly searchInput = signal<string>('');
-  protected readonly searchTerm = toSignal(
-    toObservable(this.searchInput).pipe(debounceTime(200)),
-    { initialValue: '' },
-  );
+  protected readonly searchTerm = toSignal(toObservable(this.searchInput).pipe(debounceTime(200)), {
+    initialValue: '',
+  });
   protected readonly selectedSeverities = signal<AlertSeverity[]>([]);
   protected readonly selectedStatuses = signal<AlertStatus[]>([]);
   protected readonly onlyUnacked = signal<boolean>(false);

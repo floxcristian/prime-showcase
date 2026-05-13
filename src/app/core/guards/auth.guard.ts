@@ -32,11 +32,7 @@ export const authGuard: CanActivateFn = (_, state) => {
   // sin returnUrl y tras auth va a /. Caso edge aceptable para un showcase
   // con auth mock; migrar a auth via cookie en prod con backend real.
   const needsReturn = state.url && state.url !== '/';
-  return router.parseUrl(
-    needsReturn
-      ? `/login?returnUrl=${encodeURIComponent(state.url)}`
-      : '/login',
-  );
+  return router.parseUrl(needsReturn ? `/login?returnUrl=${encodeURIComponent(state.url)}` : '/login');
 };
 
 /**

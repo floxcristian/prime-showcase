@@ -12,12 +12,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import {
-  Chart,
-  type ChartData,
-  type ChartOptions,
-  type ChartType,
-} from 'chart.js';
+import { Chart, type ChartData, type ChartOptions, type ChartType } from 'chart.js';
 
 // Side-effect import: registra las piezas de Chart.js usadas en la app. MUY
 // importante que sea import-por-side-effect (no tree-shakeable), si no el
@@ -76,13 +71,7 @@ function toCssSize(value: string | number | undefined | null): string | null {
 @Component({
   selector: 'app-chart',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <canvas
-      #canvas
-      [attr.role]="ariaLabel() ? 'img' : null"
-      [attr.aria-label]="ariaLabel()"
-    ></canvas>
-  `,
+  template: ` <canvas #canvas [attr.role]="ariaLabel() ? 'img' : null" [attr.aria-label]="ariaLabel()"></canvas> `,
   host: {
     class: 'block relative',
     '[style.width]': 'widthCss()',
@@ -100,8 +89,7 @@ export class ChartComponent {
   protected readonly widthCss = computed(() => toCssSize(this.width()));
   protected readonly heightCss = computed(() => toCssSize(this.height()));
 
-  private readonly canvasRef =
-    viewChild<ElementRef<HTMLCanvasElement>>('canvas');
+  private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly platformId = inject(PLATFORM_ID);
   private chart: Chart | null = null;
 

@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,10 +17,7 @@ import { TableFilterShellComponent } from '../../../shared/components/table-filt
 import { TooltipDismissOnClickDirective } from '../../../shared/directives/tooltip-dismiss-on-click.directive';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
 import { NOW, seededRandom } from '../mocks/mock-utils';
-import type {
-  HealthState,
-  ServiceSummary,
-} from '../models/observability.interface';
+import type { HealthState, ServiceSummary } from '../models/observability.interface';
 import { ObservabilityMockService } from '../services/observability-mock.service';
 
 interface UptimeSegment {
@@ -119,8 +109,7 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
   template: `
     <!-- Header -->
@@ -128,8 +117,7 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
       <div class="min-w-0">
         <h1 class="text-2xl leading-8 text-color font-medium">Uptime</h1>
         <div class="mt-1 leading-6 text-muted-color">
-          Estado de salud y cuánto tiempo estuvieron disponibles tus
-          servicios en los últimos 30 días.
+          Estado de salud y cuánto tiempo estuvieron disponibles tus servicios en los últimos 30 días.
         </div>
       </div>
       @if (statusPill(); as pill) {
@@ -160,15 +148,10 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
       GitHub: filtros donde se filtran los datos (column header), no
       arriba en una toolbar separada.
     -->
-    <div
-      class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap"
-    >
+    <div class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap">
       <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
         @if (lastFetchedAt(); as ts) {
-          <span
-            class="text-sm text-muted-color leading-5 hidden sm:inline"
-            aria-live="polite"
-          >
+          <span class="text-sm text-muted-color leading-5 hidden sm:inline" aria-live="polite">
             Actualizado {{ ts | relativeTime }}
           </span>
         }
@@ -203,10 +186,7 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
           retry() además guardea contra reentry como defense-in-depth.
         -->
         <p-button
-          [icon]="
-            'fa-sharp fa-regular fa-arrows-rotate' +
-            (loading() ? ' animate-spin' : '')
-          "
+          [icon]="'fa-sharp fa-regular fa-arrows-rotate' + (loading() ? ' animate-spin' : '')"
           [disabled]="loading()"
           outlined
           severity="secondary"
@@ -251,17 +231,10 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
         inline porque el [loading] no comunica failure — solo "trabajando".
       -->
       @if (loadError() && allRows().length > 0) {
-        <div
-          class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
-          role="alert"
-        >
-          <i
-            class="fa-sharp fa-regular fa-triangle-exclamation text-color"
-            aria-hidden="true"
-          ></i>
+        <div class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm" role="alert">
+          <i class="fa-sharp fa-regular fa-triangle-exclamation text-color" aria-hidden="true"></i>
           <span class="flex-1 text-muted-color leading-5">
-            No pudimos refrescar los datos. Estás viendo la última versión
-            disponible.
+            No pudimos refrescar los datos. Estás viendo la última versión disponible.
           </span>
           <p-button
             label="Reintentar"
@@ -292,12 +265,10 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
             aria-hidden="true"
           ></i>
           <div class="flex-1 min-w-0">
-            <div class="text-color font-medium leading-6">
-              Sin datos de uptime para ningún servicio
-            </div>
+            <div class="text-color font-medium leading-6">Sin datos de uptime para ningún servicio</div>
             <div class="text-muted-color text-sm leading-5 mt-1">
-              Verificá la integración de monitoreo. Una vez que los
-              servicios reporten métricas, vas a ver el historial acá.
+              Verificá la integración de monitoreo. Una vez que los servicios reporten métricas, vas a ver el historial
+              acá.
             </div>
           </div>
           <p-button
@@ -328,26 +299,24 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
         En mobile (<md), el min-width 64rem fuerza scroll horizontal —
         consistente con tablas de obs-services / obs-alerts del módulo.
       -->
-      <div
-        class="rounded-lg border border-surface w-full overflow-hidden"
-      >
-          <p-table
-            [value]="$any(rows())"
-            [loading]="loading()"
-            [paginator]="true"
-            [rows]="10"
-            [rowsPerPageOptions]="[10, 25, 50]"
-            [stripedRows]="true"
-            [showGridlines]="true"
-            [rowHover]="true"
-            sortMode="single"
-            dataKey="service.id"
-            [tableStyle]="{ 'min-width': '64rem' }"
-            [showCurrentPageReport]="true"
-            currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} servicios"
-          >
-            <ng-template #header>
-              <!--
+      <div class="rounded-lg border border-surface w-full overflow-hidden">
+        <p-table
+          [value]="$any(rows())"
+          [loading]="loading()"
+          [paginator]="true"
+          [rows]="10"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [stripedRows]="true"
+          [showGridlines]="true"
+          [rowHover]="true"
+          sortMode="single"
+          dataKey="service.id"
+          [tableStyle]="{ 'min-width': '64rem' }"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} servicios"
+        >
+          <ng-template #header>
+            <!--
                 Distribución de columnas: las 4 columnas con dato corto
                 fijas (Estado / Servicio / Equipo / Alertas), suman ~520px;
                 "Últimos 30 días" toma el remanente (~440px en min-width
@@ -356,8 +325,8 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                 whitespace-nowrap en cada th: invariante del DS — los
                 headers de tabla nunca wrappean.
               -->
-              <tr>
-                <!--
+            <tr>
+              <!--
                   Layout del th — patrón big-tech estándar (Linear /
                   Datadog / Stripe / Material UI X DataGrid / Jira):
                     [Label][SortIcon] .... [FilterButton]
@@ -368,17 +337,14 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                   con popover propio. flex + justify-between separa los
                   dos grupos hacia los extremos del cell.
                 -->
-                <th
-                  pSortableColumn="severityRank"
-                  class="w-40 whitespace-nowrap"
-                >
-                  <div class="flex w-full items-center justify-between gap-2">
-                    <span class="flex items-center gap-1">
-                      <span>Estado</span>
-                      <p-sortIcon field="severityRank" />
-                    </span>
-                    <span pTooltip="Filtrar" tooltipPosition="bottom"
-                      ><p-columnFilter
+              <th pSortableColumn="severityRank" class="w-40 whitespace-nowrap">
+                <div class="flex w-full items-center justify-between gap-2">
+                  <span class="flex items-center gap-1">
+                    <span>Estado</span>
+                    <p-sortIcon field="severityRank" />
+                  </span>
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
                       field="service.health"
                       matchMode="in"
                       display="menu"
@@ -387,11 +353,7 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                       [showAddButton]="false"
                       [pt]="columnFilterPt"
                     >
-                      <ng-template
-                        #filter
-                        let-value
-                        let-filter="filterCallback"
-                      >
+                      <ng-template #filter let-value let-filter="filterCallback">
                         <app-table-filter-shell>
                           <p-multiselect
                             [options]="healthOptions"
@@ -403,26 +365,23 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                             class="w-full"
                           />
                         </app-table-filter-shell>
-                      </ng-template>
-                    </p-columnFilter></span>
-                  </div>
-                </th>
-                <th
-                  pSortableColumn="service.name"
-                  class="w-56 whitespace-nowrap"
-                >
-                  <div class="flex w-full items-center justify-between gap-2">
-                    <span class="flex items-center gap-1">
-                      <span>Servicio</span>
-                      <p-sortIcon field="service.name" />
-                    </span>
-                    <!--
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </div>
+              </th>
+              <th pSortableColumn="service.name" class="w-56 whitespace-nowrap">
+                <div class="flex w-full items-center justify-between gap-2">
+                  <span class="flex items-center gap-1">
+                    <span>Servicio</span>
+                    <p-sortIcon field="service.name" />
+                  </span>
+                  <!--
                       type="text" built-in renderiza un input de ancho
                       fijo. Pasamos a custom template para controlar
                       el width del input pInputText con clase w-full.
                     -->
-                    <span pTooltip="Filtrar" tooltipPosition="bottom"
-                      ><p-columnFilter
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
                       field="service.name"
                       matchMode="contains"
                       display="menu"
@@ -431,11 +390,7 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                       [showAddButton]="false"
                       [pt]="columnFilterPt"
                     >
-                      <ng-template
-                        #filter
-                        let-value
-                        let-filter="filterCallback"
-                      >
+                      <ng-template #filter let-value let-filter="filterCallback">
                         <app-table-filter-shell>
                           <input
                             type="text"
@@ -446,21 +401,18 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                             class="w-full"
                           />
                         </app-table-filter-shell>
-                      </ng-template>
-                    </p-columnFilter></span>
-                  </div>
-                </th>
-                <th
-                  pSortableColumn="service.team"
-                  class="w-40 whitespace-nowrap"
-                >
-                  <div class="flex w-full items-center justify-between gap-2">
-                    <span class="flex items-center gap-1">
-                      <span>Equipo</span>
-                      <p-sortIcon field="service.team" />
-                    </span>
-                    <span pTooltip="Filtrar" tooltipPosition="bottom"
-                      ><p-columnFilter
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </div>
+              </th>
+              <th pSortableColumn="service.team" class="w-40 whitespace-nowrap">
+                <div class="flex w-full items-center justify-between gap-2">
+                  <span class="flex items-center gap-1">
+                    <span>Equipo</span>
+                    <p-sortIcon field="service.team" />
+                  </span>
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
                       field="service.team"
                       matchMode="in"
                       display="menu"
@@ -469,11 +421,7 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                       [showAddButton]="false"
                       [pt]="columnFilterPt"
                     >
-                      <ng-template
-                        #filter
-                        let-value
-                        let-filter="filterCallback"
-                      >
+                      <ng-template #filter let-value let-filter="filterCallback">
                         <app-table-filter-shell>
                           <p-multiselect
                             [options]="availableTeams()"
@@ -483,22 +431,22 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                             class="w-full"
                           />
                         </app-table-filter-shell>
-                      </ng-template>
-                    </p-columnFilter></span>
-                  </div>
-                </th>
-                <!--
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </div>
+              </th>
+              <!--
                   Columna "Últimos 30 días" — segment grid + footer igual
                   que la tabla de arriba. NO es sortable (orden por una
                   serie de 60 segments no tiene semántica clara), pero
                   SÍ filtrable por rango de uptime% via slider. Sin sort
                   icon → el affordance derecho es solo el filter trigger.
                 -->
-                <th class="whitespace-nowrap">
-                  <div class="flex w-full items-center justify-between gap-2">
-                    <span>Últimos 30 días</span>
-                    <span pTooltip="Filtrar" tooltipPosition="bottom"
-                      ><p-columnFilter
+              <th class="whitespace-nowrap">
+                <div class="flex w-full items-center justify-between gap-2">
+                  <span>Últimos 30 días</span>
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
                       field="service.uptime30d.value"
                       matchMode="between"
                       display="menu"
@@ -507,16 +455,11 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                       [showAddButton]="false"
                       [pt]="columnFilterPt"
                     >
-                      <ng-template
-                        #filter
-                        let-value
-                        let-filter="filterCallback"
-                      >
+                      <ng-template #filter let-value let-filter="filterCallback">
                         <app-table-filter-shell>
                           <div class="flex flex-col gap-3 px-1">
                             <span class="text-sm text-muted-color leading-5">
-                              Rango: {{ (value && value[0]) ?? 0 }}% –
-                              {{ (value && value[1]) ?? 100 }}%
+                              Rango: {{ (value && value[0]) ?? 0 }}% – {{ (value && value[1]) ?? 100 }}%
                             </span>
                             <p-slider
                               [ngModel]="value ?? [0, 100]"
@@ -528,11 +471,11 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                             />
                           </div>
                         </app-table-filter-shell>
-                      </ng-template>
-                    </p-columnFilter></span>
-                  </div>
-                </th>
-                <!--
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </div>
+              </th>
+              <!--
                   Columna numérica corta — texto centrado en header y body.
                   Patrón Datadog/Stripe para columnas tipo count: el ojo
                   escanea verticalmente alineado al centro, más rápido que
@@ -540,16 +483,13 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                   intencionalmente acá: el label + sort icon van juntos
                   centrados en lugar de separados a los extremos.
                 -->
-                <th
-                  pSortableColumn="service.activeAlertsCount"
-                  class="w-24 whitespace-nowrap text-center"
-                >
-                  <div class="flex w-full items-center justify-center gap-2">
-                    <span>Alertas</span>
-                    <p-sortIcon field="service.activeAlertsCount" />
-                  </div>
-                </th>
-                <!--
+              <th pSortableColumn="service.activeAlertsCount" class="w-24 whitespace-nowrap text-center">
+                <div class="flex w-full items-center justify-center gap-2">
+                  <span>Alertas</span>
+                  <p-sortIcon field="service.activeAlertsCount" />
+                </div>
+              </th>
+              <!--
                   Columna de acción "Ver detalle" — última posición. No
                   sortable ni filterable, sin label visible (sólo el icon
                   comunica). Patrón Linear / Datadog / GitHub: row action
@@ -557,129 +497,111 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
                   icon-only con tooltip. w-12 = ancho mínimo para el
                   button text-secondary rounded sin que sobre padding.
                 -->
-                <th class="w-12 whitespace-nowrap"></th>
-              </tr>
-            </ng-template>
+              <th class="w-12 whitespace-nowrap"></th>
+            </tr>
+          </ng-template>
 
-            <ng-template #body let-row>
-              <tr>
-                <td>
-                  <p-tag
-                    [severity]="tagSeverity(row.service.health)"
-                    [value]="stateLabel(row.service.health)"
-                  />
-                </td>
-                <td>
-                  <span class="text-color font-medium">{{
-                    row.service.name
-                  }}</span>
-                </td>
-                <td>
-                  <span class="text-muted-color">{{
-                    row.service.team
-                  }}</span>
-                </td>
-                <td>
-                  <!--
+          <ng-template #body let-row>
+            <tr>
+              <td>
+                <p-tag [severity]="tagSeverity(row.service.health)" [value]="stateLabel(row.service.health)" />
+              </td>
+              <td>
+                <span class="text-color font-medium">{{ row.service.name }}</span>
+              </td>
+              <td>
+                <span class="text-muted-color">{{ row.service.team }}</span>
+              </td>
+              <td>
+                <!--
                     Segment grid + time anchor footer — mismo pattern
                     que la tabla custom de arriba. El bar consume
                     row.segments precomputados; el footer muestra
                     anchors temporales y uptime%.
                   -->
-                  <div class="flex flex-col gap-2">
-                    <div
-                      class="flex items-stretch gap-0.5 h-7 min-w-0"
-                      role="img"
-                      tabindex="0"
-                      [attr.aria-label]="row.summaryAriaLabel"
-                    >
-                      @for (seg of row.segments; track seg.at) {
-                        <span
-                          class="flex-1 rounded-lg"
-                          [style.background-color]="segmentColor(seg.state)"
-                          [pTooltip]="seg.tooltip"
-                          tooltipPosition="top"
-                        ></span>
-                      }
-                    </div>
-                    <div
-                      class="flex items-center gap-3 text-xs text-muted-color leading-4"
-                    >
-                      <span class="shrink-0">hace 30 días</span>
-                      <div
-                        class="flex-1 border-t border-surface-200 dark:border-surface-800"
-                      ></div>
-                      <span class="shrink-0 text-color font-semibold"
-                        >{{ row.service.uptime30d.value.toFixed(2) }}%
-                        uptime</span
-                      >
-                      <div
-                        class="flex-1 border-t border-surface-200 dark:border-surface-800"
-                      ></div>
-                      <span class="shrink-0">hoy</span>
-                    </div>
+                <div class="flex flex-col gap-2">
+                  <div
+                    class="flex items-stretch gap-0.5 h-7 min-w-0"
+                    role="img"
+                    tabindex="0"
+                    [attr.aria-label]="row.summaryAriaLabel"
+                  >
+                    @for (seg of row.segments; track seg.at) {
+                      <span
+                        class="flex-1 rounded-lg"
+                        [style.background-color]="segmentColor(seg.state)"
+                        [pTooltip]="seg.tooltip"
+                        tooltipPosition="top"
+                      ></span>
+                    }
                   </div>
-                </td>
-                <td class="text-center">
-                  <span class="text-color">{{
-                    row.service.activeAlertsCount
-                  }}</span>
-                </td>
-                <td class="text-right">
-                  <p-button
-                    icon="fa-sharp fa-regular fa-chevron-right"
-                    severity="secondary"
-                    [text]="true"
-                    [rounded]="true"
-                    ariaLabel="Ver detalle"
-                    pTooltip="Ver detalle"
-                    tooltipPosition="left"
-                    (onClick)="viewDetail(row.service.id)"
-                  />
-                </td>
-              </tr>
-            </ng-template>
+                  <div class="flex items-center gap-3 text-xs text-muted-color leading-4">
+                    <span class="shrink-0">hace 30 días</span>
+                    <div class="flex-1 border-t border-surface-200 dark:border-surface-800"></div>
+                    <span class="shrink-0 text-color font-semibold"
+                      >{{ row.service.uptime30d.value.toFixed(2) }}% uptime</span
+                    >
+                    <div class="flex-1 border-t border-surface-200 dark:border-surface-800"></div>
+                    <span class="shrink-0">hoy</span>
+                  </div>
+                </div>
+              </td>
+              <td class="text-center">
+                <span class="text-color">{{ row.service.activeAlertsCount }}</span>
+              </td>
+              <td class="text-right">
+                <p-button
+                  icon="fa-sharp fa-regular fa-chevron-right"
+                  severity="secondary"
+                  [text]="true"
+                  [rounded]="true"
+                  ariaLabel="Ver detalle"
+                  pTooltip="Ver detalle"
+                  tooltipPosition="left"
+                  (onClick)="viewDetail(row.service.id)"
+                />
+              </td>
+            </tr>
+          </ng-template>
 
-            <!--
+          <!--
               loadingbody: PrimeNG renderiza este template en lugar del
               body cuando [loading]=true. Skeleton heterogéneo: la celda
               de "Últimos 30 días" usa un bar placeholder (h-7) para
               representar visualmente el segment grid que va a aparecer.
             -->
-            <ng-template #loadingbody>
-              @for (i of skeletonPlaceholders; track i) {
-                <tr>
-                  <td>
-                    <p-skeleton width="6rem" height="1.5rem" />
-                  </td>
-                  <td>
-                    <p-skeleton width="60%" height="1rem" />
-                  </td>
-                  <td>
-                    <p-skeleton width="50%" height="1rem" />
-                  </td>
-                  <td>
-                    <p-skeleton width="100%" height="1.75rem" />
-                  </td>
-                  <td>
-                    <p-skeleton width="2rem" height="1rem" />
-                  </td>
-                  <td>
-                    <p-skeleton shape="circle" size="2rem" />
-                  </td>
-                </tr>
-              }
-            </ng-template>
-
-            <ng-template #emptymessage>
+          <ng-template #loadingbody>
+            @for (i of skeletonPlaceholders; track i) {
               <tr>
-                <td colspan="6" class="text-center text-muted-color">
-                  Sin resultados
+                <td>
+                  <p-skeleton width="6rem" height="1.5rem" />
+                </td>
+                <td>
+                  <p-skeleton width="60%" height="1rem" />
+                </td>
+                <td>
+                  <p-skeleton width="50%" height="1rem" />
+                </td>
+                <td>
+                  <p-skeleton width="100%" height="1.75rem" />
+                </td>
+                <td>
+                  <p-skeleton width="2rem" height="1rem" />
+                </td>
+                <td>
+                  <p-skeleton shape="circle" size="2rem" />
                 </td>
               </tr>
-            </ng-template>
-          </p-table>
-        </div>
+            }
+          </ng-template>
+
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="6" class="text-center text-muted-color">Sin resultados</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
     }
   `,
 })
@@ -824,9 +746,7 @@ export class ObsUptimeComponent {
     const list = this.rows();
     if (list.length === 0) return null;
 
-    const issues = list.filter(
-      (r) => r.service.health === 'critical' || r.service.health === 'warn',
-    ).length;
+    const issues = list.filter((r) => r.service.health === 'critical' || r.service.health === 'warn').length;
     const healthy = list.filter((r) => r.service.health === 'ok').length;
 
     // Edge case: todos los servicios `unknown` — sin issues confirmados pero
@@ -845,10 +765,7 @@ export class ObsUptimeComponent {
 
     return {
       icon: 'fa-sharp-duotone fa-regular fa-triangle-exclamation text-yellow-500',
-      label:
-        issues === 1
-          ? '1 servicio con incidentes'
-          : `${issues} servicios con incidentes`,
+      label: issues === 1 ? '1 servicio con incidentes' : `${issues} servicios con incidentes`,
     };
   });
 
@@ -905,9 +822,7 @@ export class ObsUptimeComponent {
    * exponer el chip — el user necesita saber que existe el row, solo que
    * está sin datos.
    */
-  protected tagSeverity(
-    state: HealthState,
-  ): 'success' | 'warn' | 'danger' | 'secondary' {
+  protected tagSeverity(state: HealthState): 'success' | 'warn' | 'danger' | 'secondary' {
     if (state === 'ok') return 'success';
     if (state === 'warn') return 'warn';
     if (state === 'critical') return 'danger';
@@ -946,9 +861,7 @@ function buildRow(svc: ServiceSummary): ServiceUptimeRow {
   if (cached) return cached;
 
   const segments = buildSegments(svc, SEGMENT_COUNT);
-  const incidentCount = segments.filter(
-    (s) => s.state === 'warn' || s.state === 'critical',
-  ).length;
+  const incidentCount = segments.filter((s) => s.state === 'warn' || s.state === 'critical').length;
 
   const row: ServiceUptimeRow = {
     service: svc,
@@ -975,10 +888,7 @@ function buildRow(svc: ServiceSummary): ServiceUptimeRow {
  * en distintos boots renderiza los mismos segmentos. `reload()` sin
  * cambios reales en data NO regenera 480 segmentos.
  */
-function buildSegments(
-  svc: ServiceSummary,
-  n: number,
-): readonly UptimeSegment[] {
+function buildSegments(svc: ServiceSummary, n: number): readonly UptimeSegment[] {
   const cacheKey = `${svc.id}|${svc.health}|${svc.lastAlertAt ?? ''}|${svc.uptime30d.value}`;
   const cached = segmentCache.get(cacheKey);
   if (cached) return cached;
@@ -988,16 +898,11 @@ function buildSegments(
   return segments;
 }
 
-function computeSegments(
-  svc: ServiceSummary,
-  n: number,
-): readonly UptimeSegment[] {
+function computeSegments(svc: ServiceSummary, n: number): readonly UptimeSegment[] {
   const baseTime = anchorTime(svc);
 
   if (svc.health === 'unknown' || svc.uptime30d.value === 0) {
-    return Array.from({ length: n }, (_, i) =>
-      makeSegment('unknown', segmentTimestamp(baseTime, n, i)),
-    );
+    return Array.from({ length: n }, (_, i) => makeSegment('unknown', segmentTimestamp(baseTime, n, i)));
   }
 
   const rand = seededRandom(`uptime-${svc.id}`);
@@ -1006,9 +911,7 @@ function computeSegments(
   const criticalRatio = Math.min(0.7, Math.max(0.2, incidentProb * 8));
 
   // Ventana de impacto de la última alerta: ±2 segmentos = ±24h.
-  const alertTimeMs = svc.lastAlertAt
-    ? new Date(svc.lastAlertAt).getTime()
-    : null;
+  const alertTimeMs = svc.lastAlertAt ? new Date(svc.lastAlertAt).getTime() : null;
   const alertImpactRadius = SEGMENT_MS * 2;
 
   const result: UptimeSegment[] = [];
@@ -1020,10 +923,7 @@ function computeSegments(
     // Coerce: si está en la ventana de la alerta, refleja el health del
     // servicio. Esto hace que el último segmento (cerca de "ahora") matchee
     // con la línea "Última alerta hace X" de la columna vecina.
-    if (
-      alertTimeMs !== null &&
-      Math.abs(at - alertTimeMs) <= alertImpactRadius
-    ) {
+    if (alertTimeMs !== null && Math.abs(at - alertTimeMs) <= alertImpactRadius) {
       state = svc.health === 'critical' ? 'critical' : 'warn';
     } else if (r >= incidentProb * 5) {
       state = 'ok';
@@ -1092,8 +992,7 @@ function anchorTime(_svc: ServiceSummary): number {
  * del color.
  */
 function buildAriaLabel(svc: ServiceSummary, incidents: number): string {
-  if (svc.health === 'unknown')
-    return `${svc.name}: sin datos de uptime registrados en los últimos 30 días`;
+  if (svc.health === 'unknown') return `${svc.name}: sin datos de uptime registrados en los últimos 30 días`;
 
   const uptime = svc.uptime30d.value.toFixed(2);
   const base = `Uptime de ${svc.name} en los últimos 30 días: ${uptime}%`;

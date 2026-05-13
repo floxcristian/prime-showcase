@@ -2,9 +2,7 @@
 <div class="flex items-start gap-2 justify-between flex-wrap">
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Usuarios</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Colaboradores internos y externos con acceso al sistema.
-    </div>
+    <div class="mt-1 leading-6 text-muted-color">Colaboradores internos y externos con acceso al sistema.</div>
   </div>
   <!--
     Count pill informativo: "X de Y activos" — la fracción transmite
@@ -15,14 +13,9 @@
     <div
       class="hidden sm:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
       role="status"
-      [attr.aria-label]="
-        activeCount() + ' de ' + totalCount() + ' usuarios activos'
-      "
+      [attr.aria-label]="activeCount() + ' de ' + totalCount() + ' usuarios activos'"
     >
-      <i
-        class="fa-sharp fa-solid fa-circle text-green-500"
-        aria-hidden="true"
-      ></i>
+      <i class="fa-sharp fa-solid fa-circle text-green-500" aria-hidden="true"></i>
       <span>{{ activeCount() }} de {{ totalCount() }} activos</span>
     </div>
   }
@@ -33,23 +26,13 @@
   columna vía `<p-columnFilter>`, paginación vía `[paginator]` del
   p-table. Pattern alineado con customers / obs-uptime / Linear.
 -->
-<div
-  class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap"
->
+<div class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap">
   <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
     @if (lastFetchedAt(); as ts) {
-      <span
-        class="text-sm text-muted-color leading-5 hidden sm:inline"
-        aria-live="polite"
-      >
-        Actualizado {{ ts | relativeTime }}
-      </span>
+      <span class="text-sm text-muted-color leading-5 hidden sm:inline" aria-live="polite"> Actualizado {{ ts | relativeTime }} </span>
     }
     <p-button
-      [icon]="
-        'fa-sharp fa-regular fa-arrows-rotate' +
-        (loading() ? ' animate-spin' : '')
-      "
+      [icon]="'fa-sharp fa-regular fa-arrows-rotate' + (loading() ? ' animate-spin' : '')"
       [disabled]="loading()"
       outlined
       severity="secondary"
@@ -73,18 +56,9 @@
   />
 } @else {
   @if (loadError() && tableData().length > 0) {
-    <div
-      class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
-      role="alert"
-    >
-      <i
-        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
-        aria-hidden="true"
-      ></i>
-      <span class="flex-1 text-muted-color leading-5">
-        No pudimos refrescar los datos. Estás viendo la última versión
-        disponible.
-      </span>
+    <div class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm" role="alert">
+      <i class="fa-sharp fa-regular fa-triangle-exclamation text-color" aria-hidden="true"></i>
+      <span class="flex-1 text-muted-color leading-5"> No pudimos refrescar los datos. Estás viendo la última versión disponible. </span>
       <p-button
         label="Reintentar"
         severity="secondary"
@@ -127,11 +101,7 @@
             materno y nombres) — gracias a que `name` es la versión
             denormalizada del backend.
           -->
-          <th
-            pSortableColumn="paternalSurname"
-            scope="col"
-            class="whitespace-nowrap"
-          >
+          <th pSortableColumn="paternalSurname" scope="col" class="whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Nombre</span>
@@ -139,38 +109,30 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="name"
-                matchMode="contains"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="name"
+                  matchMode="contains"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <input
-                      type="text"
-                      pInputText
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Buscar nombre o apellido"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <input
+                        type="text"
+                        pInputText
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Buscar nombre o apellido"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
-          <th
-            pSortableColumn="email"
-            scope="col"
-            class="whitespace-nowrap"
-          >
+          <th pSortableColumn="email" scope="col" class="whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Correo electrónico</span>
@@ -178,38 +140,30 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="email"
-                matchMode="contains"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="email"
+                  matchMode="contains"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <input
-                      type="text"
-                      pInputText
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Buscar correo"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <input
+                        type="text"
+                        pInputText
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Buscar correo"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
-          <th
-            pSortableColumn="type"
-            scope="col"
-            class="w-32 whitespace-nowrap"
-          >
+          <th pSortableColumn="type" scope="col" class="w-32 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Tipo</span>
@@ -217,37 +171,29 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="type"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="type"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="typeOptions"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquiera"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="typeOptions"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
-          <th
-            pSortableColumn="role"
-            scope="col"
-            class="w-36 whitespace-nowrap"
-          >
+          <th pSortableColumn="role" scope="col" class="w-36 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Rol</span>
@@ -255,37 +201,29 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="role"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="role"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="availableRoles()"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquiera"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="availableRoles()"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
-          <th
-            pSortableColumn="organization"
-            scope="col"
-            class="whitespace-nowrap"
-          >
+          <th pSortableColumn="organization" scope="col" class="whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Organización</span>
@@ -293,37 +231,29 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="organization"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="organization"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="availableOrganizations()"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquiera"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="availableOrganizations()"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
-          <th
-            pSortableColumn="lastActive"
-            scope="col"
-            class="w-44 whitespace-nowrap"
-          >
+          <th pSortableColumn="lastActive" scope="col" class="w-44 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Última actividad</span>
@@ -331,11 +261,7 @@
               </span>
             </div>
           </th>
-          <th
-            pSortableColumn="status"
-            scope="col"
-            class="w-32 whitespace-nowrap"
-          >
+          <th pSortableColumn="status" scope="col" class="w-32 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Estado</span>
@@ -343,32 +269,28 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="status"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="status"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="statusOptions"
-                      optionLabel="label"
-                      optionValue="value"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquiera"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="statusOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
           <!--
@@ -391,7 +313,7 @@
                 [label]="!data.image ? data.capName : ''"
                 class="rounded-lg overflow-hidden flex"
                 [ngClass]="{
-                  '!bg-primary-100 !text-primary-950 text-xs font-medium': !data.image
+                  '!bg-primary-100 !text-primary-950 text-xs font-medium': !data.image,
                 }"
               />
               <div class="ml-4 leading-6 text-color font-medium">
@@ -405,11 +327,7 @@
             </div>
           </td>
           <td class="whitespace-nowrap">
-            <p-tag
-              [severity]="typeSeverity(data.type)"
-              [value]="data.type"
-              class="font-medium"
-            />
+            <p-tag [severity]="typeSeverity(data.type)" [value]="data.type" class="font-medium" />
           </td>
           <td class="whitespace-nowrap">
             <div class="leading-6 text-muted-color">{{ data.role }}</div>
@@ -425,11 +343,7 @@
             </div>
           </td>
           <td class="whitespace-nowrap">
-            <p-tag
-              [severity]="statusSeverity(data.status)"
-              [value]="data.status"
-              class="font-medium"
-            />
+            <p-tag [severity]="statusSeverity(data.status)" [value]="data.status" class="font-medium" />
           </td>
           <td class="text-right">
             <p-button
@@ -512,12 +426,7 @@
       por contexto del row.
     -->
     <div class="flex gap-2">
-      <p-button
-        label="Detalles"
-        size="small"
-        outlined
-        (onClick)="op.hide()"
-      />
+      <p-button label="Detalles" size="small" outlined (onClick)="op.hide()" />
       @if (activeUser()?.type === 'Externo') {
         <p-button
           label="API keys"
@@ -528,13 +437,7 @@
           (onClick)="openApiKeysDialog(op)"
         />
       }
-      <p-button
-        label="Suspender"
-        severity="danger"
-        size="small"
-        outlined
-        (onClick)="op.hide()"
-      />
+      <p-button label="Suspender" severity="danger" size="small" outlined (onClick)="op.hide()" />
     </div>
   </ng-template>
 </p-popover>
@@ -545,7 +448,4 @@
   pasa como input — null cuando el dialog está cerrado y el component
   guardea contra ese caso.
 -->
-<app-user-api-keys-dialog
-  [user]="activeUser()"
-  [(visible)]="apiKeysDialogVisible"
-/>
+<app-user-api-keys-dialog [user]="activeUser()" [(visible)]="apiKeysDialogVisible" />

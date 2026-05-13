@@ -3,22 +3,16 @@
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Roles</h1>
     <div class="mt-1 leading-6 text-muted-color">
-      Permisos de acceso por módulo del dashboard. Asigna estos roles a los
-      usuarios para gobernar qué pueden ver y modificar.
+      Permisos de acceso por módulo del dashboard. Asigna estos roles a los usuarios para gobernar qué pueden ver y modificar.
     </div>
   </div>
   @if (totalRoles() > 0) {
     <div
       class="hidden sm:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
       role="status"
-      [attr.aria-label]="
-        totalRoles() + ' roles cubriendo ' + totalUsers() + ' usuarios'
-      "
+      [attr.aria-label]="totalRoles() + ' roles cubriendo ' + totalUsers() + ' usuarios'"
     >
-      <i
-        class="fa-sharp fa-solid fa-shield-halved text-primary"
-        aria-hidden="true"
-      ></i>
+      <i class="fa-sharp fa-solid fa-shield-halved text-primary" aria-hidden="true"></i>
       <span>{{ totalRoles() }} roles · {{ totalUsers() }} usuarios</span>
     </div>
   }
@@ -28,18 +22,10 @@
 <div class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap">
   <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
     @if (lastFetchedAt(); as ts) {
-      <span
-        class="text-sm text-muted-color leading-5 hidden sm:inline"
-        aria-live="polite"
-      >
-        Actualizado {{ ts | relativeTime }}
-      </span>
+      <span class="text-sm text-muted-color leading-5 hidden sm:inline" aria-live="polite"> Actualizado {{ ts | relativeTime }} </span>
     }
     <p-button
-      [icon]="
-        'fa-sharp fa-regular fa-arrows-rotate' +
-        (loading() ? ' animate-spin' : '')
-      "
+      [icon]="'fa-sharp fa-regular fa-arrows-rotate' + (loading() ? ' animate-spin' : '')"
       [disabled]="loading()"
       outlined
       severity="secondary"
@@ -63,18 +49,9 @@
   />
 } @else {
   @if (loadError() && tableData().length > 0) {
-    <div
-      class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
-      role="alert"
-    >
-      <i
-        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
-        aria-hidden="true"
-      ></i>
-      <span class="flex-1 text-muted-color leading-5">
-        No pudimos refrescar los datos. Estás viendo la última versión
-        disponible.
-      </span>
+    <div class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm" role="alert">
+      <i class="fa-sharp fa-regular fa-triangle-exclamation text-color" aria-hidden="true"></i>
+      <span class="flex-1 text-muted-color leading-5"> No pudimos refrescar los datos. Estás viendo la última versión disponible. </span>
       <p-button
         label="Reintentar"
         severity="secondary"
@@ -103,11 +80,7 @@
     >
       <ng-template #header>
         <tr>
-          <th
-            pSortableColumn="name"
-            scope="col"
-            class="w-44 whitespace-nowrap"
-          >
+          <th pSortableColumn="name" scope="col" class="w-44 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Nombre</span>
@@ -115,41 +88,33 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="name"
-                matchMode="contains"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="name"
+                  matchMode="contains"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <input
-                      type="text"
-                      pInputText
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Buscar nombre"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <input
+                        type="text"
+                        pInputText
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Buscar nombre"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
           <th scope="col" class="whitespace-nowrap">
             <span>Descripción</span>
           </th>
-          <th
-            pSortableColumn="type"
-            scope="col"
-            class="w-40 whitespace-nowrap"
-          >
+          <th pSortableColumn="type" scope="col" class="w-40 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Tipo</span>
@@ -157,37 +122,29 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="type"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="type"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="typeOptions"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquiera"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="typeOptions"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
-          <th
-            pSortableColumn="userCount"
-            scope="col"
-            class="w-28 whitespace-nowrap text-center"
-          >
+          <th pSortableColumn="userCount" scope="col" class="w-28 whitespace-nowrap text-center">
             <div class="flex w-full items-center justify-center gap-2">
               <span>Usuarios</span>
               <p-sortIcon field="userCount" />
@@ -196,11 +153,7 @@
           <th scope="col" class="w-36 whitespace-nowrap">
             <span>Permisos</span>
           </th>
-          <th
-            pSortableColumn="updatedAt"
-            scope="col"
-            class="w-44 whitespace-nowrap"
-          >
+          <th pSortableColumn="updatedAt" scope="col" class="w-44 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Última modificación</span>
@@ -208,11 +161,7 @@
               </span>
             </div>
           </th>
-          <th
-            pSortableColumn="status"
-            scope="col"
-            class="w-32 whitespace-nowrap"
-          >
+          <th pSortableColumn="status" scope="col" class="w-32 whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Estado</span>
@@ -220,32 +169,28 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="status"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
+                  field="status"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
                 >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="statusOptions"
-                      optionLabel="label"
-                      optionValue="value"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquiera"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
+                  <ng-template #filter let-value let-filter="filterCallback">
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="statusOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template> </p-columnFilter
+              ></span>
             </div>
           </th>
           <th scope="col" class="w-12 whitespace-nowrap"></th>
@@ -262,11 +207,7 @@
             </div>
           </td>
           <td class="whitespace-nowrap">
-            <p-tag
-              [severity]="typeSeverity(data.type)"
-              [value]="data.type"
-              class="font-medium"
-            />
+            <p-tag [severity]="typeSeverity(data.type)" [value]="data.type" class="font-medium" />
           </td>
           <td class="whitespace-nowrap text-center">
             <span class="text-color">{{ data.userCount }}</span>
@@ -280,11 +221,7 @@
             </div>
           </td>
           <td class="whitespace-nowrap">
-            <p-tag
-              [severity]="statusSeverity(data.status)"
-              [value]="data.status"
-              class="font-medium"
-            />
+            <p-tag [severity]="statusSeverity(data.status)" [value]="data.status" class="font-medium" />
           </td>
           <td class="text-right">
             <p-button
@@ -362,36 +299,13 @@
         (onClick)="openPermissionsDialog(op)"
       />
       @if (activeRole()?.type === 'Personalizado') {
-        <p-button
-          label="Duplicar"
-          icon="fa-sharp fa-regular fa-clone"
-          size="small"
-          severity="secondary"
-          outlined
-          (onClick)="op.hide()"
-        />
-        <p-button
-          label="Eliminar"
-          severity="danger"
-          size="small"
-          outlined
-          (onClick)="op.hide()"
-        />
+        <p-button label="Duplicar" icon="fa-sharp fa-regular fa-clone" size="small" severity="secondary" outlined (onClick)="op.hide()" />
+        <p-button label="Eliminar" severity="danger" size="small" outlined (onClick)="op.hide()" />
       } @else {
-        <p-button
-          label="Duplicar"
-          icon="fa-sharp fa-regular fa-clone"
-          size="small"
-          severity="secondary"
-          outlined
-          (onClick)="op.hide()"
-        />
+        <p-button label="Duplicar" icon="fa-sharp fa-regular fa-clone" size="small" severity="secondary" outlined (onClick)="op.hide()" />
       }
     </div>
   </ng-template>
 </p-popover>
 
-<app-role-permissions-dialog
-  [role]="activeRole()"
-  [(visible)]="permissionsDialogVisible"
-/>
+<app-role-permissions-dialog [role]="activeRole()" [(visible)]="permissionsDialogVisible" />

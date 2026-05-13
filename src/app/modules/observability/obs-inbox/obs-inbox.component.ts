@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -15,21 +10,14 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { SeverityChipComponent } from '../../../shared/components/severity-chip/severity-chip.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
-import type {
-  InboxBucket,
-  InboxItem,
-} from '../models/observability.interface';
+import type { InboxBucket, InboxItem } from '../models/observability.interface';
 import { AcknowledgementsStore } from '../services/acknowledgements.store';
 import { ObservabilityMockService } from '../services/observability-mock.service';
 
 const NG_MODULES = [CommonModule, RouterLink];
 const PRIME_MODULES = [ButtonModule, TabsModule];
 const PRIME_STANDALONE = [Skeleton];
-const LOCAL_COMPONENTS = [
-  EmptyStateComponent,
-  PillComponent,
-  SeverityChipComponent,
-];
+const LOCAL_COMPONENTS = [EmptyStateComponent, PillComponent, SeverityChipComponent];
 const LOCAL_PIPES = [RelativeTimePipe];
 
 interface BucketView {
@@ -44,19 +32,12 @@ interface BucketView {
 
 @Component({
   selector: 'app-obs-inbox',
-  imports: [
-    NG_MODULES,
-    PRIME_MODULES,
-    PRIME_STANDALONE,
-    LOCAL_COMPONENTS,
-    LOCAL_PIPES,
-  ],
+  imports: [NG_MODULES, PRIME_MODULES, PRIME_STANDALONE, LOCAL_COMPONENTS, LOCAL_PIPES],
   templateUrl: './obs-inbox.component.html',
   styleUrl: './obs-inbox.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
 export class ObsInboxComponent {

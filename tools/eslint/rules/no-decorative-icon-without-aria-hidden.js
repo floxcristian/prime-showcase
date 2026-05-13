@@ -56,9 +56,7 @@ module.exports = {
 
         const allAttrs = [...(node.attributes || []), ...(node.inputs || [])];
 
-        const hasAriaHidden = allAttrs.some(
-          (a) => a.name === 'aria-hidden' || a.name === 'attr.aria-hidden',
-        );
+        const hasAriaHidden = allAttrs.some((a) => a.name === 'aria-hidden' || a.name === 'attr.aria-hidden');
         if (hasAriaHidden) return;
 
         context.report({

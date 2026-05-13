@@ -112,7 +112,7 @@ module.exports = {
     type: 'problem',
     docs: {
       description:
-        '`styleClass` is deprecated since PrimeNG v20 on most components — use `class` instead. The host `Bind` directive forwards `class` to the internal rendered root, which is now PrimeNG\'s public theming contract.',
+        "`styleClass` is deprecated since PrimeNG v20 on most components — use `class` instead. The host `Bind` directive forwards `class` to the internal rendered root, which is now PrimeNG's public theming contract.",
       url: '../../docs/rules/no-deprecated-styleclass.md',
     },
     schema: [],

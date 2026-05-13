@@ -9,12 +9,7 @@
     aria-label="Ir al inicio"
     class="shrink-0 hidden lg:flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
   >
-    <img
-      src="implementos-logo.svg"
-      alt="Implementos"
-      height="48"
-      class="h-12 w-auto"
-    />
+    <img src="implementos-logo.svg" alt="Implementos" height="48" class="h-12 w-auto" />
   </a>
 
   <!-- Sidebar toggle — disclosure pattern (APG §Disclosure Navigation Menu).
@@ -41,16 +36,12 @@
     <span class="relative w-4 h-4 shrink-0">
       <i
         class="fa-sharp fa-regular fa-bars-staggered absolute inset-0 transition-[transform,opacity] duration-200"
-        [ngClass]="
-          nav.sidebarOpen() ? 'opacity-0 scale-50' : 'opacity-100 scale-100'
-        "
+        [ngClass]="nav.sidebarOpen() ? 'opacity-0 scale-50' : 'opacity-100 scale-100'"
         aria-hidden="true"
       ></i>
       <i
         class="fa-sharp fa-regular fa-xmark absolute inset-0 transition-[transform,opacity] duration-200"
-        [ngClass]="
-          nav.sidebarOpen() ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
-        "
+        [ngClass]="nav.sidebarOpen() ? 'opacity-100 scale-100' : 'opacity-0 scale-50'"
         aria-hidden="true"
       ></i>
     </span>
@@ -68,12 +59,7 @@
     aria-label="Ir al inicio"
     class="lg:hidden flex-1 flex items-center h-12 px-1 rounded-lg hover:opacity-70 transition-opacity cursor-pointer"
   >
-    <img
-      src="implementos-logo.svg"
-      alt="Implementos"
-      height="48"
-      class="h-12 w-auto"
-    />
+    <img src="implementos-logo.svg" alt="Implementos" height="48" class="h-12 w-auto" />
   </a>
 } @else {
   <app-back-button class="lg:hidden" (pressed)="nav.goBack()" />
@@ -130,10 +116,7 @@
   [attr.aria-expanded]="nav.searchOverlayOpen()"
   class="lg:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
 >
-  <i
-    class="fa-sharp fa-regular fa-magnifying-glass text-xl"
-    aria-hidden="true"
-  ></i>
+  <i class="fa-sharp fa-regular fa-magnifying-glass text-xl" aria-hidden="true"></i>
 </button>
 
 <!-- Notificaciones mobile — abre el overlay full-screen (no routerLink). Era
@@ -143,11 +126,7 @@
 <button
   type="button"
   (click)="nav.openNotifications()"
-  [attr.aria-label]="
-    notifications.unreadCount() > 0
-      ? 'Notificaciones, ' + notifications.unreadCount() + ' sin leer'
-      : 'Notificaciones'
-  "
+  [attr.aria-label]="notifications.unreadCount() > 0 ? 'Notificaciones, ' + notifications.unreadCount() + ' sin leer' : 'Notificaciones'"
   aria-haspopup="dialog"
   [attr.aria-expanded]="nav.notificationsOverlayOpen()"
   class="lg:hidden w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
@@ -169,27 +148,17 @@
   <button
     type="button"
     (click)="toggleTheme()"
-    [attr.aria-label]="
-      darkTheme() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'
-    "
+    [attr.aria-label]="darkTheme() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
     [pTooltip]="darkTheme() ? 'Tema claro' : 'Tema oscuro'"
     tooltipPosition="bottom"
     class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 hover:bg-primary-700 dark:hover:bg-primary-800 bg-transparent cursor-pointer transition-colors select-none"
   >
-    <i
-      [ngClass]="darkTheme() ? 'fa-sun' : 'fa-moon'"
-      class="fa-sharp fa-regular"
-      aria-hidden="true"
-    ></i>
+    <i [ngClass]="darkTheme() ? 'fa-sun' : 'fa-moon'" class="fa-sharp fa-regular" aria-hidden="true"></i>
   </button>
   <button
     type="button"
     (click)="notifPopover.toggle($event)"
-    [attr.aria-label]="
-      notifications.unreadCount() > 0
-        ? 'Notificaciones, ' + notifications.unreadCount() + ' sin leer'
-        : 'Notificaciones'
-    "
+    [attr.aria-label]="notifications.unreadCount() > 0 ? 'Notificaciones, ' + notifications.unreadCount() + ' sin leer' : 'Notificaciones'"
     aria-haspopup="dialog"
     [attr.aria-expanded]="notifOpen()"
     pTooltip="Notificaciones"
@@ -210,10 +179,7 @@
       }
     </span>
   </button>
-  <div
-    class="w-px h-6 mx-2 bg-primary-50 shrink-0"
-    aria-hidden="true"
-  ></div>
+  <div class="w-px h-6 mx-2 bg-primary-50 shrink-0" aria-hidden="true"></div>
   <button
     #settingsTrigger
     type="button"
@@ -236,10 +202,7 @@
       <span class="font-semibold leading-none truncate">Brook</span>
       <span class="text-xs font-medium leading-4 truncate">Ejecutivo</span>
     </div>
-    <i
-      class="fa-sharp fa-regular fa-chevron-down text-xs text-surface-0 shrink-0"
-      aria-hidden="true"
-    ></i>
+    <i class="fa-sharp fa-regular fa-chevron-down text-xs text-surface-0 shrink-0" aria-hidden="true"></i>
   </button>
   <!-- Mutex: al abrir user menu, cerrar search + notif popover. -->
   <p-menu
@@ -267,9 +230,7 @@
 >
   <div class="w-96 flex flex-col max-h-96">
     <!-- Header -->
-    <div
-      class="flex items-center justify-between gap-4 px-4 h-11 border-b border-surface shrink-0"
-    >
+    <div class="flex items-center justify-between gap-4 px-4 h-11 border-b border-surface shrink-0">
       <h3 class="text-color font-bold leading-6">Notificaciones</h3>
       @if (notifications.unreadCount() > 0) {
         <!-- Soft pill primary-accent. Patrón bigtech (GitHub, Notion, Discord)
@@ -284,9 +245,7 @@
              (16px) y rompe el h-5 (20px) centrado. -->
         <span
           class="inline-flex items-center px-2 h-5 rounded-full bg-primary-100 dark:bg-primary-900 text-primary text-xs font-medium leading-none"
-          [attr.aria-label]="
-            notifications.unreadCount() + ' notificaciones sin leer'
-          "
+          [attr.aria-label]="notifications.unreadCount() + ' notificaciones sin leer'"
         >
           {{ notifications.unreadCount() }} sin leer
         </span>
@@ -296,25 +255,19 @@
     <div class="flex-1 overflow-y-auto">
       @for (group of notifications.groups(); track group.label) {
         <section>
-          <div
-            class="flex items-center px-4 h-8 bg-surface-200 dark:bg-surface-700"
-          >
+          <div class="flex items-center px-4 h-8 bg-surface-200 dark:bg-surface-700">
             <h4 class="text-color font-semibold leading-5 text-xs">
               {{ group.label }}
             </h4>
           </div>
-          <ul
-            class="flex flex-col divide-y divide-surface-200 dark:divide-surface-800"
-          >
+          <ul class="flex flex-col divide-y divide-surface-200 dark:divide-surface-800">
             @for (n of group.notifications; track n.id) {
               <li>
                 @if (n.url) {
                   <a
                     [routerLink]="n.url"
                     (click)="notifPopover.hide()"
-                    [attr.aria-label]="
-                      n.read ? n.title : n.title + ' (sin leer)'
-                    "
+                    [attr.aria-label]="n.read ? n.title : n.title + ' (sin leer)'"
                     [ngClass]="{
                       'bg-primary-50 dark:bg-primary-950': !n.read,
                     }"
@@ -328,16 +281,10 @@
                     </div>
                     <div class="flex-1 min-w-0 flex flex-col gap-1">
                       <div class="flex items-start gap-2 justify-between">
-                        <span
-                          class="flex-1 min-w-0 leading-5 text-color"
-                          [class.font-semibold]="!n.read"
-                          [class.font-medium]="n.read"
-                        >
+                        <span class="flex-1 min-w-0 leading-5 text-color" [class.font-semibold]="!n.read" [class.font-medium]="n.read">
                           {{ n.title }}
                         </span>
-                        <span
-                          class="text-muted-color text-xs leading-4 shrink-0 mt-1"
-                        >
+                        <span class="text-muted-color text-xs leading-4 shrink-0 mt-1">
                           {{ notifications.formatTime(n.timestamp) }}
                         </span>
                       </div>
@@ -356,16 +303,10 @@
                     </div>
                     <div class="flex-1 min-w-0 flex flex-col gap-1">
                       <div class="flex items-start gap-2 justify-between">
-                        <span
-                          class="flex-1 min-w-0 leading-5 text-color"
-                          [class.font-semibold]="!n.read"
-                          [class.font-medium]="n.read"
-                        >
+                        <span class="flex-1 min-w-0 leading-5 text-color" [class.font-semibold]="!n.read" [class.font-medium]="n.read">
                           {{ n.title }}
                         </span>
-                        <span
-                          class="text-muted-color text-xs leading-4 shrink-0 mt-1"
-                        >
+                        <span class="text-muted-color text-xs leading-4 shrink-0 mt-1">
                           {{ notifications.formatTime(n.timestamp) }}
                         </span>
                       </div>
@@ -392,11 +333,7 @@
   </div>
 </p-popover>
 
-@defer (
-  on interaction(settingsTrigger);
-  prefetch on hover(settingsTrigger);
-  when nav.accountDrawerOpen()
-) {
+@defer (on interaction(settingsTrigger); prefetch on hover(settingsTrigger); when nav.accountDrawerOpen()) {
   <app-settings-drawer
     [visible]="nav.accountDrawerOpen()"
     (visibleChange)="!$event && nav.close('account')"

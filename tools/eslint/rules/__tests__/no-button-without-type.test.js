@@ -58,10 +58,7 @@ test('no-button-without-type', () => {
       // Two offending buttons → two errors
       {
         code: '<button>A</button><button>B</button>',
-        errors: [
-          { messageId: 'missingType' },
-          { messageId: 'missingType' },
-        ],
+        errors: [{ messageId: 'missingType' }, { messageId: 'missingType' }],
       },
     ],
   });

@@ -141,10 +141,7 @@ export class CustomersSavedViewsService {
    * user clickea "Save changes" sobre una vista cargada). Mantiene
    * id, createdAt, system flag; bump updatedAt. Optimistic + rollback.
    */
-  async update(
-    id: string,
-    patch: Partial<Pick<SavedView, 'name' | 'snapshot'>>,
-  ): Promise<SavedView | null> {
+  async update(id: string, patch: Partial<Pick<SavedView, 'name' | 'snapshot'>>): Promise<SavedView | null> {
     this.busy.set(true);
     const previousViews = this.views();
     const current = previousViews.find((v) => v.id === id);
@@ -157,9 +154,7 @@ export class CustomersSavedViewsService {
       ...patch,
       updatedAt: new Date().toISOString(),
     };
-    this.views.update((views) =>
-      this.sortViews(views.map((v) => (v.id === id ? updated : v))),
-    );
+    this.views.update((views) => this.sortViews(views.map((v) => (v.id === id ? updated : v))));
     try {
       await this.simulateLatency();
       this.persist();
@@ -219,9 +214,7 @@ export class CustomersSavedViewsService {
       }
     };
     window.addEventListener('storage', onStorage);
-    this.destroyRef.onDestroy(() =>
-      window.removeEventListener('storage', onStorage),
-    );
+    this.destroyRef.onDestroy(() => window.removeEventListener('storage', onStorage));
   }
 
   private hydrate(): void {
@@ -281,8 +274,7 @@ export class CustomersSavedViewsService {
     // `crypto` global está tipado como `Crypto | undefined` solo en
     // algunos lib targets; el `in` narrowing falla en strict mode.
     // Capturamos en una variable tipada y hacemos checks runtime.
-    const c: Crypto | undefined =
-      typeof crypto !== 'undefined' ? crypto : undefined;
+    const c: Crypto | undefined = typeof crypto !== 'undefined' ? crypto : undefined;
     if (c?.randomUUID) {
       return c.randomUUID();
     }
@@ -291,9 +283,7 @@ export class CustomersSavedViewsService {
       // v4 bits: byte 6 = 0100_xxxx, byte 8 = 10xx_xxxx
       bytes[6] = (bytes[6] & 0x0f) | 0x40;
       bytes[8] = (bytes[8] & 0x3f) | 0x80;
-      const hex = Array.from(bytes, (b: number) =>
-        b.toString(16).padStart(2, '0'),
-      );
+      const hex = Array.from(bytes, (b: number) => b.toString(16).padStart(2, '0'));
       return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10, 16).join('')}`;
     }
     // Last-resort fallback (SSR sin webcrypto — muy improbable).

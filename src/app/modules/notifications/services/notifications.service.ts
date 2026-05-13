@@ -1,10 +1,7 @@
 import { computed, inject, InjectionToken, Injectable, signal } from '@angular/core';
 
 import { NOTIFICATIONS } from '../mocks/notifications';
-import {
-  Notification,
-  NotificationGroup,
-} from '../models/notification.interface';
+import { Notification, NotificationGroup } from '../models/notification.interface';
 
 /**
  * Reference date del showcase — los mocks en `mocks/notifications.ts` tienen
@@ -23,13 +20,10 @@ import {
  *
  * Ref: Angular DI tokens — https://angular.dev/guide/di/dependency-injection-providers
  */
-export const NOTIFICATIONS_REFERENCE_DATE = new InjectionToken<Date>(
-  'NotificationsReferenceDate',
-  {
-    providedIn: 'root',
-    factory: () => new Date('2026-04-22'),
-  },
-);
+export const NOTIFICATIONS_REFERENCE_DATE = new InjectionToken<Date>('NotificationsReferenceDate', {
+  providedIn: 'root',
+  factory: () => new Date('2026-04-22'),
+});
 
 /**
  * Single source of truth de notificaciones. Compartido entre la vista full
@@ -46,9 +40,7 @@ export class NotificationsService {
 
   readonly notifications = this._notifications.asReadonly();
 
-  readonly unreadCount = computed(
-    () => this._notifications().filter((n) => !n.read).length,
-  );
+  readonly unreadCount = computed(() => this._notifications().filter((n) => !n.read).length);
 
   /**
    * Agrupa por día y genera labels relativos ("Hoy", "Ayer", "Dom 19 abr").
@@ -87,9 +79,7 @@ export class NotificationsService {
    */
   private formatGroupLabel(dateKey: string): string {
     const date = new Date(dateKey);
-    const diffDays = Math.round(
-      (this.referenceDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
-    );
+    const diffDays = Math.round((this.referenceDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     if (diffDays === 0) return 'Hoy';
     if (diffDays === 1) return 'Ayer';
     return date

@@ -15,12 +15,7 @@ import {
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
-const FONTSOURCE_INTER_PKG = resolve(
-  REPO_ROOT,
-  'node_modules',
-  '@fontsource-variable',
-  'inter',
-);
+const FONTSOURCE_INTER_PKG = resolve(REPO_ROOT, 'node_modules', '@fontsource-variable', 'inter');
 
 /**
  * Fixtures — CSS minificado que imita exactamente lo que emite Angular 21
@@ -59,17 +54,11 @@ describe('findLatinWoff2Url', () => {
   });
 
   it('throws on ambiguity — multiple latin matches (regresión: múltiples axes)', () => {
-    assert.throws(
-      () => findLatinWoff2Url(CSS_WITH_DUPLICATE_LATIN),
-      /Se encontraron 2 matches/,
-    );
+    assert.throws(() => findLatinWoff2Url(CSS_WITH_DUPLICATE_LATIN), /Se encontraron 2 matches/);
   });
 
   it('throws on CSS sin ningún @font-face', () => {
-    assert.throws(
-      () => findLatinWoff2Url('body { color: red; }'),
-      /No se encontró ningún @font-face/,
-    );
+    assert.throws(() => findLatinWoff2Url('body { color: red; }'), /No se encontró ningún @font-face/);
   });
 
   it('acepta URLs entre single-quotes (CSS válido alternativo)', () => {
@@ -93,24 +82,15 @@ describe('findLatinWoff2Url', () => {
 
 describe('normalizeUrl', () => {
   it('strips leading ./', () => {
-    assert.equal(
-      normalizeUrl('./media/inter-latin.woff2'),
-      'media/inter-latin.woff2',
-    );
+    assert.equal(normalizeUrl('./media/inter-latin.woff2'), 'media/inter-latin.woff2');
   });
 
   it('leaves absolute paths alone', () => {
-    assert.equal(
-      normalizeUrl('/media/inter-latin.woff2'),
-      '/media/inter-latin.woff2',
-    );
+    assert.equal(normalizeUrl('/media/inter-latin.woff2'), '/media/inter-latin.woff2');
   });
 
   it('leaves already-normalized paths alone', () => {
-    assert.equal(
-      normalizeUrl('media/inter-latin.woff2'),
-      'media/inter-latin.woff2',
-    );
+    assert.equal(normalizeUrl('media/inter-latin.woff2'), 'media/inter-latin.woff2');
   });
 });
 
@@ -119,10 +99,7 @@ describe('normalizeUrl', () => {
 describe('buildPreloadLinkTag', () => {
   it('produces the exact link tag format expected by browsers', () => {
     const tag = buildPreloadLinkTag('./media/inter-latin-X.woff2');
-    assert.equal(
-      tag,
-      '<link rel="preload" as="font" type="font/woff2" href="media/inter-latin-X.woff2" crossorigin>',
-    );
+    assert.equal(tag, '<link rel="preload" as="font" type="font/woff2" href="media/inter-latin-X.woff2" crossorigin>');
   });
 
   it('includes crossorigin (MANDATORY aun siendo same-origin)', () => {
@@ -142,8 +119,7 @@ describe('buildPreloadLinkTag', () => {
 // ─── injectPreloadLink ──────────────────────────────────────────────────────
 
 describe('injectPreloadLink', () => {
-  const LINK =
-    '<link rel="preload" as="font" type="font/woff2" href="media/x.woff2" crossorigin>';
+  const LINK = '<link rel="preload" as="font" type="font/woff2" href="media/x.woff2" crossorigin>';
 
   const HTML_WITH_THEME_COLOR = `<!doctype html>
 <html lang="es">
@@ -200,17 +176,11 @@ describe('injectPreloadLink', () => {
   });
 
   it('throws when HTML lacks <head>', () => {
-    assert.throws(
-      () => injectPreloadLink('<html><body></body></html>', LINK),
-      /<head>/,
-    );
+    assert.throws(() => injectPreloadLink('<html><body></body></html>', LINK), /<head>/);
   });
 
   it('matches theme-color case-insensitively (robust vs. formatters)', () => {
-    const upper = HTML_WITH_THEME_COLOR.replace(
-      'meta name="theme-color"',
-      'META NAME="theme-color"',
-    );
+    const upper = HTML_WITH_THEME_COLOR.replace('meta name="theme-color"', 'META NAME="theme-color"');
     const result = injectPreloadLink(upper, LINK);
     assert.ok(result.includes(LINK));
   });
@@ -237,10 +207,7 @@ describe('findLatinWoff2Url — canary contra @fontsource-variable/inter instala
   const packageInstalled = existsSync(indexCssPath);
 
   it('package @fontsource-variable/inter está instalado (pre-requisito)', () => {
-    assert.ok(
-      packageInstalled,
-      `${indexCssPath} no existe. Correr 'npm ci' antes de los tests.`,
-    );
+    assert.ok(packageInstalled, `${indexCssPath} no existe. Correr 'npm ci' antes de los tests.`);
   });
 
   it('extrae URL del CSS REAL instalado — detecta breaking changes de fontsource', (t) => {
@@ -288,8 +255,7 @@ describe('findLatinWoff2Url — canary contra @fontsource-variable/inter instala
     const resolvedPath = resolve(FONTSOURCE_INTER_PKG, url);
     assert.ok(
       existsSync(resolvedPath),
-      `URL "${url}" apunta a ${resolvedPath} pero el archivo NO existe. ` +
-        `Package corrupto — re-ejecutar 'npm ci'.`,
+      `URL "${url}" apunta a ${resolvedPath} pero el archivo NO existe. ` + `Package corrupto — re-ejecutar 'npm ci'.`,
     );
   });
 });
@@ -300,9 +266,7 @@ describe('findLatinWoff2Url — canary contra @fontsource-variable/inter instala
  */
 function readFontsourceVersion() {
   try {
-    const pkg = JSON.parse(
-      readFileSync(resolve(FONTSOURCE_INTER_PKG, 'package.json'), 'utf8'),
-    );
+    const pkg = JSON.parse(readFileSync(resolve(FONTSOURCE_INTER_PKG, 'package.json'), 'utf8'));
     return pkg.version ?? 'unknown';
   } catch {
     return 'unknown';

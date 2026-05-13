@@ -40,7 +40,7 @@ const allowedHosts = ((): string[] => {
   if (raw === '*') return ['*'];
   const configured = raw
     .split(',')
-    .map(host => host.trim())
+    .map((host) => host.trim())
     .filter(Boolean);
   // Merge dev hosts so localhost still works when an env override is set —
   // otherwise a misconfigured deploy would kill local SSR e2e runs.
@@ -192,9 +192,7 @@ app.use((req, res, next) => {
 app.use('/{*path}', (req, res, next) => {
   angularApp
     .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
-    )
+    .then((response) => (response ? writeResponseToNodeResponse(response, res) : next()))
     .catch(next);
 });
 

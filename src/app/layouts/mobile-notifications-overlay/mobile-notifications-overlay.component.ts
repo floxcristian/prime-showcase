@@ -7,11 +7,7 @@ import { NavStateService } from '../nav/nav-state.service';
 import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
 const NG_MODULES = [A11yModule];
-const LOCAL_COMPONENTS = [
-  BackButtonComponent,
-  NotificationsComponent,
-  PrimaryTitleToolbarComponent,
-];
+const LOCAL_COMPONENTS = [BackButtonComponent, NotificationsComponent, PrimaryTitleToolbarComponent];
 
 /**
  * Full-screen mobile overlay para notificaciones — gemelo visual de

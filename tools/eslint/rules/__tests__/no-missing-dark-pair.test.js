@@ -49,38 +49,46 @@ test('no-missing-dark-pair', () => {
       // surface-0 with no dark counterpart
       {
         code: '<div class="bg-surface-0"></div>',
-        errors: [{
-          messageId: 'missingDarkPair',
-          data: { shade: '0', expectedDark: '950' },
-        }],
+        errors: [
+          {
+            messageId: 'missingDarkPair',
+            data: { shade: '0', expectedDark: '950' },
+          },
+        ],
       },
       // surface-100 missing
       {
         code: '<div class="bg-surface-100"></div>',
-        errors: [{
-          messageId: 'missingDarkPair',
-          data: { shade: '100', expectedDark: '800' },
-        }],
+        errors: [
+          {
+            messageId: 'missingDarkPair',
+            data: { shade: '100', expectedDark: '800' },
+          },
+        ],
       },
       // surface-200 missing
       {
         code: '<div class="bg-surface-200"></div>',
-        errors: [{
-          messageId: 'missingDarkPair',
-          data: { shade: '200', expectedDark: '700' },
-        }],
+        errors: [
+          {
+            messageId: 'missingDarkPair',
+            data: { shade: '200', expectedDark: '700' },
+          },
+        ],
       },
       // Wrong dark pair — surface-0 paired with surface-700 (which is for surface-200)
       {
         code: '<div class="bg-surface-0 dark:bg-surface-700"></div>',
-        errors: [{
-          messageId: 'wrongDarkPair',
-          data: {
-            shade: '0',
-            actualDark: '700',
-            expectedOptions: 'dark:bg-surface-950 or dark:bg-surface-900',
+        errors: [
+          {
+            messageId: 'wrongDarkPair',
+            data: {
+              shade: '0',
+              actualDark: '700',
+              expectedOptions: 'dark:bg-surface-950 or dark:bg-surface-900',
+            },
           },
-        }],
+        ],
       },
     ],
   });

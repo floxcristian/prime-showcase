@@ -3,8 +3,7 @@
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Servicios</h1>
     <div class="mt-1 leading-6 text-muted-color">
-      Listado de los servicios que monitorea tu equipo. Hacé click en uno
-      para ver salud, errores recientes y deploys.
+      Listado de los servicios que monitorea tu equipo. Hacé click en uno para ver salud, errores recientes y deploys.
     </div>
     <div class="mt-2 text-sm text-muted-color leading-5">
       <span class="text-color font-semibold">{{ resultCount() }}</span>
@@ -12,12 +11,7 @@
     </div>
   </div>
   <div class="flex gap-2 whitespace-nowrap">
-    <p-button
-      label="Nuevo servicio"
-      icon="fa-sharp fa-regular fa-plus"
-      severity="secondary"
-      [outlined]="true"
-    />
+    <p-button label="Nuevo servicio" icon="fa-sharp fa-regular fa-plus" severity="secondary" [outlined]="true" />
   </div>
 </div>
 
@@ -60,11 +54,7 @@
   </div>
   <div class="flex flex-wrap items-center gap-4 justify-between">
     <div class="flex items-center gap-2">
-      <p-toggleswitch
-        [ngModel]="onlyMine()"
-        (ngModelChange)="onlyMine.set($event)"
-        inputId="only-mine"
-      />
+      <p-toggleswitch [ngModel]="onlyMine()" (ngModelChange)="onlyMine.set($event)" inputId="only-mine" />
       <label
         for="only-mine"
         class="text-color font-semibold leading-6 cursor-pointer hover:text-color-emphasis transition-colors select-none"
@@ -146,9 +136,7 @@
             <div class="text-color font-bold leading-6 truncate">
               {{ svc.name }}
             </div>
-            <div class="text-muted-color text-sm leading-5 truncate">
-              {{ svc.team }} · {{ svc.slug }}
-            </div>
+            <div class="text-muted-color text-sm leading-5 truncate">{{ svc.team }} · {{ svc.slug }}</div>
           </div>
           @if (svc.activeAlertsCount > 0) {
             <app-pill icon="fa-sharp fa-regular fa-bell">
@@ -164,42 +152,29 @@
         <!-- Mini-métricas en una fila -->
         <div class="grid grid-cols-3 gap-3">
           <div class="flex flex-col">
-            <span class="text-xs font-medium text-muted-color leading-4">
-              Error rate 24h
-            </span>
+            <span class="text-xs font-medium text-muted-color leading-4"> Error rate 24h </span>
             <span class="text-color font-semibold leading-6">
               {{ formatPercent(svc.errorRate24h.value) }}
             </span>
           </div>
           <div class="flex flex-col">
-            <span class="text-xs font-medium text-muted-color leading-4">
-              p99
-            </span>
-            <span class="text-color font-semibold leading-6">
-              {{ svc.p99Latency.value }}ms
-            </span>
+            <span class="text-xs font-medium text-muted-color leading-4"> p99 </span>
+            <span class="text-color font-semibold leading-6"> {{ svc.p99Latency.value }}ms </span>
           </div>
           <div class="flex flex-col">
-            <span class="text-xs font-medium text-muted-color leading-4">
-              Uptime 30d
-            </span>
+            <span class="text-xs font-medium text-muted-color leading-4"> Uptime 30d </span>
             <span class="text-color font-semibold leading-6">
               {{ formatPercent(svc.uptime30d.value) }}
             </span>
           </div>
         </div>
 
-        <div
-          class="flex items-center gap-2 text-xs text-muted-color leading-4 pt-2 border-t border-surface-200 dark:border-surface-800"
-        >
+        <div class="flex items-center gap-2 text-xs text-muted-color leading-4 pt-2 border-t border-surface-200 dark:border-surface-800">
           <i class="fa-sharp fa-regular fa-rocket-launch" aria-hidden="true"></i>
           <span>Deploy {{ svc.lastDeployAt | relativeTime }}</span>
           @if (svc.lastAlertAt) {
             <span class="text-muted-color">·</span>
-            <i
-              class="fa-sharp fa-regular fa-bell"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-bell" aria-hidden="true"></i>
             <span>Última alerta {{ svc.lastAlertAt | relativeTime }}</span>
           }
         </div>
@@ -238,9 +213,7 @@
         Ventaja vs. `<tr [routerLink]>`: queda accesible por teclado (Tab →
         Enter), SR anuncia "link" y mantiene semántica de tabla.
       -->
-      <tr
-        class="relative cursor-pointer hover:bg-emphasis focus-within:bg-emphasis transition-colors"
-      >
+      <tr class="relative cursor-pointer hover:bg-emphasis focus-within:bg-emphasis transition-colors">
         <td>
           <app-health-badge [state]="svc.health" size="sm" />
         </td>
@@ -251,32 +224,24 @@
               class="text-color font-medium leading-6 hover:text-color-emphasis cursor-pointer transition-colors after:absolute after:inset-0 after:content-['']"
               >{{ svc.name }}</a
             >
-            <span class="text-xs text-muted-color leading-4">{{
-              svc.slug
-            }}</span>
+            <span class="text-xs text-muted-color leading-4">{{ svc.slug }}</span>
           </div>
         </td>
         <td>
           <span class="text-color">{{ svc.team }}</span>
         </td>
         <td>
-          <span class="text-color font-medium">{{
-            formatPercent(svc.errorRate24h.value)
-          }}</span>
+          <span class="text-color font-medium">{{ formatPercent(svc.errorRate24h.value) }}</span>
         </td>
         <td>
           <span class="text-color font-medium">{{ svc.p99Latency.value }}ms</span>
         </td>
         <td>
-          <span class="text-color font-medium">{{
-            formatPercent(svc.uptime30d.value)
-          }}</span>
+          <span class="text-color font-medium">{{ formatPercent(svc.uptime30d.value) }}</span>
         </td>
         <td>
           @if (svc.lastAlertAt) {
-            <span class="text-muted-color">{{
-              svc.lastAlertAt | relativeTime
-            }}</span>
+            <span class="text-muted-color">{{ svc.lastAlertAt | relativeTime }}</span>
           } @else {
             <span class="text-muted-color">—</span>
           }

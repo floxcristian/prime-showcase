@@ -62,13 +62,7 @@ export class MoviesComponent {
 
   search = signal<string | undefined>(undefined);
   value = signal('Inicio');
-  readonly options: string[] = [
-    'Inicio',
-    'Películas',
-    'Series',
-    'Recientes',
-    'Mi Lista',
-  ];
+  readonly options: string[] = ['Inicio', 'Películas', 'Series', 'Recientes', 'Mi Lista'];
   readonly responsiveOptions: CarouselResponsiveOption[] = CAROUSEL_RESPONSIVE_OPTIONS;
   carouselData = signal<CarouselMovie[]>(CAROUSEL_MOVIES);
   popularMovies = signal<Movie[]>(POPULAR_MOVIES);
@@ -80,7 +74,7 @@ export class MoviesComponent {
   protected readonly carouselSkeletonSlots = Array.from({ length: CAROUSEL_NUM_VISIBLE });
 
   readonly maxPage = computed(() =>
-    Math.max(0, Math.ceil((this.carouselData().length - this.numVisible()) / CAROUSEL_NUM_SCROLL))
+    Math.max(0, Math.ceil((this.carouselData().length - this.numVisible()) / CAROUSEL_NUM_SCROLL)),
   );
 
   // linkedSignal auto-clamps `page` to [0, maxPage] whenever maxPage changes
@@ -88,8 +82,7 @@ export class MoviesComponent {
   // Writable, so prev/next can still mutate it directly.
   readonly page = linkedSignal<number, number>({
     source: this.maxPage,
-    computation: (max, previous) =>
-      Math.max(0, Math.min(previous?.value ?? 0, max)),
+    computation: (max, previous) => Math.max(0, Math.min(previous?.value ?? 0, max)),
   });
 
   constructor() {
@@ -97,45 +90,38 @@ export class MoviesComponent {
   }
 
   previousPage(): void {
-    this.page.update(p => Math.max(0, p - 1));
+    this.page.update((p) => Math.max(0, p - 1));
   }
 
   nextPage(): void {
-    this.page.update(p => Math.min(this.maxPage(), p + 1));
+    this.page.update((p) => Math.min(this.maxPage(), p + 1));
   }
 
   toggleCarouselBookmark(movie: CarouselMovie): void {
-    this.carouselData.update(data =>
-      data.map(d => d === movie ? { ...d, bookmarked: !d.bookmarked } : d)
-    );
+    this.carouselData.update((data) => data.map((d) => (d === movie ? { ...d, bookmarked: !d.bookmarked } : d)));
   }
 
   togglePopularBookmark(movie: Movie): void {
-    this.popularMovies.update(data =>
-      data.map(d => d === movie ? { ...d, bookmarked: !d.bookmarked } : d)
-    );
+    this.popularMovies.update((data) => data.map((d) => (d === movie ? { ...d, bookmarked: !d.bookmarked } : d)));
   }
 
   private initBreakpointListeners(): void {
     // Sort ascending so we match the most specific (smallest) breakpoint first
-    const sorted = [...this.responsiveOptions]
-      .sort((a, b) => parseInt(a.breakpoint) - parseInt(b.breakpoint));
+    const sorted = [...this.responsiveOptions].sort((a, b) => parseInt(a.breakpoint) - parseInt(b.breakpoint));
 
-    const mediaQueries = sorted.map(opt => ({
+    const mediaQueries = sorted.map((opt) => ({
       mql: window.matchMedia(`(max-width: ${opt.breakpoint})`),
       numVisible: opt.numVisible,
     }));
 
     const update = () => {
-      const match = mediaQueries.find(mq => mq.mql.matches);
+      const match = mediaQueries.find((mq) => mq.mql.matches);
       this.numVisible.set(match ? match.numVisible : CAROUSEL_NUM_VISIBLE);
       // `page` is a linkedSignal keyed on maxPage — no manual clamp needed.
     };
 
-    mediaQueries.forEach(mq => mq.mql.addEventListener('change', update));
-    this.destroyRef.onDestroy(() =>
-      mediaQueries.forEach(mq => mq.mql.removeEventListener('change', update))
-    );
+    mediaQueries.forEach((mq) => mq.mql.addEventListener('change', update));
+    this.destroyRef.onDestroy(() => mediaQueries.forEach((mq) => mq.mql.removeEventListener('change', update)));
 
     update();
   }

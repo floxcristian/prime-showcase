@@ -1,13 +1,6 @@
 // Angular
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 // PrimeNG
@@ -59,8 +52,7 @@ const LOCAL_COMPONENTS = [
   styleUrl: './users.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
 export class UsersComponent {
@@ -82,9 +74,7 @@ export class UsersComponent {
    * undefined (initial fetch), retorna array vacío para que el p-table
    * muestre el `#loadingbody` con skeletons via `[loading]="loading()"`.
    */
-  protected readonly tableData = computed<readonly User[]>(
-    () => this.usersResource.value() ?? [],
-  );
+  protected readonly tableData = computed<readonly User[]>(() => this.usersResource.value() ?? []);
 
   /**
    * Lista deduplicada de organizaciones (departamentos para internos +
@@ -99,8 +89,8 @@ export class UsersComponent {
    * para no listar opciones huérfanas. Sort alfabético para escaneo
    * predecible en el filter dropdown.
    */
-  protected readonly availableRoles = computed<UserRole[]>(() =>
-    Array.from(new Set(this.tableData().map((u) => u.role))).sort() as UserRole[],
+  protected readonly availableRoles = computed<UserRole[]>(
+    () => Array.from(new Set(this.tableData().map((u) => u.role))).sort() as UserRole[],
   );
 
   /**
@@ -148,9 +138,7 @@ export class UsersComponent {
    * más contexto que un solo número absoluto — el SRE/admin entiende
    * inmediatamente la fracción saludable de la base.
    */
-  protected readonly activeCount = computed(
-    () => this.tableData().filter((u) => u.status === 'Activo').length,
-  );
+  protected readonly activeCount = computed(() => this.tableData().filter((u) => u.status === 'Activo').length);
   protected readonly totalCount = computed(() => this.tableData().length);
 
   constructor() {

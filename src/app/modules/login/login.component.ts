@@ -1,11 +1,5 @@
 // Angular
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 // PrimeNG
@@ -28,13 +22,7 @@ import {
 } from './constants/login-features';
 
 const NG_MODULES = [FormsModule, RouterLink];
-const PRIME_MODULES = [
-  ButtonModule,
-  Checkbox,
-  InputTextModule,
-  Message,
-  PasswordModule,
-];
+const PRIME_MODULES = [ButtonModule, Checkbox, InputTextModule, Message, PasswordModule];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,8 +37,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     // fija altura a 100vh desde lg en adelante para que el bento del aside no
     // haga crecer el body fuera del viewport (overflow-hidden solo clipea
     // hijos, no al host mismo).
-    class:
-      'flex w-full min-h-screen lg:h-screen bg-surface-0 dark:bg-surface-950 overflow-hidden',
+    class: 'flex w-full min-h-screen lg:h-screen bg-surface-0 dark:bg-surface-950 overflow-hidden',
   },
 })
 export class LoginComponent {

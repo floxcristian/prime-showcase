@@ -508,9 +508,7 @@ export const NAV_MODULES: NavModule[] = [
         id: 'obs.alertas',
         title: 'Alertas',
         icon: 'fa-sharp-duotone fa-regular fa-bell-on',
-        children: [
-          { title: 'Alertas activas', url: '/observability/alerts' },
-        ],
+        children: [{ title: 'Alertas activas', url: '/observability/alerts' }],
       },
       {
         id: 'obs.ajustes',

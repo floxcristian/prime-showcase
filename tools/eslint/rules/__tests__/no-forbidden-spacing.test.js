@@ -32,12 +32,12 @@ test('no-forbidden-spacing', () => {
       // Allowed margin values
       { code: '<div class="mt-1 mb-2 mx-4 my-6 mb-0"></div>' },
       // Documented exceptions
-      { code: '<div class="p-5"></div>' },             // side-menu EX-005
+      { code: '<div class="p-5"></div>' }, // side-menu EX-005
       { code: '<div class="gap-7 gap-8 py-8"></div>' }, // chat EX-005
-      { code: '<div class="mt-3 mt-5 mb-5"></div>' },  // pre-existing
-      { code: '<div class="mt-10"></div>' },           // side-menu separators
-      { code: '<div class="px-12"></div>' },           // login marketing panel
-      { code: '<div class="p-[1px]"></div>' },         // badge alignment
+      { code: '<div class="mt-3 mt-5 mb-5"></div>' }, // pre-existing
+      { code: '<div class="mt-10"></div>' }, // side-menu separators
+      { code: '<div class="px-12"></div>' }, // login marketing panel
+      { code: '<div class="p-[1px]"></div>' }, // badge alignment
       // No spacing utility at all
       { code: '<div class="text-color"></div>' },
       // Bound attribute with valid spacing

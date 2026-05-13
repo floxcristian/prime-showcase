@@ -23,11 +23,7 @@ import { NavStateService } from '../nav/nav-state.service';
 import { PrimaryTitleToolbarComponent } from '../primary-title-toolbar/primary-title-toolbar.component';
 
 const NG_MODULES = [NgClass, RouterModule];
-const LOCAL_COMPONENTS = [
-  BackButtonComponent,
-  NavSectionsComponent,
-  PrimaryTitleToolbarComponent,
-];
+const LOCAL_COMPONENTS = [BackButtonComponent, NavSectionsComponent, PrimaryTitleToolbarComponent];
 
 type MobileView = 'modules' | 'sections';
 
@@ -119,9 +115,7 @@ export class NavOverlayComponent {
   // ─── Desktop state ───────────────────────────────────────────────────────
   protected readonly hoveredModuleId = signal<string | null>(null);
 
-  protected readonly selectedId = computed(
-    () => this.hoveredModuleId() ?? this.nav.activeModuleId(),
-  );
+  protected readonly selectedId = computed(() => this.hoveredModuleId() ?? this.nav.activeModuleId());
 
   protected readonly selectedModule = computed<NavModule | undefined>(() => {
     const id = this.selectedId();
@@ -131,8 +125,8 @@ export class NavOverlayComponent {
   // ─── Mobile state ────────────────────────────────────────────────────────
   protected readonly mobileView = signal<MobileView>('modules');
   protected readonly mobileDrilledModuleId = signal<string | null>(null);
-  protected readonly mobileDrilledModule = computed<NavModule | undefined>(
-    () => this.nav.modules.find((m) => m.id === this.mobileDrilledModuleId()),
+  protected readonly mobileDrilledModule = computed<NavModule | undefined>(() =>
+    this.nav.modules.find((m) => m.id === this.mobileDrilledModuleId()),
   );
 
   // ─── Transient imperative state ──────────────────────────────────────────
@@ -212,9 +206,7 @@ export class NavOverlayComponent {
       () => {
         if (this.focusRestoreToken !== token) return;
         const activeId = this.nav.activeModuleId();
-        const btn = this.l1Buttons().find(
-          (ref) => ref.nativeElement.dataset['l1Id'] === activeId,
-        );
+        const btn = this.l1Buttons().find((ref) => ref.nativeElement.dataset['l1Id'] === activeId);
         // Fallback: si no encontró el activo (ej. data-race), enfocar el
         // primer L1 disponible para no dejar el foco flotante.
         const target = btn ?? this.l1Buttons()[0];
@@ -281,8 +273,7 @@ export class NavOverlayComponent {
     if (current === id) return;
     this.clearHoverTimer();
 
-    const isColdOpen =
-      current === null && this.nav.activeModuleId() !== id;
+    const isColdOpen = current === null && this.nav.activeModuleId() !== id;
     if (isColdOpen) {
       this.hoverTimer = setTimeout(() => {
         this.hoveredModuleId.set(id);
@@ -335,8 +326,7 @@ export class NavOverlayComponent {
     this.previewImmediate(id);
     afterNextRender(
       () => {
-        const firstLeaf = this.l2SectionRef()
-          ?.nativeElement.querySelector<HTMLAnchorElement>('a[href]');
+        const firstLeaf = this.l2SectionRef()?.nativeElement.querySelector<HTMLAnchorElement>('a[href]');
         firstLeaf?.focus();
       },
       { injector: this.injector },
@@ -371,10 +361,7 @@ export class NavOverlayComponent {
       }
       case 'ArrowUp': {
         event.preventDefault();
-        const prev =
-          currentIdx < 0
-            ? buttons.length - 1
-            : (currentIdx - 1 + buttons.length) % buttons.length;
+        const prev = currentIdx < 0 ? buttons.length - 1 : (currentIdx - 1 + buttons.length) % buttons.length;
         buttons[prev].focus();
         break;
       }
@@ -407,9 +394,7 @@ export class NavOverlayComponent {
    */
   protected focusPreviewedL1(): void {
     const id = this.selectedId();
-    const btn = this.l1Buttons().find(
-      (r) => r.nativeElement.dataset['l1Id'] === id,
-    );
+    const btn = this.l1Buttons().find((r) => r.nativeElement.dataset['l1Id'] === id);
     btn?.nativeElement.focus();
   }
 
@@ -441,15 +426,11 @@ export class NavOverlayComponent {
   protected drillIntoModule(id: string): void {
     if (isPlatformBrowser(this.platformId)) {
       const active = document.activeElement;
-      this.drilledFromElement =
-        active instanceof HTMLElement ? active : null;
+      this.drilledFromElement = active instanceof HTMLElement ? active : null;
     }
     this.mobileDrilledModuleId.set(id);
     this.mobileView.set('sections');
-    afterNextRender(
-      () => this.backButtonRef()?.nativeElement.focus(),
-      { injector: this.injector },
-    );
+    afterNextRender(() => this.backButtonRef()?.nativeElement.focus(), { injector: this.injector });
   }
 
   protected backToModules(): void {
@@ -504,9 +485,7 @@ export class NavOverlayComponent {
    */
   protected onEscape(): void {
     if (!this.nav.sidebarOpen()) return;
-    const isMobileViewport =
-      isPlatformBrowser(this.platformId) &&
-      window.matchMedia('(max-width: 1023px)').matches;
+    const isMobileViewport = isPlatformBrowser(this.platformId) && window.matchMedia('(max-width: 1023px)').matches;
     if (isMobileViewport && this.mobileView() === 'sections') {
       this.backToModules();
     } else {

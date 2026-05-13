@@ -23,7 +23,10 @@ const POLL_INTERVAL_MS = 500;
 function probe() {
   return new Promise((resolve, reject) => {
     const sock = createConnection({ host: HOST, port: PORT });
-    sock.once('connect', () => { sock.end(); resolve(); });
+    sock.once('connect', () => {
+      sock.end();
+      resolve();
+    });
     sock.once('error', reject);
   });
 }
@@ -31,7 +34,12 @@ function probe() {
 async function waitForServer() {
   const deadline = Date.now() + READY_TIMEOUT_MS;
   while (Date.now() < deadline) {
-    try { await probe(); return; } catch { /* not up yet */ }
+    try {
+      await probe();
+      return;
+    } catch {
+      /* not up yet */
+    }
     await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
   }
   throw new Error(`SSR server did not open :${PORT} within ${READY_TIMEOUT_MS}ms`);
@@ -45,7 +53,8 @@ const server = spawn('node', ['dist/prime-showcase/server/server.mjs'], {
 
 // If the server dies before smoke finishes, surface that instead of timing out.
 let serverExitedEarly = false;
-server.once('exit', (code) => { serverExitedEarly = true;
+server.once('exit', (code) => {
+  serverExitedEarly = true;
   if (code !== 0 && code !== null) console.error(`[run-with-server] server exited with code ${code}`);
 });
 
@@ -65,7 +74,11 @@ try {
     server.kill('SIGTERM');
     // Give the process a beat to exit cleanly; escalate if it clings on.
     const timer = setTimeout(() => server.kill('SIGKILL'), 3000);
-    try { await once(server, 'exit'); } catch { /* already gone */ }
+    try {
+      await once(server, 'exit');
+    } catch {
+      /* already gone */
+    }
     clearTimeout(timer);
   }
   process.exit(exitCode);

@@ -18,8 +18,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n1',
     title: 'Factura #4521 aprobada',
-    description:
-      'Finanzas aprobó la factura por $2.450.000 del cliente Distribuidora Sur.',
+    description: 'Finanzas aprobó la factura por $2.450.000 del cliente Distribuidora Sur.',
     timestamp: '2026-04-22T10:45:00',
     read: false,
     category: 'finance',
@@ -28,8 +27,7 @@ export const NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'n2',
-    title:
-      'Solicitud de aprobación de orden de compra con múltiples proveedores internacionales',
+    title: 'Solicitud de aprobación de orden de compra con múltiples proveedores internacionales',
     description:
       'La orden de compra #895 agrupa 6 proveedores (Chile, Perú, Argentina, Brasil) por un total de $24.800.000 USD. Requiere aprobación conjunta del área de finanzas y logística antes del cierre del día. Los tiempos de despacho varían entre 15 y 45 días dependiendo del origen, por lo que se recomienda revisar las fechas comprometidas con los clientes finales antes de aprobar.',
     timestamp: '2026-04-22T09:50:00',
@@ -41,8 +39,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n3',
     title: 'Stock crítico',
-    description:
-      'Neumáticos P195/65R15 bajo el umbral mínimo en Bodega Norte (quedan 8 unidades).',
+    description: 'Neumáticos P195/65R15 bajo el umbral mínimo en Bodega Norte (quedan 8 unidades).',
     timestamp: '2026-04-22T09:20:00',
     read: true,
     category: 'inventory',
@@ -52,8 +49,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n4',
     title: 'Nuevo ticket de soporte',
-    description:
-      'Ticket #891 abierto por María González: problema con exportación de reportes.',
+    description: 'Ticket #891 abierto por María González: problema con exportación de reportes.',
     timestamp: '2026-04-22T08:15:00',
     read: true,
     category: 'system',
@@ -63,8 +59,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n5',
     title: 'OC #892 pendiente de revisión',
-    description:
-      'Orden de compra por $8.920.000 requiere aprobación del área logística.',
+    description: 'Orden de compra por $8.920.000 requiere aprobación del área logística.',
     timestamp: '2026-04-21T17:30:00',
     read: true,
     category: 'logistics',
@@ -73,8 +68,7 @@ export const NOTIFICATIONS: Notification[] = [
   },
   {
     id: 'n6',
-    title:
-      'Reporte mensual de conciliación bancaria disponible para revisión y descarga',
+    title: 'Reporte mensual de conciliación bancaria disponible para revisión y descarga',
     description:
       'Se completó la conciliación de movimientos entre el ERP y los bancos principales (Banco de Chile, Santander, BCI). Diferencias encontradas: 3 movimientos menores totalizando $45.230 — requieren revisión manual dentro de los próximos 5 días hábiles para no impactar el cierre contable del mes.',
     timestamp: '2026-04-21T15:10:00',
@@ -86,8 +80,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n7',
     title: 'Cliente actualizó datos',
-    description:
-      'Juan Pérez actualizó su dirección y teléfono de contacto en el portal.',
+    description: 'Juan Pérez actualizó su dirección y teléfono de contacto en el portal.',
     timestamp: '2026-04-21T14:05:00',
     read: true,
     category: 'customer',
@@ -97,8 +90,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n8',
     title: 'Pago recibido',
-    description:
-      'Transferencia Transbank por $1.850.000 abonada en cuenta corriente.',
+    description: 'Transferencia Transbank por $1.850.000 abonada en cuenta corriente.',
     timestamp: '2026-04-21T11:42:00',
     read: true,
     category: 'finance',
@@ -117,8 +109,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n10',
     title: 'Cotización 4521 enviada a aprobación',
-    description:
-      'Cotización para cliente Ferretería Andes por $5.680.000 en revisión.',
+    description: 'Cotización para cliente Ferretería Andes por $5.680.000 en revisión.',
     timestamp: '2026-04-20T16:20:00',
     read: true,
     category: 'finance',
@@ -128,8 +119,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n11',
     title: 'Recepción de mercadería',
-    description:
-      'Ingreso confirmado de OC #889 (324 items) en Bodega Central.',
+    description: 'Ingreso confirmado de OC #889 (324 items) en Bodega Central.',
     timestamp: '2026-04-20T10:05:00',
     read: true,
     category: 'logistics',
@@ -139,8 +129,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n12',
     title: 'Actualización de precios',
-    description:
-      'Lista "Mayorista otoño 2026" publicada con 183 productos modificados.',
+    description: 'Lista "Mayorista otoño 2026" publicada con 183 productos modificados.',
     timestamp: '2026-04-19T15:45:00',
     read: true,
     category: 'inventory',
@@ -150,8 +139,7 @@ export const NOTIFICATIONS: Notification[] = [
   {
     id: 'n13',
     title: 'Nuevo cliente registrado',
-    description:
-      'Repuestos del Sur SpA completó su registro y está pendiente de activación.',
+    description: 'Repuestos del Sur SpA completó su registro y está pendiente de activación.',
     timestamp: '2026-04-19T12:10:00',
     read: true,
     category: 'customer',

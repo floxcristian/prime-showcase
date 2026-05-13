@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildStatsChartsConfigs,
-  peakIndex,
-  type StatsPalette,
-} from './stats-charts-builder';
+import { buildStatsChartsConfigs, peakIndex, type StatsPalette } from './stats-charts-builder';
 import type { StatsCharts } from '../models/stats-chart.interface';
 
 const PALETTE: StatsPalette = {
@@ -86,10 +82,7 @@ describe('buildStatsChartsConfigs', () => {
   it('uses palette.gauge colors for [value, track] in that order', () => {
     const out = buildStatsChartsConfigs(FIXTURE, PALETTE);
     const ds = out.gauges[0].data.datasets?.[0];
-    expect(ds?.backgroundColor).toEqual([
-      PALETTE.gauge.value,
-      PALETTE.gauge.track,
-    ]);
+    expect(ds?.backgroundColor).toEqual([PALETTE.gauge.value, PALETTE.gauge.track]);
   });
 
   it('produces a 270° arc rotated -135° (bottom-left start) with a 78% cutout', () => {

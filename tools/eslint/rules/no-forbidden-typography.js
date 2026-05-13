@@ -26,15 +26,7 @@ const { createClassAttrVisitor } = require('../utils');
 
 // ── Allowed values ──────────────────────────────────────────────────────
 
-const ALLOWED_TEXT_SIZES = new Set([
-  'text-xs',
-  'text-sm',
-  'text-base',
-  'text-lg',
-  'text-xl',
-  'text-2xl',
-  'text-3xl',
-]);
+const ALLOWED_TEXT_SIZES = new Set(['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl']);
 
 const ALLOWED_LEADING = new Set([
   'leading-4',
@@ -61,11 +53,7 @@ const ALLOWED_FONT_WEIGHT = new Set([
 // text-5xl/6xl: hero typography in login bento grid marketing panel.
 // AUDIT_BASELINE EX-007. Restringido al panel marketing del login — dashboards
 // y cards de datos siguen limitados a text-3xl (marketing vs product UI).
-const ALLOWED_TEXT_SIZE_EXCEPTIONS = new Set([
-  'text-4xl',
-  'text-5xl',
-  'text-6xl',
-]);
+const ALLOWED_TEXT_SIZE_EXCEPTIONS = new Set(['text-4xl', 'text-5xl', 'text-6xl']);
 
 // ── Regex patterns ──────────────────────────────────────────────────────
 
@@ -82,7 +70,8 @@ const LEADING_REGEX = /\bleading-(?:\d+|normal|none|tight|snug|relaxed|loose|\[[
 // Matches font-weight utilities: font-thin, font-medium, font-bold, etc.
 // Also matches arbitrary values: font-[800], font-[var(--fw)]
 // Uses (?!\w) instead of \b for the same bracket-boundary reason as TEXT_SIZE_REGEX.
-const FONT_WEIGHT_REGEX = /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?!\w)/g;
+const FONT_WEIGHT_REGEX =
+  /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?!\w)/g;
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {

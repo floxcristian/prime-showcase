@@ -27,17 +27,9 @@ const config: StorybookConfig = {
     options: {},
   },
 
-  stories: [
-    '../src/stories/**/*.mdx',
-    '../src/stories/**/*.stories.@(js|ts|mdx)',
-  ],
+  stories: ['../src/stories/**/*.mdx', '../src/stories/**/*.stories.@(js|ts|mdx)'],
 
-  addons: [
-    '@storybook/addon-docs',
-    '@storybook/addon-a11y',
-    '@storybook/addon-themes',
-    '@chromatic-com/storybook',
-  ],
+  addons: ['@storybook/addon-docs', '@storybook/addon-a11y', '@storybook/addon-themes', '@chromatic-com/storybook'],
 
   staticDirs: [
     // Maps public/ to the Storybook web root so FontAwesome CSS + assets

@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -23,22 +17,12 @@ import { ObservabilityMockService } from '../services/observability-mock.service
 const NG_MODULES = [CommonModule, RouterLink];
 const PRIME_MODULES = [ButtonModule];
 const PRIME_STANDALONE = [Skeleton, Tag, Timeline];
-const LOCAL_COMPONENTS = [
-  EmptyStateComponent,
-  SeverityChipComponent,
-  StatusChipComponent,
-];
+const LOCAL_COMPONENTS = [EmptyStateComponent, SeverityChipComponent, StatusChipComponent];
 const LOCAL_PIPES = [RelativeTimePipe];
 
 @Component({
   selector: 'app-obs-alert-detail',
-  imports: [
-    NG_MODULES,
-    PRIME_MODULES,
-    PRIME_STANDALONE,
-    LOCAL_COMPONENTS,
-    LOCAL_PIPES,
-  ],
+  imports: [NG_MODULES, PRIME_MODULES, PRIME_STANDALONE, LOCAL_COMPONENTS, LOCAL_PIPES],
   templateUrl: './obs-alert-detail.component.html',
   styleUrl: './obs-alert-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -106,9 +90,7 @@ export class ObsAlertDetailComponent {
    * el nivel es un *chip* semántico, no un color de texto arbitrario — así
    * el color vive en el theme (Aura maneja dark mode) y respetamos tokens.
    */
-  protected logTagSeverity(
-    level: 'error' | 'warn' | 'info',
-  ): 'danger' | 'warn' | 'info' {
+  protected logTagSeverity(level: 'error' | 'warn' | 'info'): 'danger' | 'warn' | 'info' {
     if (level === 'error') return 'danger';
     if (level === 'warn') return 'warn';
     return 'info';

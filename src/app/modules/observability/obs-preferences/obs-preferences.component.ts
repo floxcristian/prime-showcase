@@ -24,30 +24,18 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
  */
 @Component({
   selector: 'app-obs-preferences',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    InputTextModule,
-    Select,
-    ToggleSwitch,
-    PillComponent,
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, Select, ToggleSwitch, PillComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
   template: `
     <!-- Header — patrón compartido con CRM > Clientes -->
     <div class="flex items-start gap-2 justify-between flex-wrap mb-6">
       <div class="min-w-0">
-        <h1 class="text-2xl leading-8 text-color font-medium">
-          Preferencias
-        </h1>
+        <h1 class="text-2xl leading-8 text-color font-medium">Preferencias</h1>
         <div class="mt-1 leading-6 text-muted-color">
-          Configurá qué notificaciones recibís, por qué canal y cuándo. Si
-          activás on-call, recibís todo sin filtros.
+          Configurá qué notificaciones recibís, por qué canal y cuándo. Si activás on-call, recibís todo sin filtros.
         </div>
       </div>
       <div class="flex gap-2 whitespace-nowrap">
@@ -58,11 +46,7 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
           icon="fa-sharp fa-regular fa-rotate-left"
           (onClick)="resetAll()"
         />
-        <p-button
-          label="Guardar"
-          severity="primary"
-          icon="fa-sharp fa-regular fa-check"
-        />
+        <p-button label="Guardar" severity="primary" icon="fa-sharp fa-regular fa-check" />
       </div>
     </div>
 
@@ -72,10 +56,7 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
         <!-- Canales -->
         <section class="border border-surface rounded-2xl p-6">
           <div class="flex items-center gap-3 mb-4">
-            <i
-              class="fa-sharp fa-regular fa-paper-plane text-color text-xl"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-paper-plane text-color text-xl" aria-hidden="true"></i>
             <h2 class="text-color font-bold leading-6">Canales</h2>
           </div>
           <p class="text-muted-color leading-6 mb-4">
@@ -84,20 +65,14 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
           <ul class="divide-y divide-surface-200 dark:divide-surface-800">
             @for (ch of channels(); track ch.key) {
               <li class="flex items-center gap-3 py-3">
-                <i
-                  [class]="ch.icon"
-                  class="text-color text-xl"
-                  aria-hidden="true"
-                ></i>
+                <i [class]="ch.icon" class="text-color text-xl" aria-hidden="true"></i>
                 <div class="flex-1 min-w-0">
                   <label
                     [for]="'ch-' + ch.key"
                     class="text-color font-semibold leading-6 cursor-pointer hover:text-color-emphasis transition-colors block"
                     >{{ ch.label }}</label
                   >
-                  <span class="text-muted-color text-sm leading-5">{{
-                    ch.description
-                  }}</span>
+                  <span class="text-muted-color text-sm leading-5">{{ ch.description }}</span>
                 </div>
                 <p-toggleswitch
                   [ngModel]="ch.enabled"
@@ -112,17 +87,12 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
         <!-- Severidad mínima -->
         <section class="border border-surface rounded-2xl p-6">
           <div class="flex items-center gap-3 mb-4">
-            <i
-              class="fa-sharp fa-regular fa-bell text-color text-xl"
-              aria-hidden="true"
-            ></i>
-            <h2 class="text-color font-bold leading-6">
-              Severidad mínima para interrumpir
-            </h2>
+            <i class="fa-sharp fa-regular fa-bell text-color text-xl" aria-hidden="true"></i>
+            <h2 class="text-color font-bold leading-6">Severidad mínima para interrumpir</h2>
           </div>
           <p class="text-muted-color leading-6 mb-4">
-            Sólo recibís push fuera de horario si la alerta es de esta
-            severidad o mayor. Las alertas más bajas se acumulan en tu inbox.
+            Sólo recibís push fuera de horario si la alerta es de esta severidad o mayor. Las alertas más bajas se
+            acumulan en tu inbox.
           </p>
           <p-select
             [options]="severityOptions"
@@ -137,22 +107,15 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
         <!-- DND -->
         <section class="border border-surface rounded-2xl p-6">
           <div class="flex items-center gap-3 mb-4">
-            <i
-              class="fa-sharp fa-regular fa-moon text-color text-xl"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-moon text-color text-xl" aria-hidden="true"></i>
             <h2 class="text-color font-bold leading-6">No molestar</h2>
           </div>
           <p class="text-muted-color leading-6 mb-4">
-            Ventana de silencio para push. Las alertas siguen entrando al
-            inbox; sólo se pausa la interrupción del dispositivo.
+            Ventana de silencio para push. Las alertas siguen entrando al inbox; sólo se pausa la interrupción del
+            dispositivo.
           </p>
           <div class="flex items-center gap-3 mb-4">
-            <p-toggleswitch
-              [ngModel]="dndEnabled()"
-              (ngModelChange)="dndEnabled.set($event)"
-              inputId="dnd-toggle"
-            />
+            <p-toggleswitch [ngModel]="dndEnabled()" (ngModelChange)="dndEnabled.set($event)" inputId="dnd-toggle" />
             <label
               for="dnd-toggle"
               class="text-color font-semibold leading-6 cursor-pointer hover:text-color-emphasis transition-colors select-none"
@@ -162,11 +125,7 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
           @if (dndEnabled()) {
             <div class="flex flex-wrap items-end gap-3">
               <div class="flex flex-col gap-2">
-                <label
-                  for="dnd-from"
-                  class="text-color font-semibold leading-6"
-                  >Desde</label
-                >
+                <label for="dnd-from" class="text-color font-semibold leading-6">Desde</label>
                 <input
                   pInputText
                   id="dnd-from"
@@ -177,11 +136,7 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
                 />
               </div>
               <div class="flex flex-col gap-2">
-                <label
-                  for="dnd-to"
-                  class="text-color font-semibold leading-6"
-                  >Hasta</label
-                >
+                <label for="dnd-to" class="text-color font-semibold leading-6">Hasta</label>
                 <input
                   pInputText
                   id="dnd-to"
@@ -201,27 +156,18 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
         <!-- On-call -->
         <section class="border border-surface rounded-2xl p-6">
           <div class="flex items-center gap-3 mb-4">
-            <i
-              class="fa-sharp fa-regular fa-user-headset text-color text-xl"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-user-headset text-color text-xl" aria-hidden="true"></i>
             <h2 class="text-color font-bold leading-6 flex-1">Modo on-call</h2>
             @if (onCall()) {
-              <app-pill icon="fa-sharp fa-regular fa-circle-dot">
-                Activo
-              </app-pill>
+              <app-pill icon="fa-sharp fa-regular fa-circle-dot"> Activo </app-pill>
             }
           </div>
           <p class="text-muted-color leading-6 mb-4">
-            Mientras esté activo, recibís TODAS las alertas (incluso las que
-            normalmente filtrarías por severidad o DND).
+            Mientras esté activo, recibís TODAS las alertas (incluso las que normalmente filtrarías por severidad o
+            DND).
           </p>
           <div class="flex items-center gap-3">
-            <p-toggleswitch
-              [ngModel]="onCall()"
-              (ngModelChange)="onCall.set($event)"
-              inputId="oncall-toggle"
-            />
+            <p-toggleswitch [ngModel]="onCall()" (ngModelChange)="onCall.set($event)" inputId="oncall-toggle" />
             <label
               for="oncall-toggle"
               class="text-color font-semibold leading-6 cursor-pointer hover:text-color-emphasis transition-colors select-none"
@@ -233,32 +179,19 @@ import { PillComponent } from '../../../shared/components/pill/pill.component';
         <!-- Devices -->
         <section class="border border-surface rounded-2xl p-6">
           <div class="flex items-center gap-3 mb-4">
-            <i
-              class="fa-sharp fa-regular fa-mobile text-color text-xl"
-              aria-hidden="true"
-            ></i>
-            <h2 class="text-color font-bold leading-6 flex-1">
-              Dispositivos
-            </h2>
+            <i class="fa-sharp fa-regular fa-mobile text-color text-xl" aria-hidden="true"></i>
+            <h2 class="text-color font-bold leading-6 flex-1">Dispositivos</h2>
             <app-pill>{{ devices().length }}</app-pill>
           </div>
           <ul class="flex flex-col gap-2 mb-4">
             @for (d of devices(); track d.id) {
-              <li
-                class="flex items-center gap-3 p-3 rounded-lg bg-surface-50 dark:bg-surface-900"
-              >
-                <i
-                  [class]="d.icon"
-                  class="text-color"
-                  aria-hidden="true"
-                ></i>
+              <li class="flex items-center gap-3 p-3 rounded-lg bg-surface-50 dark:bg-surface-900">
+                <i [class]="d.icon" class="text-color" aria-hidden="true"></i>
                 <div class="flex-1 min-w-0">
                   <div class="text-color font-medium leading-6 truncate">
                     {{ d.name }}
                   </div>
-                  <div class="text-xs text-muted-color leading-4">
-                    Vinculado {{ d.linkedAgo }}
-                  </div>
+                  <div class="text-xs text-muted-color leading-4">Vinculado {{ d.linkedAgo }}</div>
                 </div>
                 @if (d.primary) {
                   <app-pill>Principal</app-pill>
@@ -333,9 +266,7 @@ export class ObsPreferencesComponent {
   ]);
 
   protected toggleChannel(key: string, value: boolean): void {
-    this.channels.update((list) =>
-      list.map((c) => (c.key === key ? { ...c, enabled: value } : c)),
-    );
+    this.channels.update((list) => list.map((c) => (c.key === key ? { ...c, enabled: value } : c)));
   }
 
   protected resetAll(): void {

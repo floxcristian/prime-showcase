@@ -1,13 +1,6 @@
 // Angular
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 // PrimeNG
@@ -55,8 +48,7 @@ const LOCAL_COMPONENTS = [
   styleUrl: './roles.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full flex flex-col overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
 export class RolesComponent {
@@ -68,9 +60,7 @@ export class RolesComponent {
   protected readonly loading = computed(() => this.rolesResource.isLoading());
   protected readonly loadError = computed(() => this.rolesResource.error());
 
-  protected readonly tableData = computed<readonly Role[]>(
-    () => this.rolesResource.value() ?? [],
-  );
+  protected readonly tableData = computed<readonly Role[]>(() => this.rolesResource.value() ?? []);
 
   protected readonly typeOptions: RoleType[] = ['Sistema', 'Personalizado'];
 
@@ -92,9 +82,7 @@ export class RolesComponent {
    * many-to-many).
    */
   protected readonly totalRoles = computed(() => this.tableData().length);
-  protected readonly totalUsers = computed(() =>
-    this.tableData().reduce((sum, r) => sum + r.userCount, 0),
-  );
+  protected readonly totalUsers = computed(() => this.tableData().reduce((sum, r) => sum + r.userCount, 0));
 
   private readonly _lastFetchedAt = signal<string | null>(null);
   protected readonly lastFetchedAt = this._lastFetchedAt.asReadonly();
@@ -168,8 +156,7 @@ export class RolesComponent {
     for (const p of role.permissions) {
       counts[p.level] += 1;
     }
-    const accessible =
-      counts.admin + counts.write + counts.read;
+    const accessible = counts.admin + counts.write + counts.read;
     const total = accessible + counts.none;
     return `${accessible}/${total} módulos`;
   }

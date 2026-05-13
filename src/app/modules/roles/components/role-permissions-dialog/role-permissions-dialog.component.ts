@@ -1,14 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
@@ -19,11 +10,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { TooltipDismissOnClickDirective } from '../../../../shared/directives/tooltip-dismiss-on-click.directive';
 import { PERMISSION_MODULES } from '../../mocks/permission-modules';
-import type {
-  AccessLevel,
-  ModulePermission,
-  Role,
-} from '../../models/role.interface';
+import type { AccessLevel, ModulePermission, Role } from '../../models/role.interface';
 import { RolesMockService } from '../../services/roles-mock.service';
 
 const NG_MODULES = [CommonModule, FormsModule];
@@ -80,9 +67,7 @@ export class RolePermissionsDialogComponent {
    * lookups y updates por moduleId — Map es la estructura natural.
    * Convertimos a array al guardar.
    */
-  protected readonly pendingLevels = signal<Map<string, AccessLevel>>(
-    new Map(),
-  );
+  protected readonly pendingLevels = signal<Map<string, AccessLevel>>(new Map());
 
   /** True cuando hay diferencias pendientes vs el state original. */
   protected readonly isDirty = computed(() => {
@@ -191,9 +176,7 @@ export class RolePermissionsDialogComponent {
     this.visible.set(false);
   }
 
-  protected levelTagSeverity(
-    level: AccessLevel,
-  ): 'success' | 'info' | 'warn' | 'secondary' {
+  protected levelTagSeverity(level: AccessLevel): 'success' | 'info' | 'warn' | 'secondary' {
     if (level === 'admin') return 'warn';
     if (level === 'write') return 'success';
     if (level === 'read') return 'info';
@@ -201,8 +184,6 @@ export class RolePermissionsDialogComponent {
   }
 
   protected levelLabel(level: AccessLevel): string {
-    return (
-      this.levelOptions.find((o) => o.value === level)?.label ?? 'Sin acceso'
-    );
+    return this.levelOptions.find((o) => o.value === level)?.label ?? 'Sin acceso';
   }
 }

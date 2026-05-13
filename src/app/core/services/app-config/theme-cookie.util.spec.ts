@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  parseThemeCookie,
-  serializeThemeCookie,
-  THEME_COOKIE_NAME,
-} from './theme-cookie.util';
+import { parseThemeCookie, serializeThemeCookie, THEME_COOKIE_NAME } from './theme-cookie.util';
 
 describe('parseThemeCookie', () => {
   describe('falsy inputs', () => {
@@ -98,22 +94,17 @@ describe('parseThemeCookie', () => {
       expect(parseThemeCookie('theme=dark; theme=light')).toBe('dark');
     });
   });
-
 });
 
 describe('serializeThemeCookie', () => {
   it('emits the required attributes for an insecure origin', () => {
     const cookie = serializeThemeCookie('dark', { secure: false });
-    expect(cookie).toBe(
-      'theme=dark; Path=/; Max-Age=31536000; SameSite=Lax',
-    );
+    expect(cookie).toBe('theme=dark; Path=/; Max-Age=31536000; SameSite=Lax');
   });
 
   it('appends `Secure` when the origin is HTTPS', () => {
     const cookie = serializeThemeCookie('dark', { secure: true });
-    expect(cookie).toBe(
-      'theme=dark; Path=/; Max-Age=31536000; SameSite=Lax; Secure',
-    );
+    expect(cookie).toBe('theme=dark; Path=/; Max-Age=31536000; SameSite=Lax; Secure');
   });
 
   it('serializes "light" identically to "dark" modulo value', () => {
@@ -152,30 +143,18 @@ describe('serializeThemeCookie', () => {
     // V13.1.3). We cast through `unknown` to bypass TS and simulate JS call.
 
     it('throws when value is not "dark" or "light"', () => {
-      expect(() =>
-        serializeThemeCookie(
-          'solarized' as unknown as 'dark',
-          { secure: false },
-        ),
-      ).toThrow(TypeError);
+      expect(() => serializeThemeCookie('solarized' as unknown as 'dark', { secure: false })).toThrow(TypeError);
     });
 
     it('throws on cookie-injection attempts', () => {
-      expect(() =>
-        serializeThemeCookie(
-          'dark; Path=/; evil=1' as unknown as 'dark',
-          { secure: false },
-        ),
-      ).toThrow(TypeError);
+      expect(() => serializeThemeCookie('dark; Path=/; evil=1' as unknown as 'dark', { secure: false })).toThrow(
+        TypeError,
+      );
     });
 
     it('throws on non-string input', () => {
-      expect(() =>
-        serializeThemeCookie(null as unknown as 'dark', { secure: false }),
-      ).toThrow(TypeError);
-      expect(() =>
-        serializeThemeCookie(undefined as unknown as 'dark', { secure: false }),
-      ).toThrow(TypeError);
+      expect(() => serializeThemeCookie(null as unknown as 'dark', { secure: false })).toThrow(TypeError);
+      expect(() => serializeThemeCookie(undefined as unknown as 'dark', { secure: false })).toThrow(TypeError);
     });
   });
 });

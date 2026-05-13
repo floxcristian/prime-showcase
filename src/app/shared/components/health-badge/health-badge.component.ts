@@ -17,21 +17,14 @@ import type { HealthState } from '../../../modules/observability/models/observab
   imports: [Tag],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <p-tag
-      [severity]="severity()"
-      [value]="label()"
-      [icon]="icon()"
-      [class]="size() === 'lg' ? 'text-base' : ''"
-    />
+    <p-tag [severity]="severity()" [value]="label()" [icon]="icon()" [class]="size() === 'lg' ? 'text-base' : ''" />
   `,
 })
 export class HealthBadgeComponent {
   readonly state = input.required<HealthState>();
   readonly size = input<'sm' | 'md' | 'lg'>('md');
 
-  protected readonly severity = computed<
-    'success' | 'warn' | 'danger' | 'secondary'
-  >(() => {
+  protected readonly severity = computed<'success' | 'warn' | 'danger' | 'secondary'>(() => {
     const s = this.state();
     if (s === 'ok') return 'success';
     if (s === 'warn') return 'warn';

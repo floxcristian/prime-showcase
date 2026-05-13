@@ -25,56 +25,28 @@ import { authGuard, guestGuard } from './core/guards/auth.guard';
  */
 const ROUTE_DATA = {
   customers: {
-    breadcrumb: [
-      { title: 'CRM' },
-      { title: 'Adm. Clientes' },
-      { title: 'Clientes' },
-    ],
+    breadcrumb: [{ title: 'CRM' }, { title: 'Adm. Clientes' }, { title: 'Clientes' }],
   },
   users: {
-    breadcrumb: [
-      { title: 'Administración' },
-      { title: 'Usuarios & Roles' },
-      { title: 'Usuarios' },
-    ],
+    breadcrumb: [{ title: 'Administración' }, { title: 'Usuarios & Roles' }, { title: 'Usuarios' }],
   },
   roles: {
-    breadcrumb: [
-      { title: 'Administración' },
-      { title: 'Usuarios & Roles' },
-      { title: 'Roles' },
-    ],
+    breadcrumb: [{ title: 'Administración' }, { title: 'Usuarios & Roles' }, { title: 'Roles' }],
   },
   chat: {
-    breadcrumb: [
-      { title: 'CRM' },
-      { title: 'Comunicaciones' },
-      { title: 'Chat de equipo' },
-    ],
+    breadcrumb: [{ title: 'CRM' }, { title: 'Comunicaciones' }, { title: 'Chat de equipo' }],
   },
   inbox: {
-    breadcrumb: [
-      { title: 'CRM' },
-      { title: 'App de Llamados' },
-      { title: 'Bandeja de llamados' },
-    ],
+    breadcrumb: [{ title: 'CRM' }, { title: 'App de Llamados' }, { title: 'Bandeja de llamados' }],
   },
   notifications: {
     breadcrumb: [{ title: 'Notificaciones' }],
   },
   cards: {
-    breadcrumb: [
-      { title: 'Catálogo' },
-      { title: 'Componentes' },
-      { title: 'Tarjetas' },
-    ],
+    breadcrumb: [{ title: 'Catálogo' }, { title: 'Componentes' }, { title: 'Tarjetas' }],
   },
   movies: {
-    breadcrumb: [
-      { title: 'CMS' },
-      { title: 'Contenidos' },
-      { title: 'Películas' },
-    ],
+    breadcrumb: [{ title: 'CMS' }, { title: 'Contenidos' }, { title: 'Películas' }],
   },
   // ── Observabilidad ────────────────────────────────────────────────────
   // Estructura 3 niveles consistente con `/customers` (CRM > Adm. Clientes
@@ -83,18 +55,10 @@ const ROUTE_DATA = {
   // Para detail views (`/services/:id`, `/alerts/:id`) el middle linkea de
   // vuelta al listado y el último crumb es "Detalle".
   obsInbox: {
-    breadcrumb: [
-      { title: 'Observabilidad' },
-      { title: 'Inicio' },
-      { title: 'Inbox' },
-    ],
+    breadcrumb: [{ title: 'Observabilidad' }, { title: 'Inicio' }, { title: 'Inbox' }],
   },
   obsServices: {
-    breadcrumb: [
-      { title: 'Observabilidad' },
-      { title: 'Catálogo' },
-      { title: 'Servicios' },
-    ],
+    breadcrumb: [{ title: 'Observabilidad' }, { title: 'Catálogo' }, { title: 'Servicios' }],
   },
   obsServiceDetail: {
     breadcrumb: [
@@ -104,39 +68,19 @@ const ROUTE_DATA = {
     ],
   },
   obsAlerts: {
-    breadcrumb: [
-      { title: 'Observabilidad' },
-      { title: 'Monitoreo' },
-      { title: 'Alertas' },
-    ],
+    breadcrumb: [{ title: 'Observabilidad' }, { title: 'Monitoreo' }, { title: 'Alertas' }],
   },
   obsAlertDetail: {
-    breadcrumb: [
-      { title: 'Observabilidad' },
-      { title: 'Alertas', url: '/observability/alerts' },
-      { title: 'Detalle' },
-    ],
+    breadcrumb: [{ title: 'Observabilidad' }, { title: 'Alertas', url: '/observability/alerts' }, { title: 'Detalle' }],
   },
   obsUptime: {
-    breadcrumb: [
-      { title: 'Observabilidad' },
-      { title: 'Catálogo' },
-      { title: 'Uptime' },
-    ],
+    breadcrumb: [{ title: 'Observabilidad' }, { title: 'Catálogo' }, { title: 'Uptime' }],
   },
   obsPreferences: {
-    breadcrumb: [
-      { title: 'Observabilidad' },
-      { title: 'Ajustes' },
-      { title: 'Preferencias' },
-    ],
+    breadcrumb: [{ title: 'Observabilidad' }, { title: 'Ajustes' }, { title: 'Preferencias' }],
   },
   obsNotifsHistory: {
-    breadcrumb: [
-      { title: 'Observabilidad' },
-      { title: 'Ajustes' },
-      { title: 'Historial de notificaciones' },
-    ],
+    breadcrumb: [{ title: 'Observabilidad' }, { title: 'Ajustes' }, { title: 'Historial de notificaciones' }],
   },
 } as const;
 
@@ -144,47 +88,36 @@ export const routes: Routes = [
   {
     path: 'login',
     canActivate: [guestGuard],
-    loadComponent: () =>
-      import('./modules/login/login.component').then((m) => m.LoginComponent),
+    loadComponent: () => import('./modules/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'forgot-password',
     canActivate: [guestGuard],
     loadComponent: () =>
-      import('./modules/forgot-password/forgot-password.component').then(
-        (m) => m.ForgotPasswordComponent
-      ),
+      import('./modules/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
   },
   {
     path: '',
     canActivate: [authGuard],
     canActivateChild: [authGuard],
-    loadComponent: () =>
-      import('./layouts/main/main.component').then((m) => m.MainComponent),
+    loadComponent: () => import('./layouts/main/main.component').then((m) => m.MainComponent),
     children: [
       {
         // Home (`/`) — sin breadcrumb data: NavStateService lo special-casea
         // a `[{ title: 'Inicio' }]` para evitar derivar leaf arbitraria del
         // nav-tree (múltiples módulos apuntan a `/`).
         path: '',
-        loadComponent: () =>
-          import('./modules/overview/overview.component').then(
-            (m) => m.OverviewComponent
-          ),
+        loadComponent: () => import('./modules/overview/overview.component').then((m) => m.OverviewComponent),
       },
       {
         path: 'chat',
         data: ROUTE_DATA.chat,
-        loadComponent: () =>
-          import('./modules/chat/chat.component').then((m) => m.ChatComponent),
+        loadComponent: () => import('./modules/chat/chat.component').then((m) => m.ChatComponent),
       },
       {
         path: 'inbox',
         data: ROUTE_DATA.inbox,
-        loadComponent: () =>
-          import('./modules/inbox/inbox.component').then(
-            (m) => m.InboxComponent
-          ),
+        loadComponent: () => import('./modules/inbox/inbox.component').then((m) => m.InboxComponent),
       },
       {
         // Ruta fallback de notifs. Flujo primario:
@@ -200,49 +133,32 @@ export const routes: Routes = [
         path: 'notifications',
         data: ROUTE_DATA.notifications,
         loadComponent: () =>
-          import('./modules/notifications/notifications.component').then(
-            (m) => m.NotificationsComponent
-          ),
+          import('./modules/notifications/notifications.component').then((m) => m.NotificationsComponent),
       },
       {
         path: 'cards',
         data: ROUTE_DATA.cards,
-        loadComponent: () =>
-          import('./modules/cards/cards.component').then(
-            (m) => m.CardsComponent
-          ),
+        loadComponent: () => import('./modules/cards/cards.component').then((m) => m.CardsComponent),
       },
       {
         path: 'customers',
         data: ROUTE_DATA.customers,
-        loadComponent: () =>
-          import('./modules/customers/customers.component').then(
-            (m) => m.CustomersComponent
-          ),
+        loadComponent: () => import('./modules/customers/customers.component').then((m) => m.CustomersComponent),
       },
       {
         path: 'users',
         data: ROUTE_DATA.users,
-        loadComponent: () =>
-          import('./modules/users/users.component').then(
-            (m) => m.UsersComponent
-          ),
+        loadComponent: () => import('./modules/users/users.component').then((m) => m.UsersComponent),
       },
       {
         path: 'roles',
         data: ROUTE_DATA.roles,
-        loadComponent: () =>
-          import('./modules/roles/roles.component').then(
-            (m) => m.RolesComponent
-          ),
+        loadComponent: () => import('./modules/roles/roles.component').then((m) => m.RolesComponent),
       },
       {
         path: 'movies',
         data: ROUTE_DATA.movies,
-        loadComponent: () =>
-          import('./modules/movies/movies.component').then(
-            (m) => m.MoviesComponent
-          ),
+        loadComponent: () => import('./modules/movies/movies.component').then((m) => m.MoviesComponent),
       },
       // ── Observabilidad — dashboard de devops/SRE ────────────────────
       {
@@ -253,65 +169,57 @@ export const routes: Routes = [
             path: 'inbox',
             data: ROUTE_DATA.obsInbox,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-inbox/obs-inbox.component'
-              ).then((m) => m.ObsInboxComponent),
+              import('./modules/observability/obs-inbox/obs-inbox.component').then((m) => m.ObsInboxComponent),
           },
           {
             path: 'services',
             data: ROUTE_DATA.obsServices,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-services/obs-services.component'
-              ).then((m) => m.ObsServicesComponent),
+              import('./modules/observability/obs-services/obs-services.component').then((m) => m.ObsServicesComponent),
           },
           {
             path: 'services/:id',
             data: ROUTE_DATA.obsServiceDetail,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-service-detail/obs-service-detail.component'
-              ).then((m) => m.ObsServiceDetailComponent),
+              import('./modules/observability/obs-service-detail/obs-service-detail.component').then(
+                (m) => m.ObsServiceDetailComponent,
+              ),
           },
           {
             path: 'alerts',
             data: ROUTE_DATA.obsAlerts,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-alerts/obs-alerts.component'
-              ).then((m) => m.ObsAlertsComponent),
+              import('./modules/observability/obs-alerts/obs-alerts.component').then((m) => m.ObsAlertsComponent),
           },
           {
             path: 'alerts/:id',
             data: ROUTE_DATA.obsAlertDetail,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-alert-detail/obs-alert-detail.component'
-              ).then((m) => m.ObsAlertDetailComponent),
+              import('./modules/observability/obs-alert-detail/obs-alert-detail.component').then(
+                (m) => m.ObsAlertDetailComponent,
+              ),
           },
           {
             path: 'uptime',
             data: ROUTE_DATA.obsUptime,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-uptime/obs-uptime.component'
-              ).then((m) => m.ObsUptimeComponent),
+              import('./modules/observability/obs-uptime/obs-uptime.component').then((m) => m.ObsUptimeComponent),
           },
           {
             path: 'preferences',
             data: ROUTE_DATA.obsPreferences,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-preferences/obs-preferences.component'
-              ).then((m) => m.ObsPreferencesComponent),
+              import('./modules/observability/obs-preferences/obs-preferences.component').then(
+                (m) => m.ObsPreferencesComponent,
+              ),
           },
           {
             path: 'notifications-history',
             data: ROUTE_DATA.obsNotifsHistory,
             loadComponent: () =>
-              import(
-                './modules/observability/obs-notifications-history/obs-notifications-history.component'
-              ).then((m) => m.ObsNotificationsHistoryComponent),
+              import('./modules/observability/obs-notifications-history/obs-notifications-history.component').then(
+                (m) => m.ObsNotificationsHistoryComponent,
+              ),
           },
         ],
       },

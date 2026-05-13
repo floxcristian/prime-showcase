@@ -1,7 +1,4 @@
-import type {
-  AlertDetail,
-  AlertSummary,
-} from '../models/observability.interface';
+import type { AlertDetail, AlertSummary } from '../models/observability.interface';
 import { minutesAgo, seededRandom } from './mock-utils';
 import { SERVICES_MOCK } from './services-mock';
 
@@ -18,44 +15,34 @@ const ALERT_TITLES = [
   'Errores 5xx pico',
 ];
 
-export const ALERTS_MOCK: readonly AlertSummary[] = Array.from(
-  { length: 32 },
-  (_, i) => {
-    const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
-    const sevs = ['critical', 'warn', 'info'] as const;
-    const statuses = [
-      'firing',
-      'firing',
-      'acknowledged',
-      'resolved',
-      'silenced',
-    ] as const;
-    return {
-      id: `alert-${i.toString().padStart(3, '0')}`,
-      title: ALERT_TITLES[i % ALERT_TITLES.length],
-      description: `Regla ${i % 5 === 0 ? 'crítica' : 'estándar'} detectó condición en ${svc.name}`,
-      severity: sevs[i % 3],
-      status: statuses[i % 5],
-      serviceId: svc.id,
-      serviceName: svc.name,
-      firedAt: minutesAgo(5 + i * 18),
-      acknowledgedBy:
-        statuses[i % 5] === 'acknowledged'
-          ? {
-              id: 'u-brook',
-              name: 'Brook Hayes',
-              role: 'primary' as const,
-              avatarUrl: 'profile.jpg',
-            }
-          : undefined,
-      acknowledgedAt:
-        statuses[i % 5] === 'acknowledged' ? minutesAgo(2 + i * 4) : undefined,
-      currentValue: 1.4 + i * 0.3,
-      threshold: 1.0,
-      unit: i % 3 === 0 ? '%' : 'ms',
-    };
-  },
-);
+export const ALERTS_MOCK: readonly AlertSummary[] = Array.from({ length: 32 }, (_, i) => {
+  const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
+  const sevs = ['critical', 'warn', 'info'] as const;
+  const statuses = ['firing', 'firing', 'acknowledged', 'resolved', 'silenced'] as const;
+  return {
+    id: `alert-${i.toString().padStart(3, '0')}`,
+    title: ALERT_TITLES[i % ALERT_TITLES.length],
+    description: `Regla ${i % 5 === 0 ? 'crítica' : 'estándar'} detectó condición en ${svc.name}`,
+    severity: sevs[i % 3],
+    status: statuses[i % 5],
+    serviceId: svc.id,
+    serviceName: svc.name,
+    firedAt: minutesAgo(5 + i * 18),
+    acknowledgedBy:
+      statuses[i % 5] === 'acknowledged'
+        ? {
+            id: 'u-brook',
+            name: 'Brook Hayes',
+            role: 'primary' as const,
+            avatarUrl: 'profile.jpg',
+          }
+        : undefined,
+    acknowledgedAt: statuses[i % 5] === 'acknowledged' ? minutesAgo(2 + i * 4) : undefined,
+    currentValue: 1.4 + i * 0.3,
+    threshold: 1.0,
+    unit: i % 3 === 0 ? '%' : 'ms',
+  };
+});
 
 const detailCache = new Map<string, AlertDetail>();
 

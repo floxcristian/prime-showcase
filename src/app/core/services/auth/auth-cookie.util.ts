@@ -48,9 +48,7 @@ export interface SerializeAuthCookieOptions {
  *   - Decode URI — el email puede tener `@`/`+` URL-escaped.
  *   - Try/catch por `decodeURIComponent` — mal-form triple-%% devuelve null.
  */
-export function parseAuthCookie(
-  cookie: string | null | undefined,
-): string | null {
+export function parseAuthCookie(cookie: string | null | undefined): string | null {
   if (!cookie) return null;
   const match = cookie.match(/(?:^|;\s*)prime_auth_user=([^;\s]+)/);
   if (!match) return null;
@@ -72,18 +70,13 @@ export function parseAuthCookie(
  * para que un input malformado o user-controlled futuro no inyecte atributos.
  * Ref: OWASP ASVS V13.1.3.
  */
-export function serializeAuthCookie(
-  email: string | null,
-  options: SerializeAuthCookieOptions,
-): string {
+export function serializeAuthCookie(email: string | null, options: SerializeAuthCookieOptions): string {
   const secureAttr = options.secure ? '; Secure' : '';
   if (email === null) {
     return `${AUTH_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax${secureAttr}`;
   }
   if (/[;,\s]/.test(email)) {
-    throw new TypeError(
-      `Invalid auth cookie value (contains ; , or whitespace): ${email}`,
-    );
+    throw new TypeError(`Invalid auth cookie value (contains ; , or whitespace): ${email}`);
   }
   const encoded = encodeURIComponent(email);
   return `${AUTH_COOKIE_NAME}=${encoded}; Path=/; Max-Age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax${secureAttr}`;

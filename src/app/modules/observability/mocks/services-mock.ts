@@ -1,12 +1,8 @@
-import type {
-  ServiceDetail,
-  ServiceSummary,
-} from '../models/observability.interface';
+import type { ServiceDetail, ServiceSummary } from '../models/observability.interface';
 import { minutesAgo, seededRandom, sparklineFrom } from './mock-utils';
 
 const summarySeed = seededRandom('services-summary');
-const summarySparkline = (n: number, max = 100): readonly number[] =>
-  sparklineFrom(summarySeed, n, max);
+const summarySparkline = (n: number, max = 100): readonly number[] => sparklineFrom(summarySeed, n, max);
 
 export const SERVICES_MOCK: readonly ServiceSummary[] = [
   {
@@ -146,10 +142,7 @@ export const SERVICE_DETAIL_MOCK = (id: string): ServiceDetail | undefined => {
     repoUrl: `https://github.com/empresa/${summary.slug}`,
     runbookUrl: `https://wiki.empresa.dev/runbooks/${summary.slug}`,
     externalDashboardUrl: `https://grafana.empresa.dev/d/${summary.slug}`,
-    endpoints: [
-      `https://api.empresa.dev/${summary.slug}/health`,
-      `https://api.empresa.dev/${summary.slug}/v1`,
-    ],
+    endpoints: [`https://api.empresa.dev/${summary.slug}/health`, `https://api.empresa.dev/${summary.slug}/v1`],
     owners: [
       { id: 'u-amaya', name: 'Amaya Ortiz', role: 'primary', avatarUrl: 'profile.jpg' },
       { id: 'u-brook', name: 'Brook Hayes', role: 'secondary', avatarUrl: 'profile.jpg' },
@@ -162,7 +155,9 @@ export const SERVICE_DETAIL_MOCK = (id: string): ServiceDetail | undefined => {
       id: `dep-${summary.id}-${i}`,
       version: `v2025.${(40 - i).toString().padStart(2, '0')}.${i + 1}`,
       author: ['Amaya Ortiz', 'Brook Hayes', 'José Domínguez'][i % 3],
-      commitSha: Math.floor(rand() * 0xffffff).toString(16).padStart(7, '0'),
+      commitSha: Math.floor(rand() * 0xffffff)
+        .toString(16)
+        .padStart(7, '0'),
       commitMessage:
         i === 0
           ? 'fix: retry policy on payment gateway timeout'

@@ -15,30 +15,23 @@ const INBOX_TITLES = [
   'Trend: throughput cayó 15% últimas 2h',
 ];
 
-export const INBOX_MOCK: readonly InboxItem[] = Array.from(
-  { length: 38 },
-  (_, i) => {
-    const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
-    const buckets = ['now', 'now', 'today', 'today', 'today', 'info'] as const;
-    const types = ['error', 'alert', 'uptime', 'deploy', 'trend'] as const;
-    const sevs = ['critical', 'warn', 'info'] as const;
-    return {
-      id: `inbox-${i.toString().padStart(3, '0')}`,
-      bucket: buckets[i % buckets.length],
-      type: types[i % types.length],
-      severity: sevs[i % 3],
-      serviceId: svc.id,
-      serviceName: svc.name,
-      title: INBOX_TITLES[i % INBOX_TITLES.length],
-      detail:
-        i % 4 === 0
-          ? 'Threshold 1.0% — actual 4.2%. Spike comenzó hace 12 minutos.'
-          : undefined,
-      occurredAt: minutesAgo(2 + i * 7),
-      ackable: i % 3 !== 0,
-      acknowledged: i % 7 === 0,
-      sourceUrl:
-        i % 2 === 0 ? `https://sentry.empresa.dev/items/${i}` : undefined,
-    };
-  },
-);
+export const INBOX_MOCK: readonly InboxItem[] = Array.from({ length: 38 }, (_, i) => {
+  const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
+  const buckets = ['now', 'now', 'today', 'today', 'today', 'info'] as const;
+  const types = ['error', 'alert', 'uptime', 'deploy', 'trend'] as const;
+  const sevs = ['critical', 'warn', 'info'] as const;
+  return {
+    id: `inbox-${i.toString().padStart(3, '0')}`,
+    bucket: buckets[i % buckets.length],
+    type: types[i % types.length],
+    severity: sevs[i % 3],
+    serviceId: svc.id,
+    serviceName: svc.name,
+    title: INBOX_TITLES[i % INBOX_TITLES.length],
+    detail: i % 4 === 0 ? 'Threshold 1.0% — actual 4.2%. Spike comenzó hace 12 minutos.' : undefined,
+    occurredAt: minutesAgo(2 + i * 7),
+    ackable: i % 3 !== 0,
+    acknowledged: i % 7 === 0,
+    sourceUrl: i % 2 === 0 ? `https://sentry.empresa.dev/items/${i}` : undefined,
+  };
+});

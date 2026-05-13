@@ -1,14 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  model,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
@@ -22,29 +13,13 @@ import { TooltipModule } from 'primeng/tooltip';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { TooltipDismissOnClickDirective } from '../../../../shared/directives/tooltip-dismiss-on-click.directive';
 import { RelativeTimePipe } from '../../../../shared/pipes/relative-time.pipe';
-import type {
-  ApiKey,
-  ApiKeyScope,
-  ApiKeyStatus,
-} from '../../models/api-key.interface';
+import type { ApiKey, ApiKeyScope, ApiKeyStatus } from '../../models/api-key.interface';
 import type { User } from '../../models/user.interface';
 import { ApiKeysMockService } from '../../services/api-keys-mock.service';
 
 const NG_MODULES = [CommonModule, FormsModule];
-const PRIME_MODULES = [
-  ButtonModule,
-  Dialog,
-  InputTextModule,
-  MultiSelect,
-  TableModule,
-  Tag,
-  TooltipModule,
-];
-const LOCAL_COMPONENTS = [
-  EmptyStateComponent,
-  TooltipDismissOnClickDirective,
-  RelativeTimePipe,
-];
+const PRIME_MODULES = [ButtonModule, Dialog, InputTextModule, MultiSelect, TableModule, Tag, TooltipModule];
+const LOCAL_COMPONENTS = [EmptyStateComponent, TooltipDismissOnClickDirective, RelativeTimePipe];
 
 /**
  * Dialog de gestión de API keys para usuarios externos. Tres modos:
@@ -230,9 +205,7 @@ export class UserApiKeysDialogComponent {
     }
   }
 
-  protected statusSeverity(
-    status: ApiKeyStatus,
-  ): 'success' | 'warn' | 'secondary' {
+  protected statusSeverity(status: ApiKeyStatus): 'success' | 'warn' | 'secondary' {
     if (status === 'Activa') return 'success';
     if (status === 'Expirada') return 'warn';
     return 'secondary';
@@ -251,7 +224,5 @@ export class UserApiKeysDialogComponent {
    * Form de creación válido — name no vacío y al menos un scope.
    * Mismo gating que `submitCreate` pero para `[disabled]` del button.
    */
-  protected readonly canSubmit = computed(
-    () => this.newKeyName().trim().length > 0 && this.newKeyScopes().length > 0,
-  );
+  protected readonly canSubmit = computed(() => this.newKeyName().trim().length > 0 && this.newKeyScopes().length > 0);
 }

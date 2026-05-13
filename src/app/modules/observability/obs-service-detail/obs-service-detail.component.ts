@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { Avatar } from 'primeng/avatar';
@@ -26,25 +19,14 @@ import { ObservabilityMockService } from '../services/observability-mock.service
 const NG_MODULES = [CommonModule, RouterLink];
 const PRIME_MODULES = [ButtonModule, TabsModule, TooltipModule];
 const PRIME_STANDALONE = [Avatar, Skeleton, Timeline];
-const LOCAL_COMPONENTS = [
-  EmptyStateComponent,
-  HealthBadgeComponent,
-  MetricCardComponent,
-  PillComponent,
-];
+const LOCAL_COMPONENTS = [EmptyStateComponent, HealthBadgeComponent, MetricCardComponent, PillComponent];
 const LOCAL_PIPES = [RelativeTimePipe];
 
 type DetailTab = 'health' | 'errors' | 'performance' | 'deploys';
 
 @Component({
   selector: 'app-obs-service-detail',
-  imports: [
-    NG_MODULES,
-    PRIME_MODULES,
-    PRIME_STANDALONE,
-    LOCAL_COMPONENTS,
-    LOCAL_PIPES,
-  ],
+  imports: [NG_MODULES, PRIME_MODULES, PRIME_STANDALONE, LOCAL_COMPONENTS, LOCAL_PIPES],
   templateUrl: './obs-service-detail.component.html',
   styleUrl: './obs-service-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,9 +79,7 @@ export class ObsServiceDetailComponent {
     return 'fa-sharp fa-regular fa-arrow-rotate-left';
   }
 
-  protected deployStatusLabel(
-    status: 'success' | 'failed' | 'rolled-back',
-  ): string {
+  protected deployStatusLabel(status: 'success' | 'failed' | 'rolled-back'): string {
     if (status === 'success') return 'Exitoso';
     if (status === 'failed') return 'Fallido';
     return 'Revertido';

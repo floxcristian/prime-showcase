@@ -12,14 +12,7 @@ import type { AlertSeverity } from '../../../modules/observability/models/observ
   selector: 'app-severity-chip',
   imports: [Tag],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <p-tag
-      [severity]="severity()"
-      [value]="label()"
-      [icon]="icon()"
-      class="font-medium"
-    />
-  `,
+  template: ` <p-tag [severity]="severity()" [value]="label()" [icon]="icon()" class="font-medium" /> `,
 })
 export class SeverityChipComponent {
   readonly value = input.required<AlertSeverity>();

@@ -1,12 +1,8 @@
 import type { Preview } from '@storybook/angular';
 import { applicationConfig, moduleMetadata } from '@storybook/angular';
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import {
-  provideAnimationsAsync,
-} from '@angular/platform-browser/animations/async';
-import {
-  provideZonelessChangeDetection,
-} from '@angular/core';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { providePrimeNG } from 'primeng/config';
 import { withThemeByClassName } from '@storybook/addon-themes';
 
@@ -166,8 +162,7 @@ const preview: Preview = {
   globalTypes: {
     locale: {
       name: 'Idioma',
-      description:
-        'Idioma del contenido interactivo (la documentación estática queda en español)',
+      description: 'Idioma del contenido interactivo (la documentación estática queda en español)',
       toolbar: {
         title: 'Idioma',
         icon: 'globe',

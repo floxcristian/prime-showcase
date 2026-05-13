@@ -13,10 +13,7 @@
       <!-- Primary title toolbar — solo mobile. Reemplaza el toolbar principal
            (que fue ocultado bajando el drawer a top: 0) con el mismo look
            visual (tornado bg, h-16, blanco bold) pero mostrando "Mi cuenta". -->
-      <app-primary-title-toolbar
-        title="Mi cuenta"
-        class="lg:hidden"
-      >
+      <app-primary-title-toolbar title="Mi cuenta" class="lg:hidden">
         <app-back-button leading (pressed)="close()" />
       </app-primary-title-toolbar>
       <div>
@@ -87,11 +84,7 @@
               @for (data of callLogs; track data.name) {
                 <div class="flex items-center gap-3 p-2">
                   <p-overlayBadge severity="success" class="w-fit">
-                    <p-avatar
-                      [image]="data.image"
-                      size="normal"
-                      class="rounded-lg w-10 h-10 overflow-hidden flex"
-                    />
+                    <p-avatar [image]="data.image" size="normal" class="rounded-lg w-10 h-10 overflow-hidden flex" />
                   </p-overlayBadge>
                   <div class="flex-1">
                     <div class="leading-6 font-medium text-color">{{ data.name }}</div>
@@ -128,11 +121,7 @@
               @for (data of emailRecords; track data.name) {
                 <div class="flex items-center gap-3 p-2">
                   <p-overlayBadge severity="danger" class="w-fit">
-                    <p-avatar
-                      [image]="data.image"
-                      size="normal"
-                      class="rounded-lg overflow-hidden w-10 h-10 flex"
-                    />
+                    <p-avatar [image]="data.image" size="normal" class="rounded-lg overflow-hidden w-10 h-10 flex" />
                   </p-overlayBadge>
                   <div class="w-1/5 leading-6 font-medium text-color">{{ data.name }}</div>
                   <div class="flex-1">
@@ -159,18 +148,13 @@
                 tooltipPosition="bottom"
               />
             </div>
-            <div
-              class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col rounded-lg overflow-hidden"
-            >
+            <div class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col rounded-lg overflow-hidden">
               <div class="flex items-start justify-between gap-1">
-                <div class="text-color font-medium max-w-60">
-                  Asunto: Resumen de reunión y acciones pendientes: Jacob Jones
-                </div>
+                <div class="text-color font-medium max-w-60">Asunto: Resumen de reunión y acciones pendientes: Jacob Jones</div>
                 <div class="text-muted-color">14 de febrero, 2024 / 2:00 PM</div>
               </div>
               <div class="text-muted-color mt-6">
-                Aquí hay un resumen rápido de nuestra reunión con Brook Simmons y los próximos pasos.
-                Resumen:
+                Aquí hay un resumen rápido de nuestra reunión con Brook Simmons y los próximos pasos. Resumen:
                 <br /><br />
                 <ul class="list-disc pl-5">
                   <li>Revisamos nuestra solución SaaS y sus características.</li>
@@ -196,18 +180,12 @@
           @for (data of preferences(); track data.title) {
             <div class="h-1/4 flex flex-col p-3 rounded-xl bg-emphasis">
               <div class="leading-6 font-medium text-color py-1 px-2">{{ data.title }}</div>
-              <div
-                class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col gap-3 rounded-lg"
-              >
+              <div class="overflow-y-auto flex-1 bg-surface-0 dark:bg-surface-900 mt-2 p-4 flex flex-col gap-3 rounded-lg">
                 @for (pref of data.prefs; track pref.title) {
                   <div class="flex items-center gap-2">
                     <i class="text-lg text-color" [class]="pref.icon" aria-hidden="true"></i>
                     <div class="font-medium text-color flex-1">{{ pref.title }}</div>
-                    <p-toggleswitch
-                      [ngModel]="pref.checked"
-                      (ngModelChange)="togglePreference(pref)"
-                      [attr.aria-label]="pref.title"
-                    />
+                    <p-toggleswitch [ngModel]="pref.checked" (ngModelChange)="togglePreference(pref)" [attr.aria-label]="pref.title" />
                   </div>
                 }
               </div>
@@ -258,13 +236,7 @@
                   class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
                 >
                   <div class="w-40 h-40 relative">
-                    <app-chart
-                      type="doughnut"
-                      [data]="satisfaction.data"
-                      [options]="satisfaction.options"
-                      width="160"
-                      height="160"
-                    />
+                    <app-chart type="doughnut" [data]="satisfaction.data" [options]="satisfaction.options" width="160" height="160" />
                     <div class="absolute inset-0 flex items-center justify-center">
                       <span class="text-3xl font-bold text-muted-color">{{ satisfaction.pct }}%</span>
                     </div>
@@ -290,15 +262,8 @@
                 <div class="flex items-center justify-between gap-2">
                   <div class="leading-6 font-medium text-color py-1 px-2">{{ productUsage.label }}</div>
                 </div>
-                <div
-                  class="flex-1 mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
-                >
-                  <app-chart
-                    type="line"
-                    [data]="productUsage.data"
-                    [options]="productUsage.options"
-                    height="140px"
-                  />
+                <div class="flex-1 mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface">
+                  <app-chart type="line" [data]="productUsage.data" [options]="productUsage.options" height="140px" />
                 </div>
               </div>
             }
@@ -309,13 +274,7 @@
                   class="flex-1 p-4 mt-2 relative flex items-center justify-center rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
                 >
                   <div class="w-40 h-40 relative">
-                    <app-chart
-                      type="doughnut"
-                      [data]="churn.data"
-                      [options]="churn.options"
-                      width="160"
-                      height="160"
-                    />
+                    <app-chart type="doughnut" [data]="churn.data" [options]="churn.options" width="160" height="160" />
                     <div class="absolute inset-0 flex items-center justify-center">
                       <span class="text-3xl font-bold text-muted-color">{{ churn.pct }}%</span>
                     </div>
@@ -327,15 +286,8 @@
           @if (c?.totalPurchases; as totalPurchases) {
             <div class="mt-4 w-full flex flex-col p-3 rounded-xl bg-emphasis">
               <div class="leading-6 font-medium text-color py-1 px-2">{{ totalPurchases.label }}</div>
-              <div
-                class="flex-1 p-2 w-full mt-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
-              >
-                <app-chart
-                  type="bar"
-                  [data]="totalPurchases.data"
-                  [options]="totalPurchases.options"
-                  height="240px"
-                />
+              <div class="flex-1 p-2 w-full mt-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface">
+                <app-chart type="bar" [data]="totalPurchases.data" [options]="totalPurchases.options" height="240px" />
               </div>
             </div>
           }

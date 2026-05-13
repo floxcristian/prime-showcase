@@ -12,9 +12,7 @@
     <div class="min-w-0">
       <h2 class="text-xl font-medium leading-7 text-color">API keys</h2>
       @if (user(); as u) {
-        <div class="mt-1 text-sm text-muted-color leading-5">
-          {{ u.name }} · {{ u.organization }}
-        </div>
+        <div class="mt-1 text-sm text-muted-color leading-5">{{ u.name }} · {{ u.organization }}</div>
       }
     </div>
   </ng-template>
@@ -22,9 +20,8 @@
   @if (mode() === 'list') {
     <div class="flex flex-col gap-4">
       <p class="text-color leading-6">
-        Acceso programático a las APIs REST en nombre del usuario. Trata
-        estas credenciales como contraseñas — cualquier sistema con la
-        key actúa como el usuario.
+        Acceso programático a las APIs REST en nombre del usuario. Trata estas credenciales como contraseñas — cualquier sistema con la key
+        actúa como el usuario.
       </p>
 
       @if (keys().length === 0) {
@@ -59,38 +56,26 @@
                   <span class="text-color font-medium">{{ key.name }}</span>
                 </td>
                 <td class="whitespace-nowrap">
-                  <code
-                    class="font-mono text-xs text-muted-color bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded-lg leading-4"
-                  >
+                  <code class="font-mono text-xs text-muted-color bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded-lg leading-4">
                     {{ key.prefix }}
                   </code>
                 </td>
                 <td>
                   <div class="flex gap-1 flex-wrap">
                     @for (scope of key.scopes; track scope) {
-                      <p-tag
-                        severity="secondary"
-                        [value]="scope"
-                        class="font-mono text-xs"
-                      />
+                      <p-tag severity="secondary" [value]="scope" class="font-mono text-xs" />
                     }
                   </div>
                 </td>
                 <td class="whitespace-nowrap">
                   @if (key.lastUsedAt) {
-                    <span class="text-muted-color leading-5">{{
-                      key.lastUsedAt | relativeTime
-                    }}</span>
+                    <span class="text-muted-color leading-5">{{ key.lastUsedAt | relativeTime }}</span>
                   } @else {
                     <span class="text-muted-color leading-5">Nunca</span>
                   }
                 </td>
                 <td class="whitespace-nowrap">
-                  <p-tag
-                    [severity]="statusSeverity(key.status)"
-                    [value]="key.status"
-                    class="font-medium"
-                  />
+                  <p-tag [severity]="statusSeverity(key.status)" [value]="key.status" class="font-medium" />
                 </td>
                 <td class="whitespace-nowrap text-right">
                   @if (canMutate(key.status)) {
@@ -117,9 +102,7 @@
                       />
                     </div>
                   } @else {
-                    <span class="text-xs text-muted-color leading-4">
-                      Read-only
-                    </span>
+                    <span class="text-xs text-muted-color leading-4"> Read-only </span>
                   }
                 </td>
               </tr>
@@ -133,18 +116,12 @@
   @if (mode() === 'form') {
     <div class="flex flex-col gap-4">
       <p class="text-color leading-6">
-        Las nuevas keys se generan en el servidor. El secret completo se
-        muestra <strong>una sola vez</strong> después de generarlo —
+        Las nuevas keys se generan en el servidor. El secret completo se muestra <strong>una sola vez</strong> después de generarlo —
         copialo en ese momento. Si lo pierdes, deberás rotar la key.
       </p>
 
       <div>
-        <label
-          for="api-key-name"
-          class="text-color font-semibold leading-6"
-        >
-          Nombre
-        </label>
+        <label for="api-key-name" class="text-color font-semibold leading-6"> Nombre </label>
         <input
           pInputText
           id="api-key-name"
@@ -154,19 +131,11 @@
           class="mt-2 w-full"
           maxlength="64"
         />
-        <div class="mt-1 text-xs text-muted-color leading-4">
-          Solo visible para admins. Ayuda a identificar dónde se usa
-          esta key.
-        </div>
+        <div class="mt-1 text-xs text-muted-color leading-4">Solo visible para admins. Ayuda a identificar dónde se usa esta key.</div>
       </div>
 
       <div>
-        <label
-          for="api-key-scopes"
-          class="text-color font-semibold leading-6"
-        >
-          Permisos
-        </label>
+        <label for="api-key-scopes" class="text-color font-semibold leading-6"> Permisos </label>
         <p-multiselect
           inputId="api-key-scopes"
           [options]="scopeOptions"
@@ -176,8 +145,7 @@
           class="mt-2 w-full"
         />
         <div class="mt-1 text-xs text-muted-color leading-4">
-          Permisos granulares — verbo + recurso. Otorga sólo lo
-          necesario (principio de mínimo privilegio).
+          Permisos granulares — verbo + recurso. Otorga sólo lo necesario (principio de mínimo privilegio).
         </div>
       </div>
     </div>
@@ -185,32 +153,18 @@
 
   @if (mode() === 'reveal') {
     <div class="flex flex-col gap-4">
-      <div
-        class="border border-surface rounded-2xl p-3 flex items-start gap-3"
-        role="alert"
-      >
-        <i
-          class="fa-sharp fa-regular fa-triangle-exclamation text-color text-xl shrink-0"
-          aria-hidden="true"
-        ></i>
+      <div class="border border-surface rounded-2xl p-3 flex items-start gap-3" role="alert">
+        <i class="fa-sharp fa-regular fa-triangle-exclamation text-color text-xl shrink-0" aria-hidden="true"></i>
         <div class="flex-1 min-w-0">
-          <div class="text-color font-medium leading-6">
-            Cópiala ahora — no volverás a verla
-          </div>
+          <div class="text-color font-medium leading-6">Cópiala ahora — no volverás a verla</div>
           <div class="mt-1 text-muted-color text-sm leading-5">
-            Esta es la única vez que mostramos el secret completo. Si lo
-            pierdes, deberás rotar la key para obtener uno nuevo.
+            Esta es la única vez que mostramos el secret completo. Si lo pierdes, deberás rotar la key para obtener uno nuevo.
           </div>
         </div>
       </div>
 
       <div>
-        <label
-          class="text-color font-semibold leading-6"
-          for="api-key-secret"
-        >
-          Secret
-        </label>
+        <label class="text-color font-semibold leading-6" for="api-key-secret"> Secret </label>
         <div class="mt-2 flex items-stretch gap-2">
           <code
             id="api-key-secret"
@@ -220,11 +174,7 @@
           </code>
           <p-button
             [label]="copied() ? 'Copiado' : 'Copiar'"
-            [icon]="
-              copied()
-                ? 'fa-sharp fa-regular fa-check'
-                : 'fa-sharp fa-regular fa-copy'
-            "
+            [icon]="copied() ? 'fa-sharp fa-regular fa-check' : 'fa-sharp fa-regular fa-copy'"
             severity="secondary"
             [outlined]="true"
             (onClick)="copySecret()"
@@ -237,41 +187,16 @@
   <ng-template #footer>
     @if (mode() === 'list') {
       <div class="flex items-center justify-between gap-2 w-full">
-        <p-button
-          label="Generar nueva key"
-          icon="fa-sharp fa-regular fa-plus"
-          [disabled]="busy()"
-          (onClick)="openCreateForm()"
-        />
-        <p-button
-          label="Cerrar"
-          severity="secondary"
-          [outlined]="true"
-          [disabled]="busy()"
-          (onClick)="visible.set(false)"
-        />
+        <p-button label="Generar nueva key" icon="fa-sharp fa-regular fa-plus" [disabled]="busy()" (onClick)="openCreateForm()" />
+        <p-button label="Cerrar" severity="secondary" [outlined]="true" [disabled]="busy()" (onClick)="visible.set(false)" />
       </div>
     }
     @if (mode() === 'form') {
-      <p-button
-        label="Cancelar"
-        severity="secondary"
-        [outlined]="true"
-        [disabled]="busy()"
-        (onClick)="cancelForm()"
-      />
-      <p-button
-        label="Generar key"
-        icon="fa-sharp fa-regular fa-key"
-        [disabled]="!canSubmit() || busy()"
-        (onClick)="submitCreate()"
-      />
+      <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="busy()" (onClick)="cancelForm()" />
+      <p-button label="Generar key" icon="fa-sharp fa-regular fa-key" [disabled]="!canSubmit() || busy()" (onClick)="submitCreate()" />
     }
     @if (mode() === 'reveal') {
-      <p-button
-        label="Listo"
-        (onClick)="dismissReveal()"
-      />
+      <p-button label="Listo" (onClick)="dismissReveal()" />
     }
   </ng-template>
 </p-dialog>

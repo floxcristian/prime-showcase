@@ -69,10 +69,7 @@ export class BrowserPreloadingStrategy implements PreloadingStrategy {
         };
       }
       // Safari <17 fallback: setTimeout con el mismo timeout como ceiling.
-      const timeoutHandle = win.setTimeout(
-        start,
-        BrowserPreloadingStrategy.IDLE_TIMEOUT_MS,
-      );
+      const timeoutHandle = win.setTimeout(start, BrowserPreloadingStrategy.IDLE_TIMEOUT_MS);
       return (): void => {
         cancelled = true;
         win.clearTimeout(timeoutHandle);

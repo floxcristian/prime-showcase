@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -24,27 +18,13 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { HealthBadgeComponent } from '../../../shared/components/health-badge/health-badge.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
-import type {
-  HealthState,
-  ServiceSummary,
-} from '../models/observability.interface';
+import type { HealthState, ServiceSummary } from '../models/observability.interface';
 import { ObservabilityMockService } from '../services/observability-mock.service';
 
 const NG_MODULES = [CommonModule, FormsModule, RouterLink];
 const PRIME_MODULES = [ButtonModule, InputTextModule, TableModule];
-const PRIME_STANDALONE = [
-  IconField,
-  InputIcon,
-  MultiSelect,
-  SelectButton,
-  Skeleton,
-  ToggleSwitch,
-];
-const LOCAL_COMPONENTS = [
-  EmptyStateComponent,
-  HealthBadgeComponent,
-  PillComponent,
-];
+const PRIME_STANDALONE = [IconField, InputIcon, MultiSelect, SelectButton, Skeleton, ToggleSwitch];
+const LOCAL_COMPONENTS = [EmptyStateComponent, HealthBadgeComponent, PillComponent];
 const LOCAL_PIPES = [RelativeTimePipe];
 
 interface ViewModeOption {
@@ -55,19 +35,12 @@ interface ViewModeOption {
 
 @Component({
   selector: 'app-obs-services',
-  imports: [
-    NG_MODULES,
-    PRIME_MODULES,
-    PRIME_STANDALONE,
-    LOCAL_COMPONENTS,
-    LOCAL_PIPES,
-  ],
+  imports: [NG_MODULES, PRIME_MODULES, PRIME_STANDALONE, LOCAL_COMPONENTS, LOCAL_PIPES],
   templateUrl: './obs-services.component.html',
   styleUrl: './obs-services.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
+    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
 })
 export class ObsServicesComponent {
@@ -97,10 +70,9 @@ export class ObsServicesComponent {
    * listas grandes. Patrón Algolia/Linear: typing local, query debounced.
    */
   protected readonly searchInput = signal<string>('');
-  protected readonly searchTerm = toSignal(
-    toObservable(this.searchInput).pipe(debounceTime(200)),
-    { initialValue: '' },
-  );
+  protected readonly searchTerm = toSignal(toObservable(this.searchInput).pipe(debounceTime(200)), {
+    initialValue: '',
+  });
   // Arrays mutables porque PrimeNG p-multiselect ngModel les hace push/pop
   // directo. Los `.includes()` siguen funcionando igual.
   protected readonly selectedTeams = signal<string[]>([]);

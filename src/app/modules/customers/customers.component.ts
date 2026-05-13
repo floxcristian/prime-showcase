@@ -36,10 +36,7 @@ import { Tag } from 'primeng/tag';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 // Local
-import {
-  ColumnHelpComponent,
-  type ColumnHelpEntry,
-} from '../../shared/components/column-help/column-help.component';
+import { ColumnHelpComponent, type ColumnHelpEntry } from '../../shared/components/column-help/column-help.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
@@ -56,14 +53,8 @@ import type {
 } from './models/customer.interface';
 import { CustomersKeyboardService } from './services/customers-keyboard.service';
 import { CustomersMockService } from './services/customers-mock.service';
-import {
-  CustomersSavedViewsService,
-  type SavedView,
-} from './services/customers-saved-views.service';
-import {
-  CustomersUrlStateService,
-  type CustomersViewSnapshot,
-} from './services/customers-url-state.service';
+import { CustomersSavedViewsService, type SavedView } from './services/customers-saved-views.service';
+import { CustomersUrlStateService, type CustomersViewSnapshot } from './services/customers-url-state.service';
 
 const NG_MODULES = [CommonModule, FormsModule];
 const PRIME_MODULES = [
@@ -182,8 +173,7 @@ interface ActiveFilter {
     //   Desktop (lg+): outer card completo (`p-6 border rounded-2xl`)
     //     porque la tabla es el contenido principal y necesita
     //     containment visual + radius para integrarse al layout.
-    class:
-      'flex-1 h-full flex flex-col overflow-hidden lg:p-6 lg:border lg:border-surface lg:rounded-2xl',
+    class: 'flex-1 h-full flex flex-col overflow-hidden lg:p-6 lg:border lg:border-surface lg:rounded-2xl',
   },
 })
 export class CustomersComponent {
@@ -220,8 +210,7 @@ export class CustomersComponent {
    * entrar en chaos. Linear/Stripe usan flags similares (`?devtools=on`,
    * `?slow=1`) para escenarios de prueba.
    */
-  private readonly chaosEnabled = ((flag: string | null) =>
-    flag === 'on' || flag === '1' || flag === 'true')(
+  private readonly chaosEnabled = ((flag: string | null) => flag === 'on' || flag === '1' || flag === 'true')(
     inject(ActivatedRoute).snapshot.queryParamMap.get('chaos'),
   );
 
@@ -329,10 +318,7 @@ export class CustomersComponent {
    * position) y `detailId` (drawer state) son UI transient y nunca
    * cuentan como dirty en ninguna rama.
    */
-  private snapshotEqual(
-    view: SavedView,
-    current: CustomersViewSnapshot,
-  ): boolean {
+  private snapshotEqual(view: SavedView, current: CustomersViewSnapshot): boolean {
     // Filters siempre — definen el "qué muestro" del view.
     if (!this.filtersEqual(view.snapshot.filters, current.filters)) {
       return false;
@@ -359,10 +345,7 @@ export class CustomersComponent {
   }
 
   /** Comparación nullable de sort descriptor (field+dir). */
-  private sortEqual(
-    a: { field: string; dir: number } | null,
-    b: { field: string; dir: number } | null,
-  ): boolean {
+  private sortEqual(a: { field: string; dir: number } | null, b: { field: string; dir: number } | null): boolean {
     if (a === null && b === null) return true;
     if (a === null || b === null) return false;
     return a.field === b.field && a.dir === b.dir;
@@ -371,10 +354,7 @@ export class CustomersComponent {
   /** Shallow comparison de dos objetos filters. Robusta a key order,
    * compara array values via sorted JSON.stringify (sets de valores
    * son equivalentes regardless of position). */
-  private filtersEqual(
-    a: Record<string, unknown>,
-    b: Record<string, unknown>,
-  ): boolean {
+  private filtersEqual(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
     const keysA = Object.keys(a);
     const keysB = Object.keys(b);
     if (keysA.length !== keysB.length) return false;
@@ -458,11 +438,7 @@ export class CustomersComponent {
     if (!newSeller || newSeller === customer.assignedSellers[0]) return;
     const previous = this.tableData();
     const others = customer.assignedSellers.filter((s) => s !== newSeller);
-    const updated = previous.map((c) =>
-      c.id === customer.id
-        ? { ...c, assignedSellers: [newSeller, ...others] }
-        : c,
-    );
+    const updated = previous.map((c) => (c.id === customer.id ? { ...c, assignedSellers: [newSeller, ...others] } : c));
     this.api.replaceAll(updated);
     this.simulateApiCall(previous, `Vendedor actualizado a ${newSeller}`);
   }
@@ -475,9 +451,7 @@ export class CustomersComponent {
   protected onTipoEdit(customer: Customer, newType: CustomerType | null): void {
     if (!newType || newType === customer.type) return;
     const previous = this.tableData();
-    const updated = previous.map((c) =>
-      c.id === customer.id ? { ...c, type: newType } : c,
-    );
+    const updated = previous.map((c) => (c.id === customer.id ? { ...c, type: newType } : c));
     this.api.replaceAll(updated);
     this.simulateApiCall(previous, `Tipo actualizado a ${newType}`);
   }
@@ -490,10 +464,7 @@ export class CustomersComponent {
    * Patrón Linear sync engine: optimistic-first, rollback on error
    * con toast retry. Sin esto, silent failure = data loss invisible.
    */
-  private simulateApiCall(
-    previousState: readonly Customer[],
-    successMessage: string,
-  ): void {
+  private simulateApiCall(previousState: readonly Customer[], successMessage: string): void {
     // Equivalente al patrón real con backend:
     //   this.http.patch(url, payload).subscribe({
     //     next: () => toast success,
@@ -616,9 +587,7 @@ export class CustomersComponent {
 
   /** Icon que representa el NEXT state — patrón forward-affordance. */
   protected readonly densityToggleIcon = computed(() =>
-    this.density() === 'compact'
-      ? 'fa-sharp fa-regular fa-table-rows'
-      : 'fa-sharp fa-regular fa-bars',
+    this.density() === 'compact' ? 'fa-sharp fa-regular fa-table-rows' : 'fa-sharp fa-regular fa-bars',
   );
 
   /** Tooltip descriptivo: estado actual + acción del click. Patrón
@@ -651,9 +620,7 @@ export class CustomersComponent {
 
   protected readonly selectedRows = signal<readonly Customer[]>([]);
 
-  protected readonly selectionCount = computed(
-    () => this.selectedRows().length,
-  );
+  protected readonly selectionCount = computed(() => this.selectedRows().length);
 
   /**
    * Set de IDs seleccionados para lookup O(1) en template (hover-reveal
@@ -661,9 +628,7 @@ export class CustomersComponent {
    * la acción row-level debe permanecer visible cuando la fila está
    * "armed" para bulk operations, no solo bajo hover).
    */
-  protected readonly selectedIdSet = computed(
-    () => new Set(this.selectedRows().map((c) => c.id)),
-  );
+  protected readonly selectedIdSet = computed(() => new Set(this.selectedRows().map((c) => c.id)));
 
   /** Dialog state para bulk assign vendedor. */
   protected readonly bulkAssignVisible = signal(false);
@@ -704,10 +669,7 @@ export class CustomersComponent {
       ids.has(c.id)
         ? {
             ...c,
-            assignedSellers: [
-              seller,
-              ...c.assignedSellers.filter((s) => s !== seller),
-            ],
+            assignedSellers: [seller, ...c.assignedSellers.filter((s) => s !== seller)],
           }
         : c,
     );
@@ -873,9 +835,7 @@ export class CustomersComponent {
       `"${c.region}"`,
       c.city,
     ]);
-    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join(
-      '\n',
-    );
+    const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
     const bom = '﻿'; // UTF-8 BOM para Excel reconocer encoding
     const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -889,16 +849,10 @@ export class CustomersComponent {
   protected readonly customersResource = rxResource({
     stream: () => this.api.getCustomers(),
   });
-  protected readonly loading = computed(() =>
-    this.customersResource.isLoading(),
-  );
-  protected readonly loadError = computed(() =>
-    this.customersResource.error(),
-  );
+  protected readonly loading = computed(() => this.customersResource.isLoading());
+  protected readonly loadError = computed(() => this.customersResource.error());
 
-  protected readonly tableData = computed<readonly Customer[]>(
-    () => this.customersResource.value() ?? [],
-  );
+  protected readonly tableData = computed<readonly Customer[]>(() => this.customersResource.value() ?? []);
 
   /**
    * Conteos derivados para el count pill del header — formato "X de Y
@@ -906,9 +860,7 @@ export class CustomersComponent {
    * corriente operativa, paga al día). Las demás carteras (CP/CN/CI/CM)
    * son lifecycle states distintos.
    */
-  protected readonly activeCount = computed(
-    () => this.tableData().filter((c) => c.cartera === 'CA').length,
-  );
+  protected readonly activeCount = computed(() => this.tableData().filter((c) => c.cartera === 'CA').length);
   protected readonly totalCount = computed(() => this.tableData().length);
 
   /**
@@ -918,9 +870,7 @@ export class CustomersComponent {
    * Set para obtener la lista plana única.
    */
   protected readonly availableSellers = computed<string[]>(() =>
-    Array.from(
-      new Set(this.tableData().flatMap((c) => c.assignedSellers)),
-    ).sort(),
+    Array.from(new Set(this.tableData().flatMap((c) => c.assignedSellers))).sort(),
   );
 
   /**
@@ -952,43 +902,19 @@ export class CustomersComponent {
   protected readonly typeOptions: CustomerType[] = ['Empresa', 'Persona'];
 
   /** Verticales de negocio — set cerrado. */
-  protected readonly segmentoOptions: CustomerSegmento[] = [
-    'PASAJEROS',
-    'CARGA',
-    'INDUSTRIAL',
-    'COMERCIO',
-    'OTROS',
-  ];
+  protected readonly segmentoOptions: CustomerSegmento[] = ['PASAJEROS', 'CARGA', 'INDUSTRIAL', 'COMERCIO', 'OTROS'];
 
   /** Ratings de riesgo crediticio (A1 mejor, D peor). */
-  protected readonly classificationOptions: CreditClassification[] = [
-    'A1',
-    'A2',
-    'B1',
-    'B2',
-    'C1',
-    'C2',
-    'D',
-  ];
+  protected readonly classificationOptions: CreditClassification[] = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D'];
 
   /** Grupos de potencial de venta (G1 más alto, G4 más bajo). */
-  protected readonly potencialOptions: PotencialGroup[] = [
-    'G1',
-    'G2',
-    'G3',
-    'G4',
-  ];
+  protected readonly potencialOptions: PotencialGroup[] = ['G1', 'G2', 'G3', 'G4'];
 
   /**
    * Estados del ciclo de vida comercial — separado de Cartera (estado
    * financiero). Set cerrado del legacy.
    */
-  protected readonly lifecycleOptions: CustomerLifecycle[] = [
-    'RECURRENTE',
-    'INACTIVO',
-    'PELIGRO FUGA',
-    'FUGADO',
-  ];
+  protected readonly lifecycleOptions: CustomerLifecycle[] = ['RECURRENTE', 'INACTIVO', 'PELIGRO FUGA', 'FUGADO'];
 
   /**
    * Carteras lifecycle del cliente. Labels expuestos al filter para que
@@ -1185,15 +1111,10 @@ export class CustomersComponent {
    * "Excelente — Riesgo financiero bajo" instantáneamente, sin abrir
    * el popover del header.
    */
-  protected codeTooltip(
-    legend: readonly ColumnHelpEntry[],
-    code: string,
-  ): string {
+  protected codeTooltip(legend: readonly ColumnHelpEntry[], code: string): string {
     const entry = legend.find((e) => e.code === code);
     if (!entry) return '';
-    return entry.description
-      ? `${entry.label} — ${entry.description}`
-      : entry.label;
+    return entry.description ? `${entry.label} — ${entry.description}` : entry.label;
   }
 
   /**
@@ -1210,9 +1131,7 @@ export class CustomersComponent {
    * → warn, D (malo) → danger. Comunica salud crediticia de un vistazo
    * sin necesidad de leer el código.
    */
-  protected classificationSeverity(
-    cls: CreditClassification,
-  ): 'success' | 'info' | 'warn' | 'danger' {
+  protected classificationSeverity(cls: CreditClassification): 'success' | 'info' | 'warn' | 'danger' {
     if (cls === 'A1' || cls === 'A2') return 'success';
     if (cls === 'B1' || cls === 'B2') return 'info';
     if (cls === 'C1' || cls === 'C2') return 'warn';
@@ -1226,9 +1145,7 @@ export class CustomersComponent {
    *   - PELIGRO FUGA → warn (target proactivo de retención)
    *   - FUGADO → danger (churn confirmado)
    */
-  protected lifecycleSeverity(
-    l: CustomerLifecycle,
-  ): 'success' | 'secondary' | 'warn' | 'danger' {
+  protected lifecycleSeverity(l: CustomerLifecycle): 'success' | 'secondary' | 'warn' | 'danger' {
     if (l === 'RECURRENTE') return 'success';
     if (l === 'PELIGRO FUGA') return 'warn';
     if (l === 'FUGADO') return 'danger';
@@ -1243,9 +1160,7 @@ export class CustomersComponent {
    *   - CI Inactiva → secondary (sin movimiento, no morosa)
    *   - CM Morosa → danger (deuda vencida)
    */
-  protected carteraSeverity(
-    c: Cartera,
-  ): 'success' | 'info' | 'secondary' | 'danger' {
+  protected carteraSeverity(c: Cartera): 'success' | 'info' | 'secondary' | 'danger' {
     if (c === 'CA') return 'success';
     if (c === 'CN') return 'info';
     if (c === 'CM') return 'danger';
@@ -1350,12 +1265,9 @@ export class CustomersComponent {
     const PER_CHIP_OVERHEAD = 40;
     const CHAR_WIDTH = 8;
     const AVAILABLE_WIDTH = 248;
-    const estimated =
-      selected.length * PER_CHIP_OVERHEAD + totalChars * CHAR_WIDTH;
+    const estimated = selected.length * PER_CHIP_OVERHEAD + totalChars * CHAR_WIDTH;
 
-    return estimated <= AVAILABLE_WIDTH
-      ? selected.length + 1
-      : selected.length;
+    return estimated <= AVAILABLE_WIDTH ? selected.length + 1 : selected.length;
   });
 
   protected isColumnVisible(key: string): boolean {
@@ -1366,9 +1278,7 @@ export class CustomersComponent {
    * Colspan dinámico para el `<td>` del emptymessage. 3 = checkbox +
    * Nombre + Acciones (siempre visibles) + N columnas de datos visibles.
    */
-  protected readonly visibleColumnCount = computed(
-    () => 3 + this.selectedColumnKeys().length,
-  );
+  protected readonly visibleColumnCount = computed(() => 3 + this.selectedColumnKeys().length);
 
   /**
    * matchMode constant exposed al template — usar string literal en
@@ -1412,9 +1322,7 @@ export class CustomersComponent {
    * a `tableData()` (data completa). Asegura que un filter aplicado
    * en una sesión desktop persiste correctamente al rotar a mobile.
    */
-  private readonly _mobileFilteredData = signal<readonly Customer[] | null>(
-    null,
-  );
+  private readonly _mobileFilteredData = signal<readonly Customer[] | null>(null);
 
   /**
    * Source data del card-list mobile, con sort aplicado encima de
@@ -1509,17 +1417,8 @@ export class CustomersComponent {
   /** Helper genérico para que el drawer aplique cualquier filter. El
    * value `null` o array vacío clear el filter (consistente con la
    * API oficial `Table.filter()`). */
-  protected applySheetFilter(
-    value: unknown,
-    field: string,
-    matchMode: string,
-  ): void {
-    const normalized =
-      value == null ||
-      (Array.isArray(value) && value.length === 0) ||
-      value === ''
-        ? null
-        : value;
+  protected applySheetFilter(value: unknown, field: string, matchMode: string): void {
+    const normalized = value == null || (Array.isArray(value) && value.length === 0) || value === '' ? null : value;
     this.clientsTable()?.filter(normalized, field, matchMode);
     this.mobileFirst.set(0);
   }
@@ -1608,11 +1507,7 @@ export class CustomersComponent {
     for (const field of Object.keys(t.filters)) {
       const meta = t.filters[field];
       const value = Array.isArray(meta) ? meta[0]?.value : meta?.value;
-      if (
-        value != null &&
-        !(Array.isArray(value) && value.length === 0) &&
-        value !== ''
-      ) {
+      if (value != null && !(Array.isArray(value) && value.length === 0) && value !== '') {
         filters[field] = value;
       }
     }
@@ -1673,11 +1568,7 @@ export class CustomersComponent {
    * Formato del valor según matchMode. Retorna `null` si el filter
    * no está activo (value vacío/null) — el caller skipea esos.
    */
-  private formatFilterDisplay(
-    field: string,
-    matchMode: string | undefined,
-    value: unknown,
-  ): string | null {
+  private formatFilterDisplay(field: string, matchMode: string | undefined, value: unknown): string | null {
     if (value == null) return null;
     if (typeof value === 'string' && value.trim() === '') return null;
     if (Array.isArray(value) && value.length === 0) return null;
@@ -1703,11 +1594,7 @@ export class CustomersComponent {
   }
 
   private isCreditField(field: string): boolean {
-    return (
-      field === 'availableCredit' ||
-      field === 'usedCredit' ||
-      field === 'assignedCredit'
-    );
+    return field === 'availableCredit' || field === 'usedCredit' || field === 'assignedCredit';
   }
 
   /**
@@ -1717,10 +1604,7 @@ export class CustomersComponent {
    */
   private displayLabelForValue(field: string, value: unknown): string {
     if (field === 'cartera') {
-      return (
-        this.carteraOptions.find((o) => o.value === value)?.label ??
-        String(value)
-      );
+      return this.carteraOptions.find((o) => o.value === value)?.label ?? String(value);
     }
     return String(value);
   }
@@ -1764,9 +1648,7 @@ export class CustomersComponent {
    *   - 60-85%: warn (atención, considerar bump credit)
    *   - >85%: danger (cerca del límite, no aprobar más)
    */
-  protected creditUtilizationSeverity(
-    pct: number,
-  ): 'success' | 'warn' | 'danger' {
+  protected creditUtilizationSeverity(pct: number): 'success' | 'warn' | 'danger' {
     if (pct < 60) return 'success';
     if (pct <= 85) return 'warn';
     return 'danger';
@@ -1796,19 +1678,15 @@ export class CustomersComponent {
     return sellers.slice(1).join(', ');
   }
 
-
   constructor() {
     // Registrar el custom matcher al construir el componente. La
     // operación es idempotente — re-registrar la misma key con la misma
     // función no rompe nada. PrimeNG mantiene la registry global.
-    this.filterService.register(
-      ARRAY_INTERSECT_MATCHMODE,
-      (value: unknown, filter: unknown): boolean => {
-        if (!Array.isArray(filter) || filter.length === 0) return true;
-        if (!Array.isArray(value) || value.length === 0) return false;
-        return filter.some((f) => value.includes(f));
-      },
-    );
+    this.filterService.register(ARRAY_INTERSECT_MATCHMODE, (value: unknown, filter: unknown): boolean => {
+      if (!Array.isArray(filter) || filter.length === 0) return true;
+      if (!Array.isArray(value) || value.length === 0) return false;
+      return filter.some((f) => value.includes(f));
+    });
 
     // Wire rollback notifications del saved-views service. Si una
     // mutación optimista (create/update/delete) falla durante la
@@ -1908,9 +1786,7 @@ export class CustomersComponent {
       }
       // Detail (resuelve id → Customer del dataset hidratado)
       if (snapshot.detailId != null) {
-        const found = this.tableData().find(
-          (c) => c.id === snapshot.detailId,
-        );
+        const found = this.tableData().find((c) => c.id === snapshot.detailId);
         if (found) this.detailedCustomer.set(found);
       }
     } finally {
@@ -1926,11 +1802,7 @@ export class CustomersComponent {
    */
   private matchModeForField(field: string): string {
     if (field === 'assignedSellers') return ARRAY_INTERSECT_MATCHMODE;
-    if (
-      field === 'availableCredit' ||
-      field === 'usedCredit' ||
-      field === 'assignedCredit'
-    ) {
+    if (field === 'availableCredit' || field === 'usedCredit' || field === 'assignedCredit') {
       return 'between';
     }
     if (
@@ -2009,11 +1881,7 @@ export class CustomersComponent {
       for (const field of Object.keys(t.filters)) {
         const meta = t.filters[field];
         const value = Array.isArray(meta) ? meta[0]?.value : meta?.value;
-        if (
-          value != null &&
-          !(Array.isArray(value) && value.length === 0) &&
-          value !== ''
-        ) {
+        if (value != null && !(Array.isArray(value) && value.length === 0) && value !== '') {
           filters[field] = value;
         }
       }
@@ -2109,11 +1977,7 @@ export class CustomersComponent {
    */
   protected readonly popoverCustomer = signal<Customer | null>(null);
 
-  protected displayPopover(
-    e: MouseEvent,
-    op: Popover,
-    customer: Customer,
-  ): void {
+  protected displayPopover(e: MouseEvent, op: Popover, customer: Customer): void {
     this.popoverCustomer.set(customer);
     op.hide();
     setTimeout(() => {
@@ -2241,12 +2105,10 @@ export class CustomersComponent {
     const scrollEl = this.document.querySelector('main');
     if (scrollEl) {
       scrollEl.addEventListener('scroll', onScroll, { passive: true });
-      this.fabScrollListener = () =>
-        scrollEl.removeEventListener('scroll', onScroll);
+      this.fabScrollListener = () => scrollEl.removeEventListener('scroll', onScroll);
     } else {
       window.addEventListener('scroll', onScroll, { passive: true });
-      this.fabScrollListener = () =>
-        window.removeEventListener('scroll', onScroll);
+      this.fabScrollListener = () => window.removeEventListener('scroll', onScroll);
     }
     this.destroyRef.onDestroy(() => this.fabScrollListener?.());
   }
@@ -2282,21 +2144,17 @@ export class CustomersComponent {
   /** Recent search hits — top customers IDs visitados via Cmd+K.
    * Surfaced en el palette cuando el query está vacío. Patrón Raycast/
    * Linear: frecency context replaces "empty state". */
-  protected readonly cmdkRecentIds = signal<readonly number[]>(
-    this.readCmdkRecent(),
-  );
+  protected readonly cmdkRecentIds = signal<readonly number[]>(this.readCmdkRecent());
 
   /** ViewChild reactivo al `<input #cmdkInput>` del command palette.
    * Usado por effect que focusea el input cuando el dialog abre —
    * patrón a11y-friendly (no `autofocus` attribute, que la regla
    * `accessibility-no-positive-tabindex` y mejores prácticas WCAG
    * desaconsejan por interferir con screen reader announcements). */
-  private readonly cmdkInputRef =
-    viewChild<ElementRef<HTMLInputElement>>('cmdkInput');
+  private readonly cmdkInputRef = viewChild<ElementRef<HTMLInputElement>>('cmdkInput');
 
   /** Listbox de resultados ref para scroll-into-view del active item. */
-  private readonly cmdkListRef =
-    viewChild<ElementRef<HTMLElement>>('cmdkList');
+  private readonly cmdkListRef = viewChild<ElementRef<HTMLElement>>('cmdkList');
 
   /**
    * Filtered customers para el Cmd+K palette — busca por nombre, RUT,
@@ -2329,10 +2187,7 @@ export class CustomersComponent {
 
     const matches = data
       .filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.rut.toLowerCase().includes(q) ||
-          c.email.toLowerCase().includes(q),
+        (c) => c.name.toLowerCase().includes(q) || c.rut.toLowerCase().includes(q) || c.email.toLowerCase().includes(q),
       )
       .map((c) => {
         // Ranking score: 100 si starts-with name, 50 si starts-with rut/email,
@@ -2356,9 +2211,7 @@ export class CustomersComponent {
   /** Flat list de items para arrow-key navigation. Combina todos los
    * grupos en un single linear sequence (matches el visual top-to-bottom
    * order). Used by `cmdkActiveIndex` para arrow nav + Enter select. */
-  protected readonly cmdkFlatResults = computed<readonly Customer[]>(() =>
-    this.cmdkResults().flatMap((g) => g.items),
-  );
+  protected readonly cmdkFlatResults = computed<readonly Customer[]>(() => this.cmdkResults().flatMap((g) => g.items));
 
   protected openCmdK(): void {
     this.cmdkQuery.set('');
@@ -2432,16 +2285,10 @@ export class CustomersComponent {
   private pushCmdkRecent(id: number): void {
     if (typeof localStorage === 'undefined') return;
     const current = this.cmdkRecentIds().filter((x) => x !== id);
-    const updated = [id, ...current].slice(
-      0,
-      CustomersComponent.CMDK_RECENT_MAX,
-    );
+    const updated = [id, ...current].slice(0, CustomersComponent.CMDK_RECENT_MAX);
     this.cmdkRecentIds.set(updated);
     try {
-      localStorage.setItem(
-        CustomersComponent.CMDK_RECENT_KEY,
-        JSON.stringify(updated),
-      );
+      localStorage.setItem(CustomersComponent.CMDK_RECENT_KEY, JSON.stringify(updated));
     } catch {
       // ignore
     }
@@ -2462,7 +2309,7 @@ export class CustomersComponent {
    */
   protected readonly groupedShortcuts = computed(() => {
     const all = this.keyboardService.registered();
-    const sections = new Map<string, typeof all[number][]>();
+    const sections = new Map<string, (typeof all)[number][]>();
     for (const s of all) {
       const arr = sections.get(s.section) ?? [];
       arr.push(s);

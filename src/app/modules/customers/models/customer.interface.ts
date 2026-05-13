@@ -13,12 +13,7 @@ export type CustomerType = 'Empresa' | 'Persona';
  * pertenece. Set abierto pero acotado al dominio de transporte +
  * comercio típico del legacy.
  */
-export type CustomerSegmento =
-  | 'PASAJEROS'
-  | 'CARGA'
-  | 'INDUSTRIAL'
-  | 'COMERCIO'
-  | 'OTROS';
+export type CustomerSegmento = 'PASAJEROS' | 'CARGA' | 'INDUSTRIAL' | 'COMERCIO' | 'OTROS';
 
 /**
  * Clasificación de riesgo crediticio. Letras + número, donde A es
@@ -26,14 +21,7 @@ export type CustomerSegmento =
  * el alias del legacy para A1 — mapeado al modelo letter+number en
  * la migración.
  */
-export type CreditClassification =
-  | 'A1'
-  | 'A2'
-  | 'B1'
-  | 'B2'
-  | 'C1'
-  | 'C2'
-  | 'D';
+export type CreditClassification = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | 'D';
 
 /**
  * Grupo de potencial de venta — proyección de revenue futuro.
@@ -69,11 +57,7 @@ export type Cartera = 'CA' | 'CP' | 'CN' | 'CI' | 'CM';
  * un cliente puede estar "Activa" (Cartera) y simultáneamente "PELIGRO
  * FUGA" (Lifecycle) si paga al día pero compra menos.
  */
-export type CustomerLifecycle =
-  | 'RECURRENTE'
-  | 'INACTIVO'
-  | 'PELIGRO FUGA'
-  | 'FUGADO';
+export type CustomerLifecycle = 'RECURRENTE' | 'INACTIVO' | 'PELIGRO FUGA' | 'FUGADO';
 
 export interface Customer {
   id: number;

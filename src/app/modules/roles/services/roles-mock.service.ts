@@ -61,16 +61,9 @@ export class RolesMockService {
    * También bumpea `updatedAt` — el cell de "Última modificación"
    * en la tabla refleja inmediatamente que algo cambió.
    */
-  updatePermissions(
-    roleId: number,
-    permissions: ModulePermission[],
-  ): Observable<void> {
+  updatePermissions(roleId: number, permissions: ModulePermission[]): Observable<void> {
     this.state.update((prev) =>
-      prev.map((r) =>
-        r.id === roleId
-          ? { ...r, permissions, updatedAt: new Date().toISOString() }
-          : r,
-      ),
+      prev.map((r) => (r.id === roleId ? { ...r, permissions, updatedAt: new Date().toISOString() } : r)),
     );
     return of(undefined).pipe(delay(400));
   }

@@ -171,10 +171,7 @@ type Story = StoryObj<ButtonArgs>;
  * helper.
  */
 export const Primary: Story = {
-  render: bilingualRender(
-    { label: { es: 'Guardar', en: 'Save' } },
-    `<p-button [label]="label" />`,
-  ),
+  render: bilingualRender({ label: { es: 'Guardar', en: 'Save' } }, `<p-button [label]="label" />`),
 };
 
 /** Secondary: la variante más común en templates reales. */
@@ -244,10 +241,7 @@ export const Loading: Story = {
 
 /** Disabled state — Aura aplica opacity 0.5 + cursor not-allowed. */
 export const Disabled: Story = {
-  render: bilingualRender(
-    { label: { es: 'Guardar', en: 'Save' } },
-    `<p-button [label]="label" disabled />`,
-  ),
+  render: bilingualRender({ label: { es: 'Guardar', en: 'Save' } }, `<p-button [label]="label" disabled />`),
 };
 
 /** Icon-only — DEBE declarar ariaLabel + pTooltip juntos. */

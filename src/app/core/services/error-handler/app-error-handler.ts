@@ -1,10 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  ErrorHandler,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-} from '@angular/core';
+import { ErrorHandler, inject, Injectable, PLATFORM_ID } from '@angular/core';
 
 /**
  * Custom ErrorHandler global — reemplaza el default de Angular que solo hace
@@ -55,7 +50,7 @@ export class AppErrorHandler implements ErrorHandler {
     // Ref: https://angular.dev/api/core/ErrorHandler (el ErrorHandler
     // default de Angular tampoco re-throw; solo logea).
     //
-     
+
     console.error(`[${scope} error]`, payload);
   }
 

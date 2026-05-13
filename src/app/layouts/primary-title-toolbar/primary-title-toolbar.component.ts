@@ -17,9 +17,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
          por atributo 'leading' — el consumer marca el elemento para que caiga
          aquí en lugar del default trailing. empty:hidden colapsa el slot si no
          hay contenido proyectado. -->
-    <div
-      class="absolute left-2 inset-y-0 flex items-center empty:hidden"
-    >
+    <div class="absolute left-2 inset-y-0 flex items-center empty:hidden">
       <ng-content select="[leading]"></ng-content>
     </div>
     <h1 class="text-surface-0 text-lg font-bold leading-7">{{ title() }}</h1>
@@ -27,17 +25,14 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
          un action, el wrapper pasa a :empty (ng-content vacío no crea element
          children) y se colapsa. Evita un hit-target fantasma a la derecha del
          título en surfaces sin action (Mi cuenta, Más). -->
-    <div
-      class="absolute right-2 inset-y-0 flex items-center empty:hidden"
-    >
+    <div class="absolute right-2 inset-y-0 flex items-center empty:hidden">
       <ng-content></ng-content>
     </div>
   `,
   styleUrl: './primary-title-toolbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'toolbar-brand-bg relative h-16 shrink-0 flex items-center justify-center px-2 w-full',
+    class: 'toolbar-brand-bg relative h-16 shrink-0 flex items-center justify-center px-2 w-full',
   },
 })
 export class PrimaryTitleToolbarComponent {

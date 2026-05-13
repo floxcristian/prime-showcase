@@ -14,8 +14,7 @@
 
 export const NOW = Date.now();
 
-export const minutesAgo = (n: number): string =>
-  new Date(NOW - n * 60 * 1000).toISOString();
+export const minutesAgo = (n: number): string => new Date(NOW - n * 60 * 1000).toISOString();
 
 /**
  * PRNG seedeado con string — produce números deterministas para un id dado.
@@ -41,8 +40,5 @@ export function seededRandom(seed: string): () => number {
 }
 
 /** Genera N puntos pseudo-aleatorios determinísticos a partir de un PRNG. */
-export const sparklineFrom = (
-  rand: () => number,
-  n: number,
-  max = 100,
-): number[] => Array.from({ length: n }, () => Math.floor(rand() * max));
+export const sparklineFrom = (rand: () => number, n: number, max = 100): number[] =>
+  Array.from({ length: n }, () => Math.floor(rand() * max));

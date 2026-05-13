@@ -13,8 +13,7 @@ import type { User } from '../models/user.interface';
 export const USERS_TABLE_DATA: User[] = [
   {
     id: 1,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.jpg',
     name: 'Carolina Andrea Vega Soto',
     paternalSurname: 'Vega',
     email: 'cvega@empresa.cl',
@@ -26,8 +25,7 @@ export const USERS_TABLE_DATA: User[] = [
   },
   {
     id: 2,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
     name: 'Cristóbal Andrés Simmons Lagos',
     paternalSurname: 'Simmons',
     email: 'csimmons@empresa.cl',
@@ -51,8 +49,7 @@ export const USERS_TABLE_DATA: User[] = [
   },
   {
     id: 4,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar3.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar3.png',
     name: 'Diego Fernando Rojas Bravo',
     paternalSurname: 'Rojas',
     email: 'drojas@empresa.cl',
@@ -76,8 +73,7 @@ export const USERS_TABLE_DATA: User[] = [
   },
   {
     id: 6,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
     name: 'Daniela Ignacia Russell Pinto',
     paternalSurname: 'Russell',
     email: 'drussell@empresa.cl',
@@ -101,8 +97,7 @@ export const USERS_TABLE_DATA: User[] = [
   },
   {
     id: 8,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
     name: 'Jorge Esteban Jones Cárdenas',
     paternalSurname: 'Jones',
     email: 'jjones@empresa.cl',
@@ -126,8 +121,7 @@ export const USERS_TABLE_DATA: User[] = [
   },
   {
     id: 10,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
     name: 'María Antonia Elsner Ríos',
     paternalSurname: 'Elsner',
     email: 'melsner@empresa.cl',
@@ -151,8 +145,7 @@ export const USERS_TABLE_DATA: User[] = [
   },
   {
     id: 12,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
     name: 'Marcela Paz Pino Henríquez',
     paternalSurname: 'Pino',
     email: 'mpino@empresa.cl',
@@ -176,8 +169,7 @@ export const USERS_TABLE_DATA: User[] = [
   },
   {
     id: 14,
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
+    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
     name: 'Ricardo Antonio Soto Muñoz',
     paternalSurname: 'Soto',
     email: 'rsoto@empresa.cl',

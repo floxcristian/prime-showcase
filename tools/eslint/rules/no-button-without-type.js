@@ -41,9 +41,7 @@ module.exports = {
         const hasPButton = allAttrs.some((a) => a.name === 'pButton');
         if (hasPButton) return;
 
-        const hasType = allAttrs.some(
-          (a) => a.name === 'type' || a.name === 'attr.type',
-        );
+        const hasType = allAttrs.some((a) => a.name === 'type' || a.name === 'attr.type');
         if (hasType) return;
 
         context.report({

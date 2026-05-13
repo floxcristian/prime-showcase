@@ -30,8 +30,7 @@ module.exports = {
   meta: {
     type: 'problem',
     docs: {
-      description:
-        'Icon-only <p-button> must have pTooltip — on itself or a wrapping ancestor.',
+      description: 'Icon-only <p-button> must have pTooltip — on itself or a wrapping ancestor.',
       url: '../../docs/rules/no-icon-button-without-tooltip.md',
     },
     schema: [],
@@ -74,9 +73,7 @@ module.exports = {
         const hasOwnTooltip = allAttrs.some((a) => a.name === 'pTooltip');
         if (hasOwnTooltip) return;
 
-        const hasAncestorTooltip = ancestorsAtVisit.some((anc) =>
-          elementHasTooltip(anc),
-        );
+        const hasAncestorTooltip = ancestorsAtVisit.some((anc) => elementHasTooltip(anc));
         if (hasAncestorTooltip) return;
 
         context.report({

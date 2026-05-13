@@ -1,10 +1,5 @@
 // Angular
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 // PrimeNG
@@ -28,8 +23,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   host: {
     // Misma receta que login: min-h-screen en mobile (form crece si viewport
     // es bajo); lg:h-screen fija 100vh desde lg en adelante.
-    class:
-      'flex w-full min-h-screen lg:h-screen bg-surface-0 dark:bg-surface-950 overflow-hidden',
+    class: 'flex w-full min-h-screen lg:h-screen bg-surface-0 dark:bg-surface-950 overflow-hidden',
   },
 })
 export class ForgotPasswordComponent {

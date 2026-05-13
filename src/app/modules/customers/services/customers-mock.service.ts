@@ -37,10 +37,7 @@ export class CustomersMockService {
   private static readonly LATENCY_RANGE_MS = 1000;
 
   private latency(): number {
-    return (
-      CustomersMockService.LATENCY_MIN_MS +
-      Math.floor(Math.random() * CustomersMockService.LATENCY_RANGE_MS)
-    );
+    return CustomersMockService.LATENCY_MIN_MS + Math.floor(Math.random() * CustomersMockService.LATENCY_RANGE_MS);
   }
 
   /** Internal state — start from constant dataset, mutable via bulk

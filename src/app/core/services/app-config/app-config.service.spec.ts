@@ -68,7 +68,6 @@ describe('AppConfigService — browser platform', () => {
     const service = TestBed.inject(AppConfigService);
     expect(service.darkTheme()).toBe(true);
   });
-
 });
 
 describe('AppConfigService — setDarkTheme', () => {
@@ -208,8 +207,7 @@ describe('AppConfigService — applyThemeTransition (View Transition branch)', (
   afterEach(() => {
     resetBrowserEnvironment();
     // Clean up any startViewTransition stub we installed.
-    delete (document as unknown as { startViewTransition?: unknown })
-      .startViewTransition;
+    delete (document as unknown as { startViewTransition?: unknown }).startViewTransition;
   });
 
   it('ticks themeChanged after transition.ready resolves', async () => {
@@ -221,8 +219,7 @@ describe('AppConfigService — applyThemeTransition (View Transition branch)', (
       callback();
       return { ready: readyPromise };
     });
-    (document as unknown as { startViewTransition: typeof stub })
-      .startViewTransition = stub;
+    (document as unknown as { startViewTransition: typeof stub }).startViewTransition = stub;
 
     const service = TestBed.inject(AppConfigService);
     const baseline = service.themeChanged();

@@ -104,10 +104,7 @@ export class NavSectionsComponent {
       }
       case 'ArrowUp': {
         event.preventDefault();
-        const prev =
-          currentIdx < 0
-            ? leaves.length - 1
-            : (currentIdx - 1 + leaves.length) % leaves.length;
+        const prev = currentIdx < 0 ? leaves.length - 1 : (currentIdx - 1 + leaves.length) % leaves.length;
         leaves[prev].focus();
         break;
       }

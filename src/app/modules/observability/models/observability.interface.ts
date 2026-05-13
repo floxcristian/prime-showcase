@@ -12,12 +12,7 @@ export type AlertStatus = 'firing' | 'acknowledged' | 'resolved' | 'silenced';
 
 export type InboxBucket = 'now' | 'today' | 'info';
 
-export type InboxItemType =
-  | 'error'
-  | 'alert'
-  | 'uptime'
-  | 'deploy'
-  | 'trend';
+export type InboxItemType = 'error' | 'alert' | 'uptime' | 'deploy' | 'trend';
 
 export interface ServiceOwner {
   readonly id: string;
@@ -100,12 +95,7 @@ export interface AlertHistoryEntry {
   readonly id: string;
   readonly at: string;
   readonly actor: string;
-  readonly action:
-    | 'fired'
-    | 'acknowledged'
-    | 'resolved'
-    | 'silenced'
-    | 'commented';
+  readonly action: 'fired' | 'acknowledged' | 'resolved' | 'silenced' | 'commented';
   readonly note?: string;
 }
 

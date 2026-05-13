@@ -38,12 +38,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  buildPreloadLinkTag,
-  findLatinWoff2Url,
-  injectPreloadLink,
-  normalizeUrl,
-} from './inject-preload.lib.mjs';
+import { buildPreloadLinkTag, findLatinWoff2Url, injectPreloadLink, normalizeUrl } from './inject-preload.lib.mjs';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -58,17 +53,11 @@ const SERVER_DIST = resolve(REPO_ROOT, 'dist/prime-showcase/server');
  */
 function findStylesCss(distPath) {
   if (!existsSync(distPath)) {
-    throw new Error(
-      `Browser dist no existe en ${distPath}. ¿Corriste 'ng build' antes?`,
-    );
+    throw new Error(`Browser dist no existe en ${distPath}. ¿Corriste 'ng build' antes?`);
   }
-  const stylesFiles = readdirSync(distPath).filter((f) =>
-    /^styles-.*\.css$/.test(f),
-  );
+  const stylesFiles = readdirSync(distPath).filter((f) => /^styles-.*\.css$/.test(f));
   if (stylesFiles.length === 0) {
-    throw new Error(
-      `No se encontró styles-*.css en ${distPath}. ¿Build incompleto?`,
-    );
+    throw new Error(`No se encontró styles-*.css en ${distPath}. ¿Build incompleto?`);
   }
   if (stylesFiles.length > 1) {
     throw new Error(
@@ -120,10 +109,7 @@ function main() {
   //   - server/index.server.html → template específico de SSR que se sirve
   //     cuando AngularNodeAppEngine hidrata
   // Parcheamos ambos para garantizar preload en TODOS los modos de serving.
-  const targets = [
-    join(BROWSER_DIST, 'index.csr.html'),
-    join(SERVER_DIST, 'index.server.html'),
-  ];
+  const targets = [join(BROWSER_DIST, 'index.csr.html'), join(SERVER_DIST, 'index.server.html')];
 
   let missingTargets = 0;
   for (const target of targets) {
@@ -142,9 +128,7 @@ function main() {
   // ser un build CSR-only legítimo en el futuro).
   if (missingTargets === targets.length) {
     console.warn('');
-    console.warn(
-      '⚠  Ningún target HTML encontrado. ¿Build incompleto? Preload NO aplicado.',
-    );
+    console.warn('⚠  Ningún target HTML encontrado. ¿Build incompleto? Preload NO aplicado.');
     process.exit(1);
   }
 }

@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-  signal,
-  type Signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal, type Signal } from '@angular/core';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
 import { Button } from 'primeng/button';
@@ -125,9 +118,7 @@ class DensityToggleDemoComponent {
 
   protected readonly density = signal<Density>('comfortable');
   protected readonly icon: Signal<string> = computed(() => iconFor(this.density()));
-  protected readonly tooltip: Signal<string> = computed(() =>
-    tooltipFor(this.density(), this.locale()),
-  );
+  protected readonly tooltip: Signal<string> = computed(() => tooltipFor(this.density(), this.locale()));
 
   protected toggle(): void {
     this.density.update((d) => (d === 'compact' ? 'comfortable' : 'compact'));
@@ -167,8 +158,7 @@ const meta: Meta<DensityToggleArgs> = {
     density: {
       control: 'inline-radio',
       options: ['compact', 'comfortable'] satisfies Density[],
-      description:
-        'Densidad actual — drivea el icon y tooltip del *próximo* estado.',
+      description: 'Densidad actual — drivea el icon y tooltip del *próximo* estado.',
     },
   },
   render: (args, ctx) => {

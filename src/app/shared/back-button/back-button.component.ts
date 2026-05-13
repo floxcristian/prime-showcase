@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 /**
  * Back arrow button del chrome mobile. Look idéntico a los otros botones
@@ -30,10 +25,7 @@ import {
       [attr.aria-label]="label()"
       class="w-11 h-11 rounded-lg flex items-center justify-center text-surface-0 bg-transparent hover:bg-surface-950/25 cursor-pointer transition-colors select-none shrink-0"
     >
-      <i
-        class="fa-sharp fa-regular fa-arrow-left text-xl"
-        aria-hidden="true"
-      ></i>
+      <i class="fa-sharp fa-regular fa-arrow-left text-xl" aria-hidden="true"></i>
     </button>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

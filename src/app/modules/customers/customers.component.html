@@ -5,9 +5,7 @@
 <div class="flex items-start gap-2 justify-between flex-wrap p-1">
   <div class="min-w-0">
     <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Gestión de la base de clientes de la compañía
-    </div>
+    <div class="mt-1 leading-6 text-muted-color">Gestión de la base de clientes de la compañía</div>
   </div>
   <!--
     Header right slot: solo info (count pill). Las acciones (Crear,
@@ -18,14 +16,9 @@
     <div
       class="hidden sm:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
       role="status"
-      [attr.aria-label]="
-        activeCount() + ' de ' + totalCount() + ' clientes activos'
-      "
+      [attr.aria-label]="activeCount() + ' de ' + totalCount() + ' clientes activos'"
     >
-      <i
-        class="fa-sharp fa-solid fa-circle text-green-500"
-        aria-hidden="true"
-      ></i>
+      <i class="fa-sharp fa-solid fa-circle text-green-500" aria-hidden="true"></i>
       <span>{{ activeCount() }} de {{ totalCount() }} activos</span>
     </div>
   }
@@ -37,9 +30,7 @@
   Whitespace entre los dos clusters comunica la jerarquía info-arch sin
   necesidad de divisores visuales.
 -->
-<div
-  class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap"
->
+<div class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap">
   <!--
     Column toggle — patrón PrimeNG oficial (primeng.org/table#column-toggle).
     `display="chip"` con `[maxSelectedLabels]` dinámico (signal `chipsMaxLabels`
@@ -72,26 +63,15 @@
       más liviano, deja al texto del chip ser protagonista.
     -->
     <ng-template #chipicon>
-      <i
-        class="fa-sharp fa-regular fa-xmark text-xs"
-        aria-hidden="true"
-      ></i>
+      <i class="fa-sharp fa-regular fa-xmark text-xs" aria-hidden="true"></i>
     </ng-template>
   </p-multiselect>
   <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
     @if (lastFetchedAt(); as ts) {
-      <span
-        class="text-sm text-muted-color leading-5 hidden sm:inline"
-        aria-live="polite"
-      >
-        Actualizado {{ ts | relativeTime }}
-      </span>
+      <span class="text-sm text-muted-color leading-5 hidden sm:inline" aria-live="polite"> Actualizado {{ ts | relativeTime }} </span>
     }
     <p-button
-      [icon]="
-        'fa-sharp fa-regular fa-arrows-rotate' +
-        (loading() ? ' animate-spin' : '')
-      "
+      [icon]="'fa-sharp fa-regular fa-arrows-rotate' + (loading() ? ' animate-spin' : '')"
       [disabled]="loading()"
       styleClass="p-button-tonal"
       ariaLabel="Actualizar"
@@ -132,11 +112,7 @@
     <p-button
       class="lg:hidden"
       icon="fa-sharp fa-regular fa-filter"
-      [badge]="
-        activeFilters().length > 0
-          ? activeFilters().length.toString()
-          : undefined
-      "
+      [badge]="activeFilters().length > 0 ? activeFilters().length.toString() : undefined"
       badgeSeverity="contrast"
       styleClass="p-button-tonal"
       ariaLabel="Filtros y orden"
@@ -192,21 +168,15 @@
     Mobile lo verá en el filter sheet header (no en toolbar para no
     competir con CTA en viewport estrecho).
   -->
-  <div
-    class="hidden lg:flex items-center gap-1 mb-4 -mx-1 px-1 overflow-x-auto"
-    role="tablist"
-    aria-label="Vistas guardadas"
-  >
+  <div class="hidden lg:flex items-center gap-1 mb-4 -mx-1 px-1 overflow-x-auto" role="tablist" aria-label="Vistas guardadas">
     @for (view of savedViews.views(); track view.id) {
       <button
         type="button"
         role="tab"
         [attr.aria-selected]="activeSavedViewId() === view.id"
         [ngClass]="{
-          'bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100':
-            activeSavedViewId() === view.id,
-          'text-muted-color hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700':
-            activeSavedViewId() !== view.id,
+          'bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100': activeSavedViewId() === view.id,
+          'text-muted-color hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700': activeSavedViewId() !== view.id,
         }"
         class="inline-flex items-center gap-2 px-3 py-1 rounded-lg font-medium leading-6 cursor-pointer transition-colors whitespace-nowrap"
         (click)="applySavedView(view)"
@@ -224,9 +194,7 @@
              actuales divergen del snapshot guardado. Patrón Linear/
              HubSpot: dot `●` indica "Modificado" sin necesidad de texto.
              Aparece solo en la view activa (no en otras tabs). -->
-        @if (
-          activeSavedViewId() === view.id && hasUnsavedChanges()
-        ) {
+        @if (activeSavedViewId() === view.id && hasUnsavedChanges()) {
           <span
             class="inline-block w-2 h-2 rounded-full bg-primary"
             [pTooltip]="'Cambios sin guardar'"
@@ -241,10 +209,7 @@
             [attr.aria-label]="'Eliminar vista ' + view.name"
             (click)="$event.stopPropagation(); deleteSavedView(view)"
           >
-            <i
-              class="fa-sharp fa-regular fa-xmark text-xs"
-              aria-hidden="true"
-            ></i>
+            <i class="fa-sharp fa-regular fa-xmark text-xs" aria-hidden="true"></i>
           </button>
         }
       </button>
@@ -254,10 +219,7 @@
          Reset descarta (restaura snapshot), Guardar overwrite (custom
          views only — system views nunca se overwrite). -->
     @if (activeSavedViewId() !== null && hasUnsavedChanges()) {
-      <span
-        class="mx-2 h-6 border-l border-surface"
-        aria-hidden="true"
-      ></span>
+      <span class="mx-2 h-6 border-l border-surface" aria-hidden="true"></span>
       <button
         type="button"
         class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-muted-color font-medium leading-6 cursor-pointer hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors whitespace-nowrap"
@@ -265,15 +227,10 @@
         tooltipPosition="top"
         (click)="resetActiveView()"
       >
-        <i
-          class="fa-sharp fa-regular fa-rotate-left text-xs"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-rotate-left text-xs" aria-hidden="true"></i>
         <span>Descartar</span>
       </button>
-      @if (
-        savedViews.get($any(activeSavedViewId()))?.system === false
-      ) {
+      @if (savedViews.get($any(activeSavedViewId()))?.system === false) {
         <button
           type="button"
           class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-primary font-medium leading-6 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900 transition-colors whitespace-nowrap"
@@ -282,10 +239,7 @@
           [disabled]="savedViews.busy()"
           (click)="updateActiveView()"
         >
-          <i
-            class="fa-sharp fa-regular fa-check text-xs"
-            aria-hidden="true"
-          ></i>
+          <i class="fa-sharp fa-regular fa-check text-xs" aria-hidden="true"></i>
           <span>Guardar cambios</span>
         </button>
       }
@@ -295,19 +249,13 @@
          view (activeSavedViewId === null). Si matchea (tabs primary)
          no tiene sentido "guardar como nueva" - sería duplicado. -->
     @if (activeFilters().length > 0 && activeSavedViewId() === null) {
-      <span
-        class="mx-2 h-6 border-l border-surface"
-        aria-hidden="true"
-      ></span>
+      <span class="mx-2 h-6 border-l border-surface" aria-hidden="true"></span>
       <button
         type="button"
         class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-primary font-medium leading-6 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900 transition-colors whitespace-nowrap"
         (click)="openSaveViewDialog()"
       >
-        <i
-          class="fa-sharp fa-regular fa-bookmark text-xs"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-bookmark text-xs" aria-hidden="true"></i>
         <span>Guardar vista</span>
       </button>
     }
@@ -328,7 +276,7 @@
     >
       <span class="font-medium leading-6 flex-1 min-w-0">
         {{ selectionCount() }}
-        {{ selectionCount() === 1 ? "cliente seleccionado" : "clientes seleccionados" }}
+        {{ selectionCount() === 1 ? 'cliente seleccionado' : 'clientes seleccionados' }}
       </span>
       <p-button
         label="Asignar vendedor"
@@ -369,18 +317,9 @@
     </div>
   }
   @if (loadError() && tableData().length > 0) {
-    <div
-      class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
-      role="alert"
-    >
-      <i
-        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
-        aria-hidden="true"
-      ></i>
-      <span class="flex-1 text-muted-color leading-5">
-        No pudimos refrescar los datos. Estás viendo la última versión
-        disponible.
-      </span>
+    <div class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm" role="alert">
+      <i class="fa-sharp fa-regular fa-triangle-exclamation text-color" aria-hidden="true"></i>
+      <span class="flex-1 text-muted-color leading-5"> No pudimos refrescar los datos. Estás viendo la última versión disponible. </span>
       <p-button
         label="Reintentar"
         severity="secondary"
@@ -401,15 +340,8 @@
     desde 2+ filtros (no tiene sentido con 1, basta con clickear el chip).
   -->
   @if (activeFilters().length > 0) {
-    <div
-      class="flex flex-wrap items-center gap-2 mb-4"
-      role="region"
-      aria-label="Filtros activos"
-    >
-      @for (
-        filter of activeFilters();
-        track filter.field + filter.matchMode
-      ) {
+    <div class="flex flex-wrap items-center gap-2 mb-4" role="region" aria-label="Filtros activos">
+      @for (filter of activeFilters(); track filter.field + filter.matchMode) {
         <!--
           Filter chip — STATE indicator, no action en sí mismo. Chrome
           neutral surface (gris), no tonal primary. El color queda
@@ -427,19 +359,14 @@
         <button
           type="button"
           class="inline-flex items-center gap-2 pl-3 pr-2 py-1 rounded-lg bg-surface-200 text-color dark:bg-surface-700 leading-6 cursor-pointer hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"
-          [attr.aria-label]="
-            'Quitar filtro ' + filter.label + ': ' + filter.display
-          "
+          [attr.aria-label]="'Quitar filtro ' + filter.label + ': ' + filter.display"
           (click)="removeFilter(filter)"
         >
           <span>
             <span class="font-semibold">{{ filter.label }}:</span>
             {{ filter.display }}
           </span>
-          <i
-            class="fa-sharp fa-regular fa-xmark text-xs text-muted-color"
-            aria-hidden="true"
-          ></i>
+          <i class="fa-sharp fa-regular fa-xmark text-xs text-muted-color" aria-hidden="true"></i>
         </button>
       }
       @if (activeFilters().length > 1) {
@@ -463,10 +390,7 @@
           class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100 font-medium leading-6 cursor-pointer hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
           (click)="clearAllFilters()"
         >
-          <i
-            class="fa-sharp fa-regular fa-filter-slash text-xs"
-            aria-hidden="true"
-          ></i>
+          <i class="fa-sharp fa-regular fa-filter-slash text-xs" aria-hidden="true"></i>
           <span>Limpiar</span>
         </button>
       }
@@ -484,10 +408,7 @@
         tooltipPosition="top"
         (click)="copyShareUrl()"
       >
-        <i
-          class="fa-sharp fa-regular fa-link text-xs"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-link text-xs" aria-hidden="true"></i>
         <span>Compartir</span>
       </button>
     </div>
@@ -522,10 +443,7 @@
   <div class="lg:hidden flex-1 overflow-y-auto flex flex-col gap-3">
     @if (loading()) {
       @for (i of skeletonPlaceholders; track i) {
-        <article
-          class="border border-surface rounded-2xl p-4"
-          aria-busy="true"
-        >
+        <article class="border border-surface rounded-2xl p-4" aria-busy="true">
           <div class="flex items-start justify-between gap-3">
             <div class="flex-1 min-w-0">
               <p-skeleton width="70%" height="1.25rem" />
@@ -574,15 +492,8 @@
                 {{ item.name }}
               </h2>
               <div class="mt-1 flex items-center gap-2 flex-wrap">
-                <span
-                  class="tabular-nums text-muted-color text-sm leading-5"
-                  >{{ item.rut }}</span
-                >
-                <p-tag
-                  [severity]="typeSeverity(item.type)"
-                  [value]="item.type"
-                  class="font-medium"
-                />
+                <span class="tabular-nums text-muted-color text-sm leading-5">{{ item.rut }}</span>
+                <p-tag [severity]="typeSeverity(item.type)" [value]="item.type" class="font-medium" />
               </div>
             </div>
             <p-button
@@ -596,20 +507,13 @@
               tooltipPosition="left"
             />
           </header>
-          <dl
-            class="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm"
-          >
+          <dl class="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
             <dt class="text-muted-color leading-5">Vendedor</dt>
             <dd class="text-color leading-5 min-w-0">
               @if (item.assignedSellers.length > 0) {
                 <span>{{ item.assignedSellers[0] }}</span>
                 @if (item.assignedSellers.length > 1) {
-                  <span
-                    class="text-muted-color"
-                    [pTooltip]="
-                      additionalSellersTooltip(item.assignedSellers)
-                    "
-                    tooltipPosition="top"
+                  <span class="text-muted-color" [pTooltip]="additionalSellersTooltip(item.assignedSellers)" tooltipPosition="top"
                     >· {{ item.assignedSellers.length - 1 }} más</span
                   >
                 }
@@ -630,12 +534,7 @@
                 -->
                 <span
                   class="inline-flex items-center gap-1.5 text-xs text-muted-color leading-4 tabular-nums"
-                  [pTooltip]="
-                    'Usado ' +
-                    formatCredit(item.usedCredit) +
-                    ' de ' +
-                    formatCredit(item.assignedCredit)
-                  "
+                  [pTooltip]="'Usado ' + formatCredit(item.usedCredit) + ' de ' + formatCredit(item.assignedCredit)"
                   tooltipPosition="top"
                 >
                   <span
@@ -644,17 +543,11 @@
                     [attr.aria-valuenow]="creditUtilizationPct(item)"
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    [attr.aria-label]="
-                      'Utilización de crédito ' +
-                      creditUtilizationPct(item) +
-                      '%'
-                    "
+                    [attr.aria-label]="'Utilización de crédito ' + creditUtilizationPct(item) + '%'"
                   >
                     <span
                       class="block h-full transition-colors"
-                      [style.backgroundColor]="
-                        creditUtilizationColor(creditUtilizationPct(item))
-                      "
+                      [style.backgroundColor]="creditUtilizationColor(creditUtilizationPct(item))"
                       [style.width.%]="creditUtilizationPct(item)"
                     ></span>
                   </span>
@@ -675,19 +568,11 @@
             -->
             <dt class="text-muted-color leading-5">Cartera</dt>
             <dd>
-              <p-tag
-                [severity]="carteraSeverity(item.cartera)"
-                [value]="carteraLabel(item.cartera)"
-                class="font-medium"
-              />
+              <p-tag [severity]="carteraSeverity(item.cartera)" [value]="carteraLabel(item.cartera)" class="font-medium" />
             </dd>
             <dt class="text-muted-color leading-5">Ciclo</dt>
             <dd>
-              <p-tag
-                [severity]="lifecycleSeverity(item.lifecycle)"
-                [value]="item.lifecycle"
-                class="font-medium"
-              />
+              <p-tag [severity]="lifecycleSeverity(item.lifecycle)" [value]="item.lifecycle" class="font-medium" />
             </dd>
           </dl>
         </article>
@@ -752,11 +637,7 @@
             cross-tipo. Filter contains sobre `name` matchea cualquier
             sub-string.
           -->
-          <th
-            pSortableColumn="sortKey"
-            scope="col"
-            class="whitespace-nowrap"
-          >
+          <th pSortableColumn="sortKey" scope="col" class="whitespace-nowrap">
             <div class="flex w-full items-center justify-between gap-2">
               <span class="flex items-center gap-1">
                 <span>Nombre</span>
@@ -764,47 +645,7 @@
               </span>
               <span pTooltip="Filtrar" tooltipPosition="bottom"
                 ><p-columnFilter
-                field="name"
-                matchMode="contains"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <app-table-filter-shell>
-                    <input
-                      type="text"
-                      pInputText
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Buscar nombre o razón social"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
-            </div>
-          </th>
-          @if (isColumnVisible('rut')) {
-            <th
-              pSortableColumn="rut"
-              scope="col"
-              class="w-44 whitespace-nowrap"
-            >
-              <div class="flex w-full items-center justify-between gap-2">
-                <span class="flex items-center gap-1">
-                  <span>RUT</span>
-                  <p-sortIcon field="rut" />
-                </span>
-                <span pTooltip="Filtrar" tooltipPosition="bottom"
-                  ><p-columnFilter
-                  field="rut"
+                  field="name"
                   matchMode="contains"
                   display="menu"
                   [showMatchModes]="false"
@@ -812,406 +653,362 @@
                   [showAddButton]="false"
                   [pt]="columnFilterPt"
                 >
-                  <ng-template
-                    #filter
-                    let-value
-                    let-filter="filterCallback"
-                  >
+                  <ng-template #filter let-value let-filter="filterCallback">
                     <app-table-filter-shell>
                       <input
                         type="text"
                         pInputText
                         [ngModel]="value"
                         (ngModelChange)="filter($event)"
-                        placeholder="Buscar RUT"
+                        placeholder="Buscar nombre o razón social"
                         class="w-full"
                       />
                     </app-table-filter-shell>
-                  </ng-template>
-                </p-columnFilter></span>
+                  </ng-template> </p-columnFilter
+              ></span>
+            </div>
+          </th>
+          @if (isColumnVisible('rut')) {
+            <th pSortableColumn="rut" scope="col" class="w-44 whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>RUT</span>
+                  <p-sortIcon field="rut" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                    field="rut"
+                    matchMode="contains"
+                    display="menu"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                    [pt]="columnFilterPt"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <app-table-filter-shell>
+                        <input
+                          type="text"
+                          pInputText
+                          [ngModel]="value"
+                          (ngModelChange)="filter($event)"
+                          placeholder="Buscar RUT"
+                          class="w-full"
+                        />
+                      </app-table-filter-shell>
+                    </ng-template> </p-columnFilter
+                ></span>
               </div>
             </th>
           }
           @if (isColumnVisible('type')) {
-          <th
-            pSortableColumn="type"
-            scope="col"
-            class="w-32 whitespace-nowrap text-center"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex-1"></span>
-              <span class="flex items-center gap-1">
-                <span>Tipo</span>
-                <p-sortIcon field="type" />
-              </span>
-              <span class="flex-1 flex items-center justify-end">
-                <span pTooltip="Filtrar" tooltipPosition="bottom"
-                  ><p-columnFilter
-                  field="type"
-                  matchMode="in"
-                  display="menu"
-                  [showMatchModes]="false"
-                  [showOperator]="false"
-                  [showAddButton]="false"
-                  [pt]="columnFilterPt"
-                >
-                  <ng-template
-                    #filter
-                    let-value
-                    let-filter="filterCallback"
-                  >
-                    <app-table-filter-shell>
-                      <p-multiselect
-                        [options]="typeOptions"
-                        [ngModel]="value"
-                        (ngModelChange)="filter($event)"
-                        placeholder="Cualquiera"
-                        class="w-full"
-                      />
-                    </app-table-filter-shell>
-                  </ng-template>
-                </p-columnFilter></span>
-              </span>
-            </div>
-          </th>
+            <th pSortableColumn="type" scope="col" class="w-32 whitespace-nowrap text-center">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex-1"></span>
+                <span class="flex items-center gap-1">
+                  <span>Tipo</span>
+                  <p-sortIcon field="type" />
+                </span>
+                <span class="flex-1 flex items-center justify-end">
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
+                      field="type"
+                      matchMode="in"
+                      display="menu"
+                      [showMatchModes]="false"
+                      [showOperator]="false"
+                      [showAddButton]="false"
+                      [pt]="columnFilterPt"
+                    >
+                      <ng-template #filter let-value let-filter="filterCallback">
+                        <app-table-filter-shell>
+                          <p-multiselect
+                            [options]="typeOptions"
+                            [ngModel]="value"
+                            (ngModelChange)="filter($event)"
+                            placeholder="Cualquiera"
+                            class="w-full"
+                          />
+                        </app-table-filter-shell>
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('email')) {
-          <th
-            pSortableColumn="email"
-            scope="col"
-            class="w-64 whitespace-nowrap"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex items-center gap-1">
-                <span>Contacto</span>
-                <p-sortIcon field="email" />
-              </span>
-              <span pTooltip="Filtrar" tooltipPosition="bottom"
-                ><p-columnFilter
-                field="email"
-                matchMode="contains"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <app-table-filter-shell>
-                    <input
-                      type="text"
-                      pInputText
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Buscar email"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
-            </div>
-          </th>
-          }
-          @if (isColumnVisible('lifecycle')) {
-          <th
-            pSortableColumn="lifecycle"
-            scope="col"
-            class="w-40 whitespace-nowrap text-center"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex-1"></span>
-              <span class="flex items-center gap-1">
-                <span>Ciclo de vida</span>
-                <p-sortIcon field="lifecycle" />
-              </span>
-              <span class="flex-1 flex items-center gap-1 justify-end">
-                <app-column-help
-                  title="Ciclo de vida comercial"
-                  description="Métrica de salud comercial separada del estado financiero (Cartera). Mira el comportamiento de compra del cliente."
-                  [entries]="lifecycleLegend"
-                />
+            <th pSortableColumn="email" scope="col" class="w-64 whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Contacto</span>
+                  <p-sortIcon field="email" />
+                </span>
                 <span pTooltip="Filtrar" tooltipPosition="bottom"
                   ><p-columnFilter
-                  field="lifecycle"
-                  matchMode="in"
-                  display="menu"
-                  [showMatchModes]="false"
-                  [showOperator]="false"
-                  [showAddButton]="false"
-                  [pt]="columnFilterPt"
-                >
-                  <ng-template
-                    #filter
-                    let-value
-                    let-filter="filterCallback"
+                    field="email"
+                    matchMode="contains"
+                    display="menu"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                    [pt]="columnFilterPt"
                   >
-                    <app-table-filter-shell>
-                      <p-multiselect
-                        [options]="lifecycleOptions"
-                        [ngModel]="value"
-                        (ngModelChange)="filter($event)"
-                        placeholder="Cualquiera"
-                        class="w-full"
-                      />
-                    </app-table-filter-shell>
-                  </ng-template>
-                </p-columnFilter></span>
-              </span>
-            </div>
-          </th>
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <app-table-filter-shell>
+                        <input
+                          type="text"
+                          pInputText
+                          [ngModel]="value"
+                          (ngModelChange)="filter($event)"
+                          placeholder="Buscar email"
+                          class="w-full"
+                        />
+                      </app-table-filter-shell>
+                    </ng-template> </p-columnFilter
+                ></span>
+              </div>
+            </th>
+          }
+          @if (isColumnVisible('lifecycle')) {
+            <th pSortableColumn="lifecycle" scope="col" class="w-40 whitespace-nowrap text-center">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex-1"></span>
+                <span class="flex items-center gap-1">
+                  <span>Ciclo de vida</span>
+                  <p-sortIcon field="lifecycle" />
+                </span>
+                <span class="flex-1 flex items-center gap-1 justify-end">
+                  <app-column-help
+                    title="Ciclo de vida comercial"
+                    description="Métrica de salud comercial separada del estado financiero (Cartera). Mira el comportamiento de compra del cliente."
+                    [entries]="lifecycleLegend"
+                  />
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
+                      field="lifecycle"
+                      matchMode="in"
+                      display="menu"
+                      [showMatchModes]="false"
+                      [showOperator]="false"
+                      [showAddButton]="false"
+                      [pt]="columnFilterPt"
+                    >
+                      <ng-template #filter let-value let-filter="filterCallback">
+                        <app-table-filter-shell>
+                          <p-multiselect
+                            [options]="lifecycleOptions"
+                            [ngModel]="value"
+                            (ngModelChange)="filter($event)"
+                            placeholder="Cualquiera"
+                            class="w-full"
+                          />
+                        </app-table-filter-shell>
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('assignedSellers')) {
-          <th scope="col" class="whitespace-nowrap">
-            <!--
+            <th scope="col" class="whitespace-nowrap">
+              <!--
               Columna "Vendedores asignados" — NO sortable (sortar por
               array no tiene semántica clara) pero filtrable con
               matchMode="arrayIntersect" custom registrado en
               `FilterService` (ver constructor de CustomersComponent).
             -->
-            <div class="flex w-full items-center justify-between gap-2">
-              <span>Vendedores asignados</span>
-              <span pTooltip="Filtrar" tooltipPosition="bottom"
-                ><p-columnFilter
-                field="assignedSellers"
-                [matchMode]="arrayIntersectMatchMode"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="availableSellers()"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquier vendedor"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
-            </div>
-          </th>
+              <div class="flex w-full items-center justify-between gap-2">
+                <span>Vendedores asignados</span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                    field="assignedSellers"
+                    [matchMode]="arrayIntersectMatchMode"
+                    display="menu"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                    [pt]="columnFilterPt"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <app-table-filter-shell>
+                        <p-multiselect
+                          [options]="availableSellers()"
+                          [ngModel]="value"
+                          (ngModelChange)="filter($event)"
+                          placeholder="Cualquier vendedor"
+                          class="w-full"
+                        />
+                      </app-table-filter-shell>
+                    </ng-template> </p-columnFilter
+                ></span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('availableCredit')) {
-          <th
-            pSortableColumn="availableCredit"
-            scope="col"
-            class="w-48 whitespace-nowrap"
-          >
-            <!--
+            <th pSortableColumn="availableCredit" scope="col" class="w-48 whitespace-nowrap">
+              <!--
               Crédito disponible — sortable + filterable por rango
               (slider) con matchMode="between". Step de $500.000 da
               granularidad razonable sin saturar el slider.
             -->
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex items-center gap-1">
-                <span>Crédito disponible</span>
-                <p-sortIcon field="availableCredit" />
-              </span>
-              <span pTooltip="Filtrar" tooltipPosition="bottom"
-                ><p-columnFilter
-                field="availableCredit"
-                matchMode="between"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <app-table-filter-shell>
-                    <div class="flex flex-col gap-3 px-1">
-                      <span class="text-sm text-muted-color leading-5">
-                        {{ formatCredit((value && value[0]) ?? 0) }} –
-                        {{ formatCredit((value && value[1]) ?? maxCredit()) }}
-                      </span>
-                      <p-slider
-                        [ngModel]="value ?? [0, maxCredit()]"
-                        (ngModelChange)="filter($event)"
-                        [range]="true"
-                        [min]="0"
-                        [max]="maxCredit()"
-                        [step]="500000"
-                        class="w-full"
-                      />
-                    </div>
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
-            </div>
-          </th>
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Crédito disponible</span>
+                  <p-sortIcon field="availableCredit" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                    field="availableCredit"
+                    matchMode="between"
+                    display="menu"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                    [pt]="columnFilterPt"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <app-table-filter-shell>
+                        <div class="flex flex-col gap-3 px-1">
+                          <span class="text-sm text-muted-color leading-5">
+                            {{ formatCredit((value && value[0]) ?? 0) }} –
+                            {{ formatCredit((value && value[1]) ?? maxCredit()) }}
+                          </span>
+                          <p-slider
+                            [ngModel]="value ?? [0, maxCredit()]"
+                            (ngModelChange)="filter($event)"
+                            [range]="true"
+                            [min]="0"
+                            [max]="maxCredit()"
+                            [step]="500000"
+                            class="w-full"
+                          />
+                        </div>
+                      </app-table-filter-shell>
+                    </ng-template> </p-columnFilter
+                ></span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('usedCredit')) {
-          <th
-            pSortableColumn="usedCredit"
-            scope="col"
-            class="w-44 whitespace-nowrap"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex items-center gap-1">
-                <span>Crédito utilizado</span>
-                <p-sortIcon field="usedCredit" />
-              </span>
-            </div>
-          </th>
+            <th pSortableColumn="usedCredit" scope="col" class="w-44 whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Crédito utilizado</span>
+                  <p-sortIcon field="usedCredit" />
+                </span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('assignedCredit')) {
-          <th
-            pSortableColumn="assignedCredit"
-            scope="col"
-            class="w-44 whitespace-nowrap"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex items-center gap-1">
-                <span>Crédito asignado</span>
-                <p-sortIcon field="assignedCredit" />
-              </span>
-            </div>
-          </th>
+            <th pSortableColumn="assignedCredit" scope="col" class="w-44 whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Crédito asignado</span>
+                  <p-sortIcon field="assignedCredit" />
+                </span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('region')) {
-          <th
-            pSortableColumn="region"
-            scope="col"
-            class="w-56 whitespace-nowrap"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex items-center gap-1">
-                <span>Región</span>
-                <p-sortIcon field="region" />
-              </span>
-              <span pTooltip="Filtrar" tooltipPosition="bottom"
-                ><p-columnFilter
-                field="region"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="availableRegions()"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquier región"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
-            </div>
-          </th>
+            <th pSortableColumn="region" scope="col" class="w-56 whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Región</span>
+                  <p-sortIcon field="region" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                    field="region"
+                    matchMode="in"
+                    display="menu"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                    [pt]="columnFilterPt"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <app-table-filter-shell>
+                        <p-multiselect
+                          [options]="availableRegions()"
+                          [ngModel]="value"
+                          (ngModelChange)="filter($event)"
+                          placeholder="Cualquier región"
+                          class="w-full"
+                        />
+                      </app-table-filter-shell>
+                    </ng-template> </p-columnFilter
+                ></span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('city')) {
-          <th
-            pSortableColumn="city"
-            scope="col"
-            class="w-48 whitespace-nowrap"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex items-center gap-1">
-                <span>Ciudad</span>
-                <p-sortIcon field="city" />
-              </span>
-              <span pTooltip="Filtrar" tooltipPosition="bottom"
-                ><p-columnFilter
-                field="city"
-                matchMode="contains"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <app-table-filter-shell>
-                    <input
-                      type="text"
-                      pInputText
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Buscar ciudad"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
-            </div>
-          </th>
+            <th pSortableColumn="city" scope="col" class="w-48 whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Ciudad</span>
+                  <p-sortIcon field="city" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                    field="city"
+                    matchMode="contains"
+                    display="menu"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                    [pt]="columnFilterPt"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <app-table-filter-shell>
+                        <input
+                          type="text"
+                          pInputText
+                          [ngModel]="value"
+                          (ngModelChange)="filter($event)"
+                          placeholder="Buscar ciudad"
+                          class="w-full"
+                        />
+                      </app-table-filter-shell>
+                    </ng-template> </p-columnFilter
+                ></span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('segmento')) {
-          <th
-            pSortableColumn="segmento"
-            scope="col"
-            class="w-32 whitespace-nowrap"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex items-center gap-1">
-                <span>Segmento</span>
-                <p-sortIcon field="segmento" />
-              </span>
-              <span pTooltip="Filtrar" tooltipPosition="bottom"
-                ><p-columnFilter
-                field="segmento"
-                matchMode="in"
-                display="menu"
-                [showMatchModes]="false"
-                [showOperator]="false"
-                [showAddButton]="false"
-                [pt]="columnFilterPt"
-              >
-                <ng-template
-                  #filter
-                  let-value
-                  let-filter="filterCallback"
-                >
-                  <app-table-filter-shell>
-                    <p-multiselect
-                      [options]="segmentoOptions"
-                      [ngModel]="value"
-                      (ngModelChange)="filter($event)"
-                      placeholder="Cualquiera"
-                      class="w-full"
-                    />
-                  </app-table-filter-shell>
-                </ng-template>
-              </p-columnFilter></span>
-            </div>
-          </th>
+            <th pSortableColumn="segmento" scope="col" class="w-32 whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Segmento</span>
+                  <p-sortIcon field="segmento" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                    field="segmento"
+                    matchMode="in"
+                    display="menu"
+                    [showMatchModes]="false"
+                    [showOperator]="false"
+                    [showAddButton]="false"
+                    [pt]="columnFilterPt"
+                  >
+                    <ng-template #filter let-value let-filter="filterCallback">
+                      <app-table-filter-shell>
+                        <p-multiselect
+                          [options]="segmentoOptions"
+                          [ngModel]="value"
+                          (ngModelChange)="filter($event)"
+                          placeholder="Cualquiera"
+                          class="w-full"
+                        />
+                      </app-table-filter-shell>
+                    </ng-template> </p-columnFilter
+                ></span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('creditClassification')) {
-          <th
-            pSortableColumn="creditClassification"
-            scope="col"
-            class="w-32 whitespace-nowrap text-center"
-          >
-            <!--
+            <th pSortableColumn="creditClassification" scope="col" class="w-32 whitespace-nowrap text-center">
+              <!--
               Layout 3-zonas para centered headers con controls al lado:
                 [flex-1 spacer] [label+sort] [flex-1 controls justify-end]
               Las dos zonas flex-1 se reparten el remaining space
@@ -1219,174 +1016,150 @@
               haya help + filter buttons en la derecha. Mismo patrón en
               Potencial y Grupo desc. para consistency.
             -->
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex-1"></span>
-              <span class="flex items-center gap-1">
-                <span>Clasif. crédito</span>
-                <p-sortIcon field="creditClassification" />
-              </span>
-              <span class="flex-1 flex items-center gap-1 justify-end">
-                <app-column-help
-                  title="Clasif. crédito"
-                  description="Rating de riesgo crediticio. A1 es el rating más alto, D el más bajo."
-                  [entries]="classificationLegend"
-                />
-                <span pTooltip="Filtrar" tooltipPosition="bottom"
-                  ><p-columnFilter
-                  field="creditClassification"
-                  matchMode="in"
-                  display="menu"
-                  [showMatchModes]="false"
-                  [showOperator]="false"
-                  [showAddButton]="false"
-                  [pt]="columnFilterPt"
-                >
-                  <ng-template
-                    #filter
-                    let-value
-                    let-filter="filterCallback"
-                  >
-                    <app-table-filter-shell>
-                      <p-multiselect
-                        [options]="classificationOptions"
-                        [ngModel]="value"
-                        (ngModelChange)="filter($event)"
-                        placeholder="Cualquiera"
-                        class="w-full"
-                      />
-                    </app-table-filter-shell>
-                  </ng-template>
-                </p-columnFilter></span>
-              </span>
-            </div>
-          </th>
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex-1"></span>
+                <span class="flex items-center gap-1">
+                  <span>Clasif. crédito</span>
+                  <p-sortIcon field="creditClassification" />
+                </span>
+                <span class="flex-1 flex items-center gap-1 justify-end">
+                  <app-column-help
+                    title="Clasif. crédito"
+                    description="Rating de riesgo crediticio. A1 es el rating más alto, D el más bajo."
+                    [entries]="classificationLegend"
+                  />
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
+                      field="creditClassification"
+                      matchMode="in"
+                      display="menu"
+                      [showMatchModes]="false"
+                      [showOperator]="false"
+                      [showAddButton]="false"
+                      [pt]="columnFilterPt"
+                    >
+                      <ng-template #filter let-value let-filter="filterCallback">
+                        <app-table-filter-shell>
+                          <p-multiselect
+                            [options]="classificationOptions"
+                            [ngModel]="value"
+                            (ngModelChange)="filter($event)"
+                            placeholder="Cualquiera"
+                            class="w-full"
+                          />
+                        </app-table-filter-shell>
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('potencial')) {
-          <th
-            pSortableColumn="potencial"
-            scope="col"
-            class="w-28 whitespace-nowrap text-center"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex-1"></span>
-              <span class="flex items-center gap-1">
-                <span>Potencial</span>
-                <p-sortIcon field="potencial" />
-              </span>
-              <span class="flex-1 flex items-center gap-1 justify-end">
-                <app-column-help
-                  title="Potencial de venta"
-                  description="Proyección de revenue futuro de la cuenta. G1 representa máximo potencial, G4 el más bajo."
-                  [entries]="potencialLegend"
-                />
-                <span pTooltip="Filtrar" tooltipPosition="bottom"
-                  ><p-columnFilter
-                  field="potencial"
-                  matchMode="in"
-                  display="menu"
-                  [showMatchModes]="false"
-                  [showOperator]="false"
-                  [showAddButton]="false"
-                  [pt]="columnFilterPt"
-                >
-                  <ng-template
-                    #filter
-                    let-value
-                    let-filter="filterCallback"
-                  >
-                    <app-table-filter-shell>
-                      <p-multiselect
-                        [options]="potencialOptions"
-                        [ngModel]="value"
-                        (ngModelChange)="filter($event)"
-                        placeholder="Cualquiera"
-                        class="w-full"
-                      />
-                    </app-table-filter-shell>
-                  </ng-template>
-                </p-columnFilter></span>
-              </span>
-            </div>
-          </th>
+            <th pSortableColumn="potencial" scope="col" class="w-28 whitespace-nowrap text-center">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex-1"></span>
+                <span class="flex items-center gap-1">
+                  <span>Potencial</span>
+                  <p-sortIcon field="potencial" />
+                </span>
+                <span class="flex-1 flex items-center gap-1 justify-end">
+                  <app-column-help
+                    title="Potencial de venta"
+                    description="Proyección de revenue futuro de la cuenta. G1 representa máximo potencial, G4 el más bajo."
+                    [entries]="potencialLegend"
+                  />
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
+                      field="potencial"
+                      matchMode="in"
+                      display="menu"
+                      [showMatchModes]="false"
+                      [showOperator]="false"
+                      [showAddButton]="false"
+                      [pt]="columnFilterPt"
+                    >
+                      <ng-template #filter let-value let-filter="filterCallback">
+                        <app-table-filter-shell>
+                          <p-multiselect
+                            [options]="potencialOptions"
+                            [ngModel]="value"
+                            (ngModelChange)="filter($event)"
+                            placeholder="Cualquiera"
+                            class="w-full"
+                          />
+                        </app-table-filter-shell>
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('discountGroup')) {
-          <th
-            pSortableColumn="discountGroup"
-            scope="col"
-            class="w-28 whitespace-nowrap text-center"
-          >
-            <!--
+            <th pSortableColumn="discountGroup" scope="col" class="w-28 whitespace-nowrap text-center">
+              <!--
               Grupo descuento — column numeric centered. Sin filter
               propio: el valor ya queda cubierto por filtros de
               segmento/cartera/clasificación que típicamente correlacionan
               (ej. clientes A1 + Industrial = grupo 4-5). Help icon
               expone la escala 0-5 con sus tiers de descuento.
             -->
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex-1"></span>
-              <span class="flex items-center gap-1">
-                <span>Grupo desc.</span>
-                <p-sortIcon field="discountGroup" />
-              </span>
-              <span class="flex-1 flex items-center justify-end">
-                <app-column-help
-                  title="Grupo de descuento"
-                  description="Tier de descuento aplicado al cliente. 0 sin descuento, 5 tier premium."
-                  [entries]="discountGroupLegend"
-                />
-              </span>
-            </div>
-          </th>
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex-1"></span>
+                <span class="flex items-center gap-1">
+                  <span>Grupo desc.</span>
+                  <p-sortIcon field="discountGroup" />
+                </span>
+                <span class="flex-1 flex items-center justify-end">
+                  <app-column-help
+                    title="Grupo de descuento"
+                    description="Tier de descuento aplicado al cliente. 0 sin descuento, 5 tier premium."
+                    [entries]="discountGroupLegend"
+                  />
+                </span>
+              </div>
+            </th>
           }
           @if (isColumnVisible('cartera')) {
-          <th
-            pSortableColumn="cartera"
-            scope="col"
-            class="w-32 whitespace-nowrap text-center"
-          >
-            <div class="flex w-full items-center justify-between gap-2">
-              <span class="flex-1"></span>
-              <span class="flex items-center gap-1">
-                <span>Cartera</span>
-                <p-sortIcon field="cartera" />
-              </span>
-              <span class="flex-1 flex items-center gap-1 justify-end">
-                <app-column-help
-                  title="Cartera (lifecycle)"
-                  description="Estado del cliente en el ciclo de relación. Determina a qué equipo se asigna la gestión."
-                  [entries]="carteraLegend"
-                />
-                <span pTooltip="Filtrar" tooltipPosition="bottom"
-                  ><p-columnFilter
-                  field="cartera"
-                  matchMode="in"
-                  display="menu"
-                  [showMatchModes]="false"
-                  [showOperator]="false"
-                  [showAddButton]="false"
-                  [pt]="columnFilterPt"
-                >
-                  <ng-template
-                    #filter
-                    let-value
-                    let-filter="filterCallback"
-                  >
-                    <app-table-filter-shell>
-                      <p-multiselect
-                        [options]="carteraOptions"
-                        optionLabel="label"
-                        optionValue="value"
-                        [ngModel]="value"
-                        (ngModelChange)="filter($event)"
-                        placeholder="Cualquiera"
-                        class="w-full"
-                      />
-                    </app-table-filter-shell>
-                  </ng-template>
-                </p-columnFilter></span>
-              </span>
-            </div>
-          </th>
+            <th pSortableColumn="cartera" scope="col" class="w-32 whitespace-nowrap text-center">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex-1"></span>
+                <span class="flex items-center gap-1">
+                  <span>Cartera</span>
+                  <p-sortIcon field="cartera" />
+                </span>
+                <span class="flex-1 flex items-center gap-1 justify-end">
+                  <app-column-help
+                    title="Cartera (lifecycle)"
+                    description="Estado del cliente en el ciclo de relación. Determina a qué equipo se asigna la gestión."
+                    [entries]="carteraLegend"
+                  />
+                  <span pTooltip="Filtrar" tooltipPosition="bottom"
+                    ><p-columnFilter
+                      field="cartera"
+                      matchMode="in"
+                      display="menu"
+                      [showMatchModes]="false"
+                      [showOperator]="false"
+                      [showAddButton]="false"
+                      [pt]="columnFilterPt"
+                    >
+                      <ng-template #filter let-value let-filter="filterCallback">
+                        <app-table-filter-shell>
+                          <p-multiselect
+                            [options]="carteraOptions"
+                            optionLabel="label"
+                            optionValue="value"
+                            [ngModel]="value"
+                            (ngModelChange)="filter($event)"
+                            placeholder="Cualquiera"
+                            class="w-full"
+                          />
+                        </app-table-filter-shell>
+                      </ng-template> </p-columnFilter
+                  ></span>
+                </span>
+              </div>
+            </th>
           }
           <th scope="col" class="w-12 whitespace-nowrap"></th>
         </tr>
@@ -1406,8 +1179,8 @@
             <span class="text-color font-medium">{{ data.name }}</span>
           </td>
           @if (isColumnVisible('rut')) {
-          <td class="whitespace-nowrap">
-            <!--
+            <td class="whitespace-nowrap">
+              <!--
               tabular-nums (no font-mono): los dígitos del RUT se
               alinean verticalmente entre filas para escaneo predecible
               de la columna, pero conservamos el font Inter del resto
@@ -1415,62 +1188,56 @@
               monospace genérico. Patrón Stripe / Linear: numéricos
               tabulares en cells de identificadores y montos.
             -->
-            <span class="tabular-nums text-muted-color leading-6">{{
-              data.rut
-            }}</span>
-          </td>
+              <span class="tabular-nums text-muted-color leading-6">{{ data.rut }}</span>
+            </td>
           }
           @if (isColumnVisible('type')) {
-          <td
-            class="whitespace-nowrap text-center cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
-            pEditableColumn
-            [pEditableColumnField]="'type'"
-            title="Click para editar"
-          >
-            <p-cellEditor>
-              <ng-template #input>
-                <p-select
-                  [options]="$any(typeOptions)"
-                  [ngModel]="data.type"
-                  (ngModelChange)="onTipoEdit(data, $event)"
-                  appendTo="body"
-                  class="w-full"
-                />
-              </ng-template>
-              <ng-template #output>
-                <p-tag
-                  [severity]="typeSeverity(data.type)"
-                  [value]="data.type"
-                  class="font-medium"
-                />
-              </ng-template>
-            </p-cellEditor>
-          </td>
+            <td
+              class="whitespace-nowrap text-center cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+              pEditableColumn
+              [pEditableColumnField]="'type'"
+              title="Click para editar"
+            >
+              <p-cellEditor>
+                <ng-template #input>
+                  <p-select
+                    [options]="$any(typeOptions)"
+                    [ngModel]="data.type"
+                    (ngModelChange)="onTipoEdit(data, $event)"
+                    appendTo="body"
+                    class="w-full"
+                  />
+                </ng-template>
+                <ng-template #output>
+                  <p-tag [severity]="typeSeverity(data.type)" [value]="data.type" class="font-medium" />
+                </ng-template>
+              </p-cellEditor>
+            </td>
           }
           @if (isColumnVisible('email')) {
-          <td class="whitespace-nowrap">
-            <span class="text-muted-color leading-6">{{ data.email }}</span>
-          </td>
+            <td class="whitespace-nowrap">
+              <span class="text-muted-color leading-6">{{ data.email }}</span>
+            </td>
           }
           @if (isColumnVisible('lifecycle')) {
-          <td class="whitespace-nowrap text-center">
-            <p-tag
-              [severity]="lifecycleSeverity(data.lifecycle)"
-              [value]="data.lifecycle"
-              class="font-medium"
-              [pTooltip]="codeTooltip(lifecycleLegend, data.lifecycle)"
-              tooltipPosition="top"
-            />
-          </td>
+            <td class="whitespace-nowrap text-center">
+              <p-tag
+                [severity]="lifecycleSeverity(data.lifecycle)"
+                [value]="data.lifecycle"
+                class="font-medium"
+                [pTooltip]="codeTooltip(lifecycleLegend, data.lifecycle)"
+                tooltipPosition="top"
+              />
+            </td>
           }
           @if (isColumnVisible('assignedSellers')) {
-          <td
-            class="whitespace-nowrap cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
-            pEditableColumn
-            [pEditableColumnField]="'assignedSellers'"
-            title="Click para editar"
-          >
-            <!--
+            <td
+              class="whitespace-nowrap cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+              pEditableColumn
+              [pEditableColumnField]="'assignedSellers'"
+              title="Click para editar"
+            >
+              <!--
               Patrón Salesforce / HubSpot / Pipedrive: en CRM, ownership
               de la cuenta es jerárquico y singular. Mostramos al
               account manager con nombre completo + "N más" si hay
@@ -1478,121 +1245,103 @@
               click → dropdown de availableSellers → Enter commit /
               Escape cancel. Patrón Salesforce/Airtable.
             -->
-            <p-cellEditor>
-              <ng-template #input>
-                <p-select
-                  [options]="availableSellers()"
-                  [ngModel]="data.assignedSellers[0] ?? null"
-                  (ngModelChange)="onVendedorEdit(data, $event)"
-                  appendTo="body"
-                  placeholder="Sin asignar"
-                  class="w-full"
-                />
-              </ng-template>
-              <ng-template #output>
-            @if (data.assignedSellers.length > 0) {
-              <div class="flex items-center gap-1 leading-6">
-                <span class="text-color">{{ data.assignedSellers[0] }}</span>
-                @if (data.assignedSellers.length > 1) {
-                  <span
-                    class="text-muted-color"
-                    [pTooltip]="additionalSellersTooltip(data.assignedSellers)"
-                    tooltipPosition="top"
-                  >
-                    · {{ data.assignedSellers.length - 1 }} más
-                  </span>
-                }
-              </div>
-            } @else {
-              <span class="text-muted-color leading-6">—</span>
-            }
-              </ng-template>
-            </p-cellEditor>
-          </td>
+              <p-cellEditor>
+                <ng-template #input>
+                  <p-select
+                    [options]="availableSellers()"
+                    [ngModel]="data.assignedSellers[0] ?? null"
+                    (ngModelChange)="onVendedorEdit(data, $event)"
+                    appendTo="body"
+                    placeholder="Sin asignar"
+                    class="w-full"
+                  />
+                </ng-template>
+                <ng-template #output>
+                  @if (data.assignedSellers.length > 0) {
+                    <div class="flex items-center gap-1 leading-6">
+                      <span class="text-color">{{ data.assignedSellers[0] }}</span>
+                      @if (data.assignedSellers.length > 1) {
+                        <span class="text-muted-color" [pTooltip]="additionalSellersTooltip(data.assignedSellers)" tooltipPosition="top">
+                          · {{ data.assignedSellers.length - 1 }} más
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-muted-color leading-6">—</span>
+                  }
+                </ng-template>
+              </p-cellEditor>
+            </td>
           }
           @if (isColumnVisible('availableCredit')) {
-          <td class="whitespace-nowrap">
-            <span class="tabular-nums text-color leading-6">{{
-              formatCredit(data.availableCredit)
-            }}</span>
-          </td>
+            <td class="whitespace-nowrap">
+              <span class="tabular-nums text-color leading-6">{{ formatCredit(data.availableCredit) }}</span>
+            </td>
           }
           @if (isColumnVisible('usedCredit')) {
-          <td class="whitespace-nowrap">
-            <span class="tabular-nums text-muted-color leading-6">{{
-              formatCredit(data.usedCredit)
-            }}</span>
-          </td>
+            <td class="whitespace-nowrap">
+              <span class="tabular-nums text-muted-color leading-6">{{ formatCredit(data.usedCredit) }}</span>
+            </td>
           }
           @if (isColumnVisible('assignedCredit')) {
-          <td class="whitespace-nowrap">
-            <span class="tabular-nums text-muted-color leading-6">{{
-              formatCredit(data.assignedCredit)
-            }}</span>
-          </td>
+            <td class="whitespace-nowrap">
+              <span class="tabular-nums text-muted-color leading-6">{{ formatCredit(data.assignedCredit) }}</span>
+            </td>
           }
           @if (isColumnVisible('region')) {
-          <td class="whitespace-nowrap">
-            <span class="text-color leading-6">{{ data.region }}</span>
-          </td>
+            <td class="whitespace-nowrap">
+              <span class="text-color leading-6">{{ data.region }}</span>
+            </td>
           }
           @if (isColumnVisible('city')) {
-          <td class="whitespace-nowrap">
-            <span class="text-color leading-6">{{ data.city }}</span>
-          </td>
+            <td class="whitespace-nowrap">
+              <span class="text-color leading-6">{{ data.city }}</span>
+            </td>
           }
           @if (isColumnVisible('segmento')) {
-          <td class="whitespace-nowrap">
-            <span class="text-muted-color leading-6">{{ data.segmento }}</span>
-          </td>
+            <td class="whitespace-nowrap">
+              <span class="text-muted-color leading-6">{{ data.segmento }}</span>
+            </td>
           }
           @if (isColumnVisible('creditClassification')) {
-          <td class="whitespace-nowrap text-center">
-            <p-tag
-              [severity]="classificationSeverity(data.creditClassification)"
-              [value]="data.creditClassification"
-              class="font-medium min-w-10 justify-center"
-              [pTooltip]="
-                codeTooltip(classificationLegend, data.creditClassification)
-              "
-              tooltipPosition="top"
-            />
-          </td>
+            <td class="whitespace-nowrap text-center">
+              <p-tag
+                [severity]="classificationSeverity(data.creditClassification)"
+                [value]="data.creditClassification"
+                class="font-medium min-w-10 justify-center"
+                [pTooltip]="codeTooltip(classificationLegend, data.creditClassification)"
+                tooltipPosition="top"
+              />
+            </td>
           }
           @if (isColumnVisible('potencial')) {
-          <td class="whitespace-nowrap text-center">
-            <span
-              class="text-muted-color leading-6"
-              [pTooltip]="codeTooltip(potencialLegend, data.potencial)"
-              tooltipPosition="top"
-            >
-              {{ data.potencial }}
-            </span>
-          </td>
+            <td class="whitespace-nowrap text-center">
+              <span class="text-muted-color leading-6" [pTooltip]="codeTooltip(potencialLegend, data.potencial)" tooltipPosition="top">
+                {{ data.potencial }}
+              </span>
+            </td>
           }
           @if (isColumnVisible('discountGroup')) {
-          <td class="whitespace-nowrap text-center">
-            <span
-              class="tabular-nums text-color leading-6"
-              [pTooltip]="
-                codeTooltip(discountGroupLegend, data.discountGroup.toString())
-              "
-              tooltipPosition="top"
-            >
-              {{ data.discountGroup }}
-            </span>
-          </td>
+            <td class="whitespace-nowrap text-center">
+              <span
+                class="tabular-nums text-color leading-6"
+                [pTooltip]="codeTooltip(discountGroupLegend, data.discountGroup.toString())"
+                tooltipPosition="top"
+              >
+                {{ data.discountGroup }}
+              </span>
+            </td>
           }
           @if (isColumnVisible('cartera')) {
-          <td class="whitespace-nowrap text-center">
-            <p-tag
-              [severity]="carteraSeverity(data.cartera)"
-              [value]="carteraLabel(data.cartera)"
-              class="font-medium"
-              [pTooltip]="codeTooltip(carteraLegend, data.cartera)"
-              tooltipPosition="top"
-            />
-          </td>
+            <td class="whitespace-nowrap text-center">
+              <p-tag
+                [severity]="carteraSeverity(data.cartera)"
+                [value]="carteraLabel(data.cartera)"
+                class="font-medium"
+                [pTooltip]="codeTooltip(carteraLegend, data.cartera)"
+                tooltipPosition="top"
+              />
+            </td>
           }
           <td class="text-right">
             <!--
@@ -1757,10 +1506,7 @@
         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
         (click)="op.hide(); onActionDetail()"
       >
-        <i
-          class="fa-sharp fa-regular fa-eye text-muted-color"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-eye text-muted-color" aria-hidden="true"></i>
         <span>Ver detalle</span>
       </button>
       <button
@@ -1769,10 +1515,7 @@
         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
         (click)="op.hide(); onActionEdit()"
       >
-        <i
-          class="fa-sharp fa-regular fa-pen text-muted-color"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-pen text-muted-color" aria-hidden="true"></i>
         <span>Editar</span>
       </button>
       <button
@@ -1781,10 +1524,7 @@
         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
         (click)="op.hide(); onActionAssign()"
       >
-        <i
-          class="fa-sharp fa-regular fa-user-pen text-muted-color"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-user-pen text-muted-color" aria-hidden="true"></i>
         <span>Asignar vendedor</span>
       </button>
       <button
@@ -1793,10 +1533,7 @@
         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
         (click)="op.hide(); onActionEmail()"
       >
-        <i
-          class="fa-sharp fa-regular fa-envelope text-muted-color"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-envelope text-muted-color" aria-hidden="true"></i>
         <span>Enviar email</span>
       </button>
       <button
@@ -1805,17 +1542,10 @@
         class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
         (click)="op.hide(); onActionDuplicate()"
       >
-        <i
-          class="fa-sharp fa-regular fa-copy text-muted-color"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-copy text-muted-color" aria-hidden="true"></i>
         <span>Duplicar</span>
       </button>
-      <hr
-        class="border-t border-surface my-1 -mx-1"
-        role="separator"
-        aria-hidden="true"
-      />
+      <hr class="border-t border-surface my-1 -mx-1" role="separator" aria-hidden="true" />
       <button
         type="button"
         role="menuitem"
@@ -1872,9 +1602,7 @@
   <div class="flex flex-col gap-6 pb-6">
     <!-- Sort -->
     <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="mobile-sort">
-        Ordenar por
-      </label>
+      <label class="text-color font-semibold leading-6" for="mobile-sort"> Ordenar por </label>
       <p-select
         inputId="mobile-sort"
         [options]="mobileSortOptions"
@@ -1892,9 +1620,7 @@
 
     <!-- Tipo -->
     <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-type">
-        Tipo
-      </label>
+      <label class="text-color font-semibold leading-6" for="sheet-type"> Tipo </label>
       <p-multiselect
         inputId="sheet-type"
         [options]="typeOptions"
@@ -1908,19 +1634,12 @@
 
     <!-- Vendedor -->
     <section class="flex flex-col gap-2">
-      <label
-        class="text-color font-semibold leading-6"
-        for="sheet-vendedor"
-      >
-        Vendedor asignado
-      </label>
+      <label class="text-color font-semibold leading-6" for="sheet-vendedor"> Vendedor asignado </label>
       <p-multiselect
         inputId="sheet-vendedor"
         [options]="availableSellers()"
         [ngModel]="sheetFilterValue('assignedSellers')"
-        (ngModelChange)="
-          applySheetFilter($event, 'assignedSellers', arrayIntersectMatchMode)
-        "
+        (ngModelChange)="applySheetFilter($event, 'assignedSellers', arrayIntersectMatchMode)"
         placeholder="Cualquier vendedor"
         appendTo="body"
         class="w-full"
@@ -1929,31 +1648,16 @@
 
     <!-- Crédito disponible -->
     <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-credit">
-        Crédito disponible
-      </label>
+      <label class="text-color font-semibold leading-6" for="sheet-credit"> Crédito disponible </label>
       <span class="text-sm text-muted-color leading-5">
-        {{
-          formatCredit(
-            ($any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()])[0]
-          )
-        }}
+        {{ formatCredit(($any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()])[0]) }}
         –
-        {{
-          formatCredit(
-            ($any(sheetFilterValue('availableCredit')) ??
-              [0, maxCredit()])[1]
-          )
-        }}
+        {{ formatCredit(($any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()])[1]) }}
       </span>
       <p-slider
         inputId="sheet-credit"
-        [ngModel]="
-          $any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()]
-        "
-        (ngModelChange)="
-          applySheetFilter($event, 'availableCredit', 'between')
-        "
+        [ngModel]="$any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()]"
+        (ngModelChange)="applySheetFilter($event, 'availableCredit', 'between')"
         [range]="true"
         [min]="0"
         [max]="maxCredit()"
@@ -1964,9 +1668,7 @@
 
     <!-- Segmento -->
     <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-segmento">
-        Segmento
-      </label>
+      <label class="text-color font-semibold leading-6" for="sheet-segmento"> Segmento </label>
       <p-multiselect
         inputId="sheet-segmento"
         [options]="segmentoOptions"
@@ -1980,19 +1682,12 @@
 
     <!-- Clasif. crédito -->
     <section class="flex flex-col gap-2">
-      <label
-        class="text-color font-semibold leading-6"
-        for="sheet-classification"
-      >
-        Clasif. crédito
-      </label>
+      <label class="text-color font-semibold leading-6" for="sheet-classification"> Clasif. crédito </label>
       <p-multiselect
         inputId="sheet-classification"
         [options]="classificationOptions"
         [ngModel]="sheetFilterValue('creditClassification')"
-        (ngModelChange)="
-          applySheetFilter($event, 'creditClassification', 'in')
-        "
+        (ngModelChange)="applySheetFilter($event, 'creditClassification', 'in')"
         placeholder="Cualquiera"
         appendTo="body"
         class="w-full"
@@ -2001,12 +1696,7 @@
 
     <!-- Potencial -->
     <section class="flex flex-col gap-2">
-      <label
-        class="text-color font-semibold leading-6"
-        for="sheet-potencial"
-      >
-        Potencial
-      </label>
+      <label class="text-color font-semibold leading-6" for="sheet-potencial"> Potencial </label>
       <p-multiselect
         inputId="sheet-potencial"
         [options]="potencialOptions"
@@ -2020,9 +1710,7 @@
 
     <!-- Cartera -->
     <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-cartera">
-        Cartera
-      </label>
+      <label class="text-color font-semibold leading-6" for="sheet-cartera"> Cartera </label>
       <p-multiselect
         inputId="sheet-cartera"
         [options]="carteraOptions"
@@ -2050,9 +1738,7 @@
     toolbar + Limpiar del chip bar. Aplicar queda filled-primary.
   -->
   <ng-template #footer>
-    <div
-      class="flex items-center gap-2 -mx-6 -mb-6 px-6 py-4 bg-surface-0 dark:bg-surface-950 border-t border-surface"
-    >
+    <div class="flex items-center gap-2 -mx-6 -mb-6 px-6 py-4 bg-surface-0 dark:bg-surface-950 border-t border-surface">
       <p-button
         label="Limpiar"
         icon="fa-sharp fa-regular fa-filter-slash"
@@ -2061,12 +1747,7 @@
         [disabled]="activeFilters().length === 0"
         (onClick)="clearAllFilters()"
       />
-      <p-button
-        label="Aplicar"
-        class="flex-1"
-        styleClass="w-full"
-        (onClick)="closeFilterSheet()"
-      />
+      <p-button label="Aplicar" class="flex-1" styleClass="w-full" (onClick)="closeFilterSheet()" />
     </div>
   </ng-template>
 </p-drawer>
@@ -2096,29 +1777,21 @@
       <div class="flex flex-col gap-1 min-w-0 flex-1">
         <h2 class="text-color font-bold leading-6 truncate">{{ c.name }}</h2>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="tabular-nums text-muted-color text-sm leading-5">{{
-            c.rut
-          }}</span>
-          <p-tag
-            [severity]="typeSeverity(c.type)"
-            [value]="c.type"
-            class="font-medium"
-          />
+          <span class="tabular-nums text-muted-color text-sm leading-5">{{ c.rut }}</span>
+          <p-tag [severity]="typeSeverity(c.type)" [value]="c.type" class="font-medium" />
         </div>
       </div>
     }
   </ng-template>
   @if (detailedCustomer(); as c) {
-    <dl
-      class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 leading-6 pb-6 border-b border-surface mb-6"
-    >
+    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 leading-6 pb-6 border-b border-surface mb-6">
       <dt class="text-muted-color">Email</dt>
       <dd class="text-color truncate">{{ c.email }}</dd>
 
       <dt class="text-muted-color">Vendedores</dt>
       <dd class="text-color">
         @if (c.assignedSellers.length > 0) {
-          {{ c.assignedSellers.join(", ") }}
+          {{ c.assignedSellers.join(', ') }}
         } @else {
           <span class="text-muted-color">—</span>
         }
@@ -2142,11 +1815,7 @@
 
       <dt class="text-muted-color">Clasif. crédito</dt>
       <dd>
-        <p-tag
-          [severity]="classificationSeverity(c.creditClassification)"
-          [value]="c.creditClassification"
-          class="font-medium"
-        />
+        <p-tag [severity]="classificationSeverity(c.creditClassification)" [value]="c.creditClassification" class="font-medium" />
       </dd>
 
       <dt class="text-muted-color">Potencial</dt>
@@ -2157,20 +1826,12 @@
 
       <dt class="text-muted-color">Cartera</dt>
       <dd>
-        <p-tag
-          [severity]="carteraSeverity(c.cartera)"
-          [value]="carteraLabel(c.cartera)"
-          class="font-medium"
-        />
+        <p-tag [severity]="carteraSeverity(c.cartera)" [value]="carteraLabel(c.cartera)" class="font-medium" />
       </dd>
 
       <dt class="text-muted-color">Ciclo de vida</dt>
       <dd>
-        <p-tag
-          [severity]="lifecycleSeverity(c.lifecycle)"
-          [value]="c.lifecycle"
-          class="font-medium"
-        />
+        <p-tag [severity]="lifecycleSeverity(c.lifecycle)" [value]="c.lifecycle" class="font-medium" />
       </dd>
 
       <dt class="text-muted-color">Región</dt>
@@ -2182,22 +1843,8 @@
     <!-- Acciones: secundarias (Editar, Eliminar). Acción primaria
          "Detalles" no aparece — el drawer ya ES el detalle. -->
     <div class="flex items-center gap-2">
-      <p-button
-        label="Editar"
-        icon="fa-sharp fa-regular fa-pen"
-        severity="secondary"
-        outlined
-        class="flex-1"
-        (onClick)="closeDetail()"
-      />
-      <p-button
-        label="Eliminar"
-        icon="fa-sharp fa-regular fa-trash"
-        severity="danger"
-        outlined
-        class="flex-1"
-        (onClick)="closeDetail()"
-      />
+      <p-button label="Editar" icon="fa-sharp fa-regular fa-pen" severity="secondary" outlined class="flex-1" (onClick)="closeDetail()" />
+      <p-button label="Eliminar" icon="fa-sharp fa-regular fa-trash" severity="danger" outlined class="flex-1" (onClick)="closeDetail()" />
     </div>
   }
 </p-drawer>
@@ -2255,12 +1902,7 @@
   [style]="{ width: '420px' }"
 >
   <div class="flex flex-col gap-3">
-    <label
-      class="text-color font-semibold leading-6"
-      for="save-view-name"
-    >
-      Nombre de la vista
-    </label>
+    <label class="text-color font-semibold leading-6" for="save-view-name"> Nombre de la vista </label>
     <input
       pInputText
       id="save-view-name"
@@ -2272,19 +1914,11 @@
       maxlength="50"
       (keydown.enter)="saveCurrentAsView(saveViewName())"
     />
-    <p class="text-sm text-muted-color leading-5">
-      Guarda los filtros, columnas y orden actuales para reutilizar
-      sin reconfigurar.
-    </p>
+    <p class="text-sm text-muted-color leading-5">Guarda los filtros, columnas y orden actuales para reutilizar sin reconfigurar.</p>
   </div>
   <ng-template #footer>
     <div class="flex items-center gap-2 justify-end">
-      <p-button
-        label="Cancelar"
-        styleClass="p-button-tonal"
-        [disabled]="savedViews.busy()"
-        (onClick)="closeSaveViewDialog()"
-      />
+      <p-button label="Cancelar" styleClass="p-button-tonal" [disabled]="savedViews.busy()" (onClick)="closeSaveViewDialog()" />
       <p-button
         label="Guardar"
         icon="fa-sharp fa-regular fa-bookmark"
@@ -2318,14 +1952,9 @@
     <p class="text-color leading-6">
       Asignar como vendedor principal a
       <strong>{{ selectionCount() }}</strong>
-      {{ selectionCount() === 1 ? "cliente" : "clientes" }}:
+      {{ selectionCount() === 1 ? 'cliente' : 'clientes' }}:
     </p>
-    <label
-      class="text-color font-semibold leading-6"
-      for="bulk-assign-seller"
-    >
-      Vendedor
-    </label>
+    <label class="text-color font-semibold leading-6" for="bulk-assign-seller"> Vendedor </label>
     <p-select
       inputId="bulk-assign-seller"
       [options]="availableSellers()"
@@ -2335,18 +1964,11 @@
       appendTo="body"
       class="w-full"
     />
-    <p class="text-sm text-muted-color leading-5">
-      Los vendedores secundarios existentes (si los hay) se mantienen
-      como soporte.
-    </p>
+    <p class="text-sm text-muted-color leading-5">Los vendedores secundarios existentes (si los hay) se mantienen como soporte.</p>
   </div>
   <ng-template #footer>
     <div class="flex items-center gap-2 justify-end">
-      <p-button
-        label="Cancelar"
-        styleClass="p-button-tonal"
-        (onClick)="closeBulkAssign()"
-      />
+      <p-button label="Cancelar" styleClass="p-button-tonal" (onClick)="closeBulkAssign()" />
       <p-button
         label="Asignar"
         icon="fa-sharp fa-regular fa-user-pen"
@@ -2376,36 +1998,20 @@
   [style]="{ width: '420px' }"
 >
   <div class="flex items-start gap-3">
-    <i
-      class="fa-sharp fa-regular fa-triangle-exclamation text-2xl text-color"
-      aria-hidden="true"
-    ></i>
+    <i class="fa-sharp fa-regular fa-triangle-exclamation text-2xl text-color" aria-hidden="true"></i>
     <div class="flex-1 min-w-0">
       <p class="text-color leading-6">
         Esta acción eliminará
         <strong>{{ selectionCount() }}</strong>
-        {{ selectionCount() === 1 ? "cliente" : "clientes" }} de forma
-        permanente. No se puede deshacer.
+        {{ selectionCount() === 1 ? 'cliente' : 'clientes' }} de forma permanente. No se puede deshacer.
       </p>
-      <p class="text-sm text-muted-color leading-5 mt-2">
-        ¿Deseas continuar?
-      </p>
+      <p class="text-sm text-muted-color leading-5 mt-2">¿Deseas continuar?</p>
     </div>
   </div>
   <ng-template #footer>
     <div class="flex items-center gap-2 justify-end">
-      <p-button
-        label="Cancelar"
-        styleClass="p-button-tonal"
-        (onClick)="closeBulkDelete()"
-      />
-      <p-button
-        label="Eliminar"
-        icon="fa-sharp fa-regular fa-trash"
-        iconPos="left"
-        severity="danger"
-        (onClick)="applyBulkDelete()"
-      />
+      <p-button label="Cancelar" styleClass="p-button-tonal" (onClick)="closeBulkDelete()" />
+      <p-button label="Eliminar" icon="fa-sharp fa-regular fa-trash" iconPos="left" severity="danger" (onClick)="applyBulkDelete()" />
     </div>
   </ng-template>
 </p-dialog>
@@ -2432,13 +2038,8 @@
   [style]="{ width: '560px', 'max-width': 'calc(100vw - 2rem)' }"
 >
   <div class="flex flex-col">
-    <div
-      class="flex items-center gap-3 p-3 border-b border-surface"
-    >
-      <i
-        class="fa-sharp fa-regular fa-magnifying-glass text-muted-color"
-        aria-hidden="true"
-      ></i>
+    <div class="flex items-center gap-3 p-3 border-b border-surface">
+      <i class="fa-sharp fa-regular fa-magnifying-glass text-muted-color" aria-hidden="true"></i>
       <input
         #cmdkInput
         pInputText
@@ -2451,39 +2052,21 @@
         [attr.aria-expanded]="cmdkFlatResults().length > 0"
         aria-controls="cmdk-results"
         aria-autocomplete="list"
-        [attr.aria-activedescendant]="
-          cmdkFlatResults().length > 0
-            ? 'cmdk-opt-' + cmdkFlatResults()[cmdkActiveIndex()]?.id
-            : null
-        "
+        [attr.aria-activedescendant]="cmdkFlatResults().length > 0 ? 'cmdk-opt-' + cmdkFlatResults()[cmdkActiveIndex()]?.id : null"
         class="flex-1 !border-0 !shadow-none !bg-transparent !p-0"
         (keydown)="onCmdkKeyDown($event)"
       />
-      <kbd
-        class="text-xs text-muted-color px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-        >Esc</kbd
-      >
+      <kbd class="text-xs text-muted-color px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium">Esc</kbd>
     </div>
-    <div
-      #cmdkList
-      id="cmdk-results"
-      class="max-h-96 overflow-y-auto"
-      role="listbox"
-      aria-label="Resultados de búsqueda de clientes"
-    >
+    <div #cmdkList id="cmdk-results" class="max-h-96 overflow-y-auto" role="listbox" aria-label="Resultados de búsqueda de clientes">
       @if (cmdkFlatResults().length === 0) {
-        <div class="px-4 py-6 text-center text-muted-color leading-6">
-          Sin coincidencias. Prueba por nombre, RUT o email completo.
-        </div>
+        <div class="px-4 py-6 text-center text-muted-color leading-6">Sin coincidencias. Prueba por nombre, RUT o email completo.</div>
       } @else {
         @for (group of cmdkResults(); track group.label) {
           <!-- Section header — patrón Linear/Stripe/Notion: categorical
                grouping aumenta scanability del listbox para el user.
                role=presentation porque no es un item navegable. -->
-          <div
-            class="px-3 pt-3 pb-1 text-xs text-muted-color font-semibold uppercase tracking-wide leading-4"
-            role="presentation"
-          >
+          <div class="px-3 pt-3 pb-1 text-xs text-muted-color font-semibold uppercase tracking-wide leading-4" role="presentation">
             {{ group.label }}
           </div>
           @for (c of group.items; track c.id; let i = $index) {
@@ -2501,56 +2084,34 @@
               type="button"
               role="option"
               [id]="'cmdk-opt-' + c.id"
-              [attr.aria-selected]="
-                cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id
-              "
-              [attr.data-cmdk-active]="
-                cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id
-              "
+              [attr.aria-selected]="cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id"
+              [attr.data-cmdk-active]="cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id"
               [ngClass]="{
-                'bg-primary-100 dark:bg-primary-900 !border-primary':
-                  cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id,
+                'bg-primary-100 dark:bg-primary-900 !border-primary': cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id,
               }"
               class="w-full flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-emphasis transition-colors text-left border-l-2 border-transparent"
               (click)="selectCmdKResult(c)"
             >
-              <i
-                class="fa-sharp fa-regular fa-user text-muted-color"
-                aria-hidden="true"
-              ></i>
+              <i class="fa-sharp fa-regular fa-user text-muted-color" aria-hidden="true"></i>
               <div class="flex-1 min-w-0">
                 <div class="text-color font-medium leading-6 truncate">
                   {{ c.name }}
                 </div>
-                <div class="text-xs text-muted-color leading-4 truncate">
-                  {{ c.rut }} · {{ c.email }}
-                </div>
+                <div class="text-xs text-muted-color leading-4 truncate">{{ c.rut }} · {{ c.email }}</div>
               </div>
-              <p-tag
-                [severity]="typeSeverity(c.type)"
-                [value]="c.type"
-                class="font-medium"
-              />
+              <p-tag [severity]="typeSeverity(c.type)" [value]="c.type" class="font-medium" />
             </button>
           }
         }
       }
     </div>
-    <div
-      class="flex items-center gap-3 px-3 py-2 text-xs text-muted-color leading-4 border-t border-surface"
-    >
+    <div class="flex items-center gap-3 px-3 py-2 text-xs text-muted-color leading-4 border-t border-surface">
       <span class="flex items-center gap-1">
-        <kbd
-          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-          >↵</kbd
-        >
+        <kbd class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium">↵</kbd>
         Abrir
       </span>
       <span class="flex items-center gap-1">
-        <kbd
-          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-          >Esc</kbd
-        >
+        <kbd class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium">Esc</kbd>
         Cerrar
       </span>
       <button
@@ -2558,10 +2119,7 @@
         class="ml-auto inline-flex items-center gap-1 cursor-pointer hover:text-color transition-colors"
         (click)="closeCmdK(); openHelp()"
       >
-        <kbd
-          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-          >?</kbd
-        >
+        <kbd class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium">?</kbd>
         Ver todos los atajos
       </button>
     </div>
@@ -2593,14 +2151,11 @@
         <h3 class="text-color font-semibold leading-6">{{ group.section }}</h3>
         <ul class="flex flex-col gap-2" role="list">
           @for (s of group.shortcuts; track s.combo) {
-            <li
-              class="flex items-center justify-between gap-3 text-color leading-6"
-            >
+            <li class="flex items-center justify-between gap-3 text-color leading-6">
               <span class="flex-1 min-w-0">{{ s.label }}</span>
-              <kbd
-                class="px-2 py-0.5 border border-surface rounded-lg text-sm font-medium tabular-nums leading-5"
-                >{{ keyboardService.formatCombo(s.combo) }}</kbd
-              >
+              <kbd class="px-2 py-0.5 border border-surface rounded-lg text-sm font-medium tabular-nums leading-5">{{
+                keyboardService.formatCombo(s.combo)
+              }}</kbd>
             </li>
           }
         </ul>
@@ -2657,17 +2212,9 @@
           </div>
         }
       </div>
-      @if (message.data?.action === "undo-delete") {
-        <p-button
-          label="Deshacer"
-          severity="secondary"
-          [text]="true"
-          size="small"
-          (onClick)="undoLastDelete()"
-        />
+      @if (message.data?.action === 'undo-delete') {
+        <p-button label="Deshacer" severity="secondary" [text]="true" size="small" (onClick)="undoLastDelete()" />
       }
     </div>
   </ng-template>
 </p-toast>
-
-

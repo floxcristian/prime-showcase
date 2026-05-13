@@ -2,11 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
 import { USER_API_KEYS } from '../mocks/api-keys-data';
-import type {
-  ApiKey,
-  ApiKeyScope,
-  ApiKeyWithSecret,
-} from '../models/api-key.interface';
+import type { ApiKey, ApiKeyScope, ApiKeyWithSecret } from '../models/api-key.interface';
 
 /**
  * Mock service de API keys con state mutable in-memory (signal). Permite
@@ -32,9 +28,7 @@ export class ApiKeysMockService {
    * objeto literal exportado (que podría compartirse en tests u otros
    * imports). `structuredClone` cubre todos los nested arrays/objects.
    */
-  private readonly state = signal<Record<number, ApiKey[]>>(
-    structuredClone(USER_API_KEYS),
-  );
+  private readonly state = signal<Record<number, ApiKey[]>>(structuredClone(USER_API_KEYS));
 
   /**
    * Reactive accessor — el dialog usa este signal vía `computed()` para
@@ -60,11 +54,7 @@ export class ApiKeysMockService {
    * descarta. Esto refleja la realidad: el backend hashea el secret
    * inmediatamente, no hay endpoint para "ver" un secret existente.
    */
-  createKey(
-    userId: number,
-    name: string,
-    scopes: ApiKeyScope[],
-  ): Observable<ApiKeyWithSecret> {
+  createKey(userId: number, name: string, scopes: ApiKeyScope[]): Observable<ApiKeyWithSecret> {
     const plaintext = generateSecret(userId);
     const key: ApiKey = {
       id: `k_${userId}_${Date.now().toString(36)}`,
@@ -107,9 +97,9 @@ export class ApiKeysMockService {
     };
     this.state.update((prev) => ({
       ...prev,
-      [userId]: (prev[userId] ?? []).map((k) =>
-        k.id === keyId ? { ...k, status: 'Revocada' as const } : k,
-      ).concat(newKey),
+      [userId]: (prev[userId] ?? [])
+        .map((k) => (k.id === keyId ? { ...k, status: 'Revocada' as const } : k))
+        .concat(newKey),
     }));
     return of({ key: newKey, plaintext }).pipe(delay(this.latency()));
   }
@@ -122,9 +112,7 @@ export class ApiKeysMockService {
   revokeKey(userId: number, keyId: string): Observable<void> {
     this.state.update((prev) => ({
       ...prev,
-      [userId]: (prev[userId] ?? []).map((k) =>
-        k.id === keyId ? { ...k, status: 'Revocada' as const } : k,
-      ),
+      [userId]: (prev[userId] ?? []).map((k) => (k.id === keyId ? { ...k, status: 'Revocada' as const } : k)),
     }));
     return of(undefined).pipe(delay(this.latency()));
   }
@@ -137,9 +125,7 @@ export class ApiKeysMockService {
  */
 function generateSecret(userId: number): string {
   const env = 'live';
-  const random = Array.from({ length: 32 }, () =>
-    Math.floor(Math.random() * 36).toString(36),
-  ).join('');
+  const random = Array.from({ length: 32 }, () => Math.floor(Math.random() * 36).toString(36)).join('');
   return `sk_${env}_user${userId}_${random}`;
 }
 

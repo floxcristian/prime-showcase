@@ -27,14 +27,12 @@ module.exports = {
   meta: {
     type: 'problem',
     docs: {
-      description:
-        'Disallow Tailwind shadow utilities. Use `border border-surface` for elevation instead.',
+      description: 'Disallow Tailwind shadow utilities. Use `border border-surface` for elevation instead.',
       url: '../../docs/rules/no-shadow-classes.md',
     },
     schema: [],
     messages: {
-      noShadow:
-        'Shadow class "{{className}}" is not allowed. Use `border border-surface` for elevation instead.',
+      noShadow: 'Shadow class "{{className}}" is not allowed. Use `border border-surface` for elevation instead.',
     },
   },
   create(context) {

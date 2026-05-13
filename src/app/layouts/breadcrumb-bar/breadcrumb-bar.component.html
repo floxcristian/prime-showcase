@@ -7,17 +7,14 @@
       <span
         [ngClass]="{
           'text-color font-semibold leading-6': last,
-          'text-muted-color font-medium leading-6': !last
+          'text-muted-color font-medium leading-6': !last,
         }"
         class="whitespace-nowrap lg:truncate"
       >
         {{ crumb.title }}
       </span>
       @if (!last) {
-        <i
-          class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs"
-          aria-hidden="true"
-        ></i>
+        <i class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs" aria-hidden="true"></i>
       }
     </div>
   }

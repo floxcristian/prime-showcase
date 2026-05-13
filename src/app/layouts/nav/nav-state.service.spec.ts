@@ -61,10 +61,7 @@ describe('NavStateService — overlay mutex (browser)', () => {
       [() => nav.openAccount(), () => nav.accountDrawerOpen()],
       [() => nav.openSearch(), () => nav.searchOverlayOpen()],
       [() => nav.openMore(), () => nav.moreOverlayOpen()],
-      [
-        () => nav.openNotifications(),
-        () => nav.notificationsOverlayOpen(),
-      ],
+      [() => nav.openNotifications(), () => nav.notificationsOverlayOpen()],
     ];
 
     for (const [open, isOpen] of openers) {
@@ -142,9 +139,7 @@ describe('NavStateService — scroll lock effect (browser)', () => {
     const nav = TestBed.inject(NavStateService);
     nav.openNav();
     TestBed.flushEffects();
-    expect(
-      document.documentElement.classList.contains('overlay-open'),
-    ).toBe(true);
+    expect(document.documentElement.classList.contains('overlay-open')).toBe(true);
   });
 
   it('removes the class when all overlays close', () => {
@@ -153,9 +148,7 @@ describe('NavStateService — scroll lock effect (browser)', () => {
     TestBed.flushEffects();
     nav.closeAllOverlays();
     TestBed.flushEffects();
-    expect(
-      document.documentElement.classList.contains('overlay-open'),
-    ).toBe(false);
+    expect(document.documentElement.classList.contains('overlay-open')).toBe(false);
   });
 
   it('keeps the class when switching from one overlay to another (no flicker)', () => {
@@ -166,9 +159,7 @@ describe('NavStateService — scroll lock effect (browser)', () => {
     TestBed.flushEffects();
     // Invariant clave: durante el switch el mutex pasa nav→search en un
     // solo tick; `anyOverlayOpen` nunca es false, el class permanece.
-    expect(
-      document.documentElement.classList.contains('overlay-open'),
-    ).toBe(true);
+    expect(document.documentElement.classList.contains('overlay-open')).toBe(true);
   });
 });
 
@@ -180,18 +171,13 @@ describe('NavStateService — scroll lock effect (SSR)', () => {
 
   it('does NOT touch <html> on the server platform', () => {
     TestBed.configureTestingModule({
-      providers: [
-        provideRouter([]),
-        { provide: PLATFORM_ID, useValue: 'server' },
-      ],
+      providers: [provideRouter([]), { provide: PLATFORM_ID, useValue: 'server' }],
     });
     const nav = TestBed.inject(NavStateService);
     nav.openNav();
     TestBed.flushEffects();
     // El effect lleva platform guard — en SSR nunca debe mutar el DOM raíz.
-    expect(
-      document.documentElement.classList.contains('overlay-open'),
-    ).toBe(false);
+    expect(document.documentElement.classList.contains('overlay-open')).toBe(false);
   });
 });
 

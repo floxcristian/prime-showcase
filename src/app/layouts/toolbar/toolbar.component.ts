@@ -43,11 +43,7 @@ const PRIME_MODULES = [
   Popover,
   TooltipModule,
 ];
-const LOCAL_COMPONENTS = [
-  BackButtonComponent,
-  SearchSuggestionsComponent,
-  SettingsDrawerComponent,
-];
+const LOCAL_COMPONENTS = [BackButtonComponent, SearchSuggestionsComponent, SettingsDrawerComponent];
 
 @Component({
   selector: 'app-toolbar',
@@ -190,8 +186,7 @@ export class ToolbarComponent {
     },
   ];
 
-  private settingsTriggerRef =
-    viewChild<ElementRef<HTMLButtonElement>>('settingsTrigger');
+  private settingsTriggerRef = viewChild<ElementRef<HTMLButtonElement>>('settingsTrigger');
 
   toggleTheme(): void {
     this.config.setDarkTheme(!this.darkTheme());

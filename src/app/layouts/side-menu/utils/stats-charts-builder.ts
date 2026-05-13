@@ -1,9 +1,5 @@
 import type { ChartData, ChartOptions } from 'chart.js';
-import type {
-  GaugeMetric,
-  StatsCharts,
-  TrendMetric,
-} from '../models/stats-chart.interface';
+import type { GaugeMetric, StatsCharts, TrendMetric } from '../models/stats-chart.interface';
 
 /**
  * Pre-resolved color strings consumed by the chart builder.
@@ -71,10 +67,7 @@ function clampPct(pct: number): number {
   return pct;
 }
 
-function buildGauge(
-  metric: GaugeMetric,
-  palette: StatsPalette,
-): StatsChartsConfigs['gauges'][number] {
+function buildGauge(metric: GaugeMetric, palette: StatsPalette): StatsChartsConfigs['gauges'][number] {
   const pct = clampPct(metric.pct);
   return {
     id: metric.id,
@@ -102,10 +95,7 @@ function buildGauge(
   };
 }
 
-function buildLine(
-  metric: TrendMetric,
-  palette: StatsPalette,
-): StatsChartsConfigs['productUsage'] {
+function buildLine(metric: TrendMetric, palette: StatsPalette): StatsChartsConfigs['productUsage'] {
   const peak = peakIndex(metric.values);
   const pointRadius = metric.values.map((_, i) => (i === peak ? 5 : 0));
 
@@ -146,10 +136,7 @@ function buildLine(
   };
 }
 
-function buildBar(
-  metric: TrendMetric,
-  palette: StatsPalette,
-): StatsChartsConfigs['totalPurchases'] {
+function buildBar(metric: TrendMetric, palette: StatsPalette): StatsChartsConfigs['totalPurchases'] {
   return {
     label: metric.label,
     data: {
@@ -195,12 +182,9 @@ function buildBar(
  * pure function of the inputs — no hidden theme reads, no global state —
  * which makes every option easy to assert in unit tests.
  */
-export function buildStatsChartsConfigs(
-  source: StatsCharts,
-  palette: StatsPalette,
-): StatsChartsConfigs {
+export function buildStatsChartsConfigs(source: StatsCharts, palette: StatsPalette): StatsChartsConfigs {
   return {
-    gauges: source.gauges.map(g => buildGauge(g, palette)),
+    gauges: source.gauges.map((g) => buildGauge(g, palette)),
     productUsage: buildLine(source.trends.productUsage, palette),
     totalPurchases: buildBar(source.trends.totalPurchases, palette),
   };

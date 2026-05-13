@@ -53,13 +53,10 @@ function createFakeContext(): Partial<CanvasRenderingContext2D> {
     clip: () => undefined,
     rect: () => undefined,
     drawImage: () => undefined,
-    createLinearGradient: () =>
-      ({ addColorStop: () => undefined }) as CanvasGradient,
-    createRadialGradient: () =>
-      ({ addColorStop: () => undefined }) as CanvasGradient,
+    createLinearGradient: () => ({ addColorStop: () => undefined }) as CanvasGradient,
+    createRadialGradient: () => ({ addColorStop: () => undefined }) as CanvasGradient,
     createPattern: () => null,
-    getImageData: () =>
-      ({ data: new Uint8ClampedArray(4) }) as ImageData,
+    getImageData: () => ({ data: new Uint8ClampedArray(4) }) as ImageData,
     putImageData: () => undefined,
     isPointInPath: () => false,
     isPointInStroke: () => false,
@@ -73,9 +70,7 @@ beforeAll(() => {
     __chartSpecPatched?: boolean;
   };
   if (proto.__chartSpecPatched) return;
-  proto.getContext = vi.fn(
-    () => createFakeContext() as CanvasRenderingContext2D,
-  ) as unknown as typeof proto.getContext;
+  proto.getContext = vi.fn(() => createFakeContext() as CanvasRenderingContext2D) as unknown as typeof proto.getContext;
   proto.__chartSpecPatched = true;
 });
 
@@ -84,16 +79,13 @@ beforeAll(() => {
  * forma oficial de saber cuántos charts están vivos, sin monkey-patch.
  */
 function liveChartCount(): number {
-  return Object.keys((Chart as unknown as { instances: object }).instances)
-    .length;
+  return Object.keys((Chart as unknown as { instances: object }).instances).length;
 }
 
 afterEach(() => {
   // Destruir cualquier chart que haya quedado vivo entre tests — si un test
   // crea y no destruye, contamina los siguientes.
-  for (const chart of Object.values(
-    (Chart as unknown as { instances: Record<string, Chart> }).instances,
-  )) {
+  for (const chart of Object.values((Chart as unknown as { instances: Record<string, Chart> }).instances)) {
     chart.destroy();
   }
 });
@@ -103,14 +95,7 @@ afterEach(() => {
   selector: 'app-chart-host',
   imports: [ChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-chart
-      [type]="type()"
-      [data]="data()"
-      [options]="options()"
-      [height]="'10rem'"
-    />
-  `,
+  template: ` <app-chart [type]="type()" [data]="data()" [options]="options()" [height]="'10rem'" /> `,
 })
 class ChartHostComponent {
   readonly type = signal('bar' as const);
@@ -122,13 +107,7 @@ class ChartHostComponent {
   selector: 'app-aria-host',
   imports: [ChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <app-chart
-      [type]="'bar'"
-      [data]="data()"
-      [ariaLabel]="'Ventas mensuales'"
-    />
-  `,
+  template: ` <app-chart [type]="'bar'" [data]="data()" [ariaLabel]="'Ventas mensuales'" /> `,
 })
 class AriaHostComponent {
   readonly data = signal<ChartData>({
@@ -238,9 +217,7 @@ describe('ChartComponent (browser platform)', () => {
   it('applies ariaLabel as attribute on the canvas (a11y)', () => {
     const fixture = TestBed.createComponent(AriaHostComponent);
     fixture.detectChanges();
-    const canvas = fixture.nativeElement.querySelector(
-      'canvas',
-    ) as HTMLCanvasElement;
+    const canvas = fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
     expect(canvas.getAttribute('role')).toBe('img');
     expect(canvas.getAttribute('aria-label')).toBe('Ventas mensuales');
   });
@@ -248,9 +225,7 @@ describe('ChartComponent (browser platform)', () => {
   it('omits role/aria-label when ariaLabel input not provided', () => {
     const fixture = TestBed.createComponent(ChartHostComponent);
     fixture.detectChanges();
-    const canvas = fixture.nativeElement.querySelector(
-      'canvas',
-    ) as HTMLCanvasElement;
+    const canvas = fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
     expect(canvas.hasAttribute('role')).toBe(false);
     expect(canvas.hasAttribute('aria-label')).toBe(false);
   });
@@ -286,11 +261,7 @@ describe('ChartComponent — size normalization', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
-      imports: [
-        SizeNumericHostComponent,
-        SizeRemHostComponent,
-        SizePxHostComponent,
-      ],
+      imports: [SizeNumericHostComponent, SizeRemHostComponent, SizePxHostComponent],
       providers: [{ provide: PLATFORM_ID, useValue: 'browser' }],
     }).compileComponents();
   });
@@ -298,27 +269,21 @@ describe('ChartComponent — size normalization', () => {
   it('converts numeric string height to px (match p-chart contract)', () => {
     const fixture = TestBed.createComponent(SizeNumericHostComponent);
     fixture.detectChanges();
-    const host = fixture.nativeElement.querySelector(
-      'app-chart',
-    ) as HTMLElement;
+    const host = fixture.nativeElement.querySelector('app-chart') as HTMLElement;
     expect(host.style.height).toBe('160px');
   });
 
   it('passes through CSS-unit strings as-is', () => {
     const fixture = TestBed.createComponent(SizeRemHostComponent);
     fixture.detectChanges();
-    const host = fixture.nativeElement.querySelector(
-      'app-chart',
-    ) as HTMLElement;
+    const host = fixture.nativeElement.querySelector('app-chart') as HTMLElement;
     expect(host.style.height).toBe('20rem');
   });
 
   it('converts numeric input to px', () => {
     const fixture = TestBed.createComponent(SizePxHostComponent);
     fixture.detectChanges();
-    const host = fixture.nativeElement.querySelector(
-      'app-chart',
-    ) as HTMLElement;
+    const host = fixture.nativeElement.querySelector('app-chart') as HTMLElement;
     expect(host.style.height).toBe('240px');
   });
 });

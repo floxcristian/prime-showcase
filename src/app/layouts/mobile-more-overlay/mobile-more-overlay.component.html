@@ -25,18 +25,11 @@
               [routerLink]="item.url"
               class="flex items-center gap-3 px-4 h-14 border-t border-surface-200 dark:border-surface-800 hover:bg-emphasis cursor-pointer transition-colors select-none"
             >
-              <i
-                [class]="item.icon"
-                class="w-5 text-center text-base shrink-0 text-color"
-                aria-hidden="true"
-              ></i>
+              <i [class]="item.icon" class="w-5 text-center text-base shrink-0 text-color" aria-hidden="true"></i>
               <span class="flex-1 font-medium leading-6 text-color truncate">
                 {{ item.label }}
               </span>
-              <i
-                class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs shrink-0"
-                aria-hidden="true"
-              ></i>
+              <i class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs shrink-0" aria-hidden="true"></i>
             </a>
           } @else {
             <button
@@ -44,24 +37,14 @@
               (click)="onItemClicked(item)"
               class="w-full flex items-center gap-3 px-4 h-14 border-t border-surface-200 dark:border-surface-800 bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none text-left"
             >
-              <i
-                [class]="item.icon"
-                class="w-5 text-center text-base shrink-0 text-color"
-                aria-hidden="true"
-              ></i>
+              <i [class]="item.icon" class="w-5 text-center text-base shrink-0 text-color" aria-hidden="true"></i>
               <span class="flex-1 font-medium leading-6 text-color truncate">
                 {{ item.label }}
               </span>
               @if (item.valueLabel) {
-                <span
-                  class="text-muted-color font-medium leading-6 shrink-0"
-                  >{{ item.valueLabel() }}</span
-                >
+                <span class="text-muted-color font-medium leading-6 shrink-0">{{ item.valueLabel() }}</span>
               }
-              <i
-                class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs shrink-0"
-                aria-hidden="true"
-              ></i>
+              <i class="fa-sharp fa-regular fa-chevron-right text-muted-color text-xs shrink-0" aria-hidden="true"></i>
             </button>
           }
         </li>
@@ -76,22 +59,13 @@
           (click)="logout()"
           class="w-full flex items-center gap-3 px-4 h-14 border-y border-surface-200 dark:border-surface-800 bg-transparent hover:bg-emphasis cursor-pointer transition-colors select-none text-left"
         >
-          <i
-            class="fa-sharp fa-regular fa-arrow-right-from-bracket w-5 text-center text-base shrink-0 text-color"
-            aria-hidden="true"
-          ></i>
-          <span class="flex-1 font-medium leading-6 text-color truncate">
-            Cerrar sesión
-          </span>
+          <i class="fa-sharp fa-regular fa-arrow-right-from-bracket w-5 text-center text-base shrink-0 text-color" aria-hidden="true"></i>
+          <span class="flex-1 font-medium leading-6 text-color truncate"> Cerrar sesión </span>
         </button>
       </li>
     </ul>
 
     <!-- Footer: version — centrada, muted. Pattern retail LATAM (Paris/Falabella). -->
-    <div
-      class="shrink-0 px-4 py-4 text-center text-muted-color text-xs leading-4"
-    >
-      Versión {{ appVersion }}
-    </div>
+    <div class="shrink-0 px-4 py-4 text-center text-muted-color text-xs leading-4">Versión {{ appVersion }}</div>
   </div>
 }

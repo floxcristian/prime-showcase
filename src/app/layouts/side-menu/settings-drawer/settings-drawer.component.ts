@@ -38,18 +38,10 @@ import type {
   Opportunity,
 } from '../models/settings-drawer.interface';
 // Constants
-import {
-  CALL_LOGS,
-  EMAIL_RECORDS,
-  PREFERENCES,
-  OPPORTUNITIES,
-} from '../constants/settings-drawer-data';
+import { CALL_LOGS, EMAIL_RECORDS, PREFERENCES, OPPORTUNITIES } from '../constants/settings-drawer-data';
 import { STATS_CHARTS } from '../constants/stats-charts-data';
 // Utils
-import {
-  buildStatsChartsConfigs,
-  type StatsChartsConfigs,
-} from '../utils/stats-charts-builder';
+import { buildStatsChartsConfigs, type StatsChartsConfigs } from '../utils/stats-charts-builder';
 import { resolveStatsPalette } from '../utils/stats-palette';
 
 const NG_MODULES = [FormsModule];
@@ -65,13 +57,7 @@ const PRIME_MODULES = [
 
 @Component({
   selector: 'app-settings-drawer',
-  imports: [
-    NG_MODULES,
-    PRIME_MODULES,
-    BackButtonComponent,
-    ChartComponent,
-    PrimaryTitleToolbarComponent,
-  ],
+  imports: [NG_MODULES, PRIME_MODULES, BackButtonComponent, ChartComponent, PrimaryTitleToolbarComponent],
   templateUrl: './settings-drawer.component.html',
   styleUrl: './settings-drawer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -92,12 +78,7 @@ export class SettingsDrawerComponent {
   hidden = output<void>();
 
   selectedSidebarOption = signal('Estadísticas');
-  sidebarOptions: string[] = [
-    'Registros',
-    'Preferencias',
-    'Estadísticas',
-    'Oportunidades',
-  ];
+  sidebarOptions: string[] = ['Registros', 'Preferencias', 'Estadísticas', 'Oportunidades'];
 
   callLogs: CallLog[] = CALL_LOGS;
   emailRecords: EmailRecord[] = EMAIL_RECORDS;
@@ -134,10 +115,7 @@ export class SettingsDrawerComponent {
 
   private initStatsCharts(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    const palette = resolveStatsPalette(
-      this.document,
-      this.configService.darkTheme(),
-    );
+    const palette = resolveStatsPalette(this.document, this.configService.darkTheme());
     this.charts.set(buildStatsChartsConfigs(STATS_CHARTS, palette));
   }
 
@@ -162,9 +140,7 @@ export class SettingsDrawerComponent {
     this.preferences.update((groups) =>
       groups.map((group) => ({
         ...group,
-        prefs: group.prefs.map((item) =>
-          item === pref ? { ...item, checked: !item.checked } : item,
-        ),
+        prefs: group.prefs.map((item) => (item === pref ? { ...item, checked: !item.checked } : item)),
       })),
     );
   }
