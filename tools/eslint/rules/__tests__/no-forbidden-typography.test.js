@@ -107,6 +107,19 @@ test('no-forbidden-typography', () => {
         code: `<div [ngClass]="cond ? 'font-bold' : 'font-light'"></div>`,
         errors: [{ messageId: 'forbiddenFontWeight', data: { className: 'font-light' } }],
       },
+      // Arbitrary font weights — font-[800], font-[var(--fw)]
+      {
+        code: '<div class="font-[800]"></div>',
+        errors: [{ messageId: 'forbiddenFontWeight' }],
+      },
+      {
+        code: '<div class="font-[900]"></div>',
+        errors: [{ messageId: 'forbiddenFontWeight' }],
+      },
+      {
+        code: '<div class="font-[var(--fw)]"></div>',
+        errors: [{ messageId: 'forbiddenFontWeight' }],
+      },
     ],
   });
 });

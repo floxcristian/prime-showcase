@@ -80,7 +80,9 @@ const TEXT_SIZE_REGEX = /\btext-(?:xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|
 const LEADING_REGEX = /\bleading-(?:\d+|normal|none|tight|snug|relaxed|loose|\[[^\]]+\])(?!\w)/g;
 
 // Matches font-weight utilities: font-thin, font-medium, font-bold, etc.
-const FONT_WEIGHT_REGEX = /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black)\b/g;
+// Also matches arbitrary values: font-[800], font-[var(--fw)]
+// Uses (?!\w) instead of \b for the same bracket-boundary reason as TEXT_SIZE_REGEX.
+const FONT_WEIGHT_REGEX = /\bfont-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black|\[[^\]]+\])(?!\w)/g;
 
 /** @type {import('eslint').Rule.RuleModule} */
 module.exports = {
