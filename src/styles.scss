@@ -440,7 +440,20 @@ input:-webkit-autofill:focus-visible {
   }
 }
 
-.p-button-tonal { @include tonal-variant; }
+// `.p-button-tonal` puede vivir en dos lugares según cómo el consumer
+// la aplique:
+//   1. `styleClass="p-button-tonal"` — PrimeNG forwarda al inner
+//      `<button>`. Match directo via `.p-button.p-button-tonal`.
+//   2. `class="p-button-tonal"` / `[class.p-button-tonal]` — la clase
+//      queda en el host `<p-button>` wrapper (PrimeNG v20+ NO forwarda
+//      el host class al inner button automáticamente). Match via
+//      descendant `> .p-button` para apuntar al child styleable.
+// Cubrir ambos evita el bug "tonal lookea como primary" cuando un
+// consumer (ej. las stories) usa `[class]` en vez de `styleClass`.
+.p-button.p-button-tonal,
+.p-button-tonal > .p-button {
+  @include tonal-variant;
+}
 .p-paginator-page-selected { @include tonal-variant; }
 
 /*
