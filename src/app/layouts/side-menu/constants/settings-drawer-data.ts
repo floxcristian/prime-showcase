@@ -1,3 +1,4 @@
+import { demoAsset } from '../../../shared/constants/demo-assets';
 import type {
   CallLog,
   EmailRecord,
@@ -7,32 +8,32 @@ import type {
 
 export const CALL_LOGS: CallLog[] = [
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
+    image: demoAsset('avatar6.png'),
     name: 'Brook Simmons',
     time: '02.02.2024 | 45 min',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
+    image: demoAsset('avatar12.jpg'),
     name: 'Jacob Jones',
     time: '02.02.2024 | 45 min',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
+    image: demoAsset('avatar13.jpg'),
     name: 'Annette Black',
     time: '02.03.2024 | 13 min',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
+    image: demoAsset('avatar9.jpg'),
     name: 'Arlene McCoy',
     time: '02.03.2024 | 14 min',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg',
+    image: demoAsset('avatar10.jpg'),
     name: 'Arlene Simmons',
     time: '02.03.2024 | 14 min',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: demoAsset('avatar11.jpg'),
     name: 'Michael Brown',
     time: '02.04.2024 | 20 min',
   },
@@ -40,42 +41,42 @@ export const CALL_LOGS: CallLog[] = [
 
 export const EMAIL_RECORDS: EmailRecord[] = [
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
+    image: demoAsset('avatar2.png'),
     name: 'Brook Simmons',
     time: '3:24 PM',
     title: 'Potencia tu negocio',
     text: 'Automatiza, analiza y acelera tus procesos empresariales...',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
+    image: demoAsset('avatar7.png'),
     name: 'Jacob Jones',
     time: '23.12.2023',
     title: 'Revolución en flujos de trabajo',
     text: 'Experimenta una revolución en flujos de trabajo optimizados...',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
+    image: demoAsset('avatar8.png'),
     name: 'Annette Black',
     time: '17.12.2023',
     title: 'Innovación al alcance',
     text: 'Con nuestra solución SaaS, la innovación está a tu alcance...',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: demoAsset('avatar11.jpg'),
     name: 'Arlene McCoy',
     time: '17.06.2023',
     title: 'Integración sin esfuerzo',
     text: 'Intégrate sin esfuerzo con tus herramientas favoritas...',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
+    image: demoAsset('avatar13.jpg'),
     name: 'Arlene Simmons',
     time: '17.04.2023',
     title: 'Transforma tu empresa',
     text: 'Empodera a tu equipo con herramientas de última generación...',
   },
   {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
+    image: demoAsset('avatar2.png'),
     name: 'Michael Brown',
     time: '05.01.2024',
     title: 'Colaboración de nueva generación',

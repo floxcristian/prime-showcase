@@ -34,6 +34,7 @@ import { Slider } from 'primeng/slider';
 import { Tag } from 'primeng/tag';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
+import { DEMO_AVATARS } from './constants/demo-avatars';
 import { FORGOT_PASSWORD_OTP_DEMO_VALUE } from './constants/otp-demo';
 import { Permission } from './models/permission.interface';
 import { FileWithPreview, MemberType, PriceRangeSpec } from './models/member-type.interface';
@@ -76,6 +77,9 @@ const PRIME_MODULES = [
   },
 })
 export class CardsComponent {
+  /** Avatares demo para avatar groups y listas de miembros (ver constants/demo-avatars). */
+  avatars = DEMO_AVATARS;
+
   files = signal<FileWithPreview[]>([]);
   uploadedFiles = signal<FileWithPreview[]>([]);
   totalSizeBytes = computed(() => this.files().reduce((sum, f) => sum + f.size, 0));

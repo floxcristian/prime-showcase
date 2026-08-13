@@ -552,7 +552,7 @@ El proyecto usa `border border-surface` en vez de sombras para definir elevació
 
 **Excepción documentada:**
 
-1. **`shadow-[...]` sobre tooltip custom de Chart.js** (`src/app/modules/overview/overview.component.ts:191`, aplicado en runtime via `classList.add()`). Chart.js dibuja el tooltip fuera del árbol Angular, no hereda el vocabulario de design tokens y no se puede expresar con `border border-surface` (rompería el layout). ESLint no la detecta porque vive en string concatenada en TS.
+1. **`shadow-[...]` sobre tooltip custom de Chart.js** (`src/app/modules/overview/utils/chart-tooltip.ts`, aplicado en runtime via `classList.add()`). Chart.js dibuja el tooltip fuera del árbol Angular, no hereda el vocabulario de design tokens y no se puede expresar con `border border-surface` (rompería el layout). ESLint no la detecta porque vive en string concatenada en TS.
 
 2. **`!absolute` sobre `<i class="fa-sharp-duotone ...">`** (corner stat icons del login marketing panel). Font Awesome declara `position: relative` en `.fa-sharp-duotone` para anclar pseudo-elementos. El `!` de Tailwind v4 emite `!important` y restaura el posicionamiento. Solo cuando se combina `fa-sharp-duotone` con `absolute` en el mismo elemento — si se multiplican, extraer a utility semántica.
 

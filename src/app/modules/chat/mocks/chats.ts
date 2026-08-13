@@ -1,9 +1,9 @@
+import { demoAsset } from '../../../shared/constants/demo-assets';
 import { ChatItem } from '../models/chat-item.interface';
 
 export const CHATS: ChatItem[] = [
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: demoAsset('avatar11.jpg'),
     name: 'Cody Fisher',
     capName: 'CF',
     active: true,
@@ -13,8 +13,7 @@ export const CHATS: ChatItem[] = [
       '¡Hola! He oído hablar de PrimeVue. ¿Algún consejo para empezar?',
   },
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png',
+    image: demoAsset('avatar-primetek.png'),
     name: 'Equipo PrimeTek',
     capName: 'PT',
     unreadMessageCount: 0,
@@ -22,8 +21,7 @@ export const CHATS: ChatItem[] = [
     lastMessage: '¡Implementemos PrimeNG! Elevando nuestra interfaz. 🚀',
   },
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
+    image: demoAsset('avatar2.png'),
     name: 'Jerome Bell',
     capName: 'JB',
     active: true,
@@ -33,8 +31,7 @@ export const CHATS: ChatItem[] = [
       '¡Sin duda! La documentación de PrimeNG es oro puro, simplifica nuestro trabajo.',
   },
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
+    image: demoAsset('avatar12.jpg'),
     name: 'Robert Fox',
     capName: 'RF',
     active: false,
@@ -44,8 +41,7 @@ export const CHATS: ChatItem[] = [
       '¡Interesante! PrimeNG suena increíble. ¿Cuál es tu función favorita?',
   },
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
+    image: demoAsset('avatar13.jpg'),
     name: 'Esther Howard',
     capName: 'EH',
     active: true,
@@ -55,8 +51,7 @@ export const CHATS: ChatItem[] = [
       '¡Pregunta rápida, equipo! ¿Alguien usa PrimeNG para apps móviles?',
   },
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
+    image: demoAsset('avatar9.jpg'),
     name: 'Darlene Robertson',
     capName: 'DR',
     active: false,
@@ -66,8 +61,7 @@ export const CHATS: ChatItem[] = [
       'Acabo de explorar los temas de PrimeNG. ¿Hablamos de esos diseños increíbles? 😍',
   },
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
+    image: demoAsset('avatar6.png'),
     name: 'Ralph Edwards',
     capName: 'RE',
     active: false,
@@ -97,8 +91,7 @@ export const CHATS: ChatItem[] = [
       'Comparto un logro: los tutoriales de PrimeNG están mejorando mis habilidades de UI. 👩‍💻',
   },
   {
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
+    image: demoAsset('avatar7.png'),
     name: 'Darrell Steward',
     capName: 'DS',
     active: false,

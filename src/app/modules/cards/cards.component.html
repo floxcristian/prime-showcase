@@ -8,7 +8,7 @@
       <div class="flex items-center gap-3">
         <p-overlayBadge severity="danger" class="w-fit">
           <p-avatar
-            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+            [image]="avatars.main"
             class="rounded-lg overflow-hidden flex"
             />
           </p-overlayBadge>
@@ -39,23 +39,23 @@
           </div>
           <p-avatarGroup>
             <p-avatar
-              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.png"
+              [image]="avatars.avatar1"
               class="rounded-lg overflow-hidden"
               />
               <p-avatar
-                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
+                [image]="avatars.avatar9"
                 class="rounded-lg overflow-hidden"
                 />
                 <p-avatar
-                  image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
+                  [image]="avatars.avatar11"
                   class="rounded-lg overflow-hidden"
                   />
                   <p-avatar
-                    image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg"
+                    [image]="avatars.avatar13"
                     class="rounded-lg overflow-hidden"
                     />
                     <p-avatar
-                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png"
+                      [image]="avatars.avatar5"
                       class="rounded-lg overflow-hidden"
                       />
                       <p-avatar label="+99" class="rounded-lg overflow-hidden text-xs" />
@@ -70,7 +70,7 @@
                       <div class="p-2 rounded-lg flex items-center gap-3 bg-emphasis">
                         <p-overlayBadge severity="danger" class="w-fit">
                           <p-avatar
-                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+                            [image]="avatars.main"
                             class="rounded-lg overflow-hidden w-10 h-10 block"
                             />
                           </p-overlayBadge>
@@ -88,7 +88,7 @@
                         <div class="p-2 rounded-lg flex items-center gap-3 bg-emphasis">
                           <p-overlayBadge severity="danger" class="w-fit">
                             <p-avatar
-                              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
+                              [image]="avatars.avatar9"
                               class="rounded-lg overflow-hidden w-10 h-10 flex"
                               />
                             </p-overlayBadge>
@@ -110,7 +110,7 @@
                           class="flex items-center gap-3 p-3 border border-surface rounded-xl"
                           >
                           <p-avatar
-                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+                            [image]="avatars.main"
                             class="rounded-lg overflow-hidden w-14 h-14"
                             />
                             <div class="flex-1">
@@ -237,23 +237,23 @@
                                 >
                                 <div class="flex items-center [&>*]:-mr-2">
                                   <p-avatar
-                                    image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
+                                    [image]="avatars.avatar11"
                                     shape="circle"
                                     />
                                     <p-avatar
-                                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg"
+                                      [image]="avatars.avatar10"
                                       shape="circle"
                                       />
                                       <p-avatar
-                                        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg"
+                                        [image]="avatars.avatar12"
                                         shape="circle"
                                         />
                                         <p-avatar
-                                          image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
+                                          [image]="avatars.avatar9"
                                           shape="circle"
                                           />
                                           <p-avatar
-                                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png"
+                                            [image]="avatars.avatar5"
                                             shape="circle"
                                             />
                                           </div>
@@ -524,53 +524,53 @@
                                                           <div class="flex items-start justify-between gap-1">
                                                             <div class="flex items-center gap-x-2 gap-y-1 flex-wrap flex-1">
                                                               <p-avatar
-                                                                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar1.png"
+                                                                [image]="avatars.avatar1"
                                                                 shape="circle"
                                                                 class="rounded-lg overflow-hidden"
                                                                 />
                                                                 <p-avatar
-                                                                  image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png"
+                                                                  [image]="avatars.avatar2"
                                                                   shape="circle"
                                                                   class="rounded-lg overflow-hidden"
                                                                   />
                                                                   <p-avatar
-                                                                    image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg"
+                                                                    [image]="avatars.avatar9"
                                                                     shape="circle"
                                                                     class="rounded-lg overflow-hidden"
                                                                     />
                                                                     <p-avatar
-                                                                      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg"
+                                                                      [image]="avatars.avatar11"
                                                                       shape="circle"
                                                                       class="rounded-lg overflow-hidden"
                                                                       />
                                                                       <div class="w-full"></div>
                                                                       <p-avatar
-                                                                        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png"
+                                                                        [image]="avatars.avatar5"
                                                                         shape="circle"
                                                                         class="rounded-lg overflow-hidden"
                                                                         />
                                                                         <p-avatar
-                                                                          image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg"
+                                                                          [image]="avatars.avatar13"
                                                                           shape="circle"
                                                                           class="rounded-lg overflow-hidden"
                                                                           />
                                                                           <p-avatar
-                                                                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png"
+                                                                            [image]="avatars.avatar7"
                                                                             shape="circle"
                                                                             class="rounded-lg overflow-hidden"
                                                                             />
                                                                             <p-avatar
-                                                                              image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png"
+                                                                              [image]="avatars.avatar8"
                                                                               shape="circle"
                                                                               class="rounded-lg overflow-hidden"
                                                                               />
                                                                               <p-avatar
-                                                                                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar10.jpg"
+                                                                                [image]="avatars.avatar10"
                                                                                 shape="circle"
                                                                                 class="rounded-lg overflow-hidden"
                                                                                 />
                                                                                 <p-avatar
-                                                                                  image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg"
+                                                                                  [image]="avatars.avatar12"
                                                                                   shape="circle"
                                                                                   class="rounded-lg overflow-hidden"
                                                                                   />
@@ -610,7 +610,7 @@
                                                                                   <div class="mt-4 flex flex-col gap-4">
                                                                                     <div class="flex items-center gap-2 justify-between">
                                                                                       <p-avatar
-                                                                                        image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png"
+                                                                                        [image]="avatars.avatar8"
                                                                                         class="w-9 h-9"
                                                                                         shape="circle"
                                                                                         />
@@ -633,7 +633,7 @@
                                                                                         </div>
                                                                                         <div class="flex items-center gap-2 justify-between">
                                                                                           <p-avatar
-                                                                                            image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg"
+                                                                                            [image]="avatars.avatar13"
                                                                                             class="w-9 h-9"
                                                                                             shape="circle"
                                                                                             />
@@ -656,7 +656,7 @@
                                                                                             </div>
                                                                                             <div class="flex items-center gap-2 justify-between">
                                                                                               <p-avatar
-                                                                                                image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg"
+                                                                                                [image]="avatars.avatar12"
                                                                                                 class="w-9 h-9"
                                                                                                 shape="circle"
                                                                                                 />

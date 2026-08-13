@@ -18,6 +18,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 // Shared
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { demoAsset } from '../../shared/constants/demo-assets';
 // Mocks
 import { CHATS } from './mocks/chats';
 import { CHAT_MESSAGES } from './mocks/chat-messages';
@@ -104,6 +105,9 @@ export class ChatComponent {
   protected closeDetail(): void {
     this.detailOpen.set(false);
   }
+
+  /** Avatar del chat activo (Equipo PrimeTek) — usado en header y panel de perfil. */
+  activeChatAvatar: string = demoAsset('avatar-primetek.png');
 
   chats: ChatItem[] = CHATS;
   filteredChats = computed<ChatItem[]>(() => {

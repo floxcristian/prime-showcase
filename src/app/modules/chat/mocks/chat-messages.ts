@@ -1,3 +1,4 @@
+import { demoAsset } from '../../../shared/constants/demo-assets';
 import { ChatMessage } from '../models/chat-message.interface';
 
 export const CHAT_MESSAGES: ChatMessage[] = [
@@ -14,8 +15,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 2,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
+    image: demoAsset('avatar8.png'),
     capName: 'A',
     type: 'received',
     message: '¡PrimeNG es increíble! Simplifica el desarrollo de UI con componentes versátiles.',
@@ -24,19 +24,16 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 3,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: demoAsset('avatar11.jpg'),
     capName: 'A',
     type: 'received',
     message: '¡Interesante! Cuéntanos más sobre su impacto.',
   },
   {
     id: 4,
-    attachment:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/message-image.png',
+    attachment: demoAsset('message-image.png'),
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
+    image: demoAsset('avatar2.png'),
     capName: 'A',
     type: 'received',
     message:
@@ -46,8 +43,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 5,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
+    image: demoAsset('avatar5.png'),
     capName: 'A',
     type: 'sent',
     message: 'Temas personalizables, diseño responsivo – ¡excelencia en UI!',
@@ -56,8 +52,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 6,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
+    image: demoAsset('avatar8.png'),
     capName: 'A',
     type: 'received',
     message: '¡Me encanta! Acelerar nuestro desarrollo es clave.',
@@ -66,8 +61,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 7,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
+    image: demoAsset('avatar6.png'),
     capName: 'A',
     type: 'received',
     message: 'La documentación también es excelente – integración fluida para todos.',
@@ -76,8 +70,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 8,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
+    image: demoAsset('avatar5.png'),
     capName: 'B',
     type: 'sent',
     message:
@@ -87,8 +80,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 9,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
+    image: demoAsset('avatar12.jpg'),
     capName: 'C',
     type: 'received',
     message:
@@ -98,8 +90,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 10,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
+    image: demoAsset('avatar13.jpg'),
     capName: 'D',
     type: 'received',
     message:
@@ -107,11 +98,9 @@ export const CHAT_MESSAGES: ChatMessage[] = [
   },
   {
     id: 11,
-    attachment:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/message-image.png',
+    attachment: demoAsset('message-image.png'),
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
+    image: demoAsset('avatar5.png'),
     capName: 'E',
     type: 'sent',
     message:
@@ -121,8 +110,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 12,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
+    image: demoAsset('avatar6.png'),
     capName: 'F',
     type: 'received',
     message:
@@ -132,8 +120,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 13,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
+    image: demoAsset('avatar11.jpg'),
     capName: 'G',
     type: 'received',
     message:
@@ -153,8 +140,7 @@ export const CHAT_MESSAGES: ChatMessage[] = [
     id: 15,
     attachment: '',
     name: '',
-    image:
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
+    image: demoAsset('avatar5.png'),
     capName: 'H',
     type: 'sent',
     message:

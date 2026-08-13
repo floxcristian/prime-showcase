@@ -1,7 +1,9 @@
+import { demoAsset } from '../../../shared/constants/demo-assets';
+
 export const CHAT_MEDIA: string[] = [
-  'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image1.png',
-  'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image2.png',
-  'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image3.png',
-  'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image4.png',
-  'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image5.png',
+  demoAsset('chat-image1.png'),
+  demoAsset('chat-image2.png'),
+  demoAsset('chat-image3.png'),
+  demoAsset('chat-image4.png'),
+  demoAsset('chat-image5.png'),
 ];

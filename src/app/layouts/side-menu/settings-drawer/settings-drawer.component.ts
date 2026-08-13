@@ -28,6 +28,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AppConfigService } from '../../../core/services/app-config/app-config.service';
 import { BackButtonComponent } from '../../../shared/back-button/back-button.component';
 import { ChartComponent } from '../../../shared/components/chart/chart.component';
+import { demoAsset } from '../../../shared/constants/demo-assets';
 import { PrimaryTitleToolbarComponent } from '../../primary-title-toolbar/primary-title-toolbar.component';
 // Models
 import type {
@@ -98,6 +99,9 @@ export class SettingsDrawerComponent {
     'Estadísticas',
     'Oportunidades',
   ];
+
+  /** Avatar del perfil demo (Brook Simmons) — asset del CDN centralizado en shared/constants. */
+  profileAvatar: string = demoAsset('avatar11.jpg');
 
   callLogs: CallLog[] = CALL_LOGS;
   emailRecords: EmailRecord[] = EMAIL_RECORDS;

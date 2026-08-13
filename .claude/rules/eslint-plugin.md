@@ -99,6 +99,6 @@ Las reglas escanean atributos estáticos y dinámicos:
 
 (Agregar una nueva requiere justificación en code review.)
 
-1. **`shadow-[...]` sobre tooltip custom de Chart.js** (`src/app/modules/overview/overview.component.ts:191`, aplicado en runtime via `classList.add()`). Chart.js dibuja el tooltip fuera del árbol Angular, no hereda design tokens y elevation no se puede expresar con `border border-surface` (rompería el layout). ESLint no la detecta porque vive en string concatenada en TS, fuera del scope del visitor HTML.
+1. **`shadow-[...]` sobre tooltip custom de Chart.js** (`src/app/modules/overview/utils/chart-tooltip.ts`, aplicado en runtime via `classList.add()`). Chart.js dibuja el tooltip fuera del árbol Angular, no hereda design tokens y elevation no se puede expresar con `border border-surface` (rompería el layout). ESLint no la detecta porque vive en string concatenada en TS, fuera del scope del visitor HTML.
 
 2. **`!absolute` sobre `<i class="fa-sharp-duotone ...">`** (corner stat icons del login marketing panel). Font Awesome declara `position: relative` en `.fa-sharp-duotone` para anclar pseudo-elementos. El `!` de Tailwind v4 emite `!important` y restaura el posicionamiento. Solo cuando se combina `fa-sharp-duotone` con `absolute` en el mismo elemento.

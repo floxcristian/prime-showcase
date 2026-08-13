@@ -27,6 +27,7 @@ import { AppConfigService } from '../../core/services/app-config/app-config.serv
 import { AuthService } from '../../core/services/auth/auth.service';
 import { NotificationsService } from '../../modules/notifications/services/notifications.service';
 import { BackButtonComponent } from '../../shared/back-button/back-button.component';
+import { demoAsset } from '../../shared/constants/demo-assets';
 import { SearchSuggestionsComponent } from '../../shared/components/search-suggestions/search-suggestions.component';
 import { NAV_OVERLAY_PANEL_ID } from '../nav-overlay/nav-overlay.component';
 import { NavStateService } from '../nav/nav-state.service';
@@ -75,6 +76,8 @@ export class ToolbarComponent {
   protected readonly navPanelId = NAV_OVERLAY_PANEL_ID;
 
   protected readonly darkTheme = this.config.darkTheme;
+  /** Avatar del usuario demo (Brook) — asset del CDN centralizado en shared/constants. */
+  protected readonly userAvatar = demoAsset('main-avatar.png');
   /** Estado visual del bell: true mientras el popover de notificaciones está
    * abierto. Bindeado a los eventos onShow/onHide del popover para que el
    * bell quede "pressed" como feedback consistente con el Menú button. */

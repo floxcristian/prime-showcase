@@ -227,7 +227,7 @@
          audit `image-alt`. PrimeNG p-avatar no expone alt como Input
          directo; usamos passThrough `[pt]` para inyectarlo en la img interna. -->
     <p-avatar
-      image="https://www.primefaces.org/cdn/primevue/images/landing/apps/main-avatar.png"
+      [image]="userAvatar"
       size="normal"
       [pt]="{ image: { alt: '' } }"
       class="rounded-lg overflow-hidden flex shrink-0"

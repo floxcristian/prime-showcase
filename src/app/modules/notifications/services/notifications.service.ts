@@ -44,6 +44,22 @@ export class NotificationsService {
   private readonly referenceDate = inject(NOTIFICATIONS_REFERENCE_DATE);
   private readonly _notifications = signal<Notification[]>(NOTIFICATIONS);
 
+  /**
+   * Formateadores cacheados como campos — `Intl.DateTimeFormat` es
+   * relativamente caro de instanciar; un solo formatter por service en vez
+   * de uno por llamada (mismo patrón que obs-uptime y customers).
+   */
+  private readonly timeFormatter = new Intl.DateTimeFormat('es-CL', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  private readonly groupLabelFormatter = new Intl.DateTimeFormat('es-CL', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
+
   readonly notifications = this._notifications.asReadonly();
 
   readonly unreadCount = computed(
@@ -72,12 +88,7 @@ export class NotificationsService {
   });
 
   formatTime(timestamp: string): string {
-    const d = new Date(timestamp);
-    return d.toLocaleTimeString('es-CL', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
+    return this.timeFormatter.format(new Date(timestamp));
   }
 
   /**
@@ -92,12 +103,6 @@ export class NotificationsService {
     );
     if (diffDays === 0) return 'Hoy';
     if (diffDays === 1) return 'Ayer';
-    return date
-      .toLocaleDateString('es-CL', {
-        weekday: 'short',
-        day: 'numeric',
-        month: 'short',
-      })
-      .replace('.', '');
+    return this.groupLabelFormatter.format(date).replace('.', '');
   }
 }
