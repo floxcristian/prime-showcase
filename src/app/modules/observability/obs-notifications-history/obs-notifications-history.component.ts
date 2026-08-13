@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  inject,
   signal,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
@@ -12,7 +11,6 @@ import { TableModule } from 'primeng/table';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
-import { TimeService } from '../../../shared/services/time.service';
 import { minutesAgo, seededRandom } from '../mocks/mock-utils';
 import { SERVICES_MOCK } from '../mocks/services-mock';
 
@@ -115,7 +113,7 @@ const TITLES = [
     </div>
 
     <!-- Filtro por canal: chips toggle (active = filled, inactive = outlined) -->
-    <div class="border border-surface rounded-2xl p-4 mb-6">
+    <div class="border border-surface rounded-lg p-4 mb-6">
       <div class="flex items-center gap-3 flex-wrap">
         <span class="text-color font-semibold leading-6">Canal:</span>
         <button
@@ -221,11 +219,6 @@ const TITLES = [
   `,
 })
 export class ObsNotificationsHistoryComponent {
-  // Time service inyectado para invalidar el RelativeTimePipe en el template
-  // (hereda el tick global; sin él los timestamps de la tabla quedan stale).
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- consumido por el pipe en el template via DI.
-  private readonly time = inject(TimeService);
-
   protected readonly channels: readonly NotifChannel[] = ['push', 'email', 'in-app'];
 
   protected channelIcon(c: NotifChannel): string {

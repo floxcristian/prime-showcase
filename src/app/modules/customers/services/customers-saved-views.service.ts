@@ -68,11 +68,16 @@ export class CustomersSavedViewsService {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   /** Reactive list of all views (system + custom), sorted: system
-   * first, then custom by updatedAt desc. */
-  readonly views = signal<readonly SavedView[]>([]);
+   * first, then custom by updatedAt desc. Writable solo internamente;
+   * expuesto read-only (patrón del repo: privado + `asReadonly()`,
+   * ver AppConfigService/TimeService). */
+  private readonly _views = signal<readonly SavedView[]>([]);
+  readonly views = this._views.asReadonly();
 
-  /** Loading state para CRUD operations. */
-  readonly busy = signal(false);
+  /** Loading state para CRUD operations. Mismo patrón privado +
+   * `asReadonly()`. */
+  private readonly _busy = signal(false);
+  readonly busy = this._busy.asReadonly();
 
   /** Toast hook — el componente registra un callback para mostrar
    * errores de rollback al user. Inversion of control: el service no
@@ -82,7 +87,7 @@ export class CustomersSavedViewsService {
   constructor() {
     if (!this.isBrowser) {
       // SSR — solo system views, sin storage access.
-      this.views.set(SYSTEM_VIEWS);
+      this._views.set(SYSTEM_VIEWS);
       return;
     }
     this.hydrate();
@@ -94,9 +99,19 @@ export class CustomersSavedViewsService {
    * provee la integración con su toast/notification system. Si no
    * está registrado, los rollbacks suceden silenciosos (state se
    * restaura pero el user no ve por qué).
+   *
+   * Devuelve una función de unregister que el consumidor DEBE llamar
+   * en su onDestroy — el service es root-scoped y un callback colgado
+   * sobreviviría al componente que lo registró (toast sobre instancia
+   * muerta). El unregister es no-op si otro consumer ya re-registró.
    */
-  setRollbackHandler(handler: (message: string) => void): void {
+  setRollbackHandler(handler: (message: string) => void): () => void {
     this.rollbackHandler = handler;
+    return () => {
+      if (this.rollbackHandler === handler) {
+        this.rollbackHandler = null;
+      }
+    };
   }
 
   /**
@@ -112,7 +127,7 @@ export class CustomersSavedViewsService {
    *     dispara rollback y handler de error.
    */
   async create(name: string, snapshot: CustomersViewSnapshot): Promise<SavedView> {
-    this.busy.set(true);
+    this._busy.set(true);
     const previousViews = this.views();
     const now = new Date().toISOString();
     const view: SavedView = {
@@ -123,7 +138,7 @@ export class CustomersSavedViewsService {
       updatedAt: now,
     };
     // Optimistic — mutate first, then persist.
-    this.views.update((views) => this.sortViews([...views, view]));
+    this._views.update((views) => this.sortViews([...views, view]));
     try {
       await this.simulateLatency();
       this.persist();
@@ -132,7 +147,7 @@ export class CustomersSavedViewsService {
       this.rollback(previousViews, 'No se pudo guardar la vista. Reintenta.');
       throw err;
     } finally {
-      this.busy.set(false);
+      this._busy.set(false);
     }
   }
 
@@ -145,11 +160,11 @@ export class CustomersSavedViewsService {
     id: string,
     patch: Partial<Pick<SavedView, 'name' | 'snapshot'>>,
   ): Promise<SavedView | null> {
-    this.busy.set(true);
+    this._busy.set(true);
     const previousViews = this.views();
     const current = previousViews.find((v) => v.id === id);
     if (!current || current.system) {
-      this.busy.set(false);
+      this._busy.set(false);
       return null;
     }
     const updated: SavedView = {
@@ -157,7 +172,7 @@ export class CustomersSavedViewsService {
       ...patch,
       updatedAt: new Date().toISOString(),
     };
-    this.views.update((views) =>
+    this._views.update((views) =>
       this.sortViews(views.map((v) => (v.id === id ? updated : v))),
     );
     try {
@@ -168,19 +183,19 @@ export class CustomersSavedViewsService {
       this.rollback(previousViews, 'No se pudo actualizar la vista. Reintenta.');
       throw err;
     } finally {
-      this.busy.set(false);
+      this._busy.set(false);
     }
   }
 
   async delete(id: string): Promise<boolean> {
-    this.busy.set(true);
+    this._busy.set(true);
     const previousViews = this.views();
     const view = previousViews.find((v) => v.id === id);
     if (!view || view.system) {
-      this.busy.set(false);
+      this._busy.set(false);
       return false;
     }
-    this.views.update((views) => views.filter((v) => v.id !== id));
+    this._views.update((views) => views.filter((v) => v.id !== id));
     try {
       await this.simulateLatency();
       this.persist();
@@ -189,7 +204,7 @@ export class CustomersSavedViewsService {
       this.rollback(previousViews, 'No se pudo eliminar la vista. Reintenta.');
       throw err;
     } finally {
-      this.busy.set(false);
+      this._busy.set(false);
     }
   }
 
@@ -235,7 +250,7 @@ export class CustomersSavedViewsService {
       // No rollback toast acá: el user no inició la acción, es lectura
       // silenciosa al init/storage event.
     }
-    this.views.set(this.sortViews([...SYSTEM_VIEWS, ...custom]));
+    this._views.set(this.sortViews([...SYSTEM_VIEWS, ...custom]));
   }
 
   private persist(): void {
@@ -253,7 +268,7 @@ export class CustomersSavedViewsService {
    * sin esto, el signal queda divergente del storage.
    */
   private rollback(previousViews: readonly SavedView[], message: string): void {
-    this.views.set(previousViews);
+    this._views.set(previousViews);
     this.rollbackHandler?.(message);
   }
 

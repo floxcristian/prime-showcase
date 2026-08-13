@@ -2,35 +2,51 @@
 'use strict';
 
 /**
- * @fileoverview Enforces the project's spacing scale from CLAUDE.md.
+ * @fileoverview Enforces the project's spacing scale from DESIGN.md as an
+ * ALLOW-LIST.
  *
- * Allowed gap:     1, 2, 3, 4, 5, 6, 8
- * Allowed padding: 1, 2, 3, 4, 6 (+ px-4 py-1, px-7 py-5 for specific patterns)
- * Allowed margin:  0, 1, 2, 4, 6 (+ mb-0 reset)
+ * The rule used to be a deny-list of known-bad values (gap-7, p-8, m-3…),
+ * which silently let anything NOT enumerated through: `gap-13`, `p-32`,
+ * `m-40`, `pt-96`, etc. Inverting to an allow-list means any value outside
+ * the approved scale is flagged by default — new Tailwind steps can't creep
+ * in unnoticed.
  *
- * Forbidden:       gap-7, gap-9, gap-10, gap-11, gap-12
- *                  p-7, p-8, p-9, p-10+ (and px-, py-, pt-, pr-, pb-, pl-, ps-, pe-)
- *                  m-3, m-5, m-7, m-8, m-9, m-10+ (and mx-, my-, mt-, mr-, mb-, ml-, ms-, me-)
- *                  Any arbitrary spacing: gap-[*], p-[*], m-[*]
+ * Allowed values per family (see DESIGN.md § "Spacing — escala permitida"):
+ *   gap:     0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8
+ *   padding: 0, 0.5, 1, 1.5, 2, 3, 3.5, 4, 5, 6
+ *   margin:  0, 0.5, 1, 2, 4, 6
  *
- * Scans: class, styleClass, [ngClass], [class], and all PrimeNG *StyleClass attributes.
+ * Plus documented full-class exceptions (AUDIT_BASELINE.md EX-004/005/006
+ * and pre-existing patterns): gap-7, px-7, py-8, px-12, p-[1px], mt-3,
+ * mt-5, mb-5, mt-10.
+ *
+ * Fractional steps (0.5, 1.5, 3.5) are included because they're in real use
+ * for fine-detail alignment (badges, timestamps, table paddings) — same
+ * micro-UI rationale as EX-004.
+ *
+ * Arbitrary values (gap-[13px], p-[2rem]…) stay forbidden except p-[1px].
+ *
+ * Scans: class, styleClass, [ngClass], [class], and all PrimeNG *StyleClass
+ * attributes. Negative (-mx-2) and important (!p-0) variants are validated
+ * against the same value sets (the regex matches the inner utility token).
  */
 
 const { createClassAttrVisitor } = require('../utils');
 
-// ── Forbidden spacing values ────────────────────────────────────────────
-// Built from CLAUDE.md "NO USAR" list, extended to cover all utilities.
+// ── Allowed spacing values (allow-list) ─────────────────────────────────
+// DESIGN.md scale + fractional fine-detail steps in real use in src/**.
 
-// Gap: allowed 0-6, 8. Forbidden: 7, 9, 10, 11, 12, and anything > 12.
-// gap-0 is a legitimate reset value (e.g. override responsive gap).
-const FORBIDDEN_GAP = new Set(['7', '9', '10', '11', '12', '14', '16', '20', '24']);
+// Gap: DESIGN.md `gap-1 … gap-6 | gap-8`. gap-0 is a legitimate reset
+// (e.g. override a responsive gap). 0.5/1.5 = fine-detail steps.
+const ALLOWED_GAP = new Set(['0', '0.5', '1', '1.5', '2', '3', '4', '5', '6', '8']);
 
-// Padding: allowed 1-4, 6, 7 (px-7 py-5 header pattern). Forbidden: 5, 8, 9, 10+
-// Note: p-5 is accepted via AUDIT_BASELINE EX-005, added to allowed exceptions below.
-const FORBIDDEN_PADDING = new Set(['8', '9', '10', '11', '12', '14', '16', '20', '24']);
+// Padding: DESIGN.md `p-1 … p-4 | p-6` + p-5 (EX-005 side-menu) + py-5
+// (cabecera expandida). 0/0.5/1.5/3.5 = resets and fine-detail steps.
+const ALLOWED_PADDING = new Set(['0', '0.5', '1', '1.5', '2', '3', '3.5', '4', '5', '6']);
 
-// Margin: allowed 0, 1, 2, 4, 6. Forbidden: 3, 5, 7, 8, 9, 10+
-const FORBIDDEN_MARGIN = new Set(['3', '5', '7', '8', '9', '10', '11', '12', '14', '16', '20', '24']);
+// Margin: DESIGN.md `mt-1 | mt-2/mb-2 | mt-4/mb-4 | mt-6/mb-6 | mb-0`.
+// 0.5 = fine-detail step (mt-0.5 timestamps).
+const ALLOWED_MARGIN = new Set(['0', '0.5', '1', '2', '4', '6']);
 
 // Spacing utility prefixes grouped by type
 const GAP_PREFIXES = ['gap', 'gap-x', 'gap-y'];
@@ -51,16 +67,16 @@ const ARBITRARY_SPACING_REGEX = new RegExp(
   'g',
 );
 
-// ── Allowed exceptions from AUDIT_BASELINE.md ───────────────────────────
-// These are documented violations accepted for specific use cases.
-// Each exception was reviewed and accepted as a pre-existing pattern
-// with minimal visual impact. See AUDIT_BASELINE.md for full rationale.
+// ── Allowed full-class exceptions ───────────────────────────────────────
+// Documented violations accepted for specific use cases — reviewed and
+// accepted as pre-existing patterns with minimal visual impact. These are
+// FULL class names (prefix + value), narrower than adding the value to the
+// family-wide allow set. See AUDIT_BASELINE.md for full rationale.
 const ALLOWED_EXCEPTIONS = new Set([
-  'p-5',       // EX-005: side-menu padding, between p-4 and p-6
   'gap-7',     // EX-005: chat layout, between gap-6 and gap-8
-  'gap-8',     // EX-005: chat message area, accepted pre-existing pattern
+  'px-7',      // DESIGN.md "cabecera expandida": py-5 px-7 card header pattern
   'py-8',      // EX-005: chat message area, accepted pre-existing pattern
-  'px-12',     // EX-006: login brand panel — 48px horizontal al estilo Stripe/Linear/Supabase. Vertical usa py-8 (ya permitido) para no exceder el viewport 720p.
+  'px-12',     // EX-006: login brand panel — 48px horizontal al estilo Stripe/Linear/Supabase. Vertical usa py-8 para no exceder el viewport 720p.
   'p-[1px]',   // EX-004: badge indicator pixel-perfect alignment
   'mt-3',      // Pre-existing: fine spacing in list/card layouts
   'mb-5',      // Pre-existing: chat media section spacing
@@ -74,13 +90,13 @@ module.exports = {
     type: 'problem',
     docs: {
       description:
-        'Enforce the spacing scale from the design system. Forbids gap-7/9/10+, p-8+, m-3/5/7+, and arbitrary spacing values.',
+        'Enforce the spacing scale from the design system as an allow-list. Any gap/padding/margin value outside the approved scale (plus documented exceptions) is flagged, including arbitrary values.',
       url: '../../docs/rules/no-forbidden-spacing.md',
     },
     schema: [],
     messages: {
       forbiddenSpacing:
-        '"{{className}}" is not in the allowed spacing scale. See CLAUDE.md for allowed values.',
+        '"{{className}}" is not in the allowed spacing scale. See DESIGN.md § Spacing for allowed values.',
       arbitrarySpacing:
         'Arbitrary spacing "{{className}}" is not allowed. Use a standard spacing value from the design system.',
     },
@@ -97,16 +113,16 @@ module.exports = {
 
         if (ALLOWED_EXCEPTIONS.has(fullClass)) continue;
 
-        let forbidden;
+        let allowed;
         if (GAP_PREFIXES.includes(prefix)) {
-          forbidden = FORBIDDEN_GAP;
+          allowed = ALLOWED_GAP;
         } else if (PADDING_PREFIXES.includes(prefix)) {
-          forbidden = FORBIDDEN_PADDING;
+          allowed = ALLOWED_PADDING;
         } else {
-          forbidden = FORBIDDEN_MARGIN;
+          allowed = ALLOWED_MARGIN;
         }
 
-        if (forbidden.has(numValue)) {
+        if (!allowed.has(numValue)) {
           ctx.report(match, 'forbiddenSpacing', { className: fullClass });
         }
       }

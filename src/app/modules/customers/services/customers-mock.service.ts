@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { delay, Observable } from 'rxjs';
+import { concat, delay, Observable, take } from 'rxjs';
 
 import { CUSTOMERS_TABLE_DATA } from '../constants/customers-data';
 import type { Customer } from '../models/customer.interface';
@@ -48,19 +48,33 @@ export class CustomersMockService {
   private readonly _data = signal<readonly Customer[]>(CUSTOMERS_TABLE_DATA);
 
   /**
-   * Observable reactive del dataset. Re-emite en cada `replaceAll` con
-   * la `delay()` que simula el round-trip de red. Cualquier consumer
-   * que tenga una subscripción activa ve el cambio sin re-suscribirse.
-   *
-   * Internamente: `toObservable` mantiene una subscription al signal
-   * y emite cada cambio. El `delay()` aplica a cada emit. Resultado
-   * funcional para mock: el cliente percibe "POST /bulk-update →
-   * server re-pushea la lista actualizada después de N ms".
+   * Observable reactive del dataset. Re-emite en cada `replaceAll`;
+   * cualquier consumer con subscripción activa ve el cambio sin
+   * re-suscribirse (`toObservable` mantiene una subscription al signal
+   * y emite cada cambio).
    */
   private readonly _data$ = toObservable(this._data);
 
+  /**
+   * La latencia simulada aplica SOLO al fetch inicial (primera
+   * emisión) — permite ver el skeleton/loading real. Las re-emisiones
+   * por mutaciones (`replaceAll` de inline edit, bulk actions, undo)
+   * se reflejan de inmediato: son updates optimistas cuyo feedback
+   * debe ser instantáneo. Antes el `delay()` aplicaba a CADA emisión
+   * y las mutaciones tardaban 800-1800ms en pintarse, contradiciendo
+   * la ventana de undo de 8s y el patrón optimistic-first.
+   *
+   * `concat`: primera emisión delayed, luego re-suscribe al stream
+   * live. `toObservable` replay-ea el valor actual al suscribir, así
+   * que si hubo una mutación durante la ventana de delay, la segunda
+   * subscripción emite el estado fresco (peor caso: re-emisión del
+   * mismo array reference, no-op para los consumers).
+   */
   getCustomers(): Observable<readonly Customer[]> {
-    return this._data$.pipe(delay(this.latency()));
+    return concat(
+      this._data$.pipe(take(1), delay(this.latency())),
+      this._data$,
+    );
   }
 
   /**

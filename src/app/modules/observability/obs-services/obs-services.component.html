@@ -22,7 +22,7 @@
 </div>
 
 <!-- Filtros -->
-<div class="border border-surface rounded-2xl p-4 mb-6 flex flex-col gap-3">
+<div class="border border-surface rounded-lg p-4 mb-6 flex flex-col gap-3">
   <div class="flex flex-wrap gap-3 items-center">
     <p-iconfield iconPosition="left" class="flex-1 min-w-60">
       <p-inputicon class="fa-sharp fa-regular fa-magnifying-glass" />
@@ -43,7 +43,7 @@
       placeholder="Equipo"
       [showHeader]="false"
       [filter]="false"
-      class="w-full sm:w-44"
+      class="w-full lg:w-44"
     />
 
     <p-multiselect
@@ -55,7 +55,7 @@
       optionValue="value"
       [showHeader]="false"
       [filter]="false"
-      class="w-full sm:w-44"
+      class="w-full lg:w-44"
     />
   </div>
   <div class="flex flex-wrap items-center gap-4 justify-between">
@@ -100,8 +100,8 @@
 
 @if (loading()) {
   <div aria-busy="true" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-    @for (i of [0, 1, 2, 3, 4, 5]; track i) {
-      <p-skeleton width="100%" height="16rem" borderRadius="1rem" />
+    @for (i of skeletonPlaceholders; track i) {
+      <p-skeleton width="100%" height="16rem" borderRadius="0.5rem" />
     }
   </div>
 } @else if (loadError()) {
@@ -130,7 +130,7 @@
     @for (svc of filteredServices(); track svc.id) {
       <a
         [routerLink]="['/observability/services', svc.id]"
-        class="block border border-surface rounded-2xl p-6 cursor-pointer hover:bg-emphasis transition-colors flex flex-col gap-4"
+        class="border border-surface rounded-lg p-6 cursor-pointer hover:bg-emphasis transition-colors flex flex-col gap-4"
       >
         <div class="flex items-start gap-3">
           <!--

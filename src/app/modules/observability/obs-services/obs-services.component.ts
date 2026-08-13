@@ -22,6 +22,10 @@ import { debounceTime } from 'rxjs';
 
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HealthBadgeComponent } from '../../../shared/components/health-badge/health-badge.component';
+import {
+  HEALTH_LABELS,
+  HEALTH_STATES,
+} from '../../../shared/components/health-badge/health-badge.tokens';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
 import type {
@@ -29,6 +33,7 @@ import type {
   ServiceSummary,
 } from '../models/observability.interface';
 import { ObservabilityMockService } from '../services/observability-mock.service';
+import { formatPercent } from '../utils/format';
 
 const NG_MODULES = [CommonModule, FormsModule, RouterLink];
 const PRIME_MODULES = [ButtonModule, InputTextModule, TableModule];
@@ -115,12 +120,10 @@ export class ObsServicesComponent {
     return Array.from(new Set(list.map((s) => s.team))).sort();
   });
 
-  protected readonly healthOptions: { label: string; value: HealthState }[] = [
-    { label: 'Saludable', value: 'ok' },
-    { label: 'Degradado', value: 'warn' },
-    { label: 'Crítico', value: 'critical' },
-    { label: 'Sin datos', value: 'unknown' },
-  ];
+  // Options derivadas del vocabulario compartido de health-badge.tokens.ts
+  // — mismo mapping (label/orden) que el <app-health-badge> y obs-uptime.
+  protected readonly healthOptions: { label: string; value: HealthState }[] =
+    HEALTH_STATES.map((value) => ({ label: HEALTH_LABELS[value], value }));
 
   protected readonly viewMode = signal<'grid' | 'table'>('grid');
   protected readonly viewModeOptions: ViewModeOption[] = [
@@ -148,8 +151,11 @@ export class ObsServicesComponent {
 
   protected readonly resultCount = computed(() => this.filteredServices().length);
 
+  /** Skeleton cards del loading state — mismo patrón que obs-uptime. */
+  protected readonly skeletonPlaceholders = [0, 1, 2, 3, 4, 5];
+
   protected formatPercent(v: number): string {
-    return `${v.toFixed(2)}%`;
+    return formatPercent(v);
   }
 
   protected resetFilters(): void {

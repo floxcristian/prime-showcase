@@ -6,9 +6,12 @@
  *
  * Covers:
  *   - Valid: p-button with `label` (no tooltip required); p-button with
- *     `pTooltip`; non-p-button elements ignored.
- *   - Invalid: p-button with no label AND no pTooltip — applies to both
- *     icon attribute and content-projected icons.
+ *     `pTooltip`; p-button with projected TEXT content (visible label →
+ *     not icon-only); <button pButton> with label/text/tooltip; plain
+ *     elements ignored.
+ *   - Invalid: p-button OR <button pButton> with no label, no projected
+ *     text, and no pTooltip — applies to both icon attribute and
+ *     content-projected icons.
  */
 
 const test = require('node:test');
@@ -29,12 +32,23 @@ test('no-icon-button-without-tooltip', () => {
       { code: '<p-button icon="fa-sharp fa-regular fa-bell" pTooltip="Notifications" ariaLabel="Notifications" />' },
       // Content-projected with pTooltip
       { code: '<p-button pTooltip="Refresh"><i class="fa-sharp fa-regular fa-arrows-rotate"></i></p-button>' },
-      // Non-p-button elements are out of scope
+      // Plain <button> without pButton is out of scope
       { code: '<button class="rounded-lg"><i class="fa-sharp fa-regular fa-bell"></i></button>' },
       // Bound label still counts as a label
       { code: '<p-button [label]="dynamicLabel" />' },
       // Bound pTooltip
       { code: '<p-button icon="fa-sharp fa-regular fa-bell" [pTooltip]="hint" ariaLabel="Action" />' },
+      // Projected TEXT content — renders a visible label, NOT icon-only.
+      // Previously a false positive (treated like a projected icon).
+      { code: '<p-button icon="fa-sharp fa-regular fa-download">Descargar</p-button>' },
+      { code: '<p-button>{{ ctaLabel() }}</p-button>' },
+      // <button pButton> with visible label (attr or projected text)
+      { code: '<button pButton type="button" label="Guardar"></button>' },
+      { code: '<button pButton type="button" icon="fa-sharp fa-regular fa-download">Descargar</button>' },
+      // <button pButton> icon-only WITH tooltip
+      { code: '<button pButton type="button" icon="fa-sharp fa-regular fa-bell" pTooltip="Notificaciones" aria-label="Notificaciones"></button>' },
+      // <button pButton> icon-only wrapped by a pTooltip ancestor
+      { code: '<span pTooltip="Refrescar"><button pButton type="button" icon="fa-sharp fa-regular fa-arrows-rotate"></button></span>' },
     ],
 
     invalid: [
@@ -56,6 +70,22 @@ test('no-icon-button-without-tooltip', () => {
       // Severity / variant attributes don't substitute for tooltip
       {
         code: '<p-button icon="fa-sharp fa-regular fa-bell" severity="secondary" text rounded />',
+        errors: [{ messageId: 'missingTooltip' }],
+      },
+      // <button pButton> icon-only without tooltip — previously a false
+      // negative (the rule only matched <p-button>)
+      {
+        code: '<button pButton type="button" icon="fa-sharp fa-regular fa-bell"></button>',
+        errors: [{ messageId: 'missingTooltip' }],
+      },
+      // <button pButton> with only a projected icon (no text) — still icon-only
+      {
+        code: '<button pButton type="button"><i class="fa-sharp fa-regular fa-bell"></i></button>',
+        errors: [{ messageId: 'missingTooltip' }],
+      },
+      // aria-label alone doesn't help mouse users
+      {
+        code: '<button pButton type="button" icon="fa-sharp fa-regular fa-bell" aria-label="Notificaciones"></button>',
         errors: [{ messageId: 'missingTooltip' }],
       },
     ],

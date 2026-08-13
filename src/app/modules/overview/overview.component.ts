@@ -23,17 +23,19 @@ import { Skeleton } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import type { CanvasFontSpec, Chart, ChartOptions, TooltipModel, TooltipItem } from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 import { AppConfigService } from '../../core/services/app-config/app-config.service';
 import { ChartComponent } from '../../shared/components/chart/chart.component';
 import { TRANSPARENT_TABLE_TOKENS } from '../../shared/tokens/table-tokens';
-import { CoinBadge, CoinKind, Transaction, MeterItem, OverviewChartData, ChartDatasetResult } from './models/overview.interface';
+import { CoinBadge, CoinKind, Transaction, MeterItem, OverviewChartData, TimeRange } from './models/overview.interface';
 import {
   COIN_BADGES,
   OVERVIEW_MENU_ITEMS,
   OVERVIEW_TRANSACTIONS,
   OVERVIEW_METERS,
 } from './constants/overview-data';
+import { OVERVIEW_CHART_SERIES } from './constants/overview-chart-data';
+import { externalTooltipHandler } from './utils/chart-tooltip';
 
 const NG_MODULES = [FormsModule, NgClass];
 const PRIME_MODULES = [
@@ -64,8 +66,8 @@ export class OverviewComponent {
   chartData = signal<OverviewChartData | undefined>(undefined);
   chartOptions = signal<ChartOptions<'bar'> | undefined>(undefined);
   dates = signal<Date[]>([]);
-  selectedTime = signal('Mensual');
-  timeOptions: string[] = ['Semanal', 'Mensual', 'Anual'];
+  selectedTime = signal<TimeRange>('Mensual');
+  timeOptions: TimeRange[] = ['Semanal', 'Mensual', 'Anual'];
   menuItems: MenuItem[] = OVERVIEW_MENU_ITEMS;
   sampleAppsTableDatas: Transaction[] = OVERVIEW_TRANSACTIONS;
   metersData: MeterItem[] = OVERVIEW_METERS;
@@ -79,8 +81,8 @@ export class OverviewComponent {
     length: this.transactionsRowsPerPage,
   });
 
-  getCoinBadge(coin: string): CoinBadge {
-    return this.coinBadges[coin as CoinKind];
+  getCoinBadge(coin: CoinKind): CoinBadge {
+    return this.coinBadges[coin];
   }
   readonly tableTokens = TRANSPARENT_TABLE_TOKENS;
 
@@ -113,8 +115,8 @@ export class OverviewComponent {
     }
   }
 
-  setChartData(timeUnit: string): OverviewChartData {
-    const datasets = this.createDatasets(timeUnit);
+  setChartData(timeUnit: TimeRange): OverviewChartData {
+    const { labels, data } = OVERVIEW_CHART_SERIES[timeUnit];
     const documentStyle = getComputedStyle(document.documentElement);
     const primary200 = documentStyle.getPropertyValue('--p-primary-200');
     const primary300 = documentStyle.getPropertyValue('--p-primary-300');
@@ -122,14 +124,14 @@ export class OverviewComponent {
     const primary500 = documentStyle.getPropertyValue('--p-primary-500');
     const primary600 = documentStyle.getPropertyValue('--p-primary-600');
     return {
-      labels: datasets.labels,
+      labels,
       datasets: [
         {
           type: 'bar',
           label: 'Billetera Personal',
           backgroundColor: primary400,
           hoverBackgroundColor: primary600,
-          data: (datasets.data ?? [])[0] ?? [],
+          data: data[0],
           maxBarThickness: 32,
           categoryPercentage: 0.75,
           barPercentage: 0.85,
@@ -139,7 +141,7 @@ export class OverviewComponent {
           label: 'Billetera Corporativa',
           backgroundColor: primary300,
           hoverBackgroundColor: primary500,
-          data: (datasets.data ?? [])[1] ?? [],
+          data: data[1],
           maxBarThickness: 32,
           categoryPercentage: 0.75,
           barPercentage: 0.85,
@@ -149,7 +151,7 @@ export class OverviewComponent {
           label: 'Billetera de Inversión',
           backgroundColor: primary200,
           hoverBackgroundColor: primary400,
-          data: (datasets.data ?? [])[2] ?? [],
+          data: data[2],
           borderRadius: {
             topLeft: 4,
             topRight: 4,
@@ -178,123 +180,9 @@ export class OverviewComponent {
         tooltip: {
           enabled: false,
           position: 'nearest',
-          external: function (
-            this: TooltipModel<'bar'>,
-            context: { chart: Chart; tooltip: TooltipModel<'bar'> },
-          ) {
-            const { chart, tooltip } = context;
-            const parentNode = chart.canvas.parentNode as HTMLElement;
-            let tooltipEl = parentNode.querySelector<HTMLDivElement>(
-              'div.chartjs-tooltip'
-            );
-
-            if (!tooltipEl) {
-              tooltipEl = document.createElement('div');
-              tooltipEl.classList.add(
-                'chartjs-tooltip',
-                'dark:bg-surface-950',
-                'bg-surface-0',
-                'p-3',
-                'rounded-lg',
-                'overflow-hidden',
-                'opacity-100',
-                'absolute',
-                'transition-opacity',
-                'duration-[0.1s]',
-                'pointer-events-none',
-                'shadow-[0px_25px_20px_-5px_rgba(0,0,0,0.10),0px_10px_8px_-6px_rgba(0,0,0,0.10)]'
-              );
-              parentNode.appendChild(tooltipEl);
-            }
-
-            if (tooltip.opacity === 0) {
-              tooltipEl.style.opacity = '0';
-
-              return;
-            }
-
-            const datasetPointsX = tooltip.dataPoints.map(
-              (dp: TooltipItem<'bar'>) => dp.element.x
-            );
-            const avgX =
-              datasetPointsX.reduce((a: number, b: number) => a + b, 0) /
-              datasetPointsX.length;
-            const avgY = tooltip.dataPoints[0].element.y;
-
-            if (tooltip.body) {
-              tooltipEl.innerHTML = '';
-              const tooltipBody = document.createElement('div');
-
-              tooltipBody.classList.add(
-                'flex',
-                'flex-col',
-                'gap-4',
-                'px-3',
-                'py-3',
-                'min-w-[18rem]'
-              );
-              tooltip.dataPoints.reverse().forEach((item: TooltipItem<'bar'>) => {
-                const row = document.createElement('div');
-
-                row.classList.add('flex', 'items-center', 'gap-2', 'w-full');
-                const point = document.createElement('div');
-
-                point.classList.add('w-2.5', 'h-2.5', 'rounded-full');
-                point.style.backgroundColor = item.dataset.backgroundColor as string;
-                row.appendChild(point);
-                const label = document.createElement('span');
-
-                label.appendChild(document.createTextNode(item.dataset.label as string));
-                label.classList.add(
-                  'text-base',
-                  'font-medium',
-                  'text-color',
-                  'flex-1',
-                  'text-left',
-                  'capitalize'
-                );
-                row.appendChild(label);
-                const value = document.createElement('span');
-
-                value.appendChild(document.createTextNode(item.formattedValue));
-                value.classList.add(
-                  'text-base',
-                  'font-medium',
-                  'text-color',
-                  'text-right'
-                );
-                row.appendChild(value);
-                tooltipBody.appendChild(row);
-              });
-              tooltipEl.appendChild(tooltipBody);
-            }
-
-            const { offsetLeft: positionX } = chart.canvas;
-
-            tooltipEl.style.opacity = '1';
-            tooltipEl.style.font = (tooltip.options.bodyFont as CanvasFontSpec).string;
-            tooltipEl.style.padding = '0';
-            const chartWidth = chart.width;
-            const tooltipWidth = tooltipEl.offsetWidth;
-            const chartHeight = chart.height;
-            const tooltipHeight = tooltipEl.offsetHeight;
-
-            let tooltipX = positionX + avgX + 24;
-            let tooltipY = avgY;
-
-            if (tooltipX + tooltipWidth > chartWidth) {
-              tooltipX = positionX + avgX - tooltipWidth - 20;
-            }
-
-            if (tooltipY < 0) {
-              tooltipY = 0;
-            } else if (tooltipY + tooltipHeight > chartHeight) {
-              tooltipY = chartHeight - tooltipHeight;
-            }
-
-            tooltipEl.style.left = tooltipX + 'px';
-            tooltipEl.style.top = tooltipY + 'px';
-          },
+          // Construcción DOM del tooltip extraída a utils/chart-tooltip.ts
+          // (precedente: layouts/side-menu/utils/stats-charts-builder.ts).
+          external: externalTooltipHandler,
         },
         legend: {
           display: false,
@@ -331,89 +219,4 @@ export class OverviewComponent {
     };
   }
 
-  createDatasets(val: string): ChartDatasetResult {
-    let data: number[][] | undefined;
-    let labels: string[] | undefined;
-
-    if (val === 'Semanal') {
-      labels = [
-        '6 May',
-        '13 May',
-        '20 May',
-        '27 May',
-        '3 Jun',
-        '10 Jun',
-        '17 Jun',
-        '24 Jun',
-        '1 Jul',
-        '8 Jul',
-        '15 Jul',
-        '22 Jul',
-      ];
-      data = [
-        [
-          9000, 3000, 13000, 3000, 5000, 17000, 11000, 4000, 15000, 4000, 11000,
-          5000,
-        ],
-        [
-          1800, 7600, 11100, 6800, 3300, 5800, 3600, 7200, 4300, 8100, 6800,
-          3700,
-        ],
-        [
-          3800, 4800, 2100, 6600, 1000, 3800, 6500, 4200, 4300, 7000, 6800,
-          3700,
-        ],
-      ];
-    } else if (val === 'Mensual') {
-      labels = [
-        'Ene',
-        'Feb',
-        'Mar',
-        'Abr',
-        'May',
-        'Jun',
-        'Jul',
-        'Ago',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dic',
-      ];
-      data = [
-        [
-          4000, 10000, 15000, 4000, 16000, 8000, 12000, 14000, 17000, 5000,
-          12000, 6000,
-        ],
-        [
-          2100, 8400, 2400, 7500, 3700, 6500, 7400, 8000, 4800, 9000, 7600,
-          4200,
-        ],
-        [
-          4100, 5200, 2400, 7400, 2300, 4100, 7200, 8000, 4800, 9000, 7600,
-          4200,
-        ],
-      ];
-    } else if (val === 'Anual') {
-      labels = ['2019', '2020', '2021', '2022', '2023', '2024'];
-      data = [
-        [
-          4500, 10500, 15500, 4500, 16500, 8500, 12500, 14500, 17500, 5500,
-          12500, 6500,
-        ],
-        [
-          2250, 8700, 2550, 7650, 3850, 6650, 7650, 8250, 4950, 9250, 7850,
-          4450,
-        ],
-        [
-          4350, 5450, 2650, 7650, 2550, 4350, 7450, 8250, 4950, 9250, 7850,
-          4450,
-        ],
-      ];
-    }
-
-    return {
-      data,
-      labels,
-    };
-  }
 }

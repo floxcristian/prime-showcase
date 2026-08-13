@@ -22,6 +22,7 @@ import { MetricCardComponent } from '../../../shared/components/metric-card/metr
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
 import { ObservabilityMockService } from '../services/observability-mock.service';
+import { formatLatency, formatPercent } from '../utils/format';
 
 const NG_MODULES = [CommonModule, RouterLink];
 const PRIME_MODULES = [ButtonModule, TabsModule, TooltipModule];
@@ -83,12 +84,17 @@ export class ObsServiceDetailComponent {
 
   protected readonly activeTab = signal<DetailTab>('health');
 
+  /** Skeleton cards del loading state — mismo patrón que obs-uptime. */
+  protected readonly skeletonPlaceholders = [0, 1, 2, 3];
+
+  // Wrappers de los formatters compartidos del módulo (utils/format.ts)
+  // — los templates no pueden invocar imports directamente.
   protected formatPercent(v: number): string {
-    return `${v.toFixed(2)}%`;
+    return formatPercent(v);
   }
 
   protected formatLatency(v: number): string {
-    return `${v.toLocaleString()}ms`;
+    return formatLatency(v);
   }
 
   protected deployIcon(status: 'success' | 'failed' | 'rolled-back'): string {

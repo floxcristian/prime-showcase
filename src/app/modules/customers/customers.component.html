@@ -16,7 +16,7 @@
   -->
   @if (totalCount() > 0) {
     <div
-      class="hidden sm:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
+      class="hidden lg:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
       role="status"
       [attr.aria-label]="
         activeCount() + ' de ' + totalCount() + ' clientes activos'
@@ -81,7 +81,7 @@
   <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
     @if (lastFetchedAt(); as ts) {
       <span
-        class="text-sm text-muted-color leading-5 hidden sm:inline"
+        class="text-sm text-muted-color leading-5 hidden lg:inline"
         aria-live="polite"
       >
         Actualizado {{ ts | relativeTime }}
@@ -370,7 +370,7 @@
   }
   @if (loadError() && tableData().length > 0) {
     <div
-      class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
+      class="border border-surface rounded-lg p-3 mb-2 flex items-center gap-3 text-sm"
       role="alert"
     >
       <i
@@ -720,10 +720,10 @@
     [class.customers-table--compact]="density() === 'compact'"
   >
     <p-table
-      [value]="$any(tableData())"
+      [value]="tableData()"
       [loading]="loading()"
       [dt]="tableDensityDt()"
-      [selection]="$any(selectedRows())"
+      [selection]="selectedRows()"
       (selectionChange)="selectedRows.set($event)"
       dataKey="id"
       [paginator]="true"
@@ -737,6 +737,7 @@
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} clientes"
       (onFilter)="onTableFilter($event)"
+      (onSort)="onTableSort($event)"
     >
       <ng-template #header>
         <tr>
@@ -1430,7 +1431,7 @@
             <p-cellEditor>
               <ng-template #input>
                 <p-select
-                  [options]="$any(typeOptions)"
+                  [options]="typeOptions"
                   [ngModel]="data.type"
                   (ngModelChange)="onTipoEdit(data, $event)"
                   appendTo="body"
@@ -1860,6 +1861,14 @@
        y oculta el footer Limpiar/Aplicar. `!z-[1300]` fuerza al drawer
        a cubrir el nav cuando está abierto. Patrón bigtech: modal/sheet
        overlay TODO el chrome, focus exclusivo en el drawer.
+
+       Z-index semántico (escala DESIGN.md §Z-Index): 1300 = peldaño
+       "modal" — este sheet bloquea la interacción con la página, no es
+       un drawer lateral (1200, ocupado por el mobile-footer nav). El
+       mask va a 1290 (justo debajo del panel, encima del nav). Los
+       valores viven hardcodeados acá porque PrimeNG no expone token
+       per-instancia para el z-index del drawer — si se agrega un nivel
+       nuevo, actualizar la escala en DESIGN.md, no inventar números.
 -->
 <p-drawer
   [(visible)]="filterSheetVisible"
@@ -1933,24 +1942,13 @@
         Crédito disponible
       </label>
       <span class="text-sm text-muted-color leading-5">
-        {{
-          formatCredit(
-            ($any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()])[0]
-          )
-        }}
+        {{ formatCredit(sheetCreditRange()[0]) }}
         –
-        {{
-          formatCredit(
-            ($any(sheetFilterValue('availableCredit')) ??
-              [0, maxCredit()])[1]
-          )
-        }}
+        {{ formatCredit(sheetCreditRange()[1]) }}
       </span>
       <p-slider
         inputId="sheet-credit"
-        [ngModel]="
-          $any(sheetFilterValue('availableCredit')) ?? [0, maxCredit()]
-        "
+        [ngModel]="sheetCreditRange()"
         (ngModelChange)="
           applySheetFilter($event, 'availableCredit', 'between')
         "
@@ -2220,23 +2218,22 @@
 
   No shadow per project CLAUDE.md — bg-primary saturado + rounded-2xl
   + position carry la elevation perceptualmente.
+
+  Acción primaria → `<p-button>` (regla del proyecto: botones de acción
+  siempre PrimeNG, no `<button>` a mano). El collapse mantiene la misma
+  mecánica: `fabExtended()` alterna label visible ↔ icon-only; el
+  `ariaLabel` cubre el estado colapsado. `z-10` = peldaño "sticky" de
+  la escala del proyecto (único z raw permitido en templates).
 -->
-<button
-  type="button"
-  class="lg:hidden fixed right-4 z-50 inline-flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-contrast font-medium leading-6 cursor-pointer hover:bg-primary-emphasis transition-[padding] motion-reduce:transition-none"
+<p-button
+  class="lg:hidden fixed right-4 z-10"
   [style.bottom]="'calc(5rem + env(safe-area-inset-bottom))'"
-  [ngClass]="{
-    'px-5': fabExtended(),
-    'px-3': !fabExtended(),
-  }"
-  aria-label="Crear nuevo cliente"
-  (click)="onCreateCustomer()"
->
-  <i class="fa-sharp fa-regular fa-plus" aria-hidden="true"></i>
-  @if (fabExtended()) {
-    <span>Crear cliente</span>
-  }
-</button>
+  [label]="fabExtended() ? 'Crear cliente' : undefined"
+  icon="fa-sharp fa-regular fa-plus"
+  ariaLabel="Crear nuevo cliente"
+  styleClass="!rounded-2xl"
+  (onClick)="onCreateCustomer()"
+/>
 
 <!--
   ─── SAVE VIEW DIALOG ────────────────────────────────────────────────

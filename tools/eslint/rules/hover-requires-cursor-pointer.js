@@ -178,8 +178,13 @@ function buildClassAppender(sourceCode, classAttr, element, token) {
     // No static class attr — add one right after the tag name.
     // element.startSourceSpan points at `<tagName`, so insert after the tag name.
     if (element.startSourceSpan) {
+      // The parser namespaces SVG elements as `:svg:path` / `:svg:svg`, but
+      // the SOURCE tag is just `<path` / `<svg`. Using the namespaced name's
+      // length lands the insertion offset past the real tag name and corrupts
+      // inline SVG markup — strip the namespace before measuring.
+      const sourceTagName = element.name.replace(/^:svg:/, '');
       const tagOpenEnd =
-        element.startSourceSpan.start.offset + element.name.length + 1; /* `<` + name */
+        element.startSourceSpan.start.offset + sourceTagName.length + 1; /* `<` + name */
       return fixer.insertTextBeforeRange([tagOpenEnd, tagOpenEnd], ` class="${token}"`);
     }
     return null;

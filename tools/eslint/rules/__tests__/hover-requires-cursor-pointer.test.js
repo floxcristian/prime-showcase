@@ -153,6 +153,41 @@ test('hover-requires-cursor-pointer — suggestion autofix output', () => {
           },
         ],
       },
+      {
+        // SVG elements: the parser namespaces the node name (`:svg:svg`,
+        // `:svg:path` — 9 chars for a 5-char source tag). The fixer must
+        // measure the SOURCE tag name, not the namespaced one, or the
+        // inserted `class="..."` lands mid-markup and corrupts the SVG.
+        // No static class attr here → the fixer takes the insert-after-tag
+        // branch that used to be buggy.
+        code: `<svg [ngClass]="{ 'hover:opacity-70': x }" viewBox="0 0 24 24"></svg>`,
+        errors: [
+          {
+            messageId: 'hoverWithoutCursor',
+            suggestions: [
+              {
+                messageId: 'suggestAddCursorPointer',
+                output: `<svg class="cursor-pointer" [ngClass]="{ 'hover:opacity-70': x }" viewBox="0 0 24 24"></svg>`,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        // Inner SVG child (`:svg:path`) takes the same namespaced-name path.
+        code: `<svg viewBox="0 0 24 24"><path [ngClass]="{ 'hover:opacity-70': x }" d="M0 0h24v24z"/></svg>`,
+        errors: [
+          {
+            messageId: 'hoverWithoutCursor',
+            suggestions: [
+              {
+                messageId: 'suggestAddCursorPointer',
+                output: `<svg viewBox="0 0 24 24"><path class="cursor-pointer" [ngClass]="{ 'hover:opacity-70': x }" d="M0 0h24v24z"/></svg>`,
+              },
+            ],
+          },
+        ],
+      },
     ],
   });
 });

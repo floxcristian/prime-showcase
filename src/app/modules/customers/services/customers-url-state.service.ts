@@ -24,16 +24,12 @@ export interface CustomersViewSnapshot {
   detailId: number | null;
 }
 
-/** Default page size — único source of truth, referenciado en encode/
- * decode para evitar la repetición del magic 10 que existía cross-
- * method. */
-export const DEFAULT_PAGE_SIZE = 10;
-
+// NOTA: el URL solo transporta filters + sort + detail. Columnas
+// visibles y paginación son preferencia local del receptor y NO se
+// serializan (los encoders de `cols`/`page`/`size` que existían acá
+// eran código muerto — ningún call site los pasaba ni los aplicaba).
 const QP_FILTERS_PREFIX = 'f.'; // f.type, f.segmento, etc.
 const QP_SORT = 'sort';
-const QP_COLS = 'cols';
-const QP_FIRST = 'page';
-const QP_ROWS = 'size';
 const QP_DETAIL = 'detail';
 
 /**
@@ -80,8 +76,6 @@ const TAG_BOOLEAN = 'b';
  *   - `f.name=s:andes`                      (contains: literal string)
  *   - `f.minRevenue=n:100`                  (single number)
  *   - `sort=name:asc` / `sort=availableCredit:desc`
- *   - `cols=rut,type,segmento`              (lista de columnas; no
- *     necesita type-tag porque siempre son strings)
  *   - `detail=42`                            (single number id)
  *
  * **History strategy**: `replaceUrl: false` (default Angular = push).
@@ -119,17 +113,11 @@ export class CustomersUrlStateService {
     }
 
     const sort = this.parseSort(params[QP_SORT]);
-    const columns = this.parseColumns(params[QP_COLS]);
-    const first = this.parseNumber(params[QP_FIRST], 0);
-    const rows = this.parseNumber(params[QP_ROWS], DEFAULT_PAGE_SIZE);
     const detailId = this.parseNumber(params[QP_DETAIL], null);
 
     return {
       filters,
       sort,
-      columns,
-      first,
-      rows,
       detailId,
     };
   }
@@ -155,21 +143,6 @@ export class CustomersUrlStateService {
       queryParams[QP_SORT] = snapshot.sort
         ? `${snapshot.sort.field}:${snapshot.sort.dir === -1 ? 'desc' : 'asc'}`
         : null;
-    }
-
-    if (snapshot.columns !== undefined) {
-      queryParams[QP_COLS] = snapshot.columns.length
-        ? snapshot.columns.join(',')
-        : null;
-    }
-
-    if (snapshot.first !== undefined) {
-      queryParams[QP_FIRST] = snapshot.first > 0 ? String(snapshot.first) : null;
-    }
-
-    if (snapshot.rows !== undefined) {
-      queryParams[QP_ROWS] =
-        snapshot.rows !== DEFAULT_PAGE_SIZE ? String(snapshot.rows) : null;
     }
 
     if (snapshot.detailId !== undefined) {
@@ -281,11 +254,6 @@ export class CustomersUrlStateService {
     const [field, dirStr] = raw.split(':');
     if (!field) return null;
     return { field, dir: dirStr === 'desc' ? -1 : 1 };
-  }
-
-  private parseColumns(raw: string | undefined): string[] {
-    if (!raw) return [];
-    return raw.split(',').filter(Boolean);
   }
 
   private parseNumber<T extends number | null>(

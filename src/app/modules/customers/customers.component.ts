@@ -684,7 +684,10 @@ export class CustomersComponent {
   // selection > 0, con count badge + acciones (Mass update, Export,
   // Delete). Crítico para data entry / cleanup workflows.
 
-  protected readonly selectedRows = signal<readonly Customer[]>([]);
+  /** Filas seleccionadas. Tipado mutable (`Customer[]`) porque
+   * `<p-table [selection]>` espera arrays mutables — evita el `$any()`
+   * que antes casteaba el `readonly` en el template. */
+  protected readonly selectedRows = signal<Customer[]>([]);
 
   protected readonly selectionCount = computed(
     () => this.selectedRows().length,
@@ -933,9 +936,14 @@ export class CustomersComponent {
     this.customersResource.error(),
   );
 
-  protected readonly tableData = computed<readonly Customer[]>(
-    () => this.customersResource.value() ?? [],
-  );
+  /** Dataset materializado para la tabla. Spread al materializar:
+   * `<p-table [value]>` espera `T[]` mutable (sortea in-place), así que
+   * copiamos el `readonly Customer[]` del resource en un array propio —
+   * elimina el `$any()` del template y aísla la mutación de PrimeNG
+   * del snapshot del service. */
+  protected readonly tableData = computed<Customer[]>(() => [
+    ...(this.customersResource.value() ?? []),
+  ]);
 
   /**
    * Conteos derivados para el count pill del header — formato "X de Y
@@ -1238,6 +1246,32 @@ export class CustomersComponent {
   protected readonly activeFilters = signal<readonly ActiveFilter[]>([]);
 
   /**
+   * Espejo reactivo del sort activo de la tabla. `Table.sortField` /
+   * `Table.sortOrder` son propiedades planas (no signals) — leerlas
+   * directo en `currentSnapshot()` dejaba a `hasUnsavedChanges` ciego
+   * a cambios de orden. Actualizado en `(onSort)` y al aplicar
+   * snapshots (saved view / URL); `null` = sin orden.
+   */
+  private readonly tableSort = signal<{ field: string; dir: 1 | -1 } | null>(
+    null,
+  );
+
+  /**
+   * Handler de `(onSort)` del p-table. Sincroniza el espejo reactivo
+   * `tableSort` y propaga el sort al URL (skip durante hidratación,
+   * mismo guard que filters). El sort NO invalida la saved view activa:
+   * en system views es preferencia sobre el preset; en custom views el
+   * drift surfacea vía `hasUnsavedChanges` (indicator ●).
+   */
+  protected onTableSort(event: { field?: string; order?: number }): void {
+    const field = event.field;
+    this.tableSort.set(
+      field ? { field, dir: event.order === -1 ? -1 : 1 } : null,
+    );
+    this.syncFiltersToUrl();
+  }
+
+  /**
    * Filtered data eco para el card-list view mobile. PrimeNG Table emite
    * `event.filteredValue` en `(onFilter)` con el resultado post-filter
    * (NO post-paginate). Mobile cards leen de aquí cuando hay filtros
@@ -1369,6 +1403,19 @@ export class CustomersComponent {
     return arr?.value as T | undefined;
   }
 
+  /** Rango actual del filter de crédito disponible para el slider del
+   * bottom-sheet, con fallback al rango completo. Tipado acá (los
+   * templates no soportan type arguments genéricos) — evita los
+   * `$any()` que antes casteaban `sheetFilterValue(...)` en el HTML. */
+  protected sheetCreditRange(): [number, number] {
+    return (
+      this.sheetFilterValue<[number, number]>('availableCredit') ?? [
+        0,
+        this.maxCredit(),
+      ]
+    );
+  }
+
   // ── Detail drawer (universal mobile + desktop) ─────────────────────
   //
   // Tap card body (mobile) o click "Detalles" en el ··· menu (desktop)
@@ -1429,9 +1476,10 @@ export class CustomersComponent {
   }
 
   /**
-   * Serializa el estado actual de filtros desde `Table.filters` (state
-   * canónico de PrimeNG) hacia URL queryParams. Skipea si estamos en
-   * fase de hidratación inicial para evitar feedback loop.
+   * Serializa el estado actual de filtros + sort desde `Table.filters`
+   * (state canónico de PrimeNG) y `tableSort` hacia URL queryParams.
+   * Skipea si estamos en fase de hidratación inicial para evitar
+   * feedback loop.
    */
   private syncFiltersToUrl(): void {
     if (this.isApplyingFromUrl()) return;
@@ -1449,7 +1497,7 @@ export class CustomersComponent {
         filters[field] = value;
       }
     }
-    this.urlState.updateUrl({ filters });
+    this.urlState.updateUrl({ filters, sort: this.tableSort() });
   }
 
   protected removeFilter(filter: ActiveFilter): void {
@@ -1459,7 +1507,10 @@ export class CustomersComponent {
   protected clearAllFilters(): void {
     const t = this.clientsTable();
     if (!t) return;
+    // `Table.clear()` resetea también el sort (sin emitir onSort) —
+    // sincronizamos el espejo reactivo manualmente.
     t.clear();
+    this.tableSort.set(null);
     this._mobileFilteredData.set(null);
     this.refreshActiveFilters();
   }
@@ -1648,15 +1699,36 @@ export class CustomersComponent {
     // persistencia simulada, el service hace rollback del signal y
     // dispara este handler con un mensaje. Inversion-of-control: el
     // service no acopla con PrimeNG `MessageService`; el componente
-    // provee la integración.
-    this.savedViews.setRollbackHandler((detail) => {
-      this.messageService.add({
-        key: 'customers-toast',
-        severity: 'error',
-        summary: 'Error',
-        detail,
-        life: TOAST_LONG_MS,
-      });
+    // provee la integración. El unregister se ejecuta al destruir el
+    // componente — el service es root-scoped y sin desregistro el
+    // callback apuntaría a una instancia muerta (toast sobre
+    // MessageService destruido).
+    const unregisterRollback = this.savedViews.setRollbackHandler(
+      (detail) => {
+        this.messageService.add({
+          key: 'customers-toast',
+          severity: 'error',
+          summary: 'Error',
+          detail,
+          life: TOAST_LONG_MS,
+        });
+      },
+    );
+    this.destroyRef.onDestroy(unregisterRollback);
+
+    // Teardown de timers pendientes. Sin esto, un setTimeout vivo al
+    // destruir el componente escribe signals y dispara toasts sobre la
+    // instancia muerta (el onDestroy de initFabScrollBehavior solo
+    // limpia el listener del FAB).
+    this.destroyRef.onDestroy(() => {
+      if (this.pendingUndoTimer !== null) {
+        clearTimeout(this.pendingUndoTimer);
+        this.pendingUndoTimer = null;
+      }
+      if (this.simulateApiCallTimer !== null) {
+        clearTimeout(this.simulateApiCallTimer);
+        this.simulateApiCallTimer = null;
+      }
     });
 
     effect(() => {
@@ -1708,13 +1780,6 @@ export class CustomersComponent {
       });
     });
 
-    // Reset activeIndex cuando el query cambia — sino el index puede
-    // quedar fuera de bounds tras filtrar (ej: estaba en index=5,
-    // user tipea hasta dejar 2 results → index 5 inválido).
-    effect(() => {
-      this.cmdkQuery();
-      this.cmdkActiveIndex.set(0);
-    });
   }
 
   /**
@@ -1738,6 +1803,16 @@ export class CustomersComponent {
             t.filter(value, field, matchMode);
           }
         }
+      }
+      // Sort (?sort=field:asc|desc → aplica a la tabla + espejo reactivo)
+      if (snapshot.sort) {
+        const t = this.clientsTable();
+        if (t) {
+          t.sortField = snapshot.sort.field;
+          t.sortOrder = snapshot.sort.dir;
+          t.sortSingle();
+        }
+        this.tableSort.set({ ...snapshot.sort });
       }
       // Detail (resuelve id → Customer del dataset hidratado)
       if (snapshot.detailId != null) {
@@ -1804,6 +1879,17 @@ export class CustomersComponent {
           t.filter(value, field, matchMode);
         }
       }
+      // Apply snapshot sort. `t.clear()` (arriba) ya reseteó el sort;
+      // acá restauramos el orden persistido en la view (si tiene) y
+      // sincronizamos el espejo reactivo en ambos casos.
+      if (t && view.snapshot.sort) {
+        t.sortField = view.snapshot.sort.field;
+        t.sortOrder = view.snapshot.sort.dir;
+        t.sortSingle();
+      }
+      this.tableSort.set(
+        view.snapshot.sort ? { ...view.snapshot.sort } : null,
+      );
       // Detail no se restaura por view (es transient state, no parte
       // de la "vista filtrada" — patrón HubSpot).
       this.detailedCustomer.set(null);
@@ -1852,8 +1938,11 @@ export class CustomersComponent {
       }
     }
     return {
+      // Sort real de la tabla via el espejo reactivo `tableSort` —
+      // antes hardcodeaba `null` y `hasUnsavedChanges` era ciego al
+      // orden (custom views con sort persistido nunca marcaban drift).
+      sort: this.tableSort(),
       filters,
-      sort: null,
       columns: [...this.selectedColumnKeys()],
       first: this.mobileFirst(),
       rows: this.mobileRows(),
@@ -1907,7 +1996,10 @@ export class CustomersComponent {
         key: 'customers-toast',
         severity: 'success',
         summary: 'Enlace copiado',
-        detail: 'Comparte para abrir la misma vista filtrada.',
+        // Copy honesto con lo que el URL realmente transporta: filtros
+        // y orden. Columnas visibles y paginación NO viajan en el URL
+        // (son preferencia local del receptor).
+        detail: 'Comparte para abrir la lista con los mismos filtros y orden.',
         life: 2500,
       });
     } catch {
@@ -2106,8 +2198,17 @@ export class CustomersComponent {
   /** Active index dentro de cmdkResults — driven by arrow keys.
    * Patrón canónico bigtech (Linear/Stripe/Notion Cmd+K): ↑↓ navega,
    * Enter confirma. Sin esto el palette funciona como search box, no
-   * como command palette. */
-  protected readonly cmdkActiveIndex = signal(0);
+   * como command palette.
+   *
+   * `linkedSignal` keyed en `cmdkQuery`: cada cambio del query resetea
+   * el índice a 0 — sino el index puede quedar fuera de bounds tras
+   * filtrar (ej: estaba en index=5, user tipea hasta dejar 2 results).
+   * Mismo patrón que `page` en movies.component; sigue siendo writable
+   * para arrow nav. */
+  protected readonly cmdkActiveIndex = linkedSignal<string, number>({
+    source: this.cmdkQuery,
+    computation: () => 0,
+  });
 
   private static readonly CMDK_RECENT_KEY = 'customers:cmdk-recent:v1';
   private static readonly CMDK_RECENT_MAX = 5;

@@ -79,6 +79,9 @@ export class ObsInboxComponent {
     this.inboxResource.reload();
   }
 
+  /** Skeleton rows del loading state — mismo patrón que obs-uptime. */
+  protected readonly skeletonPlaceholders = [0, 1, 2, 3];
+
   protected readonly buckets = computed<readonly BucketView[]>(() => {
     const items = this.inbox() ?? [];
     return [
