@@ -24,6 +24,12 @@
  */
 import { test, expect } from '../fixtures/auth';
 
+// NOTE: this list intentionally mirrors GOLDEN_ROUTES in
+// `tests/fixtures/routes.ts` (the shared route fixture also consumed by the
+// a11y suite). It stays inlined here — NOT spread from the fixture — because
+// every entry requires committed baseline screenshots generated via the
+// manual `Visual baselines` workflow; growing this list must be a deliberate
+// re-baseline, never a side effect of extending the shared fixture.
 const ROUTES = [
   { path: '/', name: 'overview' },
   { path: '/customers', name: 'customers' },

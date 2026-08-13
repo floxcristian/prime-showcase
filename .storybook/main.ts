@@ -16,10 +16,13 @@ import type { StorybookConfig } from '@storybook/angular';
  *      assets resolve at the same URLs as in the running app. Without this,
  *      icon glyphs render as squares in stories.
  *
- *   3. **`autodocs: 'tag'`** opts components into Storybook's Docs page
- *      generation only when they declare the `autodocs` tag in their meta.
- *      Avoids spurious docs pages on internal stories we don't want to
- *      surface in the catalog.
+ *   3. **Docs pages are tag-driven** (Storybook 10 behavior — there is no
+ *      `docs.autodocs` config key anymore): a story file gets a generated
+ *      Docs page only when its meta declares `tags: ['autodocs']`. This
+ *      config only sets the page's `defaultName`. Compodoc is DISABLED
+ *      (`compodoc: false` in angular.json storybook/build-storybook
+ *      targets), so argTypes come from Storybook's own inference, not from
+ *      compodoc-extracted Angular metadata.
  */
 const config: StorybookConfig = {
   framework: {
@@ -46,24 +49,21 @@ const config: StorybookConfig = {
   ],
 
   docs: {
-    // Generate docs only for components that opt in via the `autodocs` tag.
-    // Avoids noise from internal-only stories. Storybook 8+ convention.
+    // Name of the generated Docs page for stories that opt in via
+    // `tags: ['autodocs']` in their meta. Docs generation itself is
+    // tag-driven (see header note 3).
     defaultName: 'Docs',
   },
 
   typescript: {
-    // Use the type-aware compodoc generator for argTypes inference. This
-    // gives editors and Docs pages real type information from the Angular
-    // component metadata, not stringly-typed guesses.
+    // Skip fork-ts-checker type checking during the Storybook build — the
+    // repo's own `npm run lint` / `ng build` already typecheck. Compodoc is
+    // disabled in angular.json, so there is no compodoc-based argTypes
+    // extraction here.
     check: false,
     checkOptions: {},
   },
 
-  // Build-time config tweaks. Storybook's Angular builder routes through
-  // `@angular/build`; we override only what's necessary for our project.
-  webpackFinal: undefined,
-
-  // Pre-bundle expensive deps for faster cold-start.
   core: {
     disableTelemetry: true,
   },

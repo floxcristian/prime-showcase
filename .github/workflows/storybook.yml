@@ -17,16 +17,18 @@ on:
     branches: [main]
   pull_request:
 
+# Least-privilege default for every job (including the build job that runs
+# on untrusted PR heads). The Pages-deploy permissions (`pages: write` +
+# `id-token: write`) are granted ONLY to the `deploy` job, which is gated to
+# pushes on main.
 permissions:
   contents: read
-  # Pages deploy needs:
-  pages: write
-  id-token: write
 
-# Allow only one concurrent deployment, but cancel the older one if a new
-# main push comes in. Aligns with GitHub's recommended Pages config.
+# Allow only one concurrent run PER REF, cancelling the older one when a new
+# push to the same ref comes in. The ref in the group key matters: with a
+# bare `group: storybook`, a PR run would cancel an in-flight main deploy.
 concurrency:
-  group: storybook
+  group: storybook-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -64,6 +66,10 @@ jobs:
     needs: build
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
+    # Job-scoped Pages permissions — the only job that needs them.
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

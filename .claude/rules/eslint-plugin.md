@@ -24,7 +24,12 @@ tools/eslint/
     no-forbidden-typography.js        ← Enforces text size, leading, font-weight scale
     no-forbidden-transitions.js       ← Bloquea transition-all / bare transition (política big-tech)
     hover-requires-cursor-pointer.js  ← hover:* ↔ cursor-pointer deben ir en pareja
-    no-icon-button-without-tooltip.js ← Icon-only <p-button> requiere pTooltip
+    no-icon-button-without-tooltip.js ← Icon-only <p-button> / <button pButton> requiere pTooltip
+    no-color-on-pbutton-icon.js       ← Bloquea tokens no-fa-* en `icon=` de <p-button> (el color lo posee severity/skin)
+    no-bare-fa-without-sharp.js       ← fa-regular/fa-solid/etc. sin prefijo fa-sharp → icono invisible
+    no-button-without-type.js         ← <button> nativo (incl. pButton) requiere type= explícito
+    no-duotone-inline-icon.js         ← fa-sharp-duotone solo en tamaños hero (text-2xl+)
+    no-decorative-icon-without-aria-hidden.js ← <i> decorativo requiere aria-hidden="true"
     no-deprecated-styleclass.js       ← `styleClass` deprecated en PrimeNG v20 — usar `class`
     text-3xl-requires-bold.js         ← text-3xl debe ir con font-bold en el mismo elemento
     label-requires-semibold.js        ← <label> de input → font-semibold; <label> de checkbox/radio → font-normal
@@ -48,7 +53,12 @@ tools/eslint/
 | `showcase/anchor-link-classes` | `<a>` de texto sin el set canónico (falta `font-medium`, `cursor-pointer`, `transition-colors`, `duration-150`, `underline`, `text-primary`, o `hover:text-primary-emphasis`). Detecta también `text-blue-500 hover:text-blue-700` | `<a>` con los 7 tokens. Exenciones: `[routerLink]`, `href="#..."`, `<a>` que contiene `<p-button>` |
 | `showcase/no-forbidden-transitions` | `transition-all`, bare `transition`, `transition-[all]` | `transition-colors`, `transition-opacity`, `transition-transform`, `transition-none`, `transition-shadow`, `transition-[transform]` |
 | `showcase/hover-requires-cursor-pointer` | Elementos con `hover:*` sin `cursor-pointer`, o viceversa (plain HTML) | Mismo elemento con el par; `group-hover:*` y `peer-hover:*` no se flaggean; `<p-*>` y `[pButton]` están exentos |
-| `showcase/no-icon-button-without-tooltip` | `<p-button [icon]="..." aria-label="..."/>` sin `pTooltip` | Botones con `label` visible, o con `pTooltip` |
+| `showcase/no-icon-button-without-tooltip` | `<p-button [icon]="..." aria-label="..."/>` o `<button pButton icon="...">` sin `pTooltip` | Botones con `label` visible o texto proyectado, con `pTooltip` propio, o envueltos en un ancestro con `pTooltip` |
+| `showcase/no-color-on-pbutton-icon` | Tokens que no son `fa-*` dentro de `icon="..."` de `<p-button>` (colores, tamaños) | Solo clases `fa-*` en `icon=`; el color lo posee severity/skin del tema |
+| `showcase/no-bare-fa-without-sharp` | `fa-regular`, `fa-solid`, `fa-light`, `fa-duotone` sin `fa-sharp`/`fa-sharp-duotone` en el mismo elemento (ícono invisible — la familia clásica no está cargada) | `fa-sharp fa-regular`, `fa-sharp-duotone fa-regular`, `fa-brands`; prefijo en `class` estático + token condicional en `[ngClass]` |
+| `showcase/no-button-without-type` | `<button>` nativo sin `type=` explícito — **incluye `<button pButton>`** (la directiva NO emite `type="button"`; solo el componente `<p-button>` lo hace) | `type="button"` / `"submit"` / `"reset"`, `[attr.type]`; `<p-button>` (no es `<button>` nativo) |
+| `showcase/no-duotone-inline-icon` | `fa-sharp-duotone` en íconos inline o < `text-2xl` (los dos tonos se embarran) | `fa-sharp-duotone` con `text-2xl`/`text-4xl`+ (feature cards, hero tiles, empty states) |
+| `showcase/no-decorative-icon-without-aria-hidden` | `<i>` con clases Font Awesome sin `aria-hidden="true"` (screen readers leen el glifo) | `<i ... aria-hidden="true">`; íconos standalone con `aria-label` en el elemento interactivo padre |
 | `showcase/no-deprecated-styleclass` | `styleClass` / `[styleClass]` en componentes PrimeNG v20 que deprecaron el atributo (53 selectores: p-tag, p-avatar, p-table, p-skeleton, etc.) | `class=`, `[class]=`, `[ngClass]=`. Sub-element variants (`paginatorStyleClass`, `valueStyleClass`) y overlays (`p-drawer`, `p-dialog`, `p-popover`, `p-tooltip`, `p-menu`, `p-button`) no se flaggean. Set sincronizado vía drift-test contra PrimeNG type defs. |
 
 ## Reglas built-in habilitadas

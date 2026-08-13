@@ -33,20 +33,20 @@ export interface RouteFixture {
 }
 
 /** Primary routes captured by the visual golden-path suite. */
-export const GOLDEN_ROUTES = [
+export const GOLDEN_ROUTES: readonly RouteFixture[] = [
   { path: '/', name: 'overview' },
   { path: '/customers', name: 'customers' },
   { path: '/inbox', name: 'inbox' },
   { path: '/chat', name: 'chat' },
   { path: '/cards', name: 'cards' },
   { path: '/movies', name: 'movies' },
-] as const satisfies readonly RouteFixture[];
+];
 
 /**
  * Full route coverage for the a11y gate. Detail-view ids reference stable
  * mock data: `svc-auth` (services-mock.ts) and `alert-000` (alerts-mock.ts).
  */
-export const A11Y_ROUTES = [
+export const A11Y_ROUTES: readonly RouteFixture[] = [
   ...GOLDEN_ROUTES,
   { path: '/users', name: 'users' },
   { path: '/roles', name: 'roles' },
@@ -62,4 +62,4 @@ export const A11Y_ROUTES = [
   { path: '/observability/uptime', name: 'obs-uptime' },
   { path: '/observability/preferences', name: 'obs-preferences' },
   { path: '/observability/notifications-history', name: 'obs-notifications-history' },
-] as const satisfies readonly RouteFixture[];
+];

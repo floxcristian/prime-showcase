@@ -30,6 +30,10 @@ Rules scan the following attributes as class lists:
 | [`no-duotone-inline-icon`](./no-duotone-inline-icon.md) | `fa-sharp-duotone` outside hero scale (`text-4xl`+) — keeps UI-chrome icons on a single family |
 | [`no-decorative-icon-without-aria-hidden`](./no-decorative-icon-without-aria-hidden.md) | `<i>` Font Awesome icon missing `aria-hidden="true"` (screen-reader leakage) |
 | [`no-deprecated-styleclass`](./no-deprecated-styleclass.md) | `styleClass` on PrimeNG components deprecated since v20 — use `class` instead |
+| [`no-color-on-pbutton-icon`](./no-color-on-pbutton-icon.md) | Design-system color tokens / `bg-*` / state variants inside `<p-button icon="...">` (dead code — the button skin owns icon color) |
+| [`text-3xl-requires-bold`](./text-3xl-requires-bold.md) | `text-3xl` without `font-bold` on the same element (hero titles carry bold weight) |
+| [`label-requires-semibold`](./label-requires-semibold.md) | Input `<label>` without `font-semibold`; checkbox/radio `<label>` without `font-normal` |
+| [`anchor-link-classes`](./anchor-link-classes.md) | Text `<a>` without the canonical link class set (exempt: `[routerLink]`, `href="#..."`, wraps `<p-button>`) |
 
 All rules ship at severity **error**.
 

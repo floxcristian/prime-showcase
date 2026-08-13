@@ -22,15 +22,14 @@
  */
 import { test, expect } from '../fixtures/auth';
 import AxeBuilder from '@axe-core/playwright';
+import { A11Y_ROUTES } from '../fixtures/routes';
 
-const ROUTES = [
-  { path: '/', name: 'overview' },
-  { path: '/customers', name: 'customers' },
-  { path: '/inbox', name: 'inbox' },
-  { path: '/chat', name: 'chat' },
-  { path: '/cards', name: 'cards' },
-  { path: '/movies', name: 'movies' },
-] as const;
+// Route list shared with the visual suite via `tests/fixtures/routes.ts`.
+// A11Y_ROUTES = golden routes + admin + notifications + guest pages +
+// observability (incl. one detail view per :id route). Guest-only routes
+// (login / forgot-password) run on a NON-authed page — guestGuard redirects
+// authed sessions away from them.
+const ROUTES = A11Y_ROUTES;
 
 /**
  * Selectores PrimeNG-internos donde el library renderiza un input o
@@ -113,31 +112,44 @@ const PRIMENG_INTERNAL_EXCLUSIONS: readonly string[] = [
   'p-button[aria-label]:not([role])',
 ];
 
+/** Runs the axe scan against an already-navigated page. */
+async function scanRoute(page: import('@playwright/test').Page, path: string) {
+  await page.goto(path, { waitUntil: 'networkidle' });
+  await page.waitForTimeout(300);
+
+  let builder = new AxeBuilder({ page }).withTags([
+    'wcag2a',
+    'wcag2aa',
+    'wcag21a',
+    'wcag21aa',
+  ]);
+  for (const selector of PRIMENG_INTERNAL_EXCLUSIONS) {
+    builder = builder.exclude(selector);
+  }
+  const results = await builder.analyze();
+
+  // Block on critical/serious only; lower severities are noise during
+  // first rollout. Bump to ['critical','serious','moderate'] once the
+  // baseline is clean.
+  const blocking = results.violations.filter(
+    (v) => v.impact === 'critical' || v.impact === 'serious',
+  );
+
+  expect.soft(blocking, formatViolations(blocking)).toEqual([]);
+}
+
 for (const route of ROUTES) {
-  test(`${route.name} — axe-core (light)`, async ({ authedPage }) => {
-    await authedPage.goto(route.path, { waitUntil: 'networkidle' });
-    await authedPage.waitForTimeout(300);
-
-    let builder = new AxeBuilder({ page: authedPage }).withTags([
-      'wcag2a',
-      'wcag2aa',
-      'wcag21a',
-      'wcag21aa',
-    ]);
-    for (const selector of PRIMENG_INTERNAL_EXCLUSIONS) {
-      builder = builder.exclude(selector);
-    }
-    const results = await builder.analyze();
-
-    // Block on critical/serious only; lower severities are noise during
-    // first rollout. Bump to ['critical','serious','moderate'] once the
-    // baseline is clean.
-    const blocking = results.violations.filter(
-      (v) => v.impact === 'critical' || v.impact === 'serious',
-    );
-
-    expect.soft(blocking, formatViolations(blocking)).toEqual([]);
-  });
+  if (route.guestOnly) {
+    // Guest pages (login / forgot-password): authed sessions get redirected
+    // away by guestGuard, so scan with the plain non-authed page fixture.
+    test(`${route.name} — axe-core (light)`, async ({ page }) => {
+      await scanRoute(page, route.path);
+    });
+  } else {
+    test(`${route.name} — axe-core (light)`, async ({ authedPage }) => {
+      await scanRoute(authedPage, route.path);
+    });
+  }
 }
 
 function formatViolations(violations: { id: string; description: string; nodes: unknown[] }[]) {
