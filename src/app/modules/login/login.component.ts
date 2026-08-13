@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
@@ -57,6 +58,15 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
+
+  // Handle del timer de submit simulado. Se cancela si el componente se
+  // destruye antes de disparar (evita login/navegación post-destroy).
+  private submitTimer: ReturnType<typeof setTimeout> | undefined;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.submitTimer));
+  }
 
   /**
    * URL destino tras login. Viene via queryParam desde `authGuard` cuando el
@@ -129,7 +139,7 @@ export class LoginComponent {
     this.submitting.set(true);
     // Delay corto para dar feedback visual del estado "cargando"; sin backend
     // que llamar, el timer es la única fuente de latencia. Ref: ADR-001 §8.
-    setTimeout(() => {
+    this.submitTimer = setTimeout(() => {
       this.auth.login(this.email().trim());
       this.router.navigateByUrl(this.returnUrl);
     }, AUTH_SUBMIT_DELAY_MS);

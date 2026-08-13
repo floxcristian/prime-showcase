@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
 import { USER_API_KEYS } from '../mocks/api-keys-data';
@@ -37,12 +37,17 @@ export class ApiKeysMockService {
   );
 
   /**
-   * Reactive accessor — el dialog usa este signal vía `computed()` para
-   * que cualquier mutación (create/rotate/revoke) re-renderice la lista
-   * sin pedir explícito un reload.
+   * Reactive accessor — retorna el valor plano leyendo el signal de
+   * state. Llamado DENTRO del `computed()` del consumer (el dialog), el
+   * read del signal queda trackeado ahí y cualquier mutación
+   * (create/rotate/revoke) re-renderiza la lista sin reload explícito.
+   *
+   * Devuelve el valor (no un `computed()` nuevo por llamada) para dejar
+   * la memoización en el computed del consumer — la versión anterior
+   * alocaba y descartaba un nodo reactivo en cada recomputación.
    */
-  keysFor(userId: number) {
-    return computed(() => this.state()[userId] ?? []);
+  keysFor(userId: number): ApiKey[] {
+    return this.state()[userId] ?? [];
   }
 
   /**

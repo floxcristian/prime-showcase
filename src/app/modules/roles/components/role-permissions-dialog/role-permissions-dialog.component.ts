@@ -3,12 +3,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   input,
   model,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
@@ -54,6 +56,7 @@ interface LevelOption {
 })
 export class RolePermissionsDialogComponent {
   private api = inject(RolesMockService);
+  private destroyRef = inject(DestroyRef);
 
   readonly role = input<Role | null>(null);
   readonly visible = model<boolean>(false);
@@ -180,10 +183,16 @@ export class RolePermissionsDialogComponent {
       moduleId: m.id,
       level: this.levelFor(m.id),
     }));
-    this.api.updatePermissions(r.id, permissions).subscribe(() => {
-      this.saving.set(false);
-      this.visible.set(false);
-    });
+    // takeUntilDestroyed: el mock emite con delay — si el parent destruye
+    // el componente antes de la emisión, el callback escribiría signals
+    // sobre una instancia destruida.
+    this.api
+      .updatePermissions(r.id, permissions)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.saving.set(false);
+        this.visible.set(false);
+      });
   }
 
   protected cancel(): void {

@@ -1,0 +1,554 @@
+<!-- Header -->
+<div class="flex items-start gap-2 justify-between flex-wrap">
+  <div class="min-w-0">
+    <h1 class="text-2xl leading-8 text-color font-medium">Uptime</h1>
+    <div class="mt-1 leading-6 text-muted-color">
+      Estado de salud y cuánto tiempo estuvieron disponibles tus
+      servicios en los últimos 30 días.
+    </div>
+  </div>
+  @if (statusPill(); as pill) {
+    <!--
+      Status pill informativo (no interactivo): elemento estático,
+      NO un <p-button>. Antes usábamos <p-button outlined> imitando
+      el look de customers count pill, pero eso introduce cursor
+      pointer + hover effect que mienten al user — el elemento no
+      es clickeable. Patrón Linear/GitHub: badges informativos van
+      como <span>/<div> con styling similar al outlined button pero
+      sin affordances de interacción.
+    -->
+    <div
+      class="hidden lg:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
+      role="status"
+      [attr.aria-label]="pill.label"
+    >
+      <i [class]="pill.icon" aria-hidden="true"></i>
+      <span>{{ pill.label }}</span>
+    </div>
+  }
+</div>
+
+<!--
+  Toolbar — solo info + refresh. Los filtros viven en cada columna
+  de la tabla via <p-columnFilter>; un toolbar duplicado confundía
+  al user (¿cuál filter aplica? ¿se sincronizan?). Pattern Linear /
+  GitHub: filtros donde se filtran los datos (column header), no
+  arriba en una toolbar separada.
+-->
+<div
+  class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap"
+>
+  <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
+    @if (lastFetchedAt(); as ts) {
+      <span
+        class="text-sm text-muted-color leading-5 hidden lg:inline"
+        aria-live="polite"
+      >
+        Actualizado {{ ts | relativeTime }}
+      </span>
+    }
+    <!--
+      Refresh button — feedback de loading vía icon rotation.
+
+      NO usa [loading] del p-button: PrimeNG swap-ea el icon por un
+      SVG spinner que es casi idéntico al fa-arrows-rotate (ambos
+      círculos con flechas) → durante 1-2 frames de transición se
+      ven los dos overlapped, apariencia de "2 iconos" reportada
+      en QA.
+
+      En su lugar, durante loading rotamos el MISMO icon via
+      animate-spin (Tailwind keyframe linear infinite). El icon
+      fa-arrows-rotate ya semántica "girar/refrescar" → rotarlo
+      comunica "trabajando" sin swap (sin flicker) y sin ocultar
+      la rotación con un spinner ajeno. Patrón Linear / Stripe
+      Dashboard / Vercel para refresh buttons.
+      prefers-reduced-motion neutraliza la animación globalmente
+      (styles.scss).
+
+      [disabled]="loading()" bloquea tap-spam DURANTE el fetch.
+      El tradeoff conocido — disabled aplica pointer-events:none
+      → tooltip "Actualizar" no aparece en hover durante loading —
+      es ACEPTABLE acá porque el spin icon ya es el feedback
+      visual del estado: el user que ve el ícono girando no
+      necesita el tooltip para entender "está actualizando". El
+      tooltip cumple rol discovery (idle, primer hover); el spin
+      cumple rol state (loading). Roles complementarios, no
+      superpuestos.
+
+      retry() además guardea contra reentry como defense-in-depth.
+    -->
+    <p-button
+      [icon]="
+        'fa-sharp fa-regular fa-arrows-rotate' +
+        (loading() ? ' animate-spin' : '')
+      "
+      [disabled]="loading()"
+      outlined
+      severity="secondary"
+      ariaLabel="Actualizar"
+      pTooltip="Actualizar"
+      tooltipPosition="bottom"
+      (onClick)="retry()"
+    />
+  </div>
+</div>
+
+@if (allRows().length === 0 && loadError()) {
+  <app-empty-state
+    icon="fa-triangle-exclamation"
+    title="No pudimos cargar los servicios"
+    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+    [bordered]="true"
+    actionLabel="Reintentar"
+    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+    (actionClick)="retry()"
+  />
+} @else if (allRows().length === 0 && !loading()) {
+  <app-empty-state
+    icon="fa-server"
+    title="Sin servicios registrados"
+    description="Cuando agregues servicios al registry aparecerán acá."
+    [bordered]="true"
+  />
+} @else {
+  <!--
+    El feedback de loading lo maneja la tabla via [loading]="loading()":
+      - Initial load (allRows=[] + loading): PrimeNG renderiza
+        <ng-template #loadingbody> con skeleton rows.
+      - Reload con data: PrimeNG aplica un overlay/mask sobre las
+        filas existentes — la data previa queda visible mientras se
+        actualiza (stale-while-revalidate UX).
+    Antes había una barra de loading custom + un skeleton standalone
+    encima de la tabla — duplicaban el feedback. Confiar en el
+    mecanismo built-in del p-table es más simple y consistente.
+
+    Para errores de reload con data previa, mantenemos el banner
+    inline porque el [loading] no comunica failure — solo "trabajando".
+  -->
+  @if (loadError() && allRows().length > 0) {
+    <div
+      class="border border-surface rounded-lg p-3 mb-2 flex items-center gap-3 text-sm"
+      role="alert"
+    >
+      <i
+        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
+        aria-hidden="true"
+      ></i>
+      <span class="flex-1 text-muted-color leading-5">
+        No pudimos refrescar los datos. Estás viendo la última versión
+        disponible.
+      </span>
+      <p-button
+        label="Reintentar"
+        severity="secondary"
+        size="small"
+        [text]="true"
+        icon="fa-sharp fa-regular fa-arrows-rotate"
+        (onClick)="retry()"
+      />
+    </div>
+  }
+
+  @if (allUnknown()) {
+    <!--
+      Edge case: todos los servicios reportan health "unknown" (sin
+      datos de monitoreo). El bar grid se ve como una pared gris
+      uniforme que no le dice nada al SRE. Acá lo guíamos al fix:
+      revisar la integración. CTA primario hacia la documentación —
+      patrón Datadog Onboarding: el banner identifica el problema +
+      ofrece la siguiente acción concreta, no solo señala el síntoma.
+    -->
+    <div
+      class="border border-surface rounded-lg p-4 mb-4 flex flex-col lg:flex-row lg:items-center gap-3"
+      role="status"
+    >
+      <i
+        class="fa-sharp fa-regular fa-circle-info text-color text-xl shrink-0 self-start lg:self-center"
+        aria-hidden="true"
+      ></i>
+      <div class="flex-1 min-w-0">
+        <div class="text-color font-medium leading-6">
+          Sin datos de uptime para ningún servicio
+        </div>
+        <div class="text-muted-color text-sm leading-5 mt-1">
+          Verificá la integración de monitoreo. Una vez que los
+          servicios reporten métricas, vas a ver el historial acá.
+        </div>
+      </div>
+      <p-button
+        label="Ver guía de integración"
+        severity="secondary"
+        [outlined]="true"
+        icon="fa-sharp fa-regular fa-book-open"
+        iconPos="left"
+        class="shrink-0"
+      />
+    </div>
+  }
+  <!--
+    Tabla principal — built-in PrimeNG.
+
+    Layout puramente "out of the box": filtros built-in por columna
+    (con custom filter templates donde aplica), sort nativo, paginator
+    nativo, striped rows, gridlines, skeleton via loadingbody, loading
+    state durante refresh.
+
+    Por qué se omite [dt]: TRANSPARENT_TABLE_TOKENS define
+    row.background = transparent, lo que pisaría el striping de
+    stripedRows. Dejamos que PrimeNG controle backgrounds.
+
+    Wrapper con overflow-hidden para que las gridlines no toquen
+    las esquinas redondeadas del border container.
+
+    En mobile (<md), el min-width 64rem fuerza scroll horizontal —
+    consistente con tablas de obs-services / obs-alerts del módulo.
+  -->
+  <div
+    class="rounded-lg border border-surface w-full overflow-hidden"
+  >
+      <p-table
+        [value]="$any(rows())"
+        [loading]="loading()"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [stripedRows]="true"
+        [showGridlines]="true"
+        [rowHover]="true"
+        sortMode="single"
+        dataKey="service.id"
+        [tableStyle]="{ 'min-width': '64rem' }"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Mostrando {first}–{last} de {totalRecords} servicios"
+      >
+        <ng-template #header>
+          <!--
+            Distribución de columnas: las 4 columnas con dato corto
+            fijas (Estado / Servicio / Equipo / Alertas), suman ~520px;
+            "Últimos 30 días" toma el remanente (~440px en min-width
+            64rem) — donde más se beneficia el segment grid.
+
+            whitespace-nowrap en cada th: invariante del DS — los
+            headers de tabla nunca wrappean.
+          -->
+          <tr>
+            <!--
+              Layout del th — patrón big-tech estándar (Linear /
+              Datadog / Stripe / Material UI X DataGrid / Jira):
+                [Label][SortIcon] .... [FilterButton]
+              El sort icon va inline JUNTO al label: ambos forman la
+              unidad visual de sort — todo el TH es el trigger de
+              click (pSortableColumn captura). El filter button
+              queda esquinado a la derecha como control discreto
+              con popover propio. flex + justify-between separa los
+              dos grupos hacia los extremos del cell.
+            -->
+            <th
+              pSortableColumn="severityRank"
+              class="w-40 whitespace-nowrap"
+            >
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Estado</span>
+                  <p-sortIcon field="severityRank" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="service.health"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="healthOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </div>
+            </th>
+            <th
+              pSortableColumn="service.name"
+              class="w-56 whitespace-nowrap"
+            >
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Servicio</span>
+                  <p-sortIcon field="service.name" />
+                </span>
+                <!--
+                  type="text" built-in renderiza un input de ancho
+                  fijo. Pasamos a custom template para controlar
+                  el width del input pInputText con clase w-full.
+                -->
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="service.name"
+                  matchMode="contains"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <input
+                        type="text"
+                        pInputText
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Buscar nombre"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </div>
+            </th>
+            <th
+              pSortableColumn="service.team"
+              class="w-40 whitespace-nowrap"
+            >
+              <div class="flex w-full items-center justify-between gap-2">
+                <span class="flex items-center gap-1">
+                  <span>Equipo</span>
+                  <p-sortIcon field="service.team" />
+                </span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="service.team"
+                  matchMode="in"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <p-multiselect
+                        [options]="availableTeams()"
+                        [ngModel]="value"
+                        (ngModelChange)="filter($event)"
+                        placeholder="Cualquiera"
+                        class="w-full"
+                      />
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </div>
+            </th>
+            <!--
+              Columna "Últimos 30 días" — segment grid + footer igual
+              que la tabla de arriba. NO es sortable (orden por una
+              serie de 60 segments no tiene semántica clara), pero
+              SÍ filtrable por rango de uptime% via slider. Sin sort
+              icon → el affordance derecho es solo el filter trigger.
+            -->
+            <th class="whitespace-nowrap">
+              <div class="flex w-full items-center justify-between gap-2">
+                <span>Últimos 30 días</span>
+                <span pTooltip="Filtrar" tooltipPosition="bottom"
+                  ><p-columnFilter
+                  field="service.uptime30d.value"
+                  matchMode="between"
+                  display="menu"
+                  [showMatchModes]="false"
+                  [showOperator]="false"
+                  [showAddButton]="false"
+                  [pt]="columnFilterPt"
+                >
+                  <ng-template
+                    #filter
+                    let-value
+                    let-filter="filterCallback"
+                  >
+                    <app-table-filter-shell>
+                      <div class="flex flex-col gap-3 px-1">
+                        <span class="text-sm text-muted-color leading-5">
+                          Rango: {{ (value && value[0]) ?? 0 }}% –
+                          {{ (value && value[1]) ?? 100 }}%
+                        </span>
+                        <p-slider
+                          [ngModel]="value ?? [0, 100]"
+                          (ngModelChange)="filter($event)"
+                          [range]="true"
+                          [min]="0"
+                          [max]="100"
+                          class="w-full"
+                        />
+                      </div>
+                    </app-table-filter-shell>
+                  </ng-template>
+                </p-columnFilter></span>
+              </div>
+            </th>
+            <!--
+              Columna numérica corta — texto centrado en header y body.
+              Patrón Datadog/Stripe para columnas tipo count: el ojo
+              escanea verticalmente alineado al centro, más rápido que
+              con números a la izquierda. Rompemos justify-between
+              intencionalmente acá: el label + sort icon van juntos
+              centrados en lugar de separados a los extremos.
+            -->
+            <th
+              pSortableColumn="service.activeAlertsCount"
+              class="w-24 whitespace-nowrap text-center"
+            >
+              <div class="flex w-full items-center justify-center gap-2">
+                <span>Alertas</span>
+                <p-sortIcon field="service.activeAlertsCount" />
+              </div>
+            </th>
+            <!--
+              Columna de acción "Ver detalle" — última posición. No
+              sortable ni filterable, sin label visible (sólo el icon
+              comunica). Patrón Linear / Datadog / GitHub: row action
+              buttons al final de la fila, alineados a la derecha,
+              icon-only con tooltip. w-12 = ancho mínimo para el
+              button text-secondary rounded sin que sobre padding.
+            -->
+            <th class="w-12 whitespace-nowrap"></th>
+          </tr>
+        </ng-template>
+
+        <ng-template #body let-row>
+          <tr>
+            <td>
+              <app-health-badge [state]="row.service.health" size="sm" />
+            </td>
+            <td>
+              <span class="text-color font-medium">{{
+                row.service.name
+              }}</span>
+            </td>
+            <td>
+              <span class="text-muted-color">{{
+                row.service.team
+              }}</span>
+            </td>
+            <td>
+              <!--
+                Segment grid + time anchor footer — mismo pattern
+                que la tabla custom de arriba. El bar consume
+                row.segments precomputados; el footer muestra
+                anchors temporales y uptime%.
+              -->
+              <div class="flex flex-col gap-2">
+                <div
+                  class="flex items-stretch gap-0.5 h-7 min-w-0"
+                  role="img"
+                  tabindex="0"
+                  [attr.aria-label]="row.summaryAriaLabel"
+                >
+                  @for (seg of row.segments; track seg.at) {
+                    <span
+                      class="flex-1 rounded-lg"
+                      [style.background-color]="seg.color"
+                      [pTooltip]="seg.tooltip"
+                      tooltipPosition="top"
+                    ></span>
+                  }
+                </div>
+                <div
+                  class="flex items-center gap-3 text-xs text-muted-color leading-4"
+                >
+                  <span class="shrink-0">hace 30 días</span>
+                  <div
+                    class="flex-1 border-t border-surface-200 dark:border-surface-800"
+                  ></div>
+                  <span class="shrink-0 text-color font-semibold"
+                    >{{ row.uptimeLabel }} uptime</span
+                  >
+                  <div
+                    class="flex-1 border-t border-surface-200 dark:border-surface-800"
+                  ></div>
+                  <span class="shrink-0">hoy</span>
+                </div>
+              </div>
+            </td>
+            <td class="text-center">
+              <span class="text-color">{{
+                row.service.activeAlertsCount
+              }}</span>
+            </td>
+            <td class="text-right">
+              <p-button
+                icon="fa-sharp fa-regular fa-chevron-right"
+                severity="secondary"
+                [text]="true"
+                [rounded]="true"
+                ariaLabel="Ver detalle"
+                pTooltip="Ver detalle"
+                tooltipPosition="left"
+                (onClick)="viewDetail(row.service.id)"
+              />
+            </td>
+          </tr>
+        </ng-template>
+
+        <!--
+          loadingbody: PrimeNG renderiza este template en lugar del
+          body cuando [loading]=true. Skeleton heterogéneo: la celda
+          de "Últimos 30 días" usa un bar placeholder (h-7) para
+          representar visualmente el segment grid que va a aparecer.
+        -->
+        <ng-template #loadingbody>
+          @for (i of skeletonPlaceholders; track i) {
+            <tr>
+              <td>
+                <p-skeleton width="6rem" height="1.5rem" />
+              </td>
+              <td>
+                <p-skeleton width="60%" height="1rem" />
+              </td>
+              <td>
+                <p-skeleton width="50%" height="1rem" />
+              </td>
+              <td>
+                <p-skeleton width="100%" height="1.75rem" />
+              </td>
+              <td>
+                <p-skeleton width="2rem" height="1rem" />
+              </td>
+              <td>
+                <p-skeleton shape="circle" size="2rem" />
+              </td>
+            </tr>
+          }
+        </ng-template>
+
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="6" class="text-center text-muted-color">
+              Sin resultados
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+}

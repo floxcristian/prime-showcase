@@ -25,6 +25,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
 import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
+import { TimeService } from '../../shared/services/time.service';
 import { RolePermissionsDialogComponent } from './components/role-permissions-dialog/role-permissions-dialog.component';
 import type { Role, RoleStatus, RoleType } from './models/role.interface';
 import { RolesMockService } from './services/roles-mock.service';
@@ -61,6 +62,7 @@ const LOCAL_COMPONENTS = [
 })
 export class RolesComponent {
   private api = inject(RolesMockService);
+  private timeService = inject(TimeService);
 
   protected readonly rolesResource = rxResource({
     stream: () => this.api.getRoles(),
@@ -68,9 +70,14 @@ export class RolesComponent {
   protected readonly loading = computed(() => this.rolesResource.isLoading());
   protected readonly loadError = computed(() => this.rolesResource.error());
 
-  protected readonly tableData = computed<readonly Role[]>(
-    () => this.rolesResource.value() ?? [],
-  );
+  /**
+   * Spread → copia mutable `Role[]`: p-table sortea `[value]` in-place,
+   * así que le pasamos una copia (no el array cacheado del resource) y
+   * el template no necesita `$any()` para castear `readonly`.
+   */
+  protected readonly tableData = computed<Role[]>(() => [
+    ...(this.rolesResource.value() ?? []),
+  ]);
 
   protected readonly typeOptions: RoleType[] = ['Sistema', 'Personalizado'];
 
@@ -116,6 +123,11 @@ export class RolesComponent {
       const val = this.rolesResource.value();
       if (val !== undefined && !this.rolesResource.isLoading()) {
         this._lastFetchedAt.set(new Date().toISOString());
+        // Push-update el time-source — sin esto el `relativeTime` pipe
+        // compara este timestamp fresco contra `TimeService.now()` que
+        // tiene el valor del último tick natural (hasta 60s atrás),
+        // produciendo "Actualizado en el futuro" hasta el próximo tick.
+        this.timeService.bump();
       }
     });
   }

@@ -6,11 +6,10 @@ import { TimeService } from '../services/time.service';
  * Renderiza un timestamp ISO/Date como string relativo: "hace 3 min", "hace
  * 2 h", "hace 4 días", etc.
  *
- * **Pure pipe** que se invalida automáticamente cuando `TimeService.now()`
- * cambia (cada 60s + on tab focus). Antes del refactor cada instancia tenía
- * su propio `setInterval` → 70+ timers en una vista densa. Ahora 1 solo
- * service tickea, todos los pipes leen el mismo signal y Angular los
- * recomputa solo cuando el host CD se entera del cambio.
+ * Se recomputa cuando `TimeService.now()` cambia (cada 60s + on tab focus).
+ * Antes del refactor cada instancia tenía su propio `setInterval` → 70+
+ * timers en una vista densa. Ahora 1 solo service tickea y todos los pipes
+ * leen el mismo signal.
  *
  * SSR-safe: lee `Date.now()` al transformar — corre 1 vez en server con
  * timestamp del request, OK.
@@ -18,7 +17,15 @@ import { TimeService } from '../services/time.service';
 @Pipe({
   name: 'relativeTime',
   standalone: true,
-  pure: true,
+  // `pure: false` a propósito: el pipe lee el signal `TimeService.now()`
+  // dentro de `transform`. Con `pure: true` Angular memoiza por argumento —
+  // cuando `now()` tickea la vista se marca dirty, pero `transform` NO se
+  // re-invoca (el input no cambió), el read del signal no se re-registra y
+  // la dependencia se pierde → el string quedaba congelado en el primer
+  // render. Impuro, `transform` corre en cada CD del host: es barato
+  // (aritmética pura, sin allocs) y re-registra la dependencia del signal
+  // en cada pasada.
+  pure: false,
 })
 export class RelativeTimePipe implements PipeTransform {
   private time = inject(TimeService);
@@ -27,9 +34,8 @@ export class RelativeTimePipe implements PipeTransform {
     if (!value) return '';
     const date = value instanceof Date ? value : new Date(value);
     if (Number.isNaN(date.getTime())) return '';
-    // Leer `now()` para subscribirse al signal — Angular invalidará el pipe
-    // cuando cambie. La pura comparación de input (`pure: true`) no captura
-    // el paso del tiempo; es el `time.now()` quien lo aporta.
+    // Leer `now()` mantiene la subscripción al tick global — es lo que
+    // aporta el paso del tiempo que la comparación de inputs no captura.
     const now = this.time.now();
     return formatRelative(now - date.getTime());
   }

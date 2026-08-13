@@ -3,12 +3,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   input,
   model,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
@@ -72,6 +74,7 @@ const LOCAL_COMPONENTS = [
 })
 export class UserApiKeysDialogComponent {
   private api = inject(ApiKeysMockService);
+  private destroyRef = inject(DestroyRef);
 
   /**
    * User cuyas keys se gestionan. Null cuando el dialog está cerrado y
@@ -87,13 +90,17 @@ export class UserApiKeysDialogComponent {
   readonly visible = model<boolean>(false);
 
   /**
-   * Keys del user activo — reactividad delegada al `keysFor()` del
-   * service que retorna un computed sobre el state mutable. Cualquier
-   * create/rotate/revoke re-renderiza la tabla automáticamente.
+   * Keys del user activo — `keysFor()` lee el signal de state del
+   * service dentro de ESTE computed, así que cualquier create/rotate/
+   * revoke re-renderiza la tabla automáticamente. La memoización vive
+   * acá (un solo nodo reactivo), no en el service.
+   *
+   * Spread → copia mutable `ApiKey[]`: protege el state del service de
+   * mutaciones in-place de p-table y evita el `$any()` en el template.
    */
-  protected readonly keys = computed<readonly ApiKey[]>(() => {
+  protected readonly keys = computed<ApiKey[]>(() => {
     const u = this.user();
-    return u ? this.api.keysFor(u.id)() : [];
+    return u ? [...this.api.keysFor(u.id)] : [];
   });
 
   /** UI mode actual del dialog. */
@@ -120,6 +127,12 @@ export class UserApiKeysDialogComponent {
   /** Feedback temporal del copy-to-clipboard (toast inline). */
   protected readonly copied = signal(false);
 
+  /**
+   * Handle del reset diferido de `copied` — cancelable si el componente
+   * se destruye (o el user re-copia) antes de que venza el timeout.
+   */
+  private copiedResetTimer?: ReturnType<typeof setTimeout>;
+
   /** Scopes disponibles — set cerrado del dominio. */
   protected readonly scopeOptions: ApiKeyScope[] = [
     'read:customers',
@@ -141,6 +154,14 @@ export class UserApiKeysDialogComponent {
         this.newKeyScopes.set([]);
         this.revealedSecret.set(null);
         this.copied.set(false);
+      }
+    });
+
+    // Cancelar el reset pendiente de `copied` al destruir — sin esto el
+    // callback correría sobre un componente destruido.
+    this.destroyRef.onDestroy(() => {
+      if (this.copiedResetTimer !== undefined) {
+        clearTimeout(this.copiedResetTimer);
       }
     });
   }
@@ -168,11 +189,17 @@ export class UserApiKeysDialogComponent {
     const scopes = this.newKeyScopes();
     if (!name || scopes.length === 0 || this.busy()) return;
     this.busy.set(true);
-    this.api.createKey(u.id, name, scopes).subscribe(({ plaintext }) => {
-      this.revealedSecret.set(plaintext);
-      this.mode.set('reveal');
-      this.busy.set(false);
-    });
+    // takeUntilDestroyed: el mock emite con delay — si el user cierra el
+    // dialog y el parent destruye el componente antes de la emisión, el
+    // callback escribiría signals sobre una instancia destruida.
+    this.api
+      .createKey(u.id, name, scopes)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ plaintext }) => {
+        this.revealedSecret.set(plaintext);
+        this.mode.set('reveal');
+        this.busy.set(false);
+      });
   }
 
   /**
@@ -183,11 +210,14 @@ export class UserApiKeysDialogComponent {
     const u = this.user();
     if (!u || this.busy()) return;
     this.busy.set(true);
-    this.api.rotateKey(u.id, keyId).subscribe(({ plaintext }) => {
-      this.revealedSecret.set(plaintext);
-      this.mode.set('reveal');
-      this.busy.set(false);
-    });
+    this.api
+      .rotateKey(u.id, keyId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ plaintext }) => {
+        this.revealedSecret.set(plaintext);
+        this.mode.set('reveal');
+        this.busy.set(false);
+      });
   }
 
   /**
@@ -200,9 +230,12 @@ export class UserApiKeysDialogComponent {
     const u = this.user();
     if (!u || this.busy()) return;
     this.busy.set(true);
-    this.api.revokeKey(u.id, keyId).subscribe(() => {
-      this.busy.set(false);
-    });
+    this.api
+      .revokeKey(u.id, keyId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.busy.set(false);
+      });
   }
 
   protected dismissReveal(): void {
@@ -223,7 +256,12 @@ export class UserApiKeysDialogComponent {
     try {
       await navigator.clipboard.writeText(s);
       this.copied.set(true);
-      setTimeout(() => this.copied.set(false), 2000);
+      // Re-copiar reinicia la ventana de feedback en lugar de acumular
+      // timers; el handle se cancela también en onDestroy.
+      if (this.copiedResetTimer !== undefined) {
+        clearTimeout(this.copiedResetTimer);
+      }
+      this.copiedResetTimer = setTimeout(() => this.copied.set(false), 2000);
     } catch {
       // Permiso denegado o clipboard API no soportada — silent fail,
       // el usuario tiene el text seleccionable como fallback.

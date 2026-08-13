@@ -5,8 +5,11 @@
  * RuleTester suite for showcase/no-button-without-type.
  *
  * Covers:
- *   - Valid: type="button"/"submit"/"reset", [attr.type], pButton exempt, p-button exempt
- *   - Invalid: plain <button> with no type
+ *   - Valid: type="button"/"submit"/"reset", [attr.type], <button pButton> WITH
+ *     explicit type, <p-button> (not a native button)
+ *   - Invalid: plain <button> with no type, <button pButton> without type
+ *     (ButtonDirective has NO host binding for `type` — only the p-button
+ *     component emits type="button" on its inner button)
  *   - Non-button elements ignored
  */
 
@@ -27,10 +30,12 @@ test('no-button-without-type', () => {
       { code: '<button type="reset">Reset</button>' },
       // Angular attribute binding form
       { code: `<button [attr.type]="isSubmit ? 'submit' : 'button'">X</button>` },
-      // pButton directive exemption
-      { code: '<button pButton label="OK"></button>' },
-      { code: '<button pButton icon="fa-sharp fa-regular fa-x"></button>' },
-      // <p-button> component is not <button>
+      // pButton directive with explicit type — the directive does NOT emit
+      // type="button", so the author must declare it.
+      { code: '<button pButton type="button" label="OK"></button>' },
+      { code: '<button pButton type="submit" label="Save"></button>' },
+      // <p-button> component is not <button> (its inner button gets
+      // type="button" from the component template)
       { code: '<p-button label="Download" />' },
       // Non-button tags ignored
       { code: '<div (click)="x()"></div>' },
@@ -53,6 +58,16 @@ test('no-button-without-type', () => {
       // No attributes at all
       {
         code: '<button>Click</button>',
+        errors: [{ messageId: 'missingType' }],
+      },
+      // pButton without type — NOT exempt: ButtonDirective has no host
+      // binding for `type`, so this still submits forms by default.
+      {
+        code: '<button pButton label="OK"></button>',
+        errors: [{ messageId: 'missingType' }],
+      },
+      {
+        code: '<button pButton icon="fa-sharp fa-regular fa-x"></button>',
         errors: [{ messageId: 'missingType' }],
       },
       // Two offending buttons → two errors

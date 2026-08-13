@@ -27,6 +27,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
 import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
+import { TimeService } from '../../shared/services/time.service';
 import { UserApiKeysDialogComponent } from './components/user-api-keys-dialog/user-api-keys-dialog.component';
 import type { User, UserRole, UserStatus, UserType } from './models/user.interface';
 import { UsersMockService } from './services/users-mock.service';
@@ -65,6 +66,7 @@ const LOCAL_COMPONENTS = [
 })
 export class UsersComponent {
   private api = inject(UsersMockService);
+  private timeService = inject(TimeService);
 
   /**
    * Resource principal — fetch del backend (mock con delay 800-1800ms).
@@ -81,10 +83,14 @@ export class UsersComponent {
    * Rows visibles — derivado del resource. Mientras `value()` es
    * undefined (initial fetch), retorna array vacío para que el p-table
    * muestre el `#loadingbody` con skeletons via `[loading]="loading()"`.
+   *
+   * Spread → copia mutable `User[]`: p-table sortea `[value]` in-place,
+   * así que le pasamos una copia (no el array cacheado del resource) y
+   * el template no necesita `$any()` para castear `readonly`.
    */
-  protected readonly tableData = computed<readonly User[]>(
-    () => this.usersResource.value() ?? [],
-  );
+  protected readonly tableData = computed<User[]>(() => [
+    ...(this.usersResource.value() ?? []),
+  ]);
 
   /**
    * Lista deduplicada de organizaciones (departamentos para internos +
@@ -158,6 +164,11 @@ export class UsersComponent {
       const val = this.usersResource.value();
       if (val !== undefined && !this.usersResource.isLoading()) {
         this._lastFetchedAt.set(new Date().toISOString());
+        // Push-update el time-source — sin esto el `relativeTime` pipe
+        // compara este timestamp fresco contra `TimeService.now()` que
+        // tiene el valor del último tick natural (hasta 60s atrás),
+        // produciendo "Actualizado en el futuro" hasta el próximo tick.
+        this.timeService.bump();
       }
     });
   }

@@ -115,18 +115,18 @@
                                 {{ item.categories.join(", ") }}
                               </div>
                             </div>
-                            @if (item.bookmarked) {
-                              <p-button
-                                icon="fa-sharp fa-solid fa-bookmark"
-                                severity="contrast"
-                                text
-                                ariaLabel="Quitar de favoritos"
-                                rounded
-                                pTooltip="Quitar de favoritos"
-                                tooltipPosition="bottom"
-                                (onClick)="$event.stopPropagation(); toggleCarouselBookmark(item)"
-                                />
-                            }
+                            <!-- Toggle binario outline ↔ filled (mismo patrón que cards):
+                                 renderiza siempre para poder marcar/desmarcar desde la card. -->
+                            <p-button
+                              [icon]="item.bookmarked ? 'fa-sharp fa-solid fa-bookmark' : 'fa-sharp fa-regular fa-bookmark'"
+                              severity="contrast"
+                              text
+                              [ariaLabel]="item.bookmarked ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                              rounded
+                              [pTooltip]="item.bookmarked ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                              tooltipPosition="bottom"
+                              (onClick)="$event.stopPropagation(); toggleCarouselBookmark(item)"
+                              />
                           </div>
                         </div>
                       </ng-template>
@@ -198,18 +198,18 @@
                                 {{ movie.categories.join(", ") }}
                               </div>
                             </div>
-                            @if (movie.bookmarked) {
-                              <p-button
-                                icon="fa-sharp fa-solid fa-bookmark"
-                                severity="contrast"
-                                text
-                                rounded
-                                ariaLabel="Quitar de favoritos"
-                                pTooltip="Quitar de favoritos"
-                                tooltipPosition="bottom"
-                                (onClick)="$event.stopPropagation(); togglePopularBookmark(movie)"
-                                />
-                            }
+                            <!-- Toggle binario outline ↔ filled (mismo patrón que cards):
+                                 renderiza siempre para poder marcar/desmarcar desde la card. -->
+                            <p-button
+                              [icon]="movie.bookmarked ? 'fa-sharp fa-solid fa-bookmark' : 'fa-sharp fa-regular fa-bookmark'"
+                              severity="contrast"
+                              text
+                              rounded
+                              [ariaLabel]="movie.bookmarked ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                              [pTooltip]="movie.bookmarked ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+                              tooltipPosition="bottom"
+                              (onClick)="$event.stopPropagation(); togglePopularBookmark(movie)"
+                              />
                           </div>
                         </div>
                       }

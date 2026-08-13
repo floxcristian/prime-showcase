@@ -2,6 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { Tag } from 'primeng/tag';
 
 import type { HealthState } from '../../../modules/observability/models/observability.interface';
+import {
+  HEALTH_LABELS,
+  HEALTH_SEVERITIES,
+  type HealthSeverity,
+} from './health-badge.tokens';
 
 /**
  * Indicador visual del estado de salud de un servicio. Wrappea `<p-tag>`
@@ -29,23 +34,16 @@ export class HealthBadgeComponent {
   readonly state = input.required<HealthState>();
   readonly size = input<'sm' | 'md' | 'lg'>('md');
 
-  protected readonly severity = computed<
-    'success' | 'warn' | 'danger' | 'secondary'
-  >(() => {
-    const s = this.state();
-    if (s === 'ok') return 'success';
-    if (s === 'warn') return 'warn';
-    if (s === 'critical') return 'danger';
-    return 'secondary';
-  });
+  // Label y severity derivan del vocabulario compartido en
+  // `health-badge.tokens.ts` — mismo mapping que consumen los filtros y
+  // tooltips del módulo observability.
+  protected readonly severity = computed<HealthSeverity>(
+    () => HEALTH_SEVERITIES[this.state()],
+  );
 
-  protected readonly label = computed<string>(() => {
-    const s = this.state();
-    if (s === 'ok') return 'Saludable';
-    if (s === 'warn') return 'Degradado';
-    if (s === 'critical') return 'Crítico';
-    return 'Sin datos';
-  });
+  protected readonly label = computed<string>(
+    () => HEALTH_LABELS[this.state()],
+  );
 
   protected readonly icon = computed<string>(() => {
     const s = this.state();

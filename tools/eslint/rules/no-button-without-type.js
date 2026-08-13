@@ -9,8 +9,13 @@
  * form when clicked — silent form submission bug. The fix is always:
  *   <button type="button" ...>
  *
- * Scope: only plain `<button>` tags. `[pButton]` / `<p-button>` are exempt
- * because PrimeNG renders its own button with `type="button"` by default.
+ * Scope: every native `<button>` tag, INCLUDING `<button pButton>`. The
+ * PrimeNG `ButtonDirective` only adds classes to its host — it has NO host
+ * binding for `type` (verified against primeng 21 `ButtonDirective` ɵdir
+ * metadata), so a `<button pButton>` inside a form still defaults to
+ * `type="submit"`. Only the `<p-button>` COMPONENT emits `type="button"`
+ * on its inner button (`[attr.type]="type || buttonProps?.type"`), and
+ * `<p-button>` is not a native `<button>` so it never matches this rule.
  */
 
 /** @type {import('eslint').Rule.RuleModule} */
@@ -36,10 +41,6 @@ module.exports = {
         if (node.name !== 'button') return;
 
         const allAttrs = [...(node.attributes || []), ...(node.inputs || [])];
-
-        // pButton directive present → PrimeNG owns type (defaults to "button")
-        const hasPButton = allAttrs.some((a) => a.name === 'pButton');
-        if (hasPButton) return;
 
         const hasType = allAttrs.some(
           (a) => a.name === 'type' || a.name === 'attr.type',

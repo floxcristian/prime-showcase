@@ -1,5 +1,5 @@
 // Angular
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -10,6 +10,8 @@ import {
   ElementRef,
   inject,
   Injector,
+  linkedSignal,
+  PLATFORM_ID,
   signal,
   untracked,
   viewChild,
@@ -45,14 +47,27 @@ import { TableFilterShellComponent } from '../../shared/components/table-filter-
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
 import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
 import { TimeService } from '../../shared/services/time.service';
+import {
+  CARTERA_LEGEND,
+  CLASSIFICATION_LEGEND,
+  DISCOUNT_GROUP_LEGEND,
+  LIFECYCLE_LEGEND,
+  POTENCIAL_LEGEND,
+} from './constants/customers-legends';
+import {
+  CARTERA_OPTIONS,
+  CLASSIFICATION_OPTIONS,
+  LIFECYCLE_OPTIONS,
+  POTENCIAL_OPTIONS,
+  SEGMENTO_OPTIONS,
+  TYPE_OPTIONS,
+} from './constants/customers-options';
 import type {
   Cartera,
   CreditClassification,
   Customer,
   CustomerLifecycle,
-  CustomerSegmento,
   CustomerType,
-  PotencialGroup,
 } from './models/customer.interface';
 import { CustomersKeyboardService } from './services/customers-keyboard.service';
 import { CustomersMockService } from './services/customers-mock.service';
@@ -196,6 +211,12 @@ export class CustomersComponent {
   private readonly timeService = inject(TimeService);
   private readonly document = inject(DOCUMENT);
   private readonly injector = inject(Injector);
+  private readonly platformId = inject(PLATFORM_ID);
+  /** Guard SSR canónico del repo (ver .claude/rules/ssr-and-runtime.md)
+   * — reemplaza los checks ad-hoc `typeof window/localStorage`. Debe
+   * declararse ANTES de cualquier field initializer que lo lea
+   * (`density`, `cmdkRecentIds`). */
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   /**
    * Loop guard — true mientras `applyFromUrl()` está aplicando state
@@ -505,7 +526,17 @@ export class CustomersComponent {
     // demostrar el rollback path durante demos/dev. OFF por default —
     // antes era 5% always-on y los showcases se sentían flaky sin
     // razón obvia para el viewer.
-    setTimeout(() => {
+    //
+    // Handle tracked en `simulateApiCallTimer` para poder cancelarlo
+    // en el onDestroy del componente — sin teardown, el callback
+    // dispara sobre una instancia destruida (escribe signals + toast
+    // muerto). Un commit rápido consecutivo cancela al anterior
+    // (last-write-wins, mismo criterio que `pendingUndoTimer`).
+    if (this.simulateApiCallTimer !== null) {
+      clearTimeout(this.simulateApiCallTimer);
+    }
+    this.simulateApiCallTimer = setTimeout(() => {
+      this.simulateApiCallTimer = null;
       const failed = this.chaosEnabled && Math.random() < CHAOS_FAILURE_RATE;
       if (failed) {
         this.api.replaceAll(previousState);
@@ -526,6 +557,10 @@ export class CustomersComponent {
       }
     }, OPTIMISTIC_COMMIT_DELAY_MS);
   }
+
+  /** Handle del setTimeout de `simulateApiCall` — tracked para poder
+   * cancelarlo al destruir el componente (ver teardown en constructor). */
+  private simulateApiCallTimer: ReturnType<typeof setTimeout> | null = null;
 
   // ── Density toggle (Compact/Normal/Comfortable) ────────────────────
   //
@@ -579,7 +614,7 @@ export class CustomersComponent {
 
   protected setDensity(value: TableDensity): void {
     this.density.set(value);
-    if (typeof localStorage !== 'undefined') {
+    if (this.isBrowser) {
       try {
         localStorage.setItem('customers:density', value);
       } catch {
@@ -630,7 +665,7 @@ export class CustomersComponent {
   );
 
   private readDensityFromStorage(): TableDensity {
-    if (typeof localStorage === 'undefined') return 'comfortable';
+    if (!this.isBrowser) return 'comfortable';
     try {
       const raw = localStorage.getItem('customers:density');
       if (raw === 'compact' || raw === 'comfortable') {
@@ -879,7 +914,9 @@ export class CustomersComponent {
     const bom = '﻿'; // UTF-8 BOM para Excel reconocer encoding
     const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    // DOM access via DI'd `DOCUMENT` token (convención del proyecto)
+    // en vez del global `document`.
+    const link = this.document.createElement('a');
     link.href = url;
     link.download = `clientes-export-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
@@ -948,59 +985,16 @@ export class CustomersComponent {
     return Math.ceil(Math.max(...amounts) / 1000000) * 1000000;
   });
 
-  /** Distintivo B2B / B2C — set cerrado. */
-  protected readonly typeOptions: CustomerType[] = ['Empresa', 'Persona'];
-
-  /** Verticales de negocio — set cerrado. */
-  protected readonly segmentoOptions: CustomerSegmento[] = [
-    'PASAJEROS',
-    'CARGA',
-    'INDUSTRIAL',
-    'COMERCIO',
-    'OTROS',
-  ];
-
-  /** Ratings de riesgo crediticio (A1 mejor, D peor). */
-  protected readonly classificationOptions: CreditClassification[] = [
-    'A1',
-    'A2',
-    'B1',
-    'B2',
-    'C1',
-    'C2',
-    'D',
-  ];
-
-  /** Grupos de potencial de venta (G1 más alto, G4 más bajo). */
-  protected readonly potencialOptions: PotencialGroup[] = [
-    'G1',
-    'G2',
-    'G3',
-    'G4',
-  ];
-
-  /**
-   * Estados del ciclo de vida comercial — separado de Cartera (estado
-   * financiero). Set cerrado del legacy.
-   */
-  protected readonly lifecycleOptions: CustomerLifecycle[] = [
-    'RECURRENTE',
-    'INACTIVO',
-    'PELIGRO FUGA',
-    'FUGADO',
-  ];
-
-  /**
-   * Carteras lifecycle del cliente. Labels expuestos al filter para que
-   * el admin elija "Activa" en lugar del código `CA`.
-   */
-  protected readonly carteraOptions: { label: string; value: Cartera }[] = [
-    { label: 'Activa (CA)', value: 'CA' },
-    { label: 'Prospecto (CP)', value: 'CP' },
-    { label: 'Nueva (CN)', value: 'CN' },
-    { label: 'Inactiva (CI)', value: 'CI' },
-    { label: 'Morosa (CM)', value: 'CM' },
-  ];
+  // Sets cerrados de opciones para filtros — catálogos estáticos
+  // movidos a `constants/customers-options.ts` (convención del módulo,
+  // mismo criterio que `customers-data.ts`). Expuestos como fields para
+  // el template.
+  protected readonly typeOptions = TYPE_OPTIONS;
+  protected readonly segmentoOptions = SEGMENTO_OPTIONS;
+  protected readonly classificationOptions = CLASSIFICATION_OPTIONS;
+  protected readonly potencialOptions = POTENCIAL_OPTIONS;
+  protected readonly lifecycleOptions = LIFECYCLE_OPTIONS;
+  protected readonly carteraOptions = CARTERA_OPTIONS;
 
   /**
    * Legends de columnas codificadas — single source of truth de qué
@@ -1008,176 +1002,15 @@ export class CustomersComponent {
    * header las renderizan en un popover; los tooltips per-cell
    * (`codeTooltip`) hacen lookup en estas mismas listas.
    */
-  protected readonly classificationLegend: readonly ColumnHelpEntry[] = [
-    {
-      code: 'A1',
-      label: 'Excelente',
-      description: 'Riesgo financiero bajo',
-      severity: 'success',
-    },
-    {
-      code: 'A2',
-      label: 'Muy bueno',
-      description: 'Riesgo financiero bajo',
-      severity: 'success',
-    },
-    {
-      code: 'B1',
-      label: 'Bueno',
-      description: 'Riesgo financiero medio',
-      severity: 'info',
-    },
-    {
-      code: 'B2',
-      label: 'Aceptable',
-      description: 'Riesgo financiero medio',
-      severity: 'info',
-    },
-    {
-      code: 'C1',
-      label: 'Regular',
-      description: 'Riesgo financiero medio-alto',
-      severity: 'warn',
-    },
-    {
-      code: 'C2',
-      label: 'Marginal',
-      description: 'Riesgo financiero alto',
-      severity: 'warn',
-    },
-    {
-      code: 'D',
-      label: 'Crítico',
-      description: 'Riesgo de incumplimiento alto',
-      severity: 'danger',
-    },
-  ];
-
-  protected readonly potencialLegend: readonly ColumnHelpEntry[] = [
-    {
-      code: 'G1',
-      label: 'Estratégico',
-      description: 'Cuentas top con máximo potencial de venta',
-      severity: 'success',
-    },
-    {
-      code: 'G2',
-      label: 'Alto',
-      description: 'Cuentas en crecimiento con buen potencial',
-      severity: 'info',
-    },
-    {
-      code: 'G3',
-      label: 'Medio',
-      description: 'Cuentas estables con potencial moderado',
-      severity: 'warn',
-    },
-    {
-      code: 'G4',
-      label: 'Bajo',
-      description: 'Cuentas con bajo potencial de crecimiento',
-      severity: 'secondary',
-    },
-  ];
-
-  protected readonly lifecycleLegend: readonly ColumnHelpEntry[] = [
-    {
-      code: 'RECURRENTE',
-      label: 'Recurrente',
-      description: 'Compras consistentes en el período',
-      severity: 'success',
-    },
-    {
-      code: 'INACTIVO',
-      label: 'Inactivo',
-      description: 'Sin compras recientes, churn parcial',
-      severity: 'secondary',
-    },
-    {
-      code: 'PELIGRO FUGA',
-      label: 'Peligro de fuga',
-      description: 'Frecuencia decreciente, target de retención',
-      severity: 'warn',
-    },
-    {
-      code: 'FUGADO',
-      label: 'Fugado',
-      description: 'Cliente perdido, churn confirmado',
-      severity: 'danger',
-    },
-  ];
-
-  protected readonly carteraLegend: readonly ColumnHelpEntry[] = [
-    {
-      code: 'CA',
-      label: 'Activa',
-      description: 'Cuenta corriente operativa, paga al día',
-      severity: 'success',
-    },
-    {
-      code: 'CN',
-      label: 'Nueva',
-      description: 'Alta reciente, primer ciclo de facturación',
-      severity: 'info',
-    },
-    {
-      code: 'CP',
-      label: 'Prospecto',
-      description: 'En etapa comercial, sin venta confirmada',
-      severity: 'secondary',
-    },
-    {
-      code: 'CI',
-      label: 'Inactiva',
-      description: 'Sin movimiento +6 meses, no morosa',
-      severity: 'secondary',
-    },
-    {
-      code: 'CM',
-      label: 'Morosa',
-      description: 'Cuenta con deuda vencida, asignar a cobranza',
-      severity: 'danger',
-    },
-  ];
-
-  protected readonly discountGroupLegend: readonly ColumnHelpEntry[] = [
-    {
-      code: '0',
-      label: 'Sin descuento',
-      description: 'Precios estándar de catálogo',
-      severity: 'secondary',
-    },
-    {
-      code: '1',
-      label: 'Tier básico',
-      description: 'Descuento mínimo (~2%)',
-      severity: 'info',
-    },
-    {
-      code: '2',
-      label: 'Tier básico+',
-      description: 'Descuento bajo (~5%)',
-      severity: 'info',
-    },
-    {
-      code: '3',
-      label: 'Tier estándar',
-      description: 'Descuento moderado (~10%)',
-      severity: 'success',
-    },
-    {
-      code: '4',
-      label: 'Tier estándar+',
-      description: 'Descuento alto (~15%)',
-      severity: 'success',
-    },
-    {
-      code: '5',
-      label: 'Tier premium',
-      description: 'Descuento máximo (~20%) — cuentas estratégicas',
-      severity: 'warn',
-    },
-  ];
+  // Legends de columnas codificadas — movidas a
+  // `constants/customers-legends.ts` (single source of truth de qué
+  // significa cada código del legacy). Expuestas como fields para el
+  // template; `codeTooltip` hace lookup sobre estas mismas listas.
+  protected readonly classificationLegend = CLASSIFICATION_LEGEND;
+  protected readonly potencialLegend = POTENCIAL_LEGEND;
+  protected readonly lifecycleLegend = LIFECYCLE_LEGEND;
+  protected readonly carteraLegend = CARTERA_LEGEND;
+  protected readonly discountGroupLegend = DISCOUNT_GROUP_LEGEND;
 
   /**
    * Tooltip per-cell — lookup en la legend correspondiente y formateo
@@ -2059,7 +1892,7 @@ export class CustomersComponent {
    * "Copy link to view" / Stripe Dashboard.
    */
   protected async copyShareUrl(): Promise<void> {
-    if (typeof window === 'undefined') return;
+    if (!this.isBrowser) return;
     // Strip transient UI params antes de copiar — el `detail` (drawer
     // abierto) es estado del emisor, no parte de "la vista" que el
     // receptor debería ver. Ver `TRANSIENT_SHARE_PARAMS`.
@@ -2214,7 +2047,7 @@ export class CustomersComponent {
    * Threshold de 24px evita flicker en jitter scroll de touch.
    */
   private initFabScrollBehavior(): void {
-    if (typeof window === 'undefined') return;
+    if (!this.isBrowser) return;
     const onScroll = () => {
       const current = window.scrollY;
       const delta = current - this.lastScrollY;
@@ -2402,7 +2235,7 @@ export class CustomersComponent {
    * user navega con flechas. Patrón Linear: smooth scroll dentro del
    * listbox, no afecta el outer scroll. */
   private scrollCmdkActiveIntoView(): void {
-    if (typeof window === 'undefined') return;
+    if (!this.isBrowser) return;
     queueMicrotask(() => {
       const list = this.cmdkListRef()?.nativeElement;
       if (!list) return;
@@ -2417,7 +2250,7 @@ export class CustomersComponent {
   }
 
   private readCmdkRecent(): readonly number[] {
-    if (typeof localStorage === 'undefined') return [];
+    if (!this.isBrowser) return [];
     try {
       const raw = localStorage.getItem(CustomersComponent.CMDK_RECENT_KEY);
       if (!raw) return [];
@@ -2430,7 +2263,7 @@ export class CustomersComponent {
   }
 
   private pushCmdkRecent(id: number): void {
-    if (typeof localStorage === 'undefined') return;
+    if (!this.isBrowser) return;
     const current = this.cmdkRecentIds().filter((x) => x !== id);
     const updated = [id, ...current].slice(
       0,

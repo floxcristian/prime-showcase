@@ -24,7 +24,7 @@
     "bundle:check": "node tools/bundle/check-delta.mjs",
     "bundle:baseline": "node tools/bundle/check-delta.mjs --update-baseline",
     "serve:ssr:prime-showcase": "node dist/prime-showcase/server/server.mjs",
-    "verify": "npm run lint && npm run build && npm run bundle:check && node tools/smoke/run-with-server.mjs",
+    "verify": "npm run lint && npm test -- --watch=false && npm run build && npm run bundle:check && node tools/smoke/run-with-server.mjs",
     "postinstall": "patch-package"
   },
   "private": true,

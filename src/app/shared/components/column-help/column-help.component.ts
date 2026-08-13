@@ -2,12 +2,13 @@ import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   inject,
   input,
   PLATFORM_ID,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 
 import { ButtonModule } from 'primeng/button';
@@ -182,14 +183,17 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
   private platformId = inject(PLATFORM_ID);
   private helpService = inject(ColumnHelpService);
   private hostEl = inject(ElementRef<HTMLElement>);
+  private destroyRef = inject(DestroyRef);
 
   readonly title = input.required<string>();
   readonly description = input<string | undefined>(undefined);
   readonly entries = input.required<readonly ColumnHelpEntry[]>();
 
-  @ViewChild('op') private popover!: Popover;
-  @ViewChild('trigger', { read: ElementRef })
-  private triggerEl!: ElementRef<HTMLElement>;
+  private readonly popover = viewChild.required<Popover>('op');
+  private readonly triggerEl = viewChild.required<
+    unknown,
+    ElementRef<HTMLElement>
+  >('trigger', { read: ElementRef });
 
   /**
    * `true` si el dispositivo soporta hover real (mouse). Detectado
@@ -210,6 +214,13 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
    */
   private hideTimer?: ReturnType<typeof setTimeout>;
   private static readonly HIDE_DELAY_MS = 200;
+
+  /**
+   * Handle del `requestAnimationFrame` de `onPopoverShow` — cancelable
+   * en destroy para que `positionPopover()` no corra sobre una
+   * instancia desmontada.
+   */
+  private positionFrame?: number;
 
   /**
    * Tracking del estado open. Signal para que el template lo lea
@@ -233,6 +244,18 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
     ) {
       this.canHover.set(window.matchMedia('(hover: hover)').matches);
     }
+
+    // Cleanup de handles async pendientes al destruir. Sin esto, el
+    // hideTimer (200ms) o el rAF de posicionamiento pueden disparar
+    // `.hide()` / `positionPopover()` sobre una instancia desmontada
+    // (ej: la tabla se re-renderiza mientras la legend se está cerrando).
+    this.destroyRef.onDestroy(() => {
+      this.cancelHide();
+      if (this.positionFrame !== undefined) {
+        cancelAnimationFrame(this.positionFrame);
+        this.positionFrame = undefined;
+      }
+    });
   }
 
   // ── Click trigger (universal: desktop + touch) ────────────────────
@@ -244,7 +267,7 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
     event.stopPropagation();
     this.cancelHide();
     if (this.isOpen()) {
-      this.popover.hide();
+      this.popover().hide();
     } else {
       this.open(event);
     }
@@ -299,7 +322,10 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
    * con cálculo manual basado en el bounding rect del trigger.
    */
   protected onPopoverShow(): void {
-    requestAnimationFrame(() => this.positionPopover());
+    this.positionFrame = requestAnimationFrame(() => {
+      this.positionFrame = undefined;
+      this.positionPopover();
+    });
   }
 
   protected onPopoverHide(): void {
@@ -324,14 +350,17 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
   forceHide(): void {
     this.cancelHide();
     if (this.isOpen()) {
-      const container = (this.popover as { container?: HTMLElement }).container;
+      // `Popover.container` está tipado en el .d.ts de PrimeNG
+      // (`Nullable<HTMLDivElement>`) aunque no documentado con @group —
+      // ver TODO en `positionPopover()`.
+      const container = this.popover().container;
       if (container) {
         container.style.transition = 'none';
         container.style.animation = 'none';
         container.style.opacity = '0';
         container.style.visibility = 'hidden';
       }
-      this.popover.hide();
+      this.popover().hide();
     }
   }
 
@@ -345,7 +374,7 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
    */
   private open(event: Event): void {
     this.helpService.notifyOpen(this);
-    this.popover.show(event);
+    this.popover().show(event);
     this.isOpen.set(true);
   }
 
@@ -353,7 +382,7 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
     this.cancelHide();
     this.hideTimer = setTimeout(() => {
       if (this.isOpen()) {
-        this.popover.hide();
+        this.popover().hide();
       }
     }, ColumnHelpComponent.HIDE_DELAY_MS);
   }
@@ -386,8 +415,14 @@ export class ColumnHelpComponent implements ColumnHelpInstance {
    * trigger está offscreen (table scrolled).
    */
   private positionPopover(): void {
-    const popoverEl = (this.popover as { container?: HTMLElement }).container;
-    const triggerEl = this.triggerEl?.nativeElement;
+    // `container` está declarado en el tipo de `Popover` (PrimeNG 21,
+    // `Nullable<HTMLDivElement>`) — no requiere cast — pero NO figura en
+    // la doc pública (@group). TODO(column-help): reemplazar este
+    // posicionamiento manual (~80 líneas) por API pública (pt tokens /
+    // appendTo / style inputs) cuando se pueda validar visualmente el
+    // smart-positioning + arrow clamp + maxHeight dinámico del <ul>.
+    const popoverEl = this.popover().container;
+    const triggerEl = this.triggerEl().nativeElement;
     if (!popoverEl || !triggerEl) return;
 
     // querySelector dentro del popover container — más robusto que

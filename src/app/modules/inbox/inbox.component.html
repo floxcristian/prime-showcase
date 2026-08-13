@@ -199,7 +199,7 @@
                           'text-primary': data.bookmarked,
                           'text-muted-color hover:text-color': !data.bookmarked
                         }"
-                        class="w-8 h-8 inline-flex items-center justify-center bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                        class="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 inline-flex items-center justify-center bg-transparent hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                       >
                         <i
                           [ngClass]="data.bookmarked ? 'fa-sharp fa-solid fa-star' : 'fa-sharp fa-regular fa-star'"
@@ -246,7 +246,9 @@
                         }
                       </td>
 
-                      <td class="w-28 relative">
+                      <!-- pointer-coarse:w-40 — con hit-areas de 44px (w-11 ×3 + gaps)
+                           los botones necesitan más ancho de columna en touch. -->
+                      <td class="w-28 pointer-coarse:w-40 relative">
                         <div
                           class="text-right leading-6 text-muted-color transition-opacity opacity-100 group-hover:opacity-0 group-focus-within:opacity-0 pointer-coarse:opacity-0"
                         >
@@ -260,7 +262,7 @@
                             aria-label="Marcar como leído"
                             pTooltip="Marcar como leído"
                             tooltipPosition="bottom"
-                            class="w-8 h-8 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                            class="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                           >
                             <i class="fa-sharp fa-regular fa-envelope" aria-hidden="true"></i>
                           </button>
@@ -269,7 +271,7 @@
                             aria-label="Archivar"
                             pTooltip="Archivar"
                             tooltipPosition="bottom"
-                            class="w-8 h-8 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                            class="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                           >
                             <i class="fa-sharp fa-regular fa-inbox" aria-hidden="true"></i>
                           </button>
@@ -278,7 +280,7 @@
                             aria-label="Eliminar"
                             pTooltip="Eliminar"
                             tooltipPosition="bottom"
-                            class="w-8 h-8 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
+                            class="w-8 h-8 pointer-coarse:w-11 pointer-coarse:h-11 inline-flex items-center justify-center bg-transparent text-muted-color hover:text-color hover:bg-emphasis active:bg-surface-200 dark:active:bg-surface-700 cursor-pointer rounded-lg transition-colors select-none"
                           >
                             <i class="fa-sharp fa-regular fa-trash" aria-hidden="true"></i>
                           </button>

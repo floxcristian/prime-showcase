@@ -32,7 +32,7 @@ import { ButtonModule } from 'primeng/button';
       >
         <i [class]="iconClass()" aria-hidden="true"></i>
         <div class="flex flex-col gap-1 max-w-sm">
-          <h3 class="text-color font-bold leading-6">{{ title() }}</h3>
+          <h3 class="text-color text-2xl font-medium leading-8">{{ title() }}</h3>
           @if (description()) {
             <p class="text-muted-color leading-6">{{ description() }}</p>
           }

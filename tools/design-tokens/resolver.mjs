@@ -156,11 +156,12 @@ export function resolveValue(value, preset, mode, depth = 0) {
  *   - gates `npm run design-tokens:check` on it
  *   - publishes it in `design-tokens/tokens.json`
  *
- * Each entry is `[paths…, expectedShape]`. `expectedShape` tells the
- * exporter how to format the entry in the JSON output:
- *   - 'hex'      → string color literal
- *   - 'shadow'   → CSS shadow composite (kept as a string)
- *   - 'palette'  → entire keyed map (e.g. primary.{50..950})
+ * Each entry is `{ kind, path }`. `kind` tells `exportTokens()` how to
+ * resolve and place the entry in the JSON output:
+ *   - 'palette'       → literal keyed map from the preset (e.g. primary.{50..950})
+ *   - 'paletteByMode' → per-mode resolved ramp (light + dark)
+ *   - 'colorByMode'   → single per-mode color under `semantic`
+ *   - 'composite'     → composite string (e.g. shadow) under `semantic`
  */
 export const EXPORTED_TOKENS = /** @type {const} */ ({
   // Brand palette (literal hex in our preset)
@@ -211,13 +212,14 @@ function resolveShade(preset, mode, paletteName, shade) {
  *
  * @param {object} preset
  * @param {'light' | 'dark'} mode
+ * @param {string} [paletteName] — per-mode palette to resolve (default 'surface')
  * @returns {Record<string, string>}
  */
-export function resolveSurfacePalette(preset, mode) {
+export function resolveSurfacePalette(preset, mode, paletteName = 'surface') {
   const result = {};
   const shades = ['0', '50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
   for (const shade of shades) {
-    const v = resolveShade(preset, mode, 'surface', shade);
+    const v = resolveShade(preset, mode, paletteName, shade);
     if (v !== undefined) result[shade] = v;
   }
   return result;
@@ -271,30 +273,62 @@ export function resolveColorByMode(preset, path, mode) {
  *     },
  *   }
  *
+ * The output is driven ENTIRELY by `EXPORTED_TOKENS` — one entry there is
+ * one entry here. That keeps the docstring promise honest: adding a token
+ * to `EXPORTED_TOKENS` automatically gates the drift check on it and
+ * publishes it in `design-tokens/tokens.json`, with no second list to
+ * keep in sync.
+ *
+ * Kind → placement:
+ *   - 'palette' / 'paletteByMode' → top-level key (`primary`, `surface`)
+ *   - 'colorByMode' / 'composite' → nested under `semantic`
+ *
  * @param {object} preset — merged preset (definePreset(Aura, overrides))
  */
 export function exportTokens(preset) {
-  return {
-    primary: resolvePrimaryPalette(preset),
-    surface: {
-      light: resolveSurfacePalette(preset, 'light'),
-      dark: resolveSurfacePalette(preset, 'dark'),
-    },
-    semantic: {
-      textMutedColor: {
-        light: resolveColorByMode(preset, ['text', 'muted', 'color'], 'light'),
-        dark: resolveColorByMode(preset, ['text', 'muted', 'color'], 'dark'),
-      },
-      invalidBorderColor: {
-        light: resolveColorByMode(preset, ['formField', 'invalidBorderColor'], 'light'),
-        dark: resolveColorByMode(preset, ['formField', 'invalidBorderColor'], 'dark'),
-      },
-      focusRingShadow: (() => {
-        const raw = preset?.semantic?.focusRing?.shadow;
-        // Focus ring shadow doesn't change per mode, but its `{primary.200}`
-        // reference resolves through either branch. Resolve in light.
-        return resolveValue(raw, preset, 'light');
-      })(),
-    },
-  };
+  /** @type {{ [key: string]: unknown, semantic: Record<string, unknown> }} */
+  const out = { semantic: {} };
+
+  for (const [name, spec] of Object.entries(EXPORTED_TOKENS)) {
+    switch (spec.kind) {
+      case 'palette': {
+        // Literal palette declared in the preset (e.g. semantic.primary).
+        const palette = lookupPath(preset, [...spec.path]) ?? {};
+        /** @type {Record<string, string>} */
+        const literal = {};
+        for (const [shade, value] of Object.entries(palette)) {
+          if (typeof value === 'string') literal[shade] = value;
+        }
+        out[name] = literal;
+        break;
+      }
+      case 'paletteByMode': {
+        out[name] = {
+          light: resolveSurfacePalette(preset, 'light', spec.path[0]),
+          dark: resolveSurfacePalette(preset, 'dark', spec.path[0]),
+        };
+        break;
+      }
+      case 'colorByMode': {
+        out.semantic[name] = {
+          light: resolveColorByMode(preset, [...spec.path], 'light'),
+          dark: resolveColorByMode(preset, [...spec.path], 'dark'),
+        };
+        break;
+      }
+      case 'composite': {
+        const raw = lookupPath(preset, [...spec.path]);
+        // Composites don't change per mode, but embedded references (e.g.
+        // `{primary.200}`) resolve through either branch. Resolve in light.
+        out.semantic[name] = resolveValue(raw, preset, 'light');
+        break;
+      }
+      default:
+        throw new Error(
+          `EXPORTED_TOKENS.${name} has unknown kind ${JSON.stringify(spec)}`,
+        );
+    }
+  }
+
+  return out;
 }

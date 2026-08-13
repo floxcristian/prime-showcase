@@ -53,7 +53,6 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseDocument } from 'yaml';
 
 import { AppPreset } from '../../src/app/app.preset.ts';
 import { exportTokens } from './resolver.mjs';
@@ -339,6 +338,34 @@ if (UPDATE) {
     for (const d of allDrifts) console.log(`  • [${d.source}] ${d.label}: ${d.got} → ${d.expected}`);
   } else {
     console.log('[design-tokens] (already in sync — outputs are deterministic)');
+  }
+
+  // Post-write verification. The surgical patcher is regex-based: if a
+  // check's regex no longer matches DESIGN.md (section renamed, YAML key
+  // reformatted), `patchDesignDoc` silently leaves the field untouched.
+  // Re-run the drift check on what was actually written so `--update`
+  // exits 1 instead of pretending the docs are in sync — otherwise the
+  // next `design-tokens:check` (and CI) fails with no local warning.
+  const { drifts: residualDesignDrifts } = runDesignDrift(patched, AppPreset);
+  const residualJsonDrifts = runJsonDrift(resolved);
+  const residualDrifts = [
+    ...residualDesignDrifts.map((d) => ({ ...d, source: 'DESIGN.md' })),
+    ...residualJsonDrifts.map((d) => ({ ...d, source: 'tokens.json' })),
+  ];
+  if (residualDrifts.length) {
+    console.error(
+      '[design-tokens] --update could NOT apply these patches (regex found no match in the document):',
+    );
+    for (const d of residualDrifts) {
+      console.error(`  • [${d.source}] ${d.label}`);
+      console.error(`      expected: ${d.expected}`);
+      console.error(`      got:      ${d.got}`);
+    }
+    console.error('');
+    console.error(
+      '  Fix DESIGN.md so the token field matches the expected format (see buildDesignChecks in tools/design-tokens/sync.mjs), then re-run.',
+    );
+    process.exit(1);
   }
   process.exit(0);
 }

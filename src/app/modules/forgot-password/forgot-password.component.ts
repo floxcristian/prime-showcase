@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  inject,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -33,6 +35,17 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   },
 })
 export class ForgotPasswordComponent {
+  private destroyRef = inject(DestroyRef);
+
+  // Handle del timer de latencia simulada (submit/resend nunca corren en
+  // paralelo — ambos guardan con submitting()). Se cancela on destroy para
+  // no escribir signals de un componente ya destruido.
+  private pendingTimer: ReturnType<typeof setTimeout> | undefined;
+
+  constructor() {
+    this.destroyRef.onDestroy(() => clearTimeout(this.pendingTimer));
+  }
+
   readonly email = signal('');
   readonly emailTouched = signal(false);
   readonly submitting = signal(false);
@@ -66,7 +79,7 @@ export class ForgotPasswordComponent {
     if (this.emailInvalid()) return;
     this.submitting.set(true);
     // Delay corto para feedback visual. Sin backend, el timer simula latencia.
-    setTimeout(() => {
+    this.pendingTimer = setTimeout(() => {
       this.submitting.set(false);
       this.submitted.set(true);
     }, AUTH_SUBMIT_DELAY_MS);
@@ -77,7 +90,7 @@ export class ForgotPasswordComponent {
     // spinner para dar feedback "envie de nuevo" (patron Stripe/Linear).
     if (this.submitting()) return;
     this.submitting.set(true);
-    setTimeout(() => {
+    this.pendingTimer = setTimeout(() => {
       this.submitting.set(false);
     }, AUTH_SUBMIT_DELAY_MS);
   }

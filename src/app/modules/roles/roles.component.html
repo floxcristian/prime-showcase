@@ -9,14 +9,14 @@
   </div>
   @if (totalRoles() > 0) {
     <div
-      class="hidden sm:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
+      class="hidden lg:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
       role="status"
       [attr.aria-label]="
         totalRoles() + ' roles cubriendo ' + totalUsers() + ' usuarios'
       "
     >
       <i
-        class="fa-sharp fa-solid fa-shield-halved text-primary"
+        class="fa-sharp fa-regular fa-shield-halved text-primary"
         aria-hidden="true"
       ></i>
       <span>{{ totalRoles() }} roles · {{ totalUsers() }} usuarios</span>
@@ -29,7 +29,7 @@
   <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
     @if (lastFetchedAt(); as ts) {
       <span
-        class="text-sm text-muted-color leading-5 hidden sm:inline"
+        class="text-sm text-muted-color leading-5 hidden lg:inline"
         aria-live="polite"
       >
         Actualizado {{ ts | relativeTime }}
@@ -64,7 +64,7 @@
 } @else {
   @if (loadError() && tableData().length > 0) {
     <div
-      class="border border-surface rounded-2xl p-3 mb-2 flex items-center gap-3 text-sm"
+      class="border border-surface rounded-lg p-3 mb-2 flex items-center gap-3 text-sm"
       role="alert"
     >
       <i
@@ -87,7 +87,7 @@
   }
   <div class="rounded-lg border border-surface w-full overflow-hidden">
     <p-table
-      [value]="$any(tableData())"
+      [value]="tableData()"
       [loading]="loading()"
       dataKey="id"
       [paginator]="true"

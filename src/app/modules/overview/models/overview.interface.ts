@@ -41,7 +41,13 @@ import type { ChartData } from 'chart.js';
 // from the library's API.
 export type OverviewChartData = ChartData<'bar', number[]>;
 
+// Rango temporal del filtro del chart. Union cerrada: tipa el signal, el
+// selectbutton y el Record de datasets — una rama nueva obliga a agregar
+// datos (error de compilación) en vez de devolver undefined silencioso.
+export type TimeRange = 'Semanal' | 'Mensual' | 'Anual';
+
 export interface ChartDatasetResult {
-  labels: string[] | undefined;
-  data: number[][] | undefined;
+  labels: string[];
+  // Tupla de 3 series: [personal, corporativa, inversión].
+  data: [number[], number[], number[]];
 }

@@ -2,9 +2,12 @@
  * Helpers compartidos para mock data — mantienen los archivos de mocks
  * concentrados en SHAPE, no en utilities.
  *
- * **Determinismo:** los mocks usan timestamps relativos a `NOW` (capturado
- * al import del módulo). En producción real esto vendría del backend con
- * timestamps absolutos. Para el showcase, "fresh on reload" es aceptable.
+ * **Determinismo:** los mocks usan timestamps relativos a `now()` (leído
+ * al momento del build, NO capturado al import del módulo — en SSR el
+ * módulo se evalúa una sola vez al boot del server y una constante
+ * congelaría el "ahora" para todos los requests siguientes). En producción
+ * real esto vendría del backend con timestamps absolutos. Para el
+ * showcase, "fresh on reload" es aceptable.
  *
  * **No-randomness in detail mocks:** `SERVICE_DETAIL_MOCK` y
  * `ALERT_DETAIL_MOCK` se memoizan por id (`buildOnce` pattern abajo) para
@@ -12,10 +15,15 @@
  * llamada generaba commitSha + sparklines distintos → UX inconsistente.
  */
 
-export const NOW = Date.now();
+/**
+ * "Ahora" como función — cada invocación lee el reloj real. Función (y no
+ * `const NOW = Date.now()`) para que en SSR cada request/build genere
+ * timestamps frescos en lugar de heredar el instante del boot del server.
+ */
+export const now = (): number => Date.now();
 
 export const minutesAgo = (n: number): string =>
-  new Date(NOW - n * 60 * 1000).toISOString();
+  new Date(now() - n * 60 * 1000).toISOString();
 
 /**
  * PRNG seedeado con string — produce números deterministas para un id dado.
