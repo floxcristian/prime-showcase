@@ -154,7 +154,7 @@ Estructura de componente y patrones de host class detallados en `.claude/rules/c
 
 ## Build budgets
 
-- Initial bundle: **750kB** (warn) / **1MB** (error)
+- Initial bundle: **790kB** (warn) / **820kB** (error) — fuente de verdad: `angular.json` budgets; baseline real en `tools/bundle/baseline.json`
 - Component styles: **4kB** (warn) / **8kB** (error)
 
 ## Comandos

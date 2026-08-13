@@ -68,8 +68,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    // Stable viewport for screenshot determinism.
-    viewport: { width: 1440, height: 900 },
+    // NOTE: the canonical 1440×900 viewport lives INSIDE each project,
+    // AFTER the `...devices['Desktop Chrome']` spread — the device preset
+    // carries its own viewport (1280×720) which would silently override a
+    // top-level `use.viewport` here.
     // Honor reduced-motion always — visual baselines must not include
     // mid-animation frames.
     reducedMotion: 'reduce',
@@ -85,12 +87,20 @@ export default defineConfig({
     {
       name: 'visual',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Must come AFTER the device spread: Desktop Chrome ships 1280×720
+        // and would otherwise win. 1440×900 is the canonical baseline size.
+        viewport: { width: 1440, height: 900 },
+      },
     },
     {
       name: 'a11y',
       testMatch: /a11y\/.*\.spec\.ts/,
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 900 },
+      },
     },
   ],
   webServer: process.env.E2E_BASE_URL
