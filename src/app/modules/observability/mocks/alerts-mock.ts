@@ -1,9 +1,9 @@
 import type {
   AlertDetail,
   AlertSummary,
+  ServiceSummary,
 } from '../models/observability.interface';
-import { minutesAgo, seededRandom } from './mock-utils';
-import { SERVICES_MOCK } from './services-mock';
+import { minutesBefore, seededRandom } from './mock-utils';
 
 const ALERT_TITLES = [
   'Error rate por encima del SLO',
@@ -18,10 +18,24 @@ const ALERT_TITLES = [
   'Errores 5xx pico',
 ];
 
-export const ALERTS_MOCK: readonly AlertSummary[] = Array.from(
-  { length: 32 },
-  (_, i) => {
-    const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
+/**
+ * Factory pura y determinista del listado de alertas. Mismos datos y
+ * offsets relativos siempre — el ancla temporal (`epoch`) parametriza los
+ * timestamps y `services` es el catálogo YA construido con ese mismo
+ * epoch (coherencia serviceId/serviceName por construcción).
+ *
+ * Construida una vez por instancia de `ObservabilityMockService` — no
+ * exportar consts evaluadas al import (congelarían el "ahora" al boot
+ * del server SSR).
+ */
+export const buildAlertsMock = (
+  epoch: number,
+  services: readonly ServiceSummary[],
+): readonly AlertSummary[] => {
+  const minutesAgo = (n: number): string => minutesBefore(epoch, n);
+
+  return Array.from({ length: 32 }, (_, i) => {
+    const svc = services[i % services.length];
     const sevs = ['critical', 'warn', 'info'] as const;
     const statuses = [
       'firing',
@@ -54,22 +68,29 @@ export const ALERTS_MOCK: readonly AlertSummary[] = Array.from(
       threshold: 1.0,
       unit: i % 3 === 0 ? '%' : 'ms',
     };
-  },
-);
-
-const detailCache = new Map<string, AlertDetail>();
+  });
+};
 
 /**
- * Build determinístico + memoizado por id. Mismo patrón que
- * `SERVICE_DETAIL_MOCK` — el `metricSeries` usaba `Math.random()` y cambiaba
- * cada navegación, rompiendo la continuidad visual del chart al volver.
+ * Build determinístico por id — PURO, sin cache a nivel módulo. Mismo
+ * patrón que `buildServiceDetailMock`: la memoización por id vive como
+ * Map de instancia en `ObservabilityMockService` (un Map acá sería estado
+ * compartido entre requests SSR). El `metricSeries` usa PRNG seedeado por
+ * id — mismo chart en cada navegación.
+ *
+ * `alerts` es el listado YA construido con el mismo `epoch` — el detail
+ * extiende el summary, así `firedAt`/`metricSeries` quedan anclados al
+ * mismo instante por construcción.
  */
-export const ALERT_DETAIL_MOCK = (id: string): AlertDetail | undefined => {
-  const cached = detailCache.get(id);
-  if (cached) return cached;
-  const summary = ALERTS_MOCK.find((a) => a.id === id);
+export const buildAlertDetailMock = (
+  epoch: number,
+  alerts: readonly AlertSummary[],
+  id: string,
+): AlertDetail | undefined => {
+  const summary = alerts.find((a) => a.id === id);
   if (!summary) return undefined;
 
+  const minutesAgo = (n: number): string => minutesBefore(epoch, n);
   const rand = seededRandom(`alert-detail-${id}`);
   const detail: AlertDetail = {
     ...summary,
@@ -101,6 +122,5 @@ export const ALERT_DETAIL_MOCK = (id: string): AlertDetail | undefined => {
     })),
   };
 
-  detailCache.set(id, detail);
   return detail;
 };

@@ -1,6 +1,8 @@
-import type { InboxItem } from '../models/observability.interface';
-import { minutesAgo } from './mock-utils';
-import { SERVICES_MOCK } from './services-mock';
+import type {
+  InboxItem,
+  ServiceSummary,
+} from '../models/observability.interface';
+import { minutesBefore } from './mock-utils';
 
 const INBOX_TITLES = [
   'Error rate cruzó 4% en el último 5m',
@@ -15,10 +17,21 @@ const INBOX_TITLES = [
   'Trend: throughput cayó 15% últimas 2h',
 ];
 
-export const INBOX_MOCK: readonly InboxItem[] = Array.from(
-  { length: 38 },
-  (_, i) => {
-    const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
+/**
+ * Factory pura y determinista del inbox. Mismos datos y offsets relativos
+ * siempre — el ancla temporal (`epoch`) parametriza los timestamps y
+ * `services` es el catálogo YA construido con ese mismo epoch.
+ *
+ * Construida una vez por instancia de `ObservabilityMockService` — no
+ * exportar consts evaluadas al import (congelarían el "ahora" al boot
+ * del server SSR).
+ */
+export const buildInboxMock = (
+  epoch: number,
+  services: readonly ServiceSummary[],
+): readonly InboxItem[] =>
+  Array.from({ length: 38 }, (_, i) => {
+    const svc = services[i % services.length];
     const buckets = ['now', 'now', 'today', 'today', 'today', 'info'] as const;
     const types = ['error', 'alert', 'uptime', 'deploy', 'trend'] as const;
     const sevs = ['critical', 'warn', 'info'] as const;
@@ -34,11 +47,10 @@ export const INBOX_MOCK: readonly InboxItem[] = Array.from(
         i % 4 === 0
           ? 'Threshold 1.0% — actual 4.2%. Spike comenzó hace 12 minutos.'
           : undefined,
-      occurredAt: minutesAgo(2 + i * 7),
+      occurredAt: minutesBefore(epoch, 2 + i * 7),
       ackable: i % 3 !== 0,
       acknowledged: i % 7 === 0,
       sourceUrl:
         i % 2 === 0 ? `https://sentry.empresa.dev/items/${i}` : undefined,
     };
-  },
-);
+  });

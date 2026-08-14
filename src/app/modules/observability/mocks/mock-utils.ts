@@ -2,51 +2,44 @@
  * Helpers compartidos para mock data — mantienen los archivos de mocks
  * concentrados en SHAPE, no en utilities.
  *
- * **Determinismo:** los mocks usan timestamps relativos a `now()` (leído
- * al momento del build, NO capturado al import del módulo — en SSR el
- * módulo se evalúa una sola vez al boot del server y una constante
- * congelaría el "ahora" para todos los requests siguientes). En producción
- * real esto vendría del backend con timestamps absolutos. Para el
- * showcase, "fresh on reload" es aceptable.
+ * **Determinismo:** los mocks son FACTORIES puras (`buildServicesMock`,
+ * `buildAlertsMock`, `buildInboxMock`) parametrizadas por un ancla
+ * temporal (`epoch`). Quién decide el "ahora" es
+ * `ObservabilityMockService`: captura `epoch` una vez por instancia, así
+ * en SSR cada request construye timestamps frescos (instancia nueva por
+ * request — cada request crea un `ApplicationRef` propio) y en browser la
+ * sesión mantiene datos estables. En producción real esto vendría del
+ * backend con timestamps absolutos.
  *
- * **No-randomness in detail mocks:** `SERVICE_DETAIL_MOCK` y
- * `ALERT_DETAIL_MOCK` se memoizan por id (`buildOnce` pattern abajo) para
- * que navegar away+back muestre los MISMOS deploys/errors. Sin esto, cada
- * llamada generaba commitSha + sparklines distintos → UX inconsistente.
+ * **No-randomness in detail mocks:** `buildServiceDetailMock` y
+ * `buildAlertDetailMock` son puros y deterministas por id (seeded PRNG).
+ * La memoización por id (navegar away+back muestra los MISMOS deploys/
+ * errors) vive como Map de instancia en `ObservabilityMockService` — un
+ * Map a nivel módulo sería estado compartido entre requests SSR.
  */
 
 /**
- * "Ahora" como función — cada invocación lee el reloj real. Función (y no
- * `const NOW = Date.now()`) para que en SSR cada request/build genere
- * timestamps frescos en lugar de heredar el instante del boot del server.
+ * "Ahora" como función — cada invocación lee el reloj real. Usada por
+ * `ObservabilityMockService` para capturar su `epoch` por instancia.
+ * Función (y no `const NOW = Date.now()`) para que en SSR cada request
+ * genere un ancla fresca en lugar de heredar el instante del boot del
+ * server.
  */
 export const now = (): number => Date.now();
 
-export const minutesAgo = (n: number): string =>
-  new Date(now() - n * 60 * 1000).toISOString();
-
 /**
- * Instante de referencia capturado al import de este módulo — el mismo
- * instante (± microsegundos: los mocks importan este archivo y evalúan
- * sus consts inmediatamente después) en que `SERVICES_MOCK` /
- * `ALERTS_MOCK` congelan sus timestamps vía `minutesAgo()`.
- *
- * Usar como ancla temporal en vistas que correlacionan timestamps
- * propios con los de esos mocks (ej: el segment grid de obs-uptime).
- * Un `now()` capturado por instancia deriva respecto de los mocks
- * congelados durante sesiones largas — los incidentes "migran" frente a
- * la columna "Última alerta".
- *
- * Deuda documentada: en SSR los mocks top-level se congelan igual al
- * boot del server; frescura per-request requeriría mocks factory (no
- * consts). Mientras los mocks sean consts, la ancla coherente es esta.
+ * ISO string de `n` minutos antes del ancla `epoch`. Las factories de
+ * mocks derivan TODOS sus timestamps de acá — mismo epoch en toda la
+ * instancia del service → los "hace X min" de servicios, alertas, inbox
+ * y details son coherentes entre sí por construcción.
  */
-export const MOCK_EPOCH: number = now();
+export const minutesBefore = (epoch: number, n: number): string =>
+  new Date(epoch - n * 60 * 1000).toISOString();
 
 /**
  * PRNG seedeado con string — produce números deterministas para un id dado.
  * Usado en mocks de detail para que `commitSha`/`sparkline` sean estables
- * por servicio aunque la llamada a `getServiceDetail(id)` vuelva a correr.
+ * por servicio aunque el build por id vuelva a correr.
  *
  * Algoritmo: Mulberry32 (estado simple, distribución uniforme suficiente
  * para mock data). No criptográfico — perfectamente OK para datos de UI.

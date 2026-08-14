@@ -29,7 +29,7 @@ import { TableFilterShellComponent } from '../../../shared/components/table-filt
 import { TooltipDismissOnClickDirective } from '../../../shared/directives/tooltip-dismiss-on-click.directive';
 import { COLUMN_FILTER_PT } from '../../../shared/tokens/table-tokens';
 import { trackedResource } from '../../../shared/utils/tracked-resource';
-import { MOCK_EPOCH, seededRandom } from '../mocks/mock-utils';
+import { seededRandom } from '../mocks/mock-utils';
 import type {
   HealthState,
   ServiceSummary,
@@ -180,19 +180,18 @@ export class ObsUptimeComponent {
    * servicios.
    *
    * **Bug que resuelve (deriva vs mocks)**: otra versión capturaba
-   * `now()` por instancia del componente — pero los mocks
-   * (`SERVICES_MOCK`/`ALERTS_MOCK`) congelan sus timestamps al import
-   * del módulo. En sesiones largas el ancla per-instancia derivaba
-   * respecto de esos timestamps y los segmentos de incidente migraban
-   * frente a la columna "Última alerta". `MOCK_EPOCH` es el mismo
-   * instante en que los mocks se construyeron → coherencia garantizada.
+   * `now()` por instancia del componente — pero los mocks congelan sus
+   * timestamps al construirse el `ObservabilityMockService`. En sesiones
+   * largas el ancla per-componente derivaba respecto de esos timestamps
+   * y los segmentos de incidente migraban frente a la columna "Última
+   * alerta". `api.epoch` es el MISMO instante con que el service
+   * construyó los mocks → coherencia garantizada por construcción.
    *
-   * Honestidad SSR: esto NO da frescura per-request — los mocks siguen
-   * congelados al boot del server, y el ancla con ellos. Frescura real
-   * requeriría mocks factory (deuda documentada en `mock-utils.ts`).
-   * En producción el ancla vendría del backend (server clock).
+   * SSR: el service es fresco por request (`ApplicationRef` nuevo), así
+   * que epoch y mocks se regeneran juntos — frescura per-request sin
+   * deriva. En producción el ancla vendría del backend (server clock).
    */
-  private readonly anchorTime = MOCK_EPOCH;
+  private readonly anchorTime = this.api.epoch;
 
   /**
    * Caches de memoización de filas/segmentos — CAMPOS DE INSTANCIA, no

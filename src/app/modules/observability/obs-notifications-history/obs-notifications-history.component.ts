@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   signal,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
@@ -12,8 +13,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
-import { minutesAgo, seededRandom } from '../mocks/mock-utils';
-import { SERVICES_MOCK } from '../mocks/services-mock';
+import { minutesBefore, seededRandom } from '../mocks/mock-utils';
+import type { ServiceSummary } from '../models/observability.interface';
+import { ObservabilityMockService } from '../services/observability-mock.service';
 
 type NotifChannel = 'push' | 'email' | 'in-app';
 type NotifStatus = 'delivered' | 'failed' | 'pending';
@@ -216,6 +218,8 @@ const TITLES = [
   `,
 })
 export class ObsNotificationsHistoryComponent {
+  private readonly api = inject(ObservabilityMockService);
+
   protected readonly channels: readonly NotifChannel[] = ['push', 'email', 'in-app'];
 
   protected channelIcon(c: NotifChannel): string {
@@ -231,7 +235,14 @@ export class ObsNotificationsHistoryComponent {
     return STATUS_META[s].label;
   }
 
-  protected readonly entries = signal<readonly NotifEntry[]>(buildHistory(40));
+  /**
+   * Historial anclado a `api.epoch` + servicios del snapshot del service:
+   * mismos ids/nombres y mismo instante de referencia que el resto de los
+   * mocks del módulo (SSR fresco por request, browser estable por sesión).
+   */
+  protected readonly entries = signal<readonly NotifEntry[]>(
+    buildHistory(40, this.api.epoch, this.api.servicesSnapshot),
+  );
   protected readonly channelFilter = signal<NotifChannel | 'all'>('all');
 
   /**
@@ -256,12 +267,18 @@ export class ObsNotificationsHistoryComponent {
 
 /**
  * Genera N notificaciones determinísticas — seed fija "notif-history" para
- * estabilidad across navigations. Distribución realista:
+ * estabilidad across navigations, `epoch` + `services` inyectados desde
+ * `ObservabilityMockService` para que los timestamps y los ids/nombres de
+ * servicio sean coherentes con el resto del módulo. Distribución realista:
  *   - 70% delivered, 20% pending, 10% failed
  *   - canales rotan en ciclo
  *   - timestamps decrecientes (la primera es la más reciente)
  */
-function buildHistory(n: number): readonly NotifEntry[] {
+function buildHistory(
+  n: number,
+  epoch: number,
+  services: readonly ServiceSummary[],
+): readonly NotifEntry[] {
   const rand = seededRandom('notif-history');
   const channels: readonly NotifChannel[] = ['push', 'email', 'in-app'];
   const failureReasons = [
@@ -273,10 +290,10 @@ function buildHistory(n: number): readonly NotifEntry[] {
     const r = rand();
     const status: NotifStatus =
       r < 0.7 ? 'delivered' : r < 0.9 ? 'pending' : 'failed';
-    const svc = SERVICES_MOCK[i % SERVICES_MOCK.length];
+    const svc = services[i % services.length];
     return {
       id: `notif-${i.toString().padStart(3, '0')}`,
-      at: minutesAgo(8 + i * 47),
+      at: minutesBefore(epoch, 8 + i * 47),
       channel: channels[i % channels.length],
       serviceId: svc.id,
       serviceName: svc.name,

@@ -2,144 +2,165 @@ import type {
   ServiceDetail,
   ServiceSummary,
 } from '../models/observability.interface';
-import { minutesAgo, seededRandom, sparklineFrom } from './mock-utils';
-
-const summarySeed = seededRandom('services-summary');
-const summarySparkline = (n: number, max = 100): readonly number[] =>
-  sparklineFrom(summarySeed, n, max);
-
-export const SERVICES_MOCK: readonly ServiceSummary[] = [
-  {
-    id: 'svc-checkout',
-    slug: 'checkout-service',
-    name: 'Checkout',
-    description: 'Servicio de checkout y carrito persistente',
-    team: 'E-commerce',
-    health: 'critical',
-    errorRate24h: { value: 4.2, unit: '%', delta: 2.8, sparkline: summarySparkline(30) },
-    p99Latency: { value: 1240, unit: 'ms', delta: 38, sparkline: summarySparkline(30, 1500) },
-    uptime30d: { value: 99.62, unit: '%', delta: -0.18 },
-    activeAlertsCount: 3,
-    lastDeployAt: minutesAgo(45),
-    lastAlertAt: minutesAgo(8),
-    tags: ['public-api', 'critical-path'],
-  },
-  {
-    id: 'svc-payments',
-    slug: 'payments-service',
-    name: 'Payments',
-    description: 'Procesamiento de pagos y reconciliación',
-    team: 'Pagos',
-    health: 'warn',
-    errorRate24h: { value: 1.4, unit: '%', delta: 0.6, sparkline: summarySparkline(30, 50) },
-    p99Latency: { value: 820, unit: 'ms', delta: 12, sparkline: summarySparkline(30, 1000) },
-    uptime30d: { value: 99.91, unit: '%', delta: 0.0 },
-    activeAlertsCount: 1,
-    lastDeployAt: minutesAgo(220),
-    lastAlertAt: minutesAgo(32),
-    tags: ['public-api', 'pci-scope', 'critical-path'],
-  },
-  {
-    id: 'svc-catalog',
-    slug: 'catalog-service',
-    name: 'Catálogo',
-    description: 'API de productos, precios y stock',
-    team: 'E-commerce',
-    health: 'ok',
-    errorRate24h: { value: 0.08, unit: '%', delta: -0.02, sparkline: summarySparkline(30, 5) },
-    p99Latency: { value: 180, unit: 'ms', delta: -8, sparkline: summarySparkline(30, 250) },
-    uptime30d: { value: 99.99, unit: '%', delta: 0.01 },
-    activeAlertsCount: 0,
-    lastDeployAt: minutesAgo(60 * 6),
-    tags: ['public-api', 'high-traffic'],
-  },
-  {
-    id: 'svc-auth',
-    slug: 'auth-service',
-    name: 'Auth',
-    description: 'Autenticación, sesiones y roles',
-    team: 'Plataforma',
-    health: 'ok',
-    errorRate24h: { value: 0.12, unit: '%', delta: 0.01, sparkline: summarySparkline(30, 5) },
-    p99Latency: { value: 95, unit: 'ms', delta: 2, sparkline: summarySparkline(30, 150) },
-    uptime30d: { value: 99.98, unit: '%', delta: 0.0 },
-    activeAlertsCount: 0,
-    lastDeployAt: minutesAgo(60 * 24),
-    tags: ['public-api', 'critical-path'],
-  },
-  {
-    id: 'svc-search',
-    slug: 'search-service',
-    name: 'Search',
-    description: 'Búsqueda full-text y autocomplete',
-    team: 'Búsqueda',
-    health: 'warn',
-    errorRate24h: { value: 0.6, unit: '%', delta: 0.4, sparkline: summarySparkline(30, 20) },
-    p99Latency: { value: 320, unit: 'ms', delta: 25, sparkline: summarySparkline(30, 500) },
-    uptime30d: { value: 99.84, unit: '%', delta: -0.05 },
-    activeAlertsCount: 1,
-    lastDeployAt: minutesAgo(60 * 12),
-    lastAlertAt: minutesAgo(110),
-    tags: ['public-api', 'high-traffic'],
-  },
-  {
-    id: 'svc-notifications',
-    slug: 'notifications-service',
-    name: 'Notificaciones',
-    description: 'Push, email, in-app — fanout y entrega',
-    team: 'Plataforma',
-    health: 'ok',
-    errorRate24h: { value: 0.21, unit: '%', delta: -0.05, sparkline: summarySparkline(30, 10) },
-    p99Latency: { value: 410, unit: 'ms', delta: -2, sparkline: summarySparkline(30, 600) },
-    uptime30d: { value: 99.95, unit: '%', delta: 0.02 },
-    activeAlertsCount: 0,
-    lastDeployAt: minutesAgo(60 * 4),
-    tags: ['async', 'fanout'],
-  },
-  {
-    id: 'svc-analytics',
-    slug: 'analytics-pipeline',
-    name: 'Analytics Pipeline',
-    description: 'Streaming + batch para métricas y reporting',
-    team: 'Datos',
-    health: 'unknown',
-    errorRate24h: { value: 0, unit: '%', sparkline: [] },
-    p99Latency: { value: 0, unit: 'ms', sparkline: [] },
-    uptime30d: { value: 0, unit: '%' },
-    activeAlertsCount: 0,
-    lastDeployAt: minutesAgo(60 * 72),
-    tags: ['batch', 'no-sla'],
-  },
-  {
-    id: 'svc-recommendations',
-    slug: 'recommendations-engine',
-    name: 'Recomendaciones',
-    description: 'Engine de recomendaciones personalizadas',
-    team: 'Datos',
-    health: 'ok',
-    errorRate24h: { value: 0.3, unit: '%', delta: 0.05, sparkline: summarySparkline(30, 10) },
-    p99Latency: { value: 540, unit: 'ms', delta: -10, sparkline: summarySparkline(30, 800) },
-    uptime30d: { value: 99.88, unit: '%', delta: 0.0 },
-    activeAlertsCount: 0,
-    lastDeployAt: minutesAgo(60 * 8),
-    tags: ['ml', 'cache-heavy'],
-  },
-];
-
-const detailCache = new Map<string, ServiceDetail>();
+import { minutesBefore, seededRandom, sparklineFrom } from './mock-utils';
 
 /**
- * Build determinístico + memoizado por id. El cache evita que navegar
- * away+back muestre datos distintos para el mismo servicio. La seed por
- * id garantiza que en distintos boots de la app, los mismos commits/
- * sparklines aparezcan (útil para reproducir bugs visuales en QA).
+ * Factory pura y determinista del catálogo de servicios. Mismos datos y
+ * offsets relativos siempre — solo el ancla temporal (`epoch`) parametriza
+ * los timestamps absolutos. El PRNG se sedea DENTRO de la factory: dos
+ * llamadas con el mismo epoch producen arrays idénticos (un PRNG a nivel
+ * módulo continuaría su stream entre llamadas y rompería el determinismo).
+ *
+ * Construida una vez por instancia de `ObservabilityMockService` (fresca
+ * por request en SSR, estable por sesión en browser) — no exportar consts
+ * evaluadas al import: congelarían el "ahora" al boot del server.
  */
-export const SERVICE_DETAIL_MOCK = (id: string): ServiceDetail | undefined => {
-  const cached = detailCache.get(id);
-  if (cached) return cached;
-  const summary = SERVICES_MOCK.find((s) => s.id === id);
+export const buildServicesMock = (epoch: number): readonly ServiceSummary[] => {
+  const summarySeed = seededRandom('services-summary');
+  const summarySparkline = (n: number, max = 100): readonly number[] =>
+    sparklineFrom(summarySeed, n, max);
+  // Offsets relativos al ancla — mismo vocabulario que la versión const.
+  const minutesAgo = (n: number): string => minutesBefore(epoch, n);
+
+  return [
+    {
+      id: 'svc-checkout',
+      slug: 'checkout-service',
+      name: 'Checkout',
+      description: 'Servicio de checkout y carrito persistente',
+      team: 'E-commerce',
+      health: 'critical',
+      errorRate24h: { value: 4.2, unit: '%', delta: 2.8, sparkline: summarySparkline(30) },
+      p99Latency: { value: 1240, unit: 'ms', delta: 38, sparkline: summarySparkline(30, 1500) },
+      uptime30d: { value: 99.62, unit: '%', delta: -0.18 },
+      activeAlertsCount: 3,
+      lastDeployAt: minutesAgo(45),
+      lastAlertAt: minutesAgo(8),
+      tags: ['public-api', 'critical-path'],
+    },
+    {
+      id: 'svc-payments',
+      slug: 'payments-service',
+      name: 'Payments',
+      description: 'Procesamiento de pagos y reconciliación',
+      team: 'Pagos',
+      health: 'warn',
+      errorRate24h: { value: 1.4, unit: '%', delta: 0.6, sparkline: summarySparkline(30, 50) },
+      p99Latency: { value: 820, unit: 'ms', delta: 12, sparkline: summarySparkline(30, 1000) },
+      uptime30d: { value: 99.91, unit: '%', delta: 0.0 },
+      activeAlertsCount: 1,
+      lastDeployAt: minutesAgo(220),
+      lastAlertAt: minutesAgo(32),
+      tags: ['public-api', 'pci-scope', 'critical-path'],
+    },
+    {
+      id: 'svc-catalog',
+      slug: 'catalog-service',
+      name: 'Catálogo',
+      description: 'API de productos, precios y stock',
+      team: 'E-commerce',
+      health: 'ok',
+      errorRate24h: { value: 0.08, unit: '%', delta: -0.02, sparkline: summarySparkline(30, 5) },
+      p99Latency: { value: 180, unit: 'ms', delta: -8, sparkline: summarySparkline(30, 250) },
+      uptime30d: { value: 99.99, unit: '%', delta: 0.01 },
+      activeAlertsCount: 0,
+      lastDeployAt: minutesAgo(60 * 6),
+      tags: ['public-api', 'high-traffic'],
+    },
+    {
+      id: 'svc-auth',
+      slug: 'auth-service',
+      name: 'Auth',
+      description: 'Autenticación, sesiones y roles',
+      team: 'Plataforma',
+      health: 'ok',
+      errorRate24h: { value: 0.12, unit: '%', delta: 0.01, sparkline: summarySparkline(30, 5) },
+      p99Latency: { value: 95, unit: 'ms', delta: 2, sparkline: summarySparkline(30, 150) },
+      uptime30d: { value: 99.98, unit: '%', delta: 0.0 },
+      activeAlertsCount: 0,
+      lastDeployAt: minutesAgo(60 * 24),
+      tags: ['public-api', 'critical-path'],
+    },
+    {
+      id: 'svc-search',
+      slug: 'search-service',
+      name: 'Search',
+      description: 'Búsqueda full-text y autocomplete',
+      team: 'Búsqueda',
+      health: 'warn',
+      errorRate24h: { value: 0.6, unit: '%', delta: 0.4, sparkline: summarySparkline(30, 20) },
+      p99Latency: { value: 320, unit: 'ms', delta: 25, sparkline: summarySparkline(30, 500) },
+      uptime30d: { value: 99.84, unit: '%', delta: -0.05 },
+      activeAlertsCount: 1,
+      lastDeployAt: minutesAgo(60 * 12),
+      lastAlertAt: minutesAgo(110),
+      tags: ['public-api', 'high-traffic'],
+    },
+    {
+      id: 'svc-notifications',
+      slug: 'notifications-service',
+      name: 'Notificaciones',
+      description: 'Push, email, in-app — fanout y entrega',
+      team: 'Plataforma',
+      health: 'ok',
+      errorRate24h: { value: 0.21, unit: '%', delta: -0.05, sparkline: summarySparkline(30, 10) },
+      p99Latency: { value: 410, unit: 'ms', delta: -2, sparkline: summarySparkline(30, 600) },
+      uptime30d: { value: 99.95, unit: '%', delta: 0.02 },
+      activeAlertsCount: 0,
+      lastDeployAt: minutesAgo(60 * 4),
+      tags: ['async', 'fanout'],
+    },
+    {
+      id: 'svc-analytics',
+      slug: 'analytics-pipeline',
+      name: 'Analytics Pipeline',
+      description: 'Streaming + batch para métricas y reporting',
+      team: 'Datos',
+      health: 'unknown',
+      errorRate24h: { value: 0, unit: '%', sparkline: [] },
+      p99Latency: { value: 0, unit: 'ms', sparkline: [] },
+      uptime30d: { value: 0, unit: '%' },
+      activeAlertsCount: 0,
+      lastDeployAt: minutesAgo(60 * 72),
+      tags: ['batch', 'no-sla'],
+    },
+    {
+      id: 'svc-recommendations',
+      slug: 'recommendations-engine',
+      name: 'Recomendaciones',
+      description: 'Engine de recomendaciones personalizadas',
+      team: 'Datos',
+      health: 'ok',
+      errorRate24h: { value: 0.3, unit: '%', delta: 0.05, sparkline: summarySparkline(30, 10) },
+      p99Latency: { value: 540, unit: 'ms', delta: -10, sparkline: summarySparkline(30, 800) },
+      uptime30d: { value: 99.88, unit: '%', delta: 0.0 },
+      activeAlertsCount: 0,
+      lastDeployAt: minutesAgo(60 * 8),
+      tags: ['ml', 'cache-heavy'],
+    },
+  ];
+};
+
+/**
+ * Build determinístico por id — PURO, sin cache a nivel módulo. La
+ * memoización (navegar away+back muestra los MISMOS deploys/errors) vive
+ * como Map de instancia en `ObservabilityMockService`; un Map acá sería
+ * estado compartido entre requests SSR. La seed por id garantiza que en
+ * distintos boots de la app aparezcan los mismos commits/sparklines
+ * (útil para reproducir bugs visuales en QA).
+ *
+ * `services` es el catálogo YA construido con el mismo `epoch` — se pasa
+ * por parámetro para no rebuildearlo por cada detail.
+ */
+export const buildServiceDetailMock = (
+  epoch: number,
+  services: readonly ServiceSummary[],
+  id: string,
+): ServiceDetail | undefined => {
+  const summary = services.find((s) => s.id === id);
   if (!summary) return undefined;
 
+  const minutesAgo = (n: number): string => minutesBefore(epoch, n);
   const rand = seededRandom(`detail-${id}`);
   const detail: ServiceDetail = {
     ...summary,
@@ -155,7 +176,8 @@ export const SERVICE_DETAIL_MOCK = (id: string): ServiceDetail | undefined => {
       { id: 'u-brook', name: 'Brook Hayes', role: 'secondary', avatarUrl: 'profile.jpg' },
       { id: 'u-jose', name: 'José Domínguez', role: 'secondary', avatarUrl: 'profile.jpg' },
     ],
-    dependencies: SERVICES_MOCK.filter((s) => s.id !== summary.id)
+    dependencies: services
+      .filter((s) => s.id !== summary.id)
       .slice(0, 3)
       .map((s) => ({ id: s.id, name: s.name, health: s.health })),
     deploys: Array.from({ length: 6 }, (_, i) => ({
@@ -202,6 +224,5 @@ export const SERVICE_DETAIL_MOCK = (id: string): ServiceDetail | undefined => {
     },
   };
 
-  detailCache.set(id, detail);
   return detail;
 };

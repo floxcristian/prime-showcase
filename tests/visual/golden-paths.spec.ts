@@ -1,10 +1,12 @@
 /**
  * Visual regression — golden paths.
  *
- * Captures one screenshot per primary route at the canonical 1440×900
- * desktop viewport AND at 375×812 mobile. Captures both light and dark
- * mode for `/` (the highest-density chrome) to lock the dark-mode token
- * map; secondary routes only run light to keep CI under 60s.
+ * Captures one screenshot per navigable route (the 19 entries of
+ * `GOLDEN_ROUTES` in `tests/fixtures/routes.ts`) at the canonical
+ * 1440×900 desktop viewport AND at 375×812 mobile. Captures both light
+ * and dark mode for `/` (the highest-density chrome) to lock the
+ * dark-mode token map; the rest only run light — the dark token map is
+ * shared across routes, one capture catches any regression in it.
  *
  * **What this catches that ESLint doesn't:**
  *   - Token-resolution regressions (CSS var renamed in Aura)
@@ -14,47 +16,72 @@
  *   - Tailwind v4 utility renames
  *
  * **Failure mode:** a diff in the PR means EITHER an intentional visual
- * change (re-baseline with `--update-snapshots` after PR review) OR a
- * silent regression in a dependency / token (the value).
+ * change OR a silent regression in a dependency / token (the value).
+ * Baselines — new routes and refreshes alike — are generated with the
+ * manual `Visual baselines` workflow, NEVER locally: local rendering
+ * (fonts, GPU, AA) differs from the CI runner and would contaminate
+ * the diff.
  *
- * Hydration completion is detected via `app-root` having `ng-version`
- * attribute populated and `@defer (hydrate on viewport)` blocks resolved.
- * `waitForLoadState('networkidle')` is the simple proxy here; if it
- * becomes flaky, replace with a targeted `page.evaluate` poll.
+ * **Route list:** derives from the shared fixture (`GOLDEN_ROUTES`),
+ * the same source the a11y suite iterates — a new route cannot join one
+ * gate without the other. Per-route determinism flags live there too:
+ * `guestOnly` (visit without the auth cookie) and `waitForData` (mock
+ * services with simulated latency — wait for `<p-skeleton>` to clear
+ * before the capture; `networkidle` no la cubre porque el delay es rxjs,
+ * no red). Known limitation: `/users` y `/roles` renderizan
+ * `| relativeTime` sobre fechas mock absolutas — el label ("hace N
+ * meses") driftea a granularidad de mes y pide re-baseline cuando flippea
+ * (ver comentario en el fixture).
+ *
+ * Hydration completion is detected via `waitForLoadState('networkidle')`
+ * as a simple proxy; if it becomes flaky, replace with a targeted
+ * `page.evaluate` poll.
  */
+import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures/auth';
-
-// NOTE: this list intentionally mirrors GOLDEN_ROUTES in
-// `tests/fixtures/routes.ts` (the shared route fixture also consumed by the
-// a11y suite). It stays inlined here — NOT spread from the fixture — because
-// every entry requires committed baseline screenshots generated via the
-// manual `Visual baselines` workflow; growing this list must be a deliberate
-// re-baseline, never a side effect of extending the shared fixture.
-const ROUTES = [
-  { path: '/', name: 'overview' },
-  { path: '/customers', name: 'customers' },
-  { path: '/inbox', name: 'inbox' },
-  { path: '/chat', name: 'chat' },
-  { path: '/cards', name: 'cards' },
-  { path: '/movies', name: 'movies' },
-] as const;
+import { GOLDEN_ROUTES, RouteFixture } from '../fixtures/routes';
 
 const VIEWPORTS = [
   { width: 1440, height: 900, label: 'desktop' },
   { width: 375, height: 812, label: 'mobile' },
 ] as const;
 
-for (const route of ROUTES) {
+type Viewport = (typeof VIEWPORTS)[number];
+
+/** Navega y estabiliza la ruta; deja la página lista para el screenshot. */
+async function gotoSettled(page: Page, route: RouteFixture, viewport: Viewport) {
+  await page.setViewportSize({ width: viewport.width, height: viewport.height });
+  await page.goto(route.path, { waitUntil: 'networkidle' });
+  if (route.waitForData) {
+    // Mock latency (800-1800ms de jitter) — esperar el estado cargado:
+    // sin skeletons visibles en el árbol. Timeout holgado sobre el peor
+    // caso de latencia + render.
+    await expect(page.locator('p-skeleton')).toHaveCount(0, { timeout: 10_000 });
+  }
+  // Pause briefly for any post-hydration micro-tasks to settle.
+  await page.waitForTimeout(300);
+}
+
+for (const route of GOLDEN_ROUTES) {
   for (const viewport of VIEWPORTS) {
-    test(`${route.name} @ ${viewport.label} — light`, async ({ authedPage }) => {
-      await authedPage.setViewportSize({ width: viewport.width, height: viewport.height });
-      await authedPage.goto(route.path, { waitUntil: 'networkidle' });
-      // Pause briefly for any post-hydration micro-tasks to settle.
-      await authedPage.waitForTimeout(300);
-      await expect(authedPage).toHaveScreenshot(`${route.name}-${viewport.label}-light.png`, {
-        fullPage: true,
+    if (route.guestOnly) {
+      // Guest pages (login / forgot-password): authed sessions get
+      // redirected away by guestGuard — capture with the plain
+      // non-authed page fixture (same pattern as the a11y suite).
+      test(`${route.name} @ ${viewport.label} — light`, async ({ page }) => {
+        await gotoSettled(page, route, viewport);
+        await expect(page).toHaveScreenshot(`${route.name}-${viewport.label}-light.png`, {
+          fullPage: true,
+        });
       });
-    });
+    } else {
+      test(`${route.name} @ ${viewport.label} — light`, async ({ authedPage }) => {
+        await gotoSettled(authedPage, route, viewport);
+        await expect(authedPage).toHaveScreenshot(`${route.name}-${viewport.label}-light.png`, {
+          fullPage: true,
+        });
+      });
+    }
   }
 }
 
@@ -65,9 +92,7 @@ test.describe('dark mode', () => {
   test.use({ colorScheme: 'dark' });
 
   test('overview @ desktop — dark', async ({ authedPage }) => {
-    await authedPage.setViewportSize({ width: 1440, height: 900 });
-    await authedPage.goto('/', { waitUntil: 'networkidle' });
-    await authedPage.waitForTimeout(300);
+    await gotoSettled(authedPage, { path: '/', name: 'overview' }, VIEWPORTS[0]);
     await expect(authedPage).toHaveScreenshot('overview-desktop-dark.png', {
       fullPage: true,
     });

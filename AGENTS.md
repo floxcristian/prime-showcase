@@ -38,7 +38,8 @@ Recetas detalladas (botones, tags, avatares, tablas, popover, menú, etc.) en `.
 
 - Usar `@if`, `@for`, `@switch` (Angular 17+ control flow). **Nunca** `*ngIf` o `*ngFor`.
 - `@for` siempre requiere `track`.
-- No usar `@else` — preferir bloques `@if` separados (patrón del proyecto).
+- `@else` / `@else if` cuando las ramas son alternativas del **mismo** predicado — evita duplicar la condición (dos lugares que editar cuando cambia; ej.: skeleton → empty → data en `src/app/modules/customers/customers.component.html`).
+- Bloques `@if` separados cuando los estados son semánticamente independientes — pueden coexistir o evolucionar por separado (ej.: anuncios sr-only `submitting()` / `submitted()` en `src/app/modules/forgot-password/forgot-password.component.html`).
 - `[(ngModel)]` para two-way binding en formularios simples.
 
 ```html
@@ -189,7 +190,7 @@ Ver [`DESIGN.md`](./DESIGN.md) sección "Do's and Don'ts" — todo lo relativo a
 - No usar `<button>` sin `pButton` para **botones de acción** (submit, cancel, download). Excepción: nav items y list items interactivos usan clases Tailwind propias (ver DESIGN.md).
 - No usar tablas HTML. Siempre `<p-table>`.
 - No usar `*ngIf`, `*ngFor` u otras directivas estructurales legacy. Usar `@if`, `@for`.
-- No usar `@else` — preferir bloques `@if` separados.
+- No duplicar un predicado en dos `@if` espejados — usar `@else` / `@else if`. Reservar bloques `@if` separados para estados semánticamente independientes.
 
 ### Arquitectura
 - No crear NgModules. Todo standalone.
