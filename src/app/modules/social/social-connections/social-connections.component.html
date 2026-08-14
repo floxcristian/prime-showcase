@@ -1,0 +1,40 @@
+<!-- Header — patrón compartido `<app-page-header>`; sin refresh-toolbar (D4.1) -->
+<app-page-header
+  class="mb-6"
+  heading="Cuentas conectadas"
+  description="Vinculá las redes de tu marca para alimentar la analítica y el calendario."
+/>
+
+@if (loading()) {
+  <div
+    aria-busy="true"
+    class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+  >
+    @for (network of skeletonPlaceholders; track network) {
+      <p-skeleton width="100%" height="17rem" borderRadius="1rem" />
+    }
+  </div>
+} @else if (loadError()) {
+  <app-load-error-state
+    title="No pudimos cargar tus cuentas conectadas"
+    (retry)="retry()"
+  />
+} @else {
+  <!--
+    Sin empty state de página (D3): el grid siempre renderiza. Para un
+    cliente recién registrado las tres cards salen en `disconnected` — ES
+    la captura del pitch, no un vacío que haya que tapar.
+  -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    @for (card of cards(); track card.network) {
+      <app-connector-card
+        [network]="card.network"
+        [account]="card.account"
+        [connectorReady]="card.ready"
+      />
+    }
+  </div>
+}
+
+<p-toast position="bottom-right" />
+<p-confirmdialog />

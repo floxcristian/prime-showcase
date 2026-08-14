@@ -1,0 +1,103 @@
+<!--
+  Card de conector (RFC-003 D4.1). Orden fijo: cabecera con logo + estado,
+  identidad de la cuenta, métricas de sincronización, mensajes accionables
+  y CTA al pie.
+-->
+<div class="flex items-center gap-2">
+  <i [class]="brandIcon()" class="text-2xl text-color" aria-hidden="true"></i>
+  <div class="flex-1 text-color font-bold leading-6">{{ networkLabel() }}</div>
+  <p-tag [severity]="statusSeverity()" [value]="statusLabel()" class="font-medium" />
+  @if (account()) {
+    <p-button
+      icon="fa-sharp fa-regular fa-ellipsis"
+      severity="secondary"
+      [text]="true"
+      ariaLabel="Acciones de la cuenta"
+      pTooltip="Acciones de la cuenta"
+      (onClick)="accountMenu.toggle($event)"
+    />
+    <p-menu #accountMenu [model]="menuItems" [popup]="true" />
+  }
+</div>
+
+@if (account(); as acc) {
+  <!-- Identidad de la cuenta — avatar de iniciales (el mock nunca trae imagen) -->
+  <div class="flex items-center gap-2">
+    <p-avatar [label]="initials()" class="!bg-primary-100 !text-primary-950" />
+    <div class="flex-1 min-w-0">
+      <div class="text-color font-medium leading-6 truncate">
+        {{ acc.displayName }}
+      </div>
+      <div class="text-muted-color text-xs leading-4 truncate">
+        {{ acc.handle }}
+      </div>
+    </div>
+  </div>
+
+  <div class="text-muted-color leading-6">
+    <span class="text-color font-medium">{{ formattedFollowers() }}</span>
+    seguidores
+  </div>
+  <div class="text-muted-color text-xs leading-4">
+    Última sincronización {{ acc.lastSyncAt | relativeTime }}
+  </div>
+
+  @if (acc.failureReason) {
+    <div class="flex items-start gap-2 text-muted-color leading-6" role="alert">
+      <i
+        class="fa-sharp fa-regular fa-triangle-exclamation mt-1"
+        aria-hidden="true"
+      ></i>
+      <span class="flex-1">{{ acc.failureReason }}</span>
+    </div>
+  }
+} @else {
+  <div class="text-muted-color leading-6">
+    Todavía no vinculaste una cuenta de {{ networkLabel() }}.
+  </div>
+}
+
+<!-- Prerequisito de key del conector (D4.2 + copy de la tabla de D3) -->
+@if (!connectorReady()) {
+  <div class="flex flex-col gap-1">
+    <div class="text-muted-color leading-6">
+      El conector de {{ networkLabel() }} necesita una API key válida.
+    </div>
+    <a
+      routerLink="/social/providers"
+      class="w-fit font-medium text-primary hover:text-primary-emphasis underline cursor-pointer transition-colors duration-150"
+    >
+      Configurar conector
+    </a>
+  </div>
+}
+
+@if (attemptError(); as error) {
+  <div class="flex items-start gap-2 text-muted-color leading-6" role="alert">
+    <i
+      class="fa-sharp fa-regular fa-triangle-exclamation mt-1"
+      aria-hidden="true"
+    ></i>
+    <span class="flex-1">{{ error }}</span>
+  </div>
+}
+
+<!--
+  `mt-auto` alinea el CTA al pie: las cards del grid tienen alturas de
+  contenido distintas (conectada vs sin conectar) y los botones deben
+  quedar en la misma línea base dentro de cada fila.
+  El `<span pTooltip>` envuelve al botón porque PrimeNG deshabilita el
+  <button> interno cuando `[disabled]`/`[loading]` → el listener del
+  tooltip en el propio botón no recibiría mouseenter (patrón canónico
+  documentado en `no-icon-button-without-tooltip`).
+-->
+<span class="block mt-auto" [pTooltip]="ctaTooltip()">
+  <p-button
+    [label]="ctaLabel()"
+    [loading]="connecting()"
+    [disabled]="ctaDisabled()"
+    [outlined]="isConnected()"
+    (onClick)="onCta()"
+    styleClass="w-full"
+  />
+</span>

@@ -20,15 +20,50 @@
  * primefaces/primeng#…). Routes cover el mismo surface que el visual
  * suite — mismo gate.
  */
-import { test, expect } from '../fixtures/auth';
+import type { Page } from '@playwright/test';
+import { test as authedTest, expect } from '../fixtures/auth';
 import AxeBuilder from '@axe-core/playwright';
 import { A11Y_ROUTES } from '../fixtures/routes';
+import { buildSocialSeedOrigin } from '../fixtures/social-seed';
+
+/**
+ * `seededPage` — página autenticada CON el localStorage del cliente ya
+ * poblado (RFC-001 D7.1), para las entries `seedSocialStorage: true`.
+ *
+ * El contexto se crea con `storageState.origins` alimentado desde
+ * `tests/fixtures/social-seed.ts`: las cinco keys versionadas de RFC-003
+ * D6.1 quedan escritas ANTES de la primera navegación, así que axe
+ * escanea la página POBLADA (charts, tablas, calendario) y no el empty
+ * state de onboarding — cero cambios en la app.
+ *
+ * Las cookies salen de `authedPage.context().storageState()` en vez de
+ * re-declararse acá: el formato del cookie de sesión vive en
+ * `tests/fixtures/auth.ts` (fuera del ownership de este archivo) y
+ * duplicarlo abriría drift.
+ *
+ * El mismo helper está duplicado en `tests/visual/golden-paths.spec.ts`:
+ * ambas suites consumen las mismas entries y el fixture compartido
+ * (`auth.ts`) no puede alojarlo. Si los dos divergen, es un bug.
+ */
+const test = authedTest.extend<{ seededPage: Page }>({
+  seededPage: async ({ authedPage, browser, baseURL }, use) => {
+    const { cookies } = await authedPage.context().storageState();
+    const origin = new URL(baseURL ?? 'http://127.0.0.1:4000').origin;
+    const context = await browser.newContext({
+      storageState: { cookies, origins: [buildSocialSeedOrigin(origin)] },
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+});
 
 // Route list shared with the visual suite via `tests/fixtures/routes.ts`.
 // A11Y_ROUTES = golden routes + admin + notifications + guest pages +
-// observability (incl. one detail view per :id route). Guest-only routes
-// (login / forgot-password) run on a NON-authed page — guestGuard redirects
-// authed sessions away from them.
+// observability (incl. one detail view per :id route) + las 9 páginas de
+// la suite social. Guest-only routes (login / forgot-password / signup)
+// run on a NON-authed page — guestGuard redirects authed sessions away
+// from them; las entries `seedSocialStorage` corren sobre `seededPage`.
 const ROUTES = A11Y_ROUTES;
 
 /**
@@ -144,6 +179,12 @@ for (const route of ROUTES) {
     // away by guestGuard, so scan with the plain non-authed page fixture.
     test(`${route.name} — axe-core (light)`, async ({ page }) => {
       await scanRoute(page, route.path);
+    });
+  } else if (route.seedSocialStorage) {
+    // Entries `-seeded` (Waves B/C): mismo path que su gemela vacía,
+    // escaneado con el estado del cliente pre-poblado en localStorage.
+    test(`${route.name} — axe-core (light)`, async ({ seededPage }) => {
+      await scanRoute(seededPage, route.path);
     });
   } else {
     test(`${route.name} — axe-core (light)`, async ({ authedPage }) => {

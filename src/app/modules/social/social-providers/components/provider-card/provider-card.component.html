@@ -1,0 +1,121 @@
+<!-- Identidad: icono del descriptor + nombre/vendor + tag de provider activo.
+     El icono sale del catálogo (`fa-brands` para conectores de red real,
+     `fa-sharp fa-regular` para el resto) — por eso va con [class] dinámico
+     y el tamaño en el class estático. -->
+<div class="flex items-start gap-3">
+  <i
+    [class]="descriptor().icon"
+    class="text-2xl text-color shrink-0"
+    aria-hidden="true"
+  ></i>
+  <div class="flex-1 min-w-0">
+    <div class="text-color font-bold leading-6">{{ descriptor().name }}</div>
+    <div class="text-muted-color text-xs leading-4">
+      {{ descriptor().vendor }}
+    </div>
+  </div>
+  @if (isActiveProvider()) {
+    <p-tag severity="info" value="Activo" class="font-medium" />
+  }
+</div>
+
+<!-- Capabilities declarativas del catálogo (RFC-002 D3). -->
+@if (capabilitiesLabel()) {
+  <div class="text-xs leading-4 text-muted-color">
+    {{ capabilitiesLabel() }}
+  </div>
+}
+
+<!-- Estado de la key activa. Solo la versión enmascarada existe después del
+     alta (RFC-003 D5.2) — el plaintext jamás vuelve a esta card. -->
+<div class="flex flex-col gap-2">
+  @if (activeKey(); as key) {
+    <div class="flex items-center gap-2">
+      <p-tag
+        [severity]="statusSeverity()"
+        [value]="statusLabel()"
+        class="font-medium"
+      />
+      <code
+        class="flex-1 min-w-0 font-mono text-xs leading-4 text-muted-color text-ellipsis whitespace-nowrap overflow-hidden"
+      >
+        {{ key.maskedKey }}
+      </code>
+    </div>
+    @if (key.label) {
+      <div class="text-xs leading-4 text-muted-color">{{ key.label }}</div>
+    }
+    @if (key.lastVerifiedAt) {
+      <div class="text-xs leading-4 text-muted-color">
+        Verificada {{ key.lastVerifiedAt | relativeTime }}
+      </div>
+    }
+  } @else {
+    <div class="text-xs leading-4 text-muted-color">
+      Sin API key configurada.
+    </div>
+  }
+</div>
+
+<!-- Toggle enabled. El tooltip vive en el wrapper: un `<p-toggleswitch>`
+     deshabilitado no dispara eventos de puntero, así que colgarlo del
+     control dejaría la explicación inalcanzable justo cuando hace falta. -->
+<div class="flex items-center gap-2" [pTooltip]="toggleTooltip()">
+  <p-toggleswitch
+    [inputId]="toggleInputId()"
+    [ngModel]="enabled()"
+    (ngModelChange)="enabledChange.emit($event)"
+    [disabled]="!hasValidKey() || busy()"
+  />
+  <label
+    [for]="toggleInputId()"
+    class="text-color font-semibold leading-6 flex-1 cursor-pointer hover:text-color-emphasis transition-colors select-none"
+  >
+    Habilitado
+  </label>
+</div>
+
+<!-- Acciones (RFC-003 D5.1). `mt-auto` las ancla abajo para que todas las
+     cards de la fila alineen su fila de botones. -->
+<div class="flex flex-wrap items-center gap-2 mt-auto">
+  @if (activeKey()) {
+    <p-button
+      label="Verificar"
+      icon="fa-sharp fa-regular fa-shield-check"
+      severity="secondary"
+      size="small"
+      [outlined]="true"
+      [loading]="verifying()"
+      [disabled]="busy()"
+      (onClick)="verifyClick.emit()"
+    />
+    <p-button
+      label="Revocar"
+      icon="fa-sharp fa-regular fa-ban"
+      severity="danger"
+      size="small"
+      [outlined]="true"
+      [disabled]="busy() || verifying()"
+      (onClick)="revokeClick.emit()"
+    />
+  } @else {
+    <p-button
+      label="Agregar key"
+      icon="fa-sharp fa-regular fa-key"
+      size="small"
+      [disabled]="busy()"
+      (onClick)="addKeyClick.emit()"
+    />
+  }
+  @if (canUseAsActive()) {
+    <p-button
+      label="Usar como activo"
+      icon="fa-sharp fa-regular fa-star"
+      severity="secondary"
+      size="small"
+      [text]="true"
+      [disabled]="busy()"
+      (onClick)="useAsActiveClick.emit()"
+    />
+  }
+</div>

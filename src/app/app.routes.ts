@@ -138,6 +138,73 @@ const ROUTE_DATA = {
       { title: 'Historial de notificaciones' },
     ],
   },
+  // ── Social Media ──────────────────────────────────────────────────────
+  // 3 niveles como Observabilidad: el nivel intermedio es el agrupamiento
+  // conceptual (Analítica / Inteligencia / Contenido / Configuración) que
+  // espeja los títulos de sección del nav-tree, no el nombre de la página.
+  socialOverview: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Analítica' },
+      { title: 'Overview' },
+    ],
+  },
+  socialAnalytics: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Analítica' },
+      { title: 'Por red' },
+    ],
+  },
+  socialCompetitors: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Analítica' },
+      { title: 'Competencia' },
+    ],
+  },
+  socialInsights: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Inteligencia' },
+      { title: 'Recomendaciones' },
+    ],
+  },
+  socialTrends: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Inteligencia' },
+      { title: 'Tendencias y hashtags' },
+    ],
+  },
+  socialPlanner: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Contenido' },
+      { title: 'Calendario' },
+    ],
+  },
+  socialStudio: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Contenido' },
+      { title: 'Studio IA' },
+    ],
+  },
+  socialConnections: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Configuración' },
+      { title: 'Cuentas conectadas' },
+    ],
+  },
+  socialProviders: {
+    breadcrumb: [
+      { title: 'Social Media' },
+      { title: 'Configuración' },
+      { title: 'Proveedores IA' },
+    ],
+  },
 } as const;
 
 export const routes: Routes = [
@@ -153,6 +220,17 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./modules/forgot-password/forgot-password.component').then(
         (m) => m.ForgotPasswordComponent
+      ),
+  },
+  {
+    // Registro del cliente SaaS (RFC-003 D2) — vive FUERA del layout
+    // autenticado, junto a login/forgot-password: el signup mock ES un
+    // login (crea sesión) y por eso comparte el `guestGuard`.
+    path: 'signup',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./modules/login/signup/signup.component').then(
+        (m) => m.SignupComponent
       ),
   },
   {

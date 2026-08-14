@@ -1,0 +1,64 @@
+<!-- Header — receta compartida `<app-page-header>` (RFC-003 D5.1). -->
+<app-page-header
+  class="mb-6"
+  heading="Proveedores IA y conectores"
+  description="Configurá tus propias API keys: conectores de analytics y proveedores de generación de contenido."
+/>
+
+@if (loadError()) {
+  <app-load-error-state
+    title="No pudimos cargar tus proveedores"
+    (retry)="retry()"
+  />
+} @else if (loading()) {
+  <!-- Skeleton: dos secciones visibles con su header (~1.5rem) y un grid de
+       cards de ~15rem — mismas dimensiones que el contenido real, cero CLS
+       al hidratar. -->
+  <div aria-busy="true" class="flex flex-col gap-6">
+    @for (section of skeletonCards; track section) {
+      <div class="flex flex-col gap-4">
+        <p-skeleton width="14rem" height="1.5rem" borderRadius="0.5rem" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <p-skeleton width="100%" height="15rem" borderRadius="1rem" />
+          <p-skeleton width="100%" height="15rem" borderRadius="1rem" />
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="flex flex-col gap-6">
+    @for (section of sections(); track section.kind) {
+      <section class="flex flex-col gap-4">
+        <h2 class="text-color font-semibold leading-6">{{ section.title }}</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          @for (card of section.cards; track card.descriptor.id) {
+            <app-provider-card
+              [descriptor]="card.descriptor"
+              [config]="card.config"
+              [activeKey]="card.activeKey"
+              [isActiveProvider]="card.isActiveProvider"
+              [verifying]="isVerifying(card.descriptor.id)"
+              [busy]="isPending(card.descriptor.id)"
+              (enabledChange)="onEnabledChange(card, $event)"
+              (addKeyClick)="openKeyDialog(card.descriptor)"
+              (verifyClick)="onVerify(card)"
+              (revokeClick)="onRevoke(card)"
+              (useAsActiveClick)="onUseAsActive(card)"
+            />
+          }
+        </div>
+      </section>
+    }
+  </div>
+}
+
+<!-- Alta de key en dos pasos — el plaintext se muestra una única vez. -->
+<app-api-key-dialog
+  [descriptor]="dialogDescriptor()"
+  [(visible)]="dialogVisible"
+/>
+
+<!-- Confirm de revocación: el message llega con el impacto ya calculado. -->
+<p-confirmdialog />
+
+<p-toast position="bottom-right" />

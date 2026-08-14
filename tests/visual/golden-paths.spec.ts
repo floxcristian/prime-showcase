@@ -1,7 +1,7 @@
 /**
  * Visual regression — golden paths.
  *
- * Captures one screenshot per navigable route (the 19 entries of
+ * Captures one screenshot per navigable route (the 29 entries of
  * `GOLDEN_ROUTES` in `tests/fixtures/routes.ts`) at the canonical
  * 1440×900 desktop viewport AND at 375×812 mobile. Captures both light
  * and dark mode for `/` (the highest-density chrome) to lock the
@@ -25,10 +25,12 @@
  * **Route list:** derives from the shared fixture (`GOLDEN_ROUTES`),
  * the same source the a11y suite iterates — a new route cannot join one
  * gate without the other. Per-route determinism flags live there too:
- * `guestOnly` (visit without the auth cookie) and `waitForData` (mock
+ * `guestOnly` (visit without the auth cookie), `waitForData` (mock
  * services with simulated latency — wait for `<p-skeleton>` to clear
  * before the capture; `networkidle` no la cubre porque el delay es rxjs,
- * no red). Known limitation: `/users` y `/roles` renderizan
+ * no red) y `seedSocialStorage` (localStorage del cliente pre-poblado
+ * antes de la primera navegación — ver `seededPage`). Known limitation:
+ * `/users` y `/roles` renderizan
  * `| relativeTime` sobre fechas mock absolutas — el label ("hace N
  * meses") driftea a granularidad de mes y pide re-baseline cuando flippea
  * (ver comentario en el fixture).
@@ -38,8 +40,43 @@
  * `page.evaluate` poll.
  */
 import type { Page } from '@playwright/test';
-import { test, expect } from '../fixtures/auth';
+import { test as authedTest, expect } from '../fixtures/auth';
 import { GOLDEN_ROUTES, RouteFixture } from '../fixtures/routes';
+import { buildSocialSeedOrigin } from '../fixtures/social-seed';
+
+/**
+ * `seededPage` — página autenticada CON el localStorage del cliente ya
+ * poblado (RFC-001 D7.1), para las entries `seedSocialStorage: true`.
+ *
+ * El contexto se crea con `storageState.origins` alimentado desde
+ * `tests/fixtures/social-seed.ts`: las cinco keys versionadas de RFC-003
+ * D6.1 quedan escritas ANTES de la primera navegación, así que la página
+ * hidrata directamente en su estado poblado (cuentas conectadas, keys
+ * válidas, checklist descartado) sin pasar por el gating de onboarding y
+ * sin un solo cambio en la app.
+ *
+ * Las cookies salen de `authedPage.context().storageState()` en vez de
+ * re-declararse acá: el formato del cookie de sesión vive en
+ * `tests/fixtures/auth.ts` (fuera del ownership de este archivo) y
+ * duplicarlo abriría drift. El costo es un contexto extra vacío por test
+ * seeded — despreciable frente al screenshot.
+ *
+ * El mismo helper está duplicado en `tests/a11y/axe.spec.ts`: ambas
+ * suites consumen las mismas entries y el fixture compartido
+ * (`auth.ts`) no puede alojarlo. Si los dos divergen, es un bug.
+ */
+const test = authedTest.extend<{ seededPage: Page }>({
+  seededPage: async ({ authedPage, browser, baseURL }, use) => {
+    const { cookies } = await authedPage.context().storageState();
+    const origin = new URL(baseURL ?? 'http://127.0.0.1:4000').origin;
+    const context = await browser.newContext({
+      storageState: { cookies, origins: [buildSocialSeedOrigin(origin)] },
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+});
 
 const VIEWPORTS = [
   { width: 1440, height: 900, label: 'desktop' },
@@ -71,6 +108,15 @@ for (const route of GOLDEN_ROUTES) {
       test(`${route.name} @ ${viewport.label} — light`, async ({ page }) => {
         await gotoSettled(page, route, viewport);
         await expect(page).toHaveScreenshot(`${route.name}-${viewport.label}-light.png`, {
+          fullPage: true,
+        });
+      });
+    } else if (route.seedSocialStorage) {
+      // Entries `-seeded` (Waves B/C): mismo path que su gemela vacía,
+      // capturado con el estado del cliente pre-poblado en localStorage.
+      test(`${route.name} @ ${viewport.label} — light`, async ({ seededPage }) => {
+        await gotoSettled(seededPage, route, viewport);
+        await expect(seededPage).toHaveScreenshot(`${route.name}-${viewport.label}-light.png`, {
           fullPage: true,
         });
       });
