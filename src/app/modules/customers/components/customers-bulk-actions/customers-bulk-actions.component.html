@@ -1,0 +1,170 @@
+<!--
+  BULK ACTIONS TOOLBAR — visible cuando hay rows seleccionadas.
+  Patrón Salesforce/HubSpot/Zoho: sticky bar arriba del data con
+  count + actions (Mass assign, Export, Delete) + Cancel selection.
+  Tonal-primary bg para destacar como "modo bulk" sin distraer del
+  content. Acciones secundarias outlined, destructive (Eliminar)
+  severity=danger.
+-->
+@if (count() > 0) {
+  <div
+    class="mb-4 flex items-center gap-2 flex-wrap p-3 rounded-lg bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100"
+    role="region"
+    aria-label="Acciones para selección"
+  >
+    <span class="font-medium leading-6 flex-1 min-w-0">
+      {{ count() }}
+      {{ count() === 1 ? "cliente seleccionado" : "clientes seleccionados" }}
+    </span>
+    <p-button
+      label="Asignar vendedor"
+      icon="fa-sharp fa-regular fa-user-pen"
+      iconPos="left"
+      size="small"
+      styleClass="p-button-tonal"
+      (onClick)="assignVisible.set(true)"
+    />
+    <p-button
+      label="Exportar"
+      icon="fa-sharp fa-regular fa-download"
+      iconPos="left"
+      size="small"
+      styleClass="p-button-tonal"
+      (onClick)="exportRequested.emit()"
+    />
+    <p-button
+      label="Eliminar"
+      icon="fa-sharp fa-regular fa-trash"
+      iconPos="left"
+      severity="danger"
+      size="small"
+      outlined
+      (onClick)="deleteVisible.set(true)"
+    />
+    <p-button
+      icon="fa-sharp fa-regular fa-xmark"
+      ariaLabel="Cancelar selección"
+      pTooltip="Cancelar selección"
+      tooltipPosition="bottom"
+      severity="secondary"
+      [text]="true"
+      [rounded]="true"
+      size="small"
+      (onClick)="clearRequested.emit()"
+    />
+  </div>
+}
+
+<!--
+  ─── BULK ASSIGN VENDEDOR DIALOG ─────────────────────────────────────
+  Modal para asignar masivamente un vendedor al primary slot de N
+  clientes seleccionados. Mock: mutate in-memory via
+  CustomersMockService.replaceAll() (en el container). Patrón
+  Salesforce mass owner change. Optimistic UI: el container actualiza
+  el dataset antes de notificar éxito (production: POST + rollback on
+  error). Hermano del @if de la barra — sigue montado con selección 0.
+-->
+<p-dialog
+  [(visible)]="assignVisible"
+  header="Asignar vendedor"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '420px' }"
+>
+  <div class="flex flex-col gap-3">
+    <p class="text-color leading-6">
+      Asignar como vendedor principal a
+      <strong>{{ count() }}</strong>
+      {{ count() === 1 ? "cliente" : "clientes" }}:
+    </p>
+    <label
+      class="text-color font-semibold leading-6"
+      for="bulk-assign-seller"
+    >
+      Vendedor
+    </label>
+    <p-select
+      inputId="bulk-assign-seller"
+      [options]="sellerOptions()"
+      [ngModel]="bulkAssignSeller()"
+      (ngModelChange)="bulkAssignSeller.set($event)"
+      placeholder="Seleccionar vendedor"
+      appendTo="body"
+      class="w-full"
+    />
+    <p class="text-sm text-muted-color leading-5">
+      Los vendedores secundarios existentes (si los hay) se mantienen
+      como soporte.
+    </p>
+  </div>
+  <ng-template #footer>
+    <div class="flex items-center gap-2 justify-end">
+      <p-button
+        label="Cancelar"
+        styleClass="p-button-tonal"
+        (onClick)="assignVisible.set(false)"
+      />
+      <p-button
+        label="Asignar"
+        icon="fa-sharp fa-regular fa-user-pen"
+        iconPos="left"
+        [disabled]="!bulkAssignSeller()"
+        (onClick)="confirmAssign()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!--
+  ─── BULK DELETE CONFIRM DIALOG ──────────────────────────────────────
+  Confirm destructivo según WCAG/Nielsen heurística "prevention vs
+  recovery". Patrón Stripe/Linear: confirmación inline (no toast
+  con undo) para bulk delete porque el scope es mayor — undo en lista
+  larga es difícil de "deshacer" mentalmente. El user lee el count y
+  confirma explícitamente.
+-->
+<p-dialog
+  [(visible)]="deleteVisible"
+  header="Confirmar eliminación"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '420px' }"
+>
+  <div class="flex items-start gap-3">
+    <i
+      class="fa-sharp fa-regular fa-triangle-exclamation text-2xl text-color"
+      aria-hidden="true"
+    ></i>
+    <div class="flex-1 min-w-0">
+      <p class="text-color leading-6">
+        Esta acción eliminará
+        <strong>{{ count() }}</strong>
+        {{ count() === 1 ? "cliente" : "clientes" }} de forma
+        permanente. No se puede deshacer.
+      </p>
+      <p class="text-sm text-muted-color leading-5 mt-2">
+        ¿Deseas continuar?
+      </p>
+    </div>
+  </div>
+  <ng-template #footer>
+    <div class="flex items-center gap-2 justify-end">
+      <p-button
+        label="Cancelar"
+        styleClass="p-button-tonal"
+        (onClick)="deleteVisible.set(false)"
+      />
+      <p-button
+        label="Eliminar"
+        icon="fa-sharp fa-regular fa-trash"
+        iconPos="left"
+        severity="danger"
+        (onClick)="deleteConfirmed.emit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

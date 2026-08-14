@@ -97,12 +97,12 @@
     -->
     <p-button
       class="hidden lg:inline-flex"
-      [icon]="densityToggleIcon()"
+      [icon]="prefs.densityToggleIcon()"
       styleClass="p-button-tonal"
-      [ariaLabel]="densityToggleTooltip()"
-      [pTooltip]="densityToggleTooltip()"
+      [ariaLabel]="prefs.densityToggleTooltip()"
+      [pTooltip]="prefs.densityToggleTooltip()"
       tooltipPosition="bottom"
-      (onClick)="toggleDensity()"
+      (onClick)="prefs.toggleDensity()"
     />
     <!--
       "Filtros" — solo en mobile. Reemplaza el surface de filter
@@ -159,296 +159,45 @@
     (retry)="retry()"
   />
 } @else {
-  <!--
-    SAVED VIEWS TAB BAR (desktop only, lg+).
-    Patrón HubSpot/Salesforce: tabs horizontales arriba del data con
-    system views + custom views + "Guardar vista actual" + edit/delete
-    inline. Click en tab aplica el snapshot completo (filters + columns
-    + sort + page). El activeSavedViewId marca el active state.
-
-    Mobile lo verá en el filter sheet header (no en toolbar para no
-    competir con CTA en viewport estrecho).
-  -->
-  <div
-    class="hidden lg:flex items-center gap-1 mb-4 -mx-1 px-1 overflow-x-auto"
-    role="tablist"
-    aria-label="Vistas guardadas"
-  >
-    @for (view of savedViews.views(); track view.id) {
-      <button
-        type="button"
-        role="tab"
-        [attr.aria-selected]="activeSavedViewId() === view.id"
-        [ngClass]="{
-          'bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100':
-            activeSavedViewId() === view.id,
-          'text-muted-color hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700':
-            activeSavedViewId() !== view.id,
-        }"
-        class="inline-flex items-center gap-2 px-3 py-1 rounded-lg font-medium leading-6 cursor-pointer transition-colors whitespace-nowrap"
-        (click)="applySavedView(view)"
-      >
-        @if (view.system) {
-          <i
-            class="fa-sharp fa-regular fa-lock text-xs"
-            aria-hidden="true"
-            [pTooltip]="'Vista del sistema (no editable)'"
-            tooltipPosition="top"
-          ></i>
-        }
-        <span>{{ view.name }}</span>
-        <!-- Unsaved changes indicator — dot visible cuando los filtros
-             actuales divergen del snapshot guardado. Patrón Linear/
-             HubSpot: dot `●` indica "Modificado" sin necesidad de texto.
-             Aparece solo en la view activa (no en otras tabs). -->
-        @if (
-          activeSavedViewId() === view.id && hasUnsavedChanges()
-        ) {
-          <span
-            class="inline-block w-2 h-2 rounded-full bg-primary"
-            [pTooltip]="'Cambios sin guardar'"
-            tooltipPosition="top"
-            aria-label="Cambios sin guardar"
-          ></span>
-        }
-        @if (!view.system && activeSavedViewId() === view.id) {
-          <button
-            type="button"
-            class="inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-primary-200 dark:hover:bg-primary-800 cursor-pointer transition-colors"
-            [attr.aria-label]="'Eliminar vista ' + view.name"
-            (click)="$event.stopPropagation(); deleteSavedView(view)"
-          >
-            <i
-              class="fa-sharp fa-regular fa-xmark text-xs"
-              aria-hidden="true"
-            ></i>
-          </button>
-        }
-      </button>
-    }
-    <!-- Reset / Update inline buttons — visible cuando la active view
-         tiene cambios sin guardar. Patrón Linear: inline next to tabs.
-         Reset descarta (restaura snapshot), Guardar overwrite (custom
-         views only — system views nunca se overwrite). -->
-    @if (activeSavedViewId() !== null && hasUnsavedChanges()) {
-      <span
-        class="mx-2 h-6 border-l border-surface"
-        aria-hidden="true"
-      ></span>
-      <button
-        type="button"
-        class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-muted-color font-medium leading-6 cursor-pointer hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors whitespace-nowrap"
-        pTooltip="Descartar cambios y volver a la vista original"
-        tooltipPosition="top"
-        (click)="resetActiveView()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-rotate-left text-xs"
-          aria-hidden="true"
-        ></i>
-        <span>Descartar</span>
-      </button>
-      @if (
-        savedViews.get($any(activeSavedViewId()))?.system === false
-      ) {
-        <button
-          type="button"
-          class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-primary font-medium leading-6 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900 transition-colors whitespace-nowrap"
-          pTooltip="Sobrescribir la vista con los cambios actuales"
-          tooltipPosition="top"
-          [disabled]="savedViews.busy()"
-          (click)="updateActiveView()"
-        >
-          <i
-            class="fa-sharp fa-regular fa-check text-xs"
-            aria-hidden="true"
-          ></i>
-          <span>Guardar cambios</span>
-        </button>
-      }
-    }
-    <!-- "Guardar como nueva vista" — separador + button. Sólo visible
-         cuando el state actual tiene filtros y NO matchea una saved
-         view (activeSavedViewId === null). Si matchea (tabs primary)
-         no tiene sentido "guardar como nueva" - sería duplicado. -->
-    @if (activeFilters().length > 0 && activeSavedViewId() === null) {
-      <span
-        class="mx-2 h-6 border-l border-surface"
-        aria-hidden="true"
-      ></span>
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-primary font-medium leading-6 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900 transition-colors whitespace-nowrap"
-        (click)="openSaveViewDialog()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-bookmark text-xs"
-          aria-hidden="true"
-        ></i>
-        <span>Guardar vista</span>
-      </button>
-    }
-  </div>
-  <!--
-    BULK ACTIONS TOOLBAR — visible cuando hay rows seleccionadas.
-    Patrón Salesforce/HubSpot/Zoho: sticky bar arriba del data con
-    count + actions (Mass assign, Export, Delete) + Cancel selection.
-    Tonal-primary bg para destacar como "modo bulk" sin distraer del
-    content. Acciones secundarias outlined, destructive (Eliminar)
-    severity=danger.
-  -->
-  @if (selectionCount() > 0) {
-    <div
-      class="mb-4 flex items-center gap-2 flex-wrap p-3 rounded-lg bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100"
-      role="region"
-      aria-label="Acciones para selección"
-    >
-      <span class="font-medium leading-6 flex-1 min-w-0">
-        {{ selectionCount() }}
-        {{ selectionCount() === 1 ? "cliente seleccionado" : "clientes seleccionados" }}
-      </span>
-      <p-button
-        label="Asignar vendedor"
-        icon="fa-sharp fa-regular fa-user-pen"
-        iconPos="left"
-        size="small"
-        styleClass="p-button-tonal"
-        (onClick)="openBulkAssign()"
-      />
-      <p-button
-        label="Exportar"
-        icon="fa-sharp fa-regular fa-download"
-        iconPos="left"
-        size="small"
-        styleClass="p-button-tonal"
-        (onClick)="applyBulkExport()"
-      />
-      <p-button
-        label="Eliminar"
-        icon="fa-sharp fa-regular fa-trash"
-        iconPos="left"
-        severity="danger"
-        size="small"
-        outlined
-        (onClick)="openBulkDelete()"
-      />
-      <p-button
-        icon="fa-sharp fa-regular fa-xmark"
-        ariaLabel="Cancelar selección"
-        pTooltip="Cancelar selección"
-        tooltipPosition="bottom"
-        severity="secondary"
-        [text]="true"
-        [rounded]="true"
-        size="small"
-        (onClick)="clearSelection()"
-      />
-    </div>
-  }
+  <!-- Saved views tab bar + dialog "Guardar vista" — tabs y micro-estado
+       del dialog viven en el hijo; activeSavedViewId, snapshot triangle
+       y CRUD quedan acá (deleteSavedView deselecciona la view activa). -->
+  <app-customers-saved-views-bar
+    [activeViewId]="activeSavedViewId()"
+    [hasUnsavedChanges]="hasUnsavedChanges()"
+    [canSaveCurrent]="filters.active().length > 0 && activeSavedViewId() === null"
+    (viewSelected)="applySavedView($event)"
+    (resetRequested)="resetActiveView()"
+    (updateRequested)="updateActiveView()"
+    (deleteRequested)="deleteSavedView($event)"
+    (saveRequested)="saveCurrentAsView($event)"
+  />
+  <!-- Bulk actions — barra + dialogs de assign/delete viven en el hijo;
+       selección, mutaciones optimistas, undo, CSV y toasts quedan acá.
+       Los dialogs también los abre el popover de fila (onActionAssign/
+       onActionDelete) via los model bindings. -->
+  <app-customers-bulk-actions
+    [selection]="selectedRows()"
+    [sellers]="availableSellers()"
+    [(assignVisible)]="bulkAssignVisible"
+    [(deleteVisible)]="bulkDeleteVisible"
+    (assignConfirmed)="applyBulkAssign($event)"
+    (deleteConfirmed)="applyBulkDelete()"
+    (exportRequested)="applyBulkExport()"
+    (clearRequested)="clearSelection()"
+  />
   @if (loadError() && tableData().length > 0) {
     <app-stale-data-banner (retry)="retry()" />
   }
-  <!--
-    Active filters chip bar (Linear/Notion/Stripe/Datadog convergente).
-    Surface de discoverability + recoverability para el state de filtros
-    — sin esto el user tendría que abrir cada column header para saber
-    qué está filtrado. Render condicional: sólo cuando hay 1+ filtros
-    activos. Cada chip es un `<button>` clickeable que remueve el filter
-    via `Table.filter(null, field, matchMode)`. "Limpiar todo" aparece
-    desde 2+ filtros (no tiene sentido con 1, basta con clickear el chip).
-  -->
-  @if (activeFilters().length > 0) {
-    <div
-      class="flex flex-wrap items-center gap-2 mb-4"
-      role="region"
-      aria-label="Filtros activos"
-    >
-      @for (
-        filter of activeFilters();
-        track filter.field + filter.matchMode
-      ) {
-        <!--
-          Filter chip — STATE indicator, no action en sí mismo. Chrome
-          neutral surface (gris), no tonal primary. El color queda
-          reservado para acciones reales (CTAs del toolbar + Limpiar).
-          Patrón Stripe/HubSpot/Datadog: state = neutral, action =
-          color. El X removal queda como sub-affordance (icon visible)
-          pero el chip entero es clickable como hit target ampliado.
-
-          surface-200 idle (no surface-100) — surface-100 es bg de
-          "secciones alternadas" (page-level), surface-200 es el peso
-          correcto para un componente con identidad propia. Hover
-          surface-300/600 sigue el mismo override que styles.scss
-          aplica a icon-only text-secondary buttons.
-        -->
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 pl-3 pr-2 py-1 rounded-lg bg-surface-200 text-color dark:bg-surface-700 leading-6 cursor-pointer hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"
-          [attr.aria-label]="
-            'Quitar filtro ' + filter.label + ': ' + filter.display
-          "
-          (click)="removeFilter(filter)"
-        >
-          <span>
-            <span class="font-semibold">{{ filter.label }}:</span>
-            {{ filter.display }}
-          </span>
-          <i
-            class="fa-sharp fa-regular fa-xmark text-xs text-muted-color"
-            aria-hidden="true"
-          ></i>
-        </button>
-      }
-      @if (activeFilters().length > 1) {
-        <!--
-          "Limpiar" — ACTION (clear bulk filter state). Tonal-primary
-          intencional: matchea el botón "Actualizar" del toolbar para
-          consistency cross-cluster. Jerarquía resultante en la página:
-            1. Filled-primary "Crear cliente" (CTA principal)
-            2. Tonal-primary "Actualizar" + "Limpiar" (utility actions)
-            3. Surface-neutral chips (state read-out)
-          Patrón Stripe/Linear/Notion: color reservado para acciones,
-          neutral para estado. El usuario aprende: "azul = puedo
-          hacer algo".
-
-          Icon `fa-filter-slash` por precisión léxica — comunica
-          "remover filtros" específicamente, no genérico (vs fa-xmark
-          que el chip individual usa para "remover este uno").
-        -->
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100 font-medium leading-6 cursor-pointer hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
-          (click)="clearAllFilters()"
-        >
-          <i
-            class="fa-sharp fa-regular fa-filter-slash text-xs"
-            aria-hidden="true"
-          ></i>
-          <span>Limpiar</span>
-        </button>
-      }
-      <!--
-        Share URL button — copia la URL actual (con filters + detail
-        deeplink) al clipboard. Patrón Notion "Copy link to view" /
-        Stripe Dashboard. Sólo aparece cuando hay filtros activos:
-        compartir una URL "sin estado" sería compartir la página
-        default — innecesario.
-      -->
-      <button
-        type="button"
-        class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-muted-color font-medium leading-6 cursor-pointer hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
-        pTooltip="Copiar enlace de esta vista al portapapeles"
-        tooltipPosition="top"
-        (click)="copyShareUrl()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-link text-xs"
-          aria-hidden="true"
-        ></i>
-        <span>Compartir</span>
-      </button>
-    </div>
-  }
+  <!-- Chip bar de filtros activos — pills + Limpiar + Compartir viven en
+       el hijo; remove/clear van al facade/container y copyShareUrl
+       (window + clipboard + toasts) queda acá. -->
+  <app-customers-filter-chips
+    [filters]="filters.active()"
+    (filterRemoved)="filters.remove($event)"
+    (clearAllRequested)="clearAllFilters()"
+    (shareRequested)="copyShareUrl()"
+  />
   <!--
     MOBILE CARD-LIST VIEW (visible bajo `lg:`, < 1024px).
 
@@ -543,7 +292,7 @@
               </div>
             </div>
             <p-button
-              (onClick)="displayPopover($event, op, item)"
+              (onClick)="displayPopover($event, item)"
               icon="fa-sharp fa-regular fa-ellipsis"
               severity="secondary"
               [text]="true"
@@ -674,12 +423,12 @@
   <!-- DESKTOP TABLE VIEW (visible en lg+, >= 1024px) -->
   <div
     class="hidden lg:block rounded-lg border border-surface w-full overflow-hidden"
-    [class.customers-table--compact]="density() === 'compact'"
+    [class.customers-table--compact]="prefs.density() === 'compact'"
   >
     <p-table
       [value]="tableData()"
       [loading]="loading()"
-      [dt]="tableDensityDt()"
+      [dt]="prefs.densityDt()"
       [selection]="selectedRows()"
       (selectionChange)="selectedRows.set($event)"
       dataKey="id"
@@ -999,7 +748,7 @@
                         {{ formatCredit((value && value[1]) ?? maxCredit()) }}
                       </span>
                       <p-slider
-                        [ngModel]="value ?? [0, maxCredit()]"
+                        [ngModel]="value ?? defaultCreditRange()"
                         (ngModelChange)="filter($event)"
                         [range]="true"
                         [min]="0"
@@ -1573,7 +1322,7 @@
               }"
             >
               <p-button
-                (onClick)="displayPopover($event, op, data)"
+                (onClick)="displayPopover($event, data)"
                 icon="fa-sharp fa-regular fa-ellipsis"
                 severity="secondary"
                 [text]="true"
@@ -1691,877 +1440,53 @@
   </div>
 }
 
-<!--
-  Action menu del ··· row button. Patrón Salesforce/HubSpot/Pipedrive:
-  vertical action list con 5-6 actions semánticas + destructive
-  separado por divider. Reemplaza el "Detalles+Eliminar" minimalista
-  por el set canónico bigtech CRM.
+<!-- Menú ··· de acciones de fila — el #op (ex template-ref cruzado),
+     el customer scoped y el reopen timer viven en el hijo; los 6
+     handlers (drawer + URL, bulk dialogs, mailto, duplicar) quedan acá
+     vía onRowAction. Fuera de todo @if para que el viewChild del
+     container esté siempre resuelto. -->
+<app-customers-row-actions (actionSelected)="onRowAction($event)" />
 
-  Estructura:
-    - Ver detalle (primary action, abre drawer)
-    - Editar (alias del detalle por ahora — v2: edit-mode toggle)
-    - Asignar vendedor (single-row del bulk action)
-    - Email (mailto:)
-    - Duplicar (clone customer)
-    ─────────────────
-    - Eliminar (destructive, text-danger via tag-like styling)
--->
-<p-popover #op>
-  <ng-template #content>
-    <div class="flex flex-col gap-0.5 min-w-52" role="menu">
-      <button
-        type="button"
-        role="menuitem"
-        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
-        (click)="op.hide(); onActionDetail()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-eye text-muted-color"
-          aria-hidden="true"
-        ></i>
-        <span>Ver detalle</span>
-      </button>
-      <button
-        type="button"
-        role="menuitem"
-        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
-        (click)="op.hide(); onActionEdit()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-pen text-muted-color"
-          aria-hidden="true"
-        ></i>
-        <span>Editar</span>
-      </button>
-      <button
-        type="button"
-        role="menuitem"
-        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
-        (click)="op.hide(); onActionAssign()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-user-pen text-muted-color"
-          aria-hidden="true"
-        ></i>
-        <span>Asignar vendedor</span>
-      </button>
-      <button
-        type="button"
-        role="menuitem"
-        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
-        (click)="op.hide(); onActionEmail()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-envelope text-muted-color"
-          aria-hidden="true"
-        ></i>
-        <span>Enviar email</span>
-      </button>
-      <button
-        type="button"
-        role="menuitem"
-        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
-        (click)="op.hide(); onActionDuplicate()"
-      >
-        <i
-          class="fa-sharp fa-regular fa-copy text-muted-color"
-          aria-hidden="true"
-        ></i>
-        <span>Duplicar</span>
-      </button>
-      <hr
-        class="border-t border-surface my-1 -mx-1"
-        role="separator"
-        aria-hidden="true"
-      />
-      <button
-        type="button"
-        role="menuitem"
-        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
-        [style.color]="'var(--p-red-500)'"
-        (click)="op.hide(); onActionDelete()"
-      >
-        <i class="fa-sharp fa-regular fa-trash" aria-hidden="true"></i>
-        <span>Eliminar</span>
-      </button>
-    </div>
-  </ng-template>
-</p-popover>
-
-<!--
-  ─── MOBILE FILTER & SORT DRAWER ────────────────────────────────────
-  Bottom-sheet drawer (PrimeNG `<p-drawer position="bottom">`) que
-  centraliza todos los filter controls + sort selection en un único
-  surface. Reemplaza los `<p-columnFilter>` per-th que en mobile son
-  inaccesibles (la tabla está oculta).
-
-  **Arquitectura del estado**: El drawer NO mantiene buffer state —
-  cada control bind directo a `sheetFilterValue('field')` (read del
-  source de verdad: `Table.filters`) y dispara `applySheetFilter()`
-  on change → `Table.filter()` realtime. Side-effect: las cards detrás
-  del drawer translucent re-render mientras el user ajusta. Patrón
-  Stripe/Notion mobile (vs Apply-button + buffer que requeriría
-  duplicación de state y rollback en cancel).
-
-  **Sort**: dropdown único con presets `field:dir` (Linear/Stripe
-  pattern) — más compacto que field+dir separados, menos taps.
--->
-<!--
-  Override de geometría:
-    1. PrimeNG aplica `inset: 0` sobre el panel `.p-drawer-bottom`
-       (top/right/bottom/left todos en 0). Combinado con height explícita
-       el browser ancla al TOP (top:0 + bottom:0 + height → top wins).
-       `!top-auto` cancela el top:0 → sólo `bottom:0` efectivo, altura
-       crece desde el bottom hacia arriba como bottom-sheet real.
-    2. `<app-mobile-footer>` (nav inferior mobile) tiene z-index 1200,
-       PrimeNG drawer default es 1102 → el nav queda ENCIMA del drawer
-       y oculta el footer Limpiar/Aplicar. `!z-[1300]` fuerza al drawer
-       a cubrir el nav cuando está abierto. Patrón bigtech: modal/sheet
-       overlay TODO el chrome, focus exclusivo en el drawer.
-
-       Z-index semántico (escala DESIGN.md §Z-Index): 1300 = peldaño
-       "modal" — este sheet bloquea la interacción con la página, no es
-       un drawer lateral (1200, ocupado por el mobile-footer nav). El
-       mask va a 1290 (justo debajo del panel, encima del nav). Los
-       valores viven hardcodeados acá porque PrimeNG no expone token
-       per-instancia para el z-index del drawer — si se agrega un nivel
-       nuevo, actualizar la escala en DESIGN.md, no inventar números.
--->
-<p-drawer
+<!-- Mobile filter & sort bottom-sheet — controles + sort presets viven
+     en el hijo (leyendo el espejo reactivo `filters.values()` del
+     facade); filterSheetVisible (atajo `f` + cascada de escape),
+     mobileSortOption (lo lee mobileSourceData) y applySheetFilter
+     (facade + reset de paginación mobile) quedan acá. -->
+<app-customers-filter-sheet
   [(visible)]="filterSheetVisible"
-  position="bottom"
-  header="Filtros y orden"
-  [modal]="true"
-  styleClass="!h-[100dvh] !top-auto !z-[1300]"
-  [maskStyle]="{ 'z-index': 1290 }"
->
-  <div class="flex flex-col gap-6 pb-6">
-    <!-- Sort -->
-    <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="mobile-sort">
-        Ordenar por
-      </label>
-      <p-select
-        inputId="mobile-sort"
-        [options]="mobileSortOptions"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="mobileSortOption()"
-        (ngModelChange)="mobileSortOption.set($event)"
-        placeholder="Sin orden"
-        appendTo="body"
-        class="w-full"
-      />
-    </section>
-
-    <p-divider />
-
-    <!-- Tipo -->
-    <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-type">
-        Tipo
-      </label>
-      <p-multiselect
-        inputId="sheet-type"
-        [options]="typeOptions"
-        [ngModel]="sheetFilterValue('type')"
-        (ngModelChange)="applySheetFilter($event, 'type', 'in')"
-        placeholder="Cualquiera"
-        appendTo="body"
-        class="w-full"
-      />
-    </section>
-
-    <!-- Vendedor -->
-    <section class="flex flex-col gap-2">
-      <label
-        class="text-color font-semibold leading-6"
-        for="sheet-vendedor"
-      >
-        Vendedor asignado
-      </label>
-      <p-multiselect
-        inputId="sheet-vendedor"
-        [options]="availableSellers()"
-        [ngModel]="sheetFilterValue('assignedSellers')"
-        (ngModelChange)="
-          applySheetFilter($event, 'assignedSellers', arrayIntersectMatchMode)
-        "
-        placeholder="Cualquier vendedor"
-        appendTo="body"
-        class="w-full"
-      />
-    </section>
-
-    <!-- Crédito disponible -->
-    <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-credit">
-        Crédito disponible
-      </label>
-      <span class="text-sm text-muted-color leading-5">
-        {{ formatCredit(sheetCreditRange()[0]) }}
-        –
-        {{ formatCredit(sheetCreditRange()[1]) }}
-      </span>
-      <p-slider
-        inputId="sheet-credit"
-        [ngModel]="sheetCreditRange()"
-        (ngModelChange)="
-          applySheetFilter($event, 'availableCredit', 'between')
-        "
-        [range]="true"
-        [min]="0"
-        [max]="maxCredit()"
-        [step]="500000"
-        class="w-full"
-      />
-    </section>
-
-    <!-- Segmento -->
-    <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-segmento">
-        Segmento
-      </label>
-      <p-multiselect
-        inputId="sheet-segmento"
-        [options]="segmentoOptions"
-        [ngModel]="sheetFilterValue('segmento')"
-        (ngModelChange)="applySheetFilter($event, 'segmento', 'in')"
-        placeholder="Cualquiera"
-        appendTo="body"
-        class="w-full"
-      />
-    </section>
-
-    <!-- Clasif. crédito -->
-    <section class="flex flex-col gap-2">
-      <label
-        class="text-color font-semibold leading-6"
-        for="sheet-classification"
-      >
-        Clasif. crédito
-      </label>
-      <p-multiselect
-        inputId="sheet-classification"
-        [options]="classificationOptions"
-        [ngModel]="sheetFilterValue('creditClassification')"
-        (ngModelChange)="
-          applySheetFilter($event, 'creditClassification', 'in')
-        "
-        placeholder="Cualquiera"
-        appendTo="body"
-        class="w-full"
-      />
-    </section>
-
-    <!-- Potencial -->
-    <section class="flex flex-col gap-2">
-      <label
-        class="text-color font-semibold leading-6"
-        for="sheet-potencial"
-      >
-        Potencial
-      </label>
-      <p-multiselect
-        inputId="sheet-potencial"
-        [options]="potencialOptions"
-        [ngModel]="sheetFilterValue('potencial')"
-        (ngModelChange)="applySheetFilter($event, 'potencial', 'in')"
-        placeholder="Cualquiera"
-        appendTo="body"
-        class="w-full"
-      />
-    </section>
-
-    <!-- Cartera -->
-    <section class="flex flex-col gap-2">
-      <label class="text-color font-semibold leading-6" for="sheet-cartera">
-        Cartera
-      </label>
-      <p-multiselect
-        inputId="sheet-cartera"
-        [options]="carteraOptions"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="sheetFilterValue('cartera')"
-        (ngModelChange)="applySheetFilter($event, 'cartera', 'in')"
-        placeholder="Cualquiera"
-        appendTo="body"
-        class="w-full"
-      />
-    </section>
-  </div>
-
-  <!--
-    Footer actions via slot `<ng-template #footer>` — PrimeNG drawer
-    renderiza este template FUERA del scroll body, en una zona footer
-    que NO scrollea con el contenido. Patrón correcto vs `position:
-    sticky` dentro del body (que se mueve con scroll porque el sticky
-    se ancla al containing block, no al viewport).
-
-    Anchos iguales via `flex-1` en host + `w-full` en styleClass (que
-    aplica al `<button>` interno; sin eso conserva natural width).
-    Limpiar usa `.p-button-tonal` por consistency con Refresh del
-    toolbar + Limpiar del chip bar. Aplicar queda filled-primary.
-  -->
-  <ng-template #footer>
-    <div
-      class="flex items-center gap-2 -mx-6 -mb-6 px-6 py-4 bg-surface-0 dark:bg-surface-950 border-t border-surface"
-    >
-      <p-button
-        label="Limpiar"
-        icon="fa-sharp fa-regular fa-filter-slash"
-        class="flex-1"
-        styleClass="w-full p-button-tonal"
-        [disabled]="activeFilters().length === 0"
-        (onClick)="clearAllFilters()"
-      />
-      <p-button
-        label="Aplicar"
-        class="flex-1"
-        styleClass="w-full"
-        (onClick)="closeFilterSheet()"
-      />
-    </div>
-  </ng-template>
-</p-drawer>
-
-<!--
-  ─── DETAIL DRAWER (universal mobile + desktop) ──────────────────────
-  Right-side drawer con info COMPLETA del cliente — todas las columnas
-  del modelo (no sólo las visibles en la tabla). Surface universal:
-  abierto desde tap card body en mobile, futuro click "Detalles" del
-  ··· menu en desktop. Patrón Linear/HubSpot/Stripe/Salesforce: detail
-  panel single-source, mismo componente cross-viewport.
-
-  Ancho responsive: 100% en mobile (sheet full-width), 480px en desktop
-  (panel side por defecto). Patrón GitHub PR sidebar / Linear issue
-  detail / Stripe customer detail.
--->
-<p-drawer
-  [visible]="!!detailedCustomer()"
-  (visibleChange)="$event ? null : closeDetail()"
-  position="right"
-  styleClass="!w-full md:!w-[480px]"
-  [showCloseIcon]="true"
-  [dismissible]="true"
->
-  <ng-template #header>
-    @if (detailedCustomer(); as c) {
-      <div class="flex flex-col gap-1 min-w-0 flex-1">
-        <h2 class="text-color font-bold leading-6 truncate">{{ c.name }}</h2>
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="tabular-nums text-muted-color text-sm leading-5">{{
-            c.rut
-          }}</span>
-          <p-tag
-            [severity]="typeSeverity(c.type)"
-            [value]="c.type"
-            class="font-medium"
-          />
-        </div>
-      </div>
-    }
-  </ng-template>
-  @if (detailedCustomer(); as c) {
-    <dl
-      class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 leading-6 pb-6 border-b border-surface mb-6"
-    >
-      <dt class="text-muted-color">Email</dt>
-      <dd class="text-color truncate">{{ c.email }}</dd>
-
-      <dt class="text-muted-color">Vendedores</dt>
-      <dd class="text-color">
-        @if (c.assignedSellers.length > 0) {
-          {{ c.assignedSellers.join(", ") }}
-        } @else {
-          <span class="text-muted-color">—</span>
-        }
-      </dd>
-
-      <dt class="text-muted-color">Crédito disponible</dt>
-      <dd class="tabular-nums text-color">
-        {{ formatCredit(c.availableCredit) }}
-      </dd>
-      <dt class="text-muted-color">Crédito utilizado</dt>
-      <dd class="tabular-nums text-muted-color">
-        {{ formatCredit(c.usedCredit) }}
-      </dd>
-      <dt class="text-muted-color">Crédito asignado</dt>
-      <dd class="tabular-nums text-muted-color">
-        {{ formatCredit(c.assignedCredit) }}
-      </dd>
-
-      <dt class="text-muted-color">Segmento</dt>
-      <dd class="text-color">{{ c.segmento }}</dd>
-
-      <dt class="text-muted-color">Clasif. crédito</dt>
-      <dd>
-        <p-tag
-          [severity]="classificationSeverity(c.creditClassification)"
-          [value]="c.creditClassification"
-          class="font-medium"
-        />
-      </dd>
-
-      <dt class="text-muted-color">Potencial</dt>
-      <dd class="text-color">{{ c.potencial }}</dd>
-
-      <dt class="text-muted-color">Grupo descuento</dt>
-      <dd class="tabular-nums text-color">{{ c.discountGroup }}</dd>
-
-      <dt class="text-muted-color">Cartera</dt>
-      <dd>
-        <p-tag
-          [severity]="carteraSeverity(c.cartera)"
-          [value]="carteraLabel(c.cartera)"
-          class="font-medium"
-        />
-      </dd>
-
-      <dt class="text-muted-color">Ciclo de vida</dt>
-      <dd>
-        <p-tag
-          [severity]="lifecycleSeverity(c.lifecycle)"
-          [value]="c.lifecycle"
-          class="font-medium"
-        />
-      </dd>
-
-      <dt class="text-muted-color">Región</dt>
-      <dd class="text-color">{{ c.region }}</dd>
-      <dt class="text-muted-color">Ciudad</dt>
-      <dd class="text-color">{{ c.city }}</dd>
-    </dl>
-
-    <!-- Acciones: secundarias (Editar, Eliminar). Acción primaria
-         "Detalles" no aparece — el drawer ya ES el detalle. -->
-    <div class="flex items-center gap-2">
-      <p-button
-        label="Editar"
-        icon="fa-sharp fa-regular fa-pen"
-        severity="secondary"
-        outlined
-        class="flex-1"
-        (onClick)="closeDetail()"
-      />
-      <p-button
-        label="Eliminar"
-        icon="fa-sharp fa-regular fa-trash"
-        severity="danger"
-        outlined
-        class="flex-1"
-        (onClick)="closeDetail()"
-      />
-    </div>
-  }
-</p-drawer>
-
-<!--
-  ─── MOBILE FAB (Floating Action Button) — Material 3 Extended FAB ──
-  Patrón canónico Material 3 (m3.material.io/components/extended-fab):
-  acción primaria del screen vive como FAB anchored bottom-right.
-
-  **Scroll-aware collapse** (M3 spec): Extended cuando user está near
-  top o scrolleando arriba, collapse a mini (icon-only) cuando
-  scrollea abajo. Reduce screen real estate ocupado durante reading
-  flow sin esconder el CTA por completo. Implementado en
-  customers.component.ts → `fabExtended` signal + scroll listener.
-
-  **Safe-area-inset-bottom**: respeta el iOS home indicator + Android
-  gesture area. `calc(5rem + env(safe-area-inset-bottom))` ajusta
-  posición dinámicamente según el device (5rem = 80px clearing de la
-  mobile-footer nav; el env() agrega el inset si hay notch/indicator).
-
-  No shadow per project CLAUDE.md — bg-primary saturado + rounded-2xl
-  + position carry la elevation perceptualmente.
-
-  Acción primaria → `<p-button>` (regla del proyecto: botones de acción
-  siempre PrimeNG, no `<button>` a mano). El collapse mantiene la misma
-  mecánica: `fabExtended()` alterna label visible ↔ icon-only; el
-  `ariaLabel` cubre el estado colapsado. `z-10` = peldaño "sticky" de
-  la escala del proyecto (único z raw permitido en templates).
--->
-<p-button
-  class="lg:hidden fixed right-4 z-10"
-  [style.bottom]="'calc(5rem + env(safe-area-inset-bottom))'"
-  [label]="fabExtended() ? 'Crear cliente' : undefined"
-  icon="fa-sharp fa-regular fa-plus"
-  ariaLabel="Crear nuevo cliente"
-  styleClass="!rounded-2xl"
-  (onClick)="onCreateCustomer()"
+  [values]="filters.values()"
+  [sellers]="availableSellers()"
+  [maxCredit]="maxCredit()"
+  [activeFilterCount]="filters.active().length"
+  [(sortOption)]="mobileSortOption"
+  (filterApplied)="
+    applySheetFilter($event.value, $event.field, $event.matchMode)
+  "
+  (clearAllRequested)="clearAllFilters()"
 />
 
-<!--
-  ─── SAVE VIEW DIALOG ────────────────────────────────────────────────
-  Modal pequeño para nombrar la vista actual al guardarla. Patrón
-  HubSpot/Salesforce: prompt mínimo con name input + Cancel/Guardar.
-  Validación: nombre no vacío. Loading state via `savedViews.busy()`
-  durante la persistencia simulada (latency 180ms).
--->
-<p-dialog
-  [(visible)]="saveViewVisible"
-  header="Guardar vista"
-  [modal]="true"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ width: '420px' }"
->
-  <div class="flex flex-col gap-3">
-    <label
-      class="text-color font-semibold leading-6"
-      for="save-view-name"
-    >
-      Nombre de la vista
-    </label>
-    <input
-      pInputText
-      id="save-view-name"
-      type="text"
-      [ngModel]="saveViewName()"
-      (ngModelChange)="saveViewName.set($event)"
-      placeholder="Ej. Clientes morosos Q4"
-      class="w-full"
-      maxlength="50"
-      (keydown.enter)="saveCurrentAsView(saveViewName())"
-    />
-    <p class="text-sm text-muted-color leading-5">
-      Guarda los filtros, columnas y orden actuales para reutilizar
-      sin reconfigurar.
-    </p>
-  </div>
-  <ng-template #footer>
-    <div class="flex items-center gap-2 justify-end">
-      <p-button
-        label="Cancelar"
-        styleClass="p-button-tonal"
-        [disabled]="savedViews.busy()"
-        (onClick)="closeSaveViewDialog()"
-      />
-      <p-button
-        label="Guardar"
-        icon="fa-sharp fa-regular fa-bookmark"
-        iconPos="left"
-        [loading]="savedViews.busy()"
-        [disabled]="!saveViewName().trim()"
-        (onClick)="saveCurrentAsView(saveViewName())"
-      />
-    </div>
-  </ng-template>
-</p-dialog>
+<!-- Detail drawer universal — detailedCustomer + sync de ?detail en URL
+     quedan acá (guard isApplyingFromUrl); el hijo solo renderiza. -->
+<app-customers-detail-drawer
+  [customer]="detailedCustomer()"
+  (closed)="closeDetail()"
+/>
 
-<!--
-  ─── BULK ASSIGN VENDEDOR DIALOG ─────────────────────────────────────
-  Modal para asignar masivamente un vendedor al primary slot de N
-  clientes seleccionados. Mock: mutate in-memory via
-  CustomersMockService.replaceAll(). Patrón Salesforce mass owner
-  change. Optimistic UI: actualizamos el dataset antes de notificar
-  éxito (production: POST + rollback on error).
--->
-<p-dialog
-  [(visible)]="bulkAssignVisible"
-  header="Asignar vendedor"
-  [modal]="true"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ width: '420px' }"
->
-  <div class="flex flex-col gap-3">
-    <p class="text-color leading-6">
-      Asignar como vendedor principal a
-      <strong>{{ selectionCount() }}</strong>
-      {{ selectionCount() === 1 ? "cliente" : "clientes" }}:
-    </p>
-    <label
-      class="text-color font-semibold leading-6"
-      for="bulk-assign-seller"
-    >
-      Vendedor
-    </label>
-    <p-select
-      inputId="bulk-assign-seller"
-      [options]="availableSellers()"
-      [ngModel]="bulkAssignSeller()"
-      (ngModelChange)="bulkAssignSeller.set($event)"
-      placeholder="Seleccionar vendedor"
-      appendTo="body"
-      class="w-full"
-    />
-    <p class="text-sm text-muted-color leading-5">
-      Los vendedores secundarios existentes (si los hay) se mantienen
-      como soporte.
-    </p>
-  </div>
-  <ng-template #footer>
-    <div class="flex items-center gap-2 justify-end">
-      <p-button
-        label="Cancelar"
-        styleClass="p-button-tonal"
-        (onClick)="closeBulkAssign()"
-      />
-      <p-button
-        label="Asignar"
-        icon="fa-sharp fa-regular fa-user-pen"
-        iconPos="left"
-        [disabled]="!bulkAssignSeller()"
-        (onClick)="applyBulkAssign()"
-      />
-    </div>
-  </ng-template>
-</p-dialog>
+<!-- Mobile FAB — scroll-aware collapse vive en el hijo; la acción
+     la comparte el CTA desktop del header y el atajo `c`. -->
+<app-customers-fab (createRequested)="onCreateCustomer()" />
 
-<!--
-  ─── BULK DELETE CONFIRM DIALOG ──────────────────────────────────────
-  Confirm destructivo según WCAG/Nielsen heurística "prevention vs
-  recovery". Patrón Stripe/Linear: confirmación inline (no toast
-  con undo) para bulk delete porque el scope es mayor — undo en lista
-  larga es difícil de "deshacer" mentalmente. El user lee el count y
-  confirma explícitamente.
--->
-<p-dialog
-  [(visible)]="bulkDeleteVisible"
-  header="Confirmar eliminación"
-  [modal]="true"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ width: '420px' }"
->
-  <div class="flex items-start gap-3">
-    <i
-      class="fa-sharp fa-regular fa-triangle-exclamation text-2xl text-color"
-      aria-hidden="true"
-    ></i>
-    <div class="flex-1 min-w-0">
-      <p class="text-color leading-6">
-        Esta acción eliminará
-        <strong>{{ selectionCount() }}</strong>
-        {{ selectionCount() === 1 ? "cliente" : "clientes" }} de forma
-        permanente. No se puede deshacer.
-      </p>
-      <p class="text-sm text-muted-color leading-5 mt-2">
-        ¿Deseas continuar?
-      </p>
-    </div>
-  </div>
-  <ng-template #footer>
-    <div class="flex items-center gap-2 justify-end">
-      <p-button
-        label="Cancelar"
-        styleClass="p-button-tonal"
-        (onClick)="closeBulkDelete()"
-      />
-      <p-button
-        label="Eliminar"
-        icon="fa-sharp fa-regular fa-trash"
-        iconPos="left"
-        severity="danger"
-        (onClick)="applyBulkDelete()"
-      />
-    </div>
-  </ng-template>
-</p-dialog>
-
-<!--
-  ─── Cmd+K COMMAND PALETTE ────────────────────────────────────────────
-  Search-first surface canónico bigtech (Linear, Stripe, Notion, Slack).
-  Cmd+K abre dialog con input al top, results live-filtered abajo,
-  Enter selecciona el primero. Para v1: limitado a búsqueda de clientes
-  (top 8 by name/RUT/email match). v2 podría agregar acciones globales
-  como "Crear cliente", "Asignar todos", etc — patrón Notion.
-
-  El Cmd+K es always-on (no se desactiva por input context — Linear y
-  Slack hacen esto. Ver KeyboardService.handleKeydown).
--->
-<p-dialog
+<!-- Cmd+K command palette — query/ranking/arrow-nav viven en el hijo;
+     cmdkVisible + atajos quedan acá (cascada de escape). -->
+<app-customers-cmdk
+  [customers]="tableData()"
   [(visible)]="cmdkVisible"
-  [modal]="true"
-  [dismissableMask]="true"
-  [closable]="false"
-  [draggable]="false"
-  [resizable]="false"
-  [showHeader]="false"
-  [style]="{ width: '560px', 'max-width': 'calc(100vw - 2rem)' }"
->
-  <div class="flex flex-col">
-    <div
-      class="flex items-center gap-3 p-3 border-b border-surface"
-    >
-      <i
-        class="fa-sharp fa-regular fa-magnifying-glass text-muted-color"
-        aria-hidden="true"
-      ></i>
-      <input
-        #cmdkInput
-        pInputText
-        type="text"
-        [ngModel]="cmdkQuery()"
-        (ngModelChange)="cmdkQuery.set($event)"
-        placeholder="Buscar clientes por nombre, RUT o email…"
-        aria-label="Buscar clientes"
-        role="combobox"
-        [attr.aria-expanded]="cmdkFlatResults().length > 0"
-        aria-controls="cmdk-results"
-        aria-autocomplete="list"
-        [attr.aria-activedescendant]="
-          cmdkFlatResults().length > 0
-            ? 'cmdk-opt-' + cmdkFlatResults()[cmdkActiveIndex()]?.id
-            : null
-        "
-        class="flex-1 !border-0 !shadow-none !bg-transparent !p-0"
-        (keydown)="onCmdkKeyDown($event)"
-      />
-      <kbd
-        class="text-xs text-muted-color px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-        >Esc</kbd
-      >
-    </div>
-    <div
-      #cmdkList
-      id="cmdk-results"
-      class="max-h-96 overflow-y-auto"
-      role="listbox"
-      aria-label="Resultados de búsqueda de clientes"
-    >
-      @if (cmdkFlatResults().length === 0) {
-        <div class="px-4 py-6 text-center text-muted-color leading-6">
-          Sin coincidencias. Prueba por nombre, RUT o email completo.
-        </div>
-      } @else {
-        @for (group of cmdkResults(); track group.label) {
-          <!-- Section header — patrón Linear/Stripe/Notion: categorical
-               grouping aumenta scanability del listbox para el user.
-               role=presentation porque no es un item navegable. -->
-          <div
-            class="px-3 pt-3 pb-1 text-xs text-muted-color font-semibold uppercase tracking-wide leading-4"
-            role="presentation"
-          >
-            {{ group.label }}
-          </div>
-          @for (c of group.items; track c.id; let i = $index) {
-            <!--
-              Active vs hover distinction (B1 fix). Hover usa
-              bg-emphasis (canonical hover token). Active state usa
-              bg-primary-100/900 + border-left accent primary — patrón
-              Linear/Stripe/Notion command palette: el item highlighted
-              por keyboard nav debe ser inmediatamente distinguible
-              del item bajo cursor, no compartir el mismo tinte. El
-              border-left siempre presente (transparent → primary)
-              evita layout shift cuando cambia el active item.
-            -->
-            <button
-              type="button"
-              role="option"
-              [id]="'cmdk-opt-' + c.id"
-              [attr.aria-selected]="
-                cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id
-              "
-              [attr.data-cmdk-active]="
-                cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id
-              "
-              [ngClass]="{
-                'bg-primary-100 dark:bg-primary-900 !border-primary':
-                  cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id,
-              }"
-              class="w-full flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-emphasis transition-colors text-left border-l-2 border-transparent"
-              (click)="selectCmdKResult(c)"
-            >
-              <i
-                class="fa-sharp fa-regular fa-user text-muted-color"
-                aria-hidden="true"
-              ></i>
-              <div class="flex-1 min-w-0">
-                <div class="text-color font-medium leading-6 truncate">
-                  {{ c.name }}
-                </div>
-                <div class="text-xs text-muted-color leading-4 truncate">
-                  {{ c.rut }} · {{ c.email }}
-                </div>
-              </div>
-              <p-tag
-                [severity]="typeSeverity(c.type)"
-                [value]="c.type"
-                class="font-medium"
-              />
-            </button>
-          }
-        }
-      }
-    </div>
-    <div
-      class="flex items-center gap-3 px-3 py-2 text-xs text-muted-color leading-4 border-t border-surface"
-    >
-      <span class="flex items-center gap-1">
-        <kbd
-          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-          >↵</kbd
-        >
-        Abrir
-      </span>
-      <span class="flex items-center gap-1">
-        <kbd
-          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-          >Esc</kbd
-        >
-        Cerrar
-      </span>
-      <button
-        type="button"
-        class="ml-auto inline-flex items-center gap-1 cursor-pointer hover:text-color transition-colors"
-        (click)="closeCmdK(); openHelp()"
-      >
-        <kbd
-          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
-          >?</kbd
-        >
-        Ver todos los atajos
-      </button>
-    </div>
-  </div>
-</p-dialog>
+  (customerSelected)="openDetail($event)"
+  (helpRequested)="closeCmdK(); openHelp()"
+/>
 
-<!--
-  ─── ? KEYBOARD SHORTCUTS HELP OVERLAY ────────────────────────────────
-  Surface canónico bigtech (Linear, Notion, Slack, GitHub, Stripe):
-  presionar `?` abre overlay con TODOS los shortcuts registrados,
-  agrupados por section. UI compact key-binding rows.
-
-  Las kbd visuales matchean el estilo Linear/Notion: small monospace,
-  border subtle, bg neutral. Cross-platform (Mac/Win) via
-  `formatCombo()` del service que mapea cmd→⌘/Ctrl.
--->
-<p-dialog
-  [(visible)]="helpVisible"
-  header="Atajos de teclado"
-  [modal]="true"
-  [dismissableMask]="true"
-  [draggable]="false"
-  [resizable]="false"
-  [style]="{ width: '480px', 'max-width': 'calc(100vw - 2rem)' }"
->
-  <div class="flex flex-col gap-6">
-    @for (group of groupedShortcuts(); track group.section) {
-      <section class="flex flex-col gap-2">
-        <h3 class="text-color font-semibold leading-6">{{ group.section }}</h3>
-        <ul class="flex flex-col gap-2" role="list">
-          @for (s of group.shortcuts; track s.combo) {
-            <li
-              class="flex items-center justify-between gap-3 text-color leading-6"
-            >
-              <span class="flex-1 min-w-0">{{ s.label }}</span>
-              <kbd
-                class="px-2 py-0.5 border border-surface rounded-lg text-sm font-medium tabular-nums leading-5"
-                >{{ keyboardService.formatCombo(s.combo) }}</kbd
-              >
-            </li>
-          }
-        </ul>
-      </section>
-    }
-  </div>
-</p-dialog>
+<!-- ? shortcuts help overlay — agrupado y formatCombo viven en el hijo -->
+<app-customers-shortcuts-help [(visible)]="helpVisible" />
 
 <!--
   ─── TOAST notifications (key="customers-toast") ─────────────────────

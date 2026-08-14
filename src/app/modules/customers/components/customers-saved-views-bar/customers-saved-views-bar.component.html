@@ -1,0 +1,191 @@
+<!--
+  SAVED VIEWS TAB BAR (desktop only, lg+).
+  Patrón HubSpot/Salesforce: tabs horizontales arriba del data con
+  system views + custom views + "Guardar vista actual" + edit/delete
+  inline. Click en tab aplica el snapshot completo (filters + columns
+  + sort + page). El activeViewId marca el active state.
+
+  Mobile lo verá en el filter sheet header (no en toolbar para no
+  competir con CTA en viewport estrecho).
+-->
+<div
+  class="hidden lg:flex items-center gap-1 mb-4 -mx-1 px-1 overflow-x-auto"
+  role="tablist"
+  aria-label="Vistas guardadas"
+>
+  @for (view of savedViews.views(); track view.id) {
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="activeViewId() === view.id"
+      [ngClass]="{
+        'bg-primary-100 text-primary-950 dark:bg-primary-900 dark:text-primary-100':
+          activeViewId() === view.id,
+        'text-muted-color hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700':
+          activeViewId() !== view.id,
+      }"
+      class="inline-flex items-center gap-2 px-3 py-1 rounded-lg font-medium leading-6 cursor-pointer transition-colors whitespace-nowrap"
+      (click)="viewSelected.emit(view)"
+    >
+      @if (view.system) {
+        <i
+          class="fa-sharp fa-regular fa-lock text-xs"
+          aria-hidden="true"
+          [pTooltip]="'Vista del sistema (no editable)'"
+          tooltipPosition="top"
+        ></i>
+      }
+      <span>{{ view.name }}</span>
+      <!-- Unsaved changes indicator — dot visible cuando los filtros
+           actuales divergen del snapshot guardado. Patrón Linear/
+           HubSpot: dot `●` indica "Modificado" sin necesidad de texto.
+           Aparece solo en la view activa (no en otras tabs). -->
+      @if (
+        activeViewId() === view.id && hasUnsavedChanges()
+      ) {
+        <span
+          class="inline-block w-2 h-2 rounded-full bg-primary"
+          [pTooltip]="'Cambios sin guardar'"
+          tooltipPosition="top"
+          aria-label="Cambios sin guardar"
+        ></span>
+      }
+      @if (!view.system && activeViewId() === view.id) {
+        <button
+          type="button"
+          class="inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-primary-200 dark:hover:bg-primary-800 cursor-pointer transition-colors"
+          [attr.aria-label]="'Eliminar vista ' + view.name"
+          (click)="$event.stopPropagation(); deleteRequested.emit(view)"
+        >
+          <i
+            class="fa-sharp fa-regular fa-xmark text-xs"
+            aria-hidden="true"
+          ></i>
+        </button>
+      }
+    </button>
+  }
+  <!-- Reset / Update inline buttons — visible cuando la active view
+       tiene cambios sin guardar. Patrón Linear: inline next to tabs.
+       Reset descarta (restaura snapshot), Guardar overwrite (custom
+       views only — system views nunca se overwrite). -->
+  @if (activeViewId() !== null && hasUnsavedChanges()) {
+    <span
+      class="mx-2 h-6 border-l border-surface"
+      aria-hidden="true"
+    ></span>
+    <button
+      type="button"
+      class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-muted-color font-medium leading-6 cursor-pointer hover:text-color hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors whitespace-nowrap"
+      pTooltip="Descartar cambios y volver a la vista original"
+      tooltipPosition="top"
+      (click)="resetRequested.emit()"
+    >
+      <i
+        class="fa-sharp fa-regular fa-rotate-left text-xs"
+        aria-hidden="true"
+      ></i>
+      <span>Descartar</span>
+    </button>
+    @if (
+      savedViews.get($any(activeViewId()))?.system === false
+    ) {
+      <button
+        type="button"
+        class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-primary font-medium leading-6 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900 transition-colors whitespace-nowrap"
+        pTooltip="Sobrescribir la vista con los cambios actuales"
+        tooltipPosition="top"
+        [disabled]="savedViews.busy()"
+        (click)="updateRequested.emit()"
+      >
+        <i
+          class="fa-sharp fa-regular fa-check text-xs"
+          aria-hidden="true"
+        ></i>
+        <span>Guardar cambios</span>
+      </button>
+    }
+  }
+  <!-- "Guardar como nueva vista" — separador + button. Sólo visible
+       cuando el state actual tiene filtros y NO matchea una saved
+       view (canSaveCurrent, computado por el container). Si matchea
+       (tabs primary) no tiene sentido "guardar como nueva" - sería
+       duplicado. -->
+  @if (canSaveCurrent()) {
+    <span
+      class="mx-2 h-6 border-l border-surface"
+      aria-hidden="true"
+    ></span>
+    <button
+      type="button"
+      class="inline-flex items-center gap-2 px-3 py-1 rounded-lg text-primary font-medium leading-6 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900 transition-colors whitespace-nowrap"
+      (click)="openSaveViewDialog()"
+    >
+      <i
+        class="fa-sharp fa-regular fa-bookmark text-xs"
+        aria-hidden="true"
+      ></i>
+      <span>Guardar vista</span>
+    </button>
+  }
+</div>
+
+<!--
+  ─── SAVE VIEW DIALOG ────────────────────────────────────────────────
+  Modal pequeño para nombrar la vista actual al guardarla. Patrón
+  HubSpot/Salesforce: prompt mínimo con name input + Cancel/Guardar.
+  Validación: nombre no vacío. Loading state via `savedViews.busy()`
+  durante la persistencia simulada (latency 180ms).
+  Hermano del tablist (NUNCA adentro) — overlay, no parte del flujo.
+-->
+<p-dialog
+  [(visible)]="saveViewVisible"
+  header="Guardar vista"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '420px' }"
+>
+  <div class="flex flex-col gap-3">
+    <label
+      class="text-color font-semibold leading-6"
+      for="save-view-name"
+    >
+      Nombre de la vista
+    </label>
+    <input
+      pInputText
+      id="save-view-name"
+      type="text"
+      [ngModel]="saveViewName()"
+      (ngModelChange)="saveViewName.set($event)"
+      placeholder="Ej. Clientes morosos Q4"
+      class="w-full"
+      maxlength="50"
+      (keydown.enter)="submitSaveView()"
+    />
+    <p class="text-sm text-muted-color leading-5">
+      Guarda los filtros, columnas y orden actuales para reutilizar
+      sin reconfigurar.
+    </p>
+  </div>
+  <ng-template #footer>
+    <div class="flex items-center gap-2 justify-end">
+      <p-button
+        label="Cancelar"
+        styleClass="p-button-tonal"
+        [disabled]="savedViews.busy()"
+        (onClick)="saveViewVisible.set(false)"
+      />
+      <p-button
+        label="Guardar"
+        icon="fa-sharp fa-regular fa-bookmark"
+        iconPos="left"
+        [loading]="savedViews.busy()"
+        [disabled]="!saveViewName().trim()"
+        (onClick)="submitSaveView()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

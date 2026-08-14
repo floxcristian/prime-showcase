@@ -1,0 +1,157 @@
+<!--
+  ─── Cmd+K COMMAND PALETTE ────────────────────────────────────────────
+  Search-first surface canónico bigtech (Linear, Stripe, Notion, Slack).
+  Cmd+K abre dialog con input al top, results live-filtered abajo,
+  Enter selecciona el primero. Para v1: limitado a búsqueda de clientes
+  (top 8 by name/RUT/email match). v2 podría agregar acciones globales
+  como "Crear cliente", "Asignar todos", etc — patrón Notion.
+
+  El Cmd+K es always-on (no se desactiva por input context — Linear y
+  Slack hacen esto. Ver KeyboardService.handleKeydown).
+-->
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [closable]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '560px', 'max-width': 'calc(100vw - 2rem)' }"
+>
+  <div class="flex flex-col">
+    <div
+      class="flex items-center gap-3 p-3 border-b border-surface"
+    >
+      <i
+        class="fa-sharp fa-regular fa-magnifying-glass text-muted-color"
+        aria-hidden="true"
+      ></i>
+      <input
+        #cmdkInput
+        pInputText
+        type="text"
+        [ngModel]="cmdkQuery()"
+        (ngModelChange)="cmdkQuery.set($event)"
+        placeholder="Buscar clientes por nombre, RUT o email…"
+        aria-label="Buscar clientes"
+        role="combobox"
+        [attr.aria-expanded]="cmdkFlatResults().length > 0"
+        aria-controls="cmdk-results"
+        aria-autocomplete="list"
+        [attr.aria-activedescendant]="
+          cmdkFlatResults().length > 0
+            ? 'cmdk-opt-' + cmdkFlatResults()[cmdkActiveIndex()]?.id
+            : null
+        "
+        class="flex-1 !border-0 !shadow-none !bg-transparent !p-0"
+        (keydown)="onCmdkKeyDown($event)"
+      />
+      <kbd
+        class="text-xs text-muted-color px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
+        >Esc</kbd
+      >
+    </div>
+    <div
+      #cmdkList
+      id="cmdk-results"
+      class="max-h-96 overflow-y-auto"
+      role="listbox"
+      aria-label="Resultados de búsqueda de clientes"
+    >
+      @if (cmdkFlatResults().length === 0) {
+        <div class="px-4 py-6 text-center text-muted-color leading-6">
+          Sin coincidencias. Prueba por nombre, RUT o email completo.
+        </div>
+      } @else {
+        @for (group of cmdkResults(); track group.label) {
+          <!-- Section header — patrón Linear/Stripe/Notion: categorical
+               grouping aumenta scanability del listbox para el user.
+               role=presentation porque no es un item navegable. -->
+          <div
+            class="px-3 pt-3 pb-1 text-xs text-muted-color font-semibold uppercase tracking-wide leading-4"
+            role="presentation"
+          >
+            {{ group.label }}
+          </div>
+          @for (c of group.items; track c.id; let i = $index) {
+            <!--
+              Active vs hover distinction (B1 fix). Hover usa
+              bg-emphasis (canonical hover token). Active state usa
+              bg-primary-100/900 + border-left accent primary — patrón
+              Linear/Stripe/Notion command palette: el item highlighted
+              por keyboard nav debe ser inmediatamente distinguible
+              del item bajo cursor, no compartir el mismo tinte. El
+              border-left siempre presente (transparent → primary)
+              evita layout shift cuando cambia el active item.
+            -->
+            <button
+              type="button"
+              role="option"
+              [id]="'cmdk-opt-' + c.id"
+              [attr.aria-selected]="
+                cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id
+              "
+              [attr.data-cmdk-active]="
+                cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id
+              "
+              [ngClass]="{
+                'bg-primary-100 dark:bg-primary-900 !border-primary':
+                  cmdkFlatResults()[cmdkActiveIndex()]?.id === c.id,
+              }"
+              class="w-full flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-emphasis transition-colors text-left border-l-2 border-transparent"
+              (click)="selectCmdKResult(c)"
+            >
+              <i
+                class="fa-sharp fa-regular fa-user text-muted-color"
+                aria-hidden="true"
+              ></i>
+              <div class="flex-1 min-w-0">
+                <div class="text-color font-medium leading-6 truncate">
+                  {{ c.name }}
+                </div>
+                <div class="text-xs text-muted-color leading-4 truncate">
+                  {{ c.rut }} · {{ c.email }}
+                </div>
+              </div>
+              <p-tag
+                [severity]="typeSeverity(c.type)"
+                [value]="c.type"
+                class="font-medium"
+              />
+            </button>
+          }
+        }
+      }
+    </div>
+    <div
+      class="flex items-center gap-3 px-3 py-2 text-xs text-muted-color leading-4 border-t border-surface"
+    >
+      <span class="flex items-center gap-1">
+        <kbd
+          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
+          >↵</kbd
+        >
+        Abrir
+      </span>
+      <span class="flex items-center gap-1">
+        <kbd
+          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
+          >Esc</kbd
+        >
+        Cerrar
+      </span>
+      <button
+        type="button"
+        class="ml-auto inline-flex items-center gap-1 cursor-pointer hover:text-color transition-colors"
+        (click)="helpRequested.emit()"
+      >
+        <kbd
+          class="px-1.5 py-0.5 border border-surface rounded-lg leading-4 font-medium"
+          >?</kbd
+        >
+        Ver todos los atajos
+      </button>
+    </div>
+  </div>
+</p-dialog>

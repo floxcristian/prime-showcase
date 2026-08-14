@@ -1,0 +1,238 @@
+<!--
+  ─── MOBILE FILTER & SORT DRAWER ────────────────────────────────────
+  Bottom-sheet drawer (PrimeNG `<p-drawer position="bottom">`) que
+  centraliza todos los filter controls + sort selection en un único
+  surface. Reemplaza los `<p-columnFilter>` per-th que en mobile son
+  inaccesibles (la tabla está oculta).
+
+  **Arquitectura del estado**: El drawer NO mantiene buffer state —
+  cada control bind directo a `read('field')` (espejo reactivo del
+  source de verdad: `Table.filters`, publicado por el facade) y dispara
+  `applyFilter()` on change → `filterApplied` → `Table.filter()`
+  realtime en el container. Side-effect: las cards detrás del drawer
+  translucent re-render mientras el user ajusta. Patrón Stripe/Notion
+  mobile (vs Apply-button + buffer que requeriría duplicación de state
+  y rollback en cancel).
+
+  **Sort**: dropdown único con presets `field:dir` (Linear/Stripe
+  pattern) — más compacto que field+dir separados, menos taps.
+-->
+<!--
+  Override de geometría:
+    1. PrimeNG aplica `inset: 0` sobre el panel `.p-drawer-bottom`
+       (top/right/bottom/left todos en 0). Combinado con height explícita
+       el browser ancla al TOP (top:0 + bottom:0 + height → top wins).
+       `!top-auto` cancela el top:0 → sólo `bottom:0` efectivo, altura
+       crece desde el bottom hacia arriba como bottom-sheet real.
+    2. `<app-mobile-footer>` (nav inferior mobile) tiene z-index 1200,
+       PrimeNG drawer default es 1102 → el nav queda ENCIMA del drawer
+       y oculta el footer Limpiar/Aplicar. `!z-[1300]` fuerza al drawer
+       a cubrir el nav cuando está abierto. Patrón bigtech: modal/sheet
+       overlay TODO el chrome, focus exclusivo en el drawer.
+
+       Z-index semántico (escala DESIGN.md §Z-Index): 1300 = peldaño
+       "modal" — este sheet bloquea la interacción con la página, no es
+       un drawer lateral (1200, ocupado por el mobile-footer nav). El
+       mask va a 1290 (justo debajo del panel, encima del nav). Los
+       valores viven hardcodeados acá porque PrimeNG no expone token
+       per-instancia para el z-index del drawer — si se agrega un nivel
+       nuevo, actualizar la escala en DESIGN.md, no inventar números.
+-->
+<p-drawer
+  [(visible)]="visible"
+  position="bottom"
+  header="Filtros y orden"
+  [modal]="true"
+  styleClass="!h-[100dvh] !top-auto !z-[1300]"
+  [maskStyle]="{ 'z-index': 1290 }"
+>
+  <div class="flex flex-col gap-6 pb-6">
+    <!-- Sort -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="mobile-sort">
+        Ordenar por
+      </label>
+      <p-select
+        inputId="mobile-sort"
+        [options]="mobileSortOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="sortOption()"
+        (ngModelChange)="sortOption.set($event)"
+        placeholder="Sin orden"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <p-divider />
+
+    <!-- Tipo -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-type">
+        Tipo
+      </label>
+      <p-multiselect
+        inputId="sheet-type"
+        [options]="typeOptions"
+        [ngModel]="read('type')"
+        (ngModelChange)="applyFilter($event, 'type', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Vendedor -->
+    <section class="flex flex-col gap-2">
+      <label
+        class="text-color font-semibold leading-6"
+        for="sheet-vendedor"
+      >
+        Vendedor asignado
+      </label>
+      <p-multiselect
+        inputId="sheet-vendedor"
+        [options]="sellerOptions()"
+        [ngModel]="read('assignedSellers')"
+        (ngModelChange)="
+          applyFilter($event, 'assignedSellers', arrayIntersectMatchMode)
+        "
+        placeholder="Cualquier vendedor"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Crédito disponible -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-credit">
+        Crédito disponible
+      </label>
+      <span class="text-sm text-muted-color leading-5">
+        {{ formatCredit(creditRange()[0]) }}
+        –
+        {{ formatCredit(creditRange()[1]) }}
+      </span>
+      <p-slider
+        inputId="sheet-credit"
+        [ngModel]="creditRange()"
+        (ngModelChange)="
+          applyFilter($event, 'availableCredit', 'between')
+        "
+        [range]="true"
+        [min]="0"
+        [max]="maxCredit()"
+        [step]="500000"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Segmento -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-segmento">
+        Segmento
+      </label>
+      <p-multiselect
+        inputId="sheet-segmento"
+        [options]="segmentoOptions"
+        [ngModel]="read('segmento')"
+        (ngModelChange)="applyFilter($event, 'segmento', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Clasif. crédito -->
+    <section class="flex flex-col gap-2">
+      <label
+        class="text-color font-semibold leading-6"
+        for="sheet-classification"
+      >
+        Clasif. crédito
+      </label>
+      <p-multiselect
+        inputId="sheet-classification"
+        [options]="classificationOptions"
+        [ngModel]="read('creditClassification')"
+        (ngModelChange)="
+          applyFilter($event, 'creditClassification', 'in')
+        "
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Potencial -->
+    <section class="flex flex-col gap-2">
+      <label
+        class="text-color font-semibold leading-6"
+        for="sheet-potencial"
+      >
+        Potencial
+      </label>
+      <p-multiselect
+        inputId="sheet-potencial"
+        [options]="potencialOptions"
+        [ngModel]="read('potencial')"
+        (ngModelChange)="applyFilter($event, 'potencial', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+
+    <!-- Cartera -->
+    <section class="flex flex-col gap-2">
+      <label class="text-color font-semibold leading-6" for="sheet-cartera">
+        Cartera
+      </label>
+      <p-multiselect
+        inputId="sheet-cartera"
+        [options]="carteraOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="read('cartera')"
+        (ngModelChange)="applyFilter($event, 'cartera', 'in')"
+        placeholder="Cualquiera"
+        appendTo="body"
+        class="w-full"
+      />
+    </section>
+  </div>
+
+  <!--
+    Footer actions via slot `<ng-template #footer>` — PrimeNG drawer
+    renderiza este template FUERA del scroll body, en una zona footer
+    que NO scrollea con el contenido. Patrón correcto vs `position:
+    sticky` dentro del body (que se mueve con scroll porque el sticky
+    se ancla al containing block, no al viewport).
+
+    Anchos iguales via `flex-1` en host + `w-full` en styleClass (que
+    aplica al `<button>` interno; sin eso conserva natural width).
+    Limpiar usa `.p-button-tonal` por consistency con Refresh del
+    toolbar + Limpiar del chip bar. Aplicar queda filled-primary.
+  -->
+  <ng-template #footer>
+    <div
+      class="flex items-center gap-2 -mx-6 -mb-6 px-6 py-4 bg-surface-0 dark:bg-surface-950 border-t border-surface"
+    >
+      <p-button
+        label="Limpiar"
+        icon="fa-sharp fa-regular fa-filter-slash"
+        class="flex-1"
+        styleClass="w-full p-button-tonal"
+        [disabled]="activeFilterCount() === 0"
+        (onClick)="clearAllRequested.emit()"
+      />
+      <p-button
+        label="Aplicar"
+        class="flex-1"
+        styleClass="w-full"
+        (onClick)="visible.set(false)"
+      />
+    </div>
+  </ng-template>
+</p-drawer>

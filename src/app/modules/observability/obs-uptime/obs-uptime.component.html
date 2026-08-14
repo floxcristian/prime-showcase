@@ -321,7 +321,7 @@
                           {{ (value && value[1]) ?? 100 }}%
                         </span>
                         <p-slider
-                          [ngModel]="value ?? [0, 100]"
+                          [ngModel]="value ?? defaultUptimeRange"
                           (ngModelChange)="filter($event)"
                           [range]="true"
                           [min]="0"

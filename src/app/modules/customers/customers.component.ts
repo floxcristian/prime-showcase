@@ -1,16 +1,12 @@
 // Angular
 import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
-  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
   effect,
-  ElementRef,
   inject,
-  Injector,
-  linkedSignal,
   PLATFORM_ID,
   signal,
   untracked,
@@ -21,14 +17,9 @@ import { ActivatedRoute } from '@angular/router';
 // PrimeNG
 import { FilterService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { Dialog } from 'primeng/dialog';
-import { Divider } from 'primeng/divider';
-import { Drawer } from 'primeng/drawer';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelect } from 'primeng/multiselect';
 import { Paginator, type PaginatorState } from 'primeng/paginator';
-import type { Popover } from 'primeng/popover';
-import { PopoverModule } from 'primeng/popover';
 import { Select } from 'primeng/select';
 import { Skeleton } from 'primeng/skeleton';
 import { Slider } from 'primeng/slider';
@@ -37,10 +28,19 @@ import { Tag } from 'primeng/tag';
 import { Toast } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 // Local
+import { ColumnHelpComponent } from '../../shared/components/column-help/column-help.component';
+import { CustomersBulkActionsComponent } from './components/customers-bulk-actions/customers-bulk-actions.component';
+import { CustomersCmdkComponent } from './components/customers-cmdk/customers-cmdk.component';
+import { CustomersDetailDrawerComponent } from './components/customers-detail-drawer/customers-detail-drawer.component';
+import { CustomersFabComponent } from './components/customers-fab/customers-fab.component';
+import { CustomersFilterChipsComponent } from './components/customers-filter-chips/customers-filter-chips.component';
+import { CustomersFilterSheetComponent } from './components/customers-filter-sheet/customers-filter-sheet.component';
 import {
-  ColumnHelpComponent,
-  type ColumnHelpEntry,
-} from '../../shared/components/column-help/column-help.component';
+  CustomersRowActionsComponent,
+  type CustomerRowAction,
+} from './components/customers-row-actions/customers-row-actions.component';
+import { CustomersSavedViewsBarComponent } from './components/customers-saved-views-bar/customers-saved-views-bar.component';
+import { CustomersShortcutsHelpComponent } from './components/customers-shortcuts-help/customers-shortcuts-help.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadErrorStateComponent } from '../../shared/components/load-error-state/load-error-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
@@ -49,8 +49,11 @@ import { StaleDataBannerComponent } from '../../shared/components/stale-data-ban
 import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
 import { COLUMN_FILTER_PT } from '../../shared/tokens/table-tokens';
-import { reopenPopover } from '../../shared/utils/popover';
 import { trackedResource } from '../../shared/utils/tracked-resource';
+import {
+  COLUMN_DEFS,
+  type CustomerColumnDef,
+} from './constants/customers-columns';
 import {
   CARTERA_LEGEND,
   CLASSIFICATION_LEGEND,
@@ -66,15 +69,17 @@ import {
   SEGMENTO_OPTIONS,
   TYPE_OPTIONS,
 } from './constants/customers-options';
-import type {
-  Cartera,
-  CreditClassification,
-  Customer,
-  CustomerLifecycle,
-  CustomerType,
-} from './models/customer.interface';
+import type { Customer, CustomerType } from './models/customer.interface';
+import {
+  ARRAY_INTERSECT_MATCHMODE,
+  CustomersFilterFacade,
+} from './services/customers-filter.facade';
 import { CustomersKeyboardService } from './services/customers-keyboard.service';
 import { CustomersMockService } from './services/customers-mock.service';
+import {
+  CustomersPreferencesService,
+  type TableDensity,
+} from './services/customers-preferences.service';
 import {
   CustomersSavedViewsService,
   type SavedView,
@@ -83,18 +88,27 @@ import {
   CustomersUrlStateService,
   type CustomersViewSnapshot,
 } from './services/customers-url-state.service';
+import {
+  additionalSellersTooltip,
+  carteraLabel,
+  carteraSeverity,
+  classificationSeverity,
+  codeTooltip,
+  creditUtilizationColor,
+  creditUtilizationPct,
+  formatCredit,
+  lifecycleSeverity,
+  typeSeverity,
+} from './utils/customers-format.util';
+import { snapshotEqual } from './utils/customers-snapshot.util';
 
 const NG_MODULES = [CommonModule, FormsModule];
 const PRIME_MODULES = [
   ButtonModule,
-  Dialog,
-  Divider,
-  Drawer,
   InputTextModule,
   Toast,
   MultiSelect,
   Paginator,
-  PopoverModule,
   Select,
   Skeleton,
   Slider,
@@ -104,6 +118,15 @@ const PRIME_MODULES = [
 ];
 const LOCAL_COMPONENTS = [
   ColumnHelpComponent,
+  CustomersBulkActionsComponent,
+  CustomersCmdkComponent,
+  CustomersDetailDrawerComponent,
+  CustomersFabComponent,
+  CustomersFilterChipsComponent,
+  CustomersFilterSheetComponent,
+  CustomersRowActionsComponent,
+  CustomersSavedViewsBarComponent,
+  CustomersShortcutsHelpComponent,
   EmptyStateComponent,
   LoadErrorStateComponent,
   PageHeaderComponent,
@@ -112,17 +135,6 @@ const LOCAL_COMPONENTS = [
   TableFilterShellComponent,
   TooltipDismissOnClickDirective,
 ];
-
-/**
- * Custom matcher para arrays — registrado globalmente en `FilterService`
- * para usarlo via `matchMode="arrayIntersect"` en `<p-columnFilter>`.
- *
- * Lógica: matchea si el field array contiene AL MENOS uno de los
- * valores del filter. Caso de uso: columna "Vendedores asignados"
- * donde un cliente tiene 1-3 vendedores y el filter pregunta "muéstrame
- * todos los clientes de Carla, Felipe o Diego".
- */
-const ARRAY_INTERSECT_MATCHMODE = 'arrayIntersect';
 
 // ── Named constants ────────────────────────────────────────────────
 // Single source of truth para magic numbers que antes vivían inline.
@@ -150,38 +162,6 @@ const UNDO_WINDOW_MS = 8000;
  * buffer de undo. Evita race "user clickeó undo al milisegundo
  * 7999". */
 const UNDO_GRACE_MS = 100;
-/** Threshold del FAB scroll listener — micro-jitter en touch scroll
- * (< 24px) no debe flippear el extended/collapsed state. */
-const FAB_SCROLL_THRESHOLD_PX = 24;
-/** Y-scroll bajo este threshold = "near top", FAB siempre extended
- * independientemente de dirección. */
-const FAB_NEAR_TOP_PX = 50;
-
-/** Density mode del table — affects body/header cell padding. */
-export type TableDensity = 'compact' | 'comfortable';
-
-/** Cmd+K result group — sections rendered en el palette
- * (Recientes / Clientes / Acciones). Patrón Linear/Stripe/Notion:
- * categorical grouping aumenta scanability del listbox. */
-export interface CmdkResultGroup {
-  label: string;
-  icon: string;
-  items: Customer[];
-}
-
-/**
- * Representación normalizada de un filtro activo, surface del chip bar.
- * `field` y `matchMode` son los inputs canónicos para la API
- * `Table.filter(value, field, matchMode)` — al remover, los pasamos
- * directo. `display` es el texto formateado pre-computado para evitar
- * re-formatear en cada render.
- */
-interface ActiveFilter {
-  field: string;
-  label: string;
-  display: string;
-  matchMode: string;
-}
 
 @Component({
   selector: 'app-customers',
@@ -210,15 +190,29 @@ export class CustomersComponent {
   private filterService = inject(FilterService);
   private readonly messageService = inject(MessageService);
   private readonly urlState = inject(CustomersUrlStateService);
-  protected readonly savedViews = inject(CustomersSavedViewsService);
-  protected readonly keyboardService = inject(CustomersKeyboardService);
+  /** Private desde el split: los consumos de template (`views()`,
+   * `busy()`, `get()` del tab bar + save dialog) viven ahora en
+   * `CustomersSavedViewsBarComponent`, que inyecta el service root
+   * directo. Acá quedan el CRUD, el snapshot triangle y el rollback. */
+  private readonly savedViews = inject(CustomersSavedViewsService);
+  /** Private desde el split: el único consumo de template
+   * (`formatCombo` del help overlay) vive ahora en
+   * `CustomersShortcutsHelpComponent`, que inyecta el service root
+   * directo. Acá solo queda el registro de shortcuts. */
+  private readonly keyboardService = inject(CustomersKeyboardService);
+  /** Preferencias persistidas (densidad + recents del cmdk). Único
+   * touchpoint de localStorage del módulo — ver el service. */
+  protected readonly prefs = inject(CustomersPreferencesService);
   private readonly document = inject(DOCUMENT);
-  private readonly injector = inject(Injector);
   private readonly platformId = inject(PLATFORM_ID);
+  /** Declarado junto al resto de los `inject()` (no al final de la
+   * clase): el constructor lo usa para registrar teardowns y los field
+   * initializers corren en orden de declaración — moverlo después de
+   * cualquier código que lo lea rompería en runtime. */
+  private readonly destroyRef = inject(DestroyRef);
   /** Guard SSR canónico del repo (ver .claude/rules/ssr-and-runtime.md)
    * — reemplaza los checks ad-hoc `typeof window/localStorage`. Debe
-   * declararse ANTES de cualquier field initializer que lo lea
-   * (`density`, `cmdkRecentIds`). */
+   * declararse ANTES de cualquier field initializer que lo lea. */
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   /**
@@ -301,7 +295,7 @@ export class CustomersComponent {
     // Buscar system view que matchee el state actual.
     const current = this.currentSnapshot();
     for (const view of views) {
-      if (view.system && this.snapshotEqual(view, current)) {
+      if (view.system && snapshotEqual(view, current)) {
         if (explicit !== view.id) {
           untracked(() => this.activeSavedViewId.set(view.id));
         }
@@ -335,87 +329,16 @@ export class CustomersComponent {
    *
    * Esto evita falsos positivos en system views (donde el snapshot
    * persistido tiene `columns: []` como sentinel "use defaults") y
-   * captura drift real en custom views. Ver `snapshotEqual` abajo.
+   * captura drift real en custom views. Ver `snapshotEqual` en
+   * `utils/customers-snapshot.util.ts`.
    */
   protected readonly hasUnsavedChanges = computed<boolean>(() => {
     const activeId = this.activeSavedViewId();
     if (!activeId) return false;
     const view = this.savedViews.get(activeId);
     if (!view) return false;
-    return !this.snapshotEqual(view, this.currentSnapshot());
+    return !snapshotEqual(view, this.currentSnapshot());
   });
-
-  /**
-   * Comparación full del snapshot persistido contra el state actual.
-   * Branching system vs custom (ver `hasUnsavedChanges`). System views
-   * solo comparan filters; custom views comparan filters + sort +
-   * columns (orden-sensitive) + rows-per-page. `first` (pagination
-   * position) y `detailId` (drawer state) son UI transient y nunca
-   * cuentan como dirty en ninguna rama.
-   */
-  private snapshotEqual(
-    view: SavedView,
-    current: CustomersViewSnapshot,
-  ): boolean {
-    // Filters siempre — definen el "qué muestro" del view.
-    if (!this.filtersEqual(view.snapshot.filters, current.filters)) {
-      return false;
-    }
-    // System view: filters-only definition. Customizations del user
-    // (cols, sort, rows) son preferencias sobre el preset, no edits.
-    if (view.system) return true;
-
-    // Custom view: snapshot completo.
-    // Columns: orden importa (el user persistió un layout específico).
-    if (view.snapshot.columns.length !== current.columns.length) {
-      return false;
-    }
-    for (let i = 0; i < view.snapshot.columns.length; i++) {
-      if (view.snapshot.columns[i] !== current.columns[i]) return false;
-    }
-    // Rows-per-page.
-    if (view.snapshot.rows !== current.rows) return false;
-    // Sort: ambos null → equal; sólo uno null → diff; ambos set →
-    // field+dir match.
-    if (!this.sortEqual(view.snapshot.sort, current.sort)) return false;
-
-    return true;
-  }
-
-  /** Comparación nullable de sort descriptor (field+dir). */
-  private sortEqual(
-    a: { field: string; dir: number } | null,
-    b: { field: string; dir: number } | null,
-  ): boolean {
-    if (a === null && b === null) return true;
-    if (a === null || b === null) return false;
-    return a.field === b.field && a.dir === b.dir;
-  }
-
-  /** Shallow comparison de dos objetos filters. Robusta a key order,
-   * compara array values via sorted JSON.stringify (sets de valores
-   * son equivalentes regardless of position). */
-  private filtersEqual(
-    a: Record<string, unknown>,
-    b: Record<string, unknown>,
-  ): boolean {
-    const keysA = Object.keys(a);
-    const keysB = Object.keys(b);
-    if (keysA.length !== keysB.length) return false;
-    for (const k of keysA) {
-      if (!(k in b)) return false;
-      const va = a[k];
-      const vb = b[k];
-      if (Array.isArray(va) && Array.isArray(vb)) {
-        const sortedA = [...va].sort().join('|');
-        const sortedB = [...vb].sort().join('|');
-        if (sortedA !== sortedB) return false;
-      } else if (va !== vb) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   /**
    * Reset a la saved view activa — re-aplica el snapshot original
@@ -571,13 +494,12 @@ export class CustomersComponent {
     ReturnType<typeof setTimeout>
   >();
 
-  // ── Density toggle (Compact/Normal/Comfortable) ────────────────────
+  // ── Density toggle (Compact/Comfortable) ───────────────────────────
   //
-  // Patrón Cloudscape/MUI/Material-React-Table: usuario elige densidad
-  // del table para maximizar info-per-screen (Compact: 8 rows visible
-  // en lugar de 6) o legibilidad (Comfortable: padding generoso, ideal
-  // para data entry largo). Persist en localStorage para que la
-  // preferencia sobreviva sessions.
+  // La densidad completa (signal persistido + derivados densityDt/
+  // toggleIcon/toggleTooltip + toggle) vive en
+  // `CustomersPreferencesService` — el template bindea `prefs.*`
+  // directo. Acá solo queda el catálogo de opciones.
 
   /** Density opciones — 2 modos siguiendo bigtech (Linear/GitHub Primer
    * usan Compact/Comfortable, no 3 niveles). Tres opciones aumentaba
@@ -587,104 +509,6 @@ export class CustomersComponent {
     { label: 'Compacto', value: 'compact', icon: 'fa-sharp fa-regular fa-bars' },
     { label: 'Cómodo', value: 'comfortable', icon: 'fa-sharp fa-regular fa-table-rows' },
   ];
-
-  protected readonly density = signal<TableDensity>(this.readDensityFromStorage());
-
-  /**
-   * PrimeNG design tokens dinámicos para `<p-table>` según densidad.
-   * Bind via `[dt]="tableDensityDt()"` — PrimeNG aplica padding/font
-   * tokens al table runtime sin necesidad de CSS custom.
-   *
-   * Valores calibrados por measurement de row floor:
-   *   - El row floor estaba dominado por el botón ··· (40px) → reducir
-   *     solo cell padding daba 8px ahorro (~12%), imperceptible.
-   *   - Linear/Stripe/Notion compact: row ~36-40px (vs ~56-64px normal).
-   *     Para llegar ahí necesitamos reducir padding Y escalar el row
-   *     content (··· button → h-7, font-size, line-height).
-   *   - El scaling extra del row content vive en `styles.scss` bajo
-   *     `.customers-table--compact` (descendant selectors). El padding
-   *     vive acá vía dt tokens.
-   *
-   * Comfortable: padding default de PrimeNG (0.75rem 1rem) — row ~56px.
-   * Compact: padding agresivo (0.25rem 0.75rem) + row content scaled
-   * via class → row ~36px. ~36% reducción, claramente visible.
-   */
-  protected readonly tableDensityDt = computed(() => {
-    const d = this.density();
-    if (d === 'compact') {
-      return {
-        bodyCell: { padding: '0.25rem 0.75rem' },
-        headerCell: { padding: '0.375rem 0.75rem' },
-      };
-    }
-    // Comfortable — PrimeNG default padding (0.75rem 1rem)
-    return {};
-  });
-
-  protected setDensity(value: TableDensity): void {
-    this.density.set(value);
-    if (this.isBrowser) {
-      try {
-        localStorage.setItem('customers:density', value);
-      } catch {
-        // ignore
-      }
-    }
-  }
-
-  /**
-   * Density binary toggle — cicla entre Compacto y Cómodo en un solo
-   * click. Reemplaza al `<p-popover>` de 2 opciones que tenía:
-   *
-   *   1. **UX problem**: un popover con 2 botones para alternar entre
-   *      2 estados es overkill. Linear/Notion/Vercel resuelven density
-   *      como toggle directo (1 click), no submenú.
-   *   2. **Trigger race**: `popover.toggle($event)` choca con el
-   *      outside-click handler de PrimeNG. Mousedown del trigger
-   *      cierra el popover (lo considera "fuera del overlay"), después
-   *      el click event ve estado=cerrado y re-abre. Resultado: click
-   *      sobre trigger nunca cierra. Reproducido empíricamente con 6
-   *      clicks consecutivos — todos open=true.
-   *   3. **Flex gap fantasma**: el `<p-popover>` como sibling en el
-   *      flex toolbar consumía 12px (gap-3) extra antes y después,
-   *      desbalanceando el ritmo entre density-button y "Crear cliente"
-   *      (24px vs 12px del resto).
-   *
-   * Convención del icon: muestra el NEXT state — mismo patrón que el
-   * dark-mode toggle del toolbar global (fa-sun cuando dark, fa-moon
-   * cuando light). Click → me llevará a ese estado.
-   */
-  protected toggleDensity(): void {
-    this.setDensity(this.density() === 'compact' ? 'comfortable' : 'compact');
-  }
-
-  /** Icon que representa el NEXT state — patrón forward-affordance. */
-  protected readonly densityToggleIcon = computed(() =>
-    this.density() === 'compact'
-      ? 'fa-sharp fa-regular fa-table-rows'
-      : 'fa-sharp fa-regular fa-bars',
-  );
-
-  /** Tooltip descriptivo: estado actual + acción del click. Patrón
-   * Linear/Stripe — el usuario sabe dónde está y a dónde va. */
-  protected readonly densityToggleTooltip = computed(() =>
-    this.density() === 'compact'
-      ? 'Densidad compacta · clic para vista cómoda'
-      : 'Densidad cómoda · clic para vista compacta',
-  );
-
-  private readDensityFromStorage(): TableDensity {
-    if (!this.isBrowser) return 'comfortable';
-    try {
-      const raw = localStorage.getItem('customers:density');
-      if (raw === 'compact' || raw === 'comfortable') {
-        return raw;
-      }
-    } catch {
-      // ignore
-    }
-    return 'comfortable';
-  }
 
   // ── Row selection + bulk actions ──────────────────────────────────
   //
@@ -698,7 +522,10 @@ export class CustomersComponent {
    * que antes casteaba el `readonly` en el template. */
   protected readonly selectedRows = signal<Customer[]>([]);
 
-  protected readonly selectionCount = computed(
+  /** Private desde el split: los consumos de template (barra bulk +
+   * counts de los dialogs) viven ahora en `CustomersBulkActionsComponent`
+   * (su `count` computed). Acá solo lo lee la cascada de `escape`. */
+  private readonly selectionCount = computed(
     () => this.selectedRows().length,
   );
 
@@ -712,11 +539,14 @@ export class CustomersComponent {
     () => new Set(this.selectedRows().map((c) => c.id)),
   );
 
-  /** Dialog state para bulk assign vendedor. */
+  /** Dialog state para bulk assign vendedor. Two-way con el hijo
+   * `CustomersBulkActionsComponent` (que aloja el `<p-dialog>` y el
+   * seller elegido); queda acá porque también lo abre el popover de
+   * fila (`onActionAssign`, single-row-via-bulk). */
   protected readonly bulkAssignVisible = signal(false);
-  protected readonly bulkAssignSeller = signal<string | null>(null);
 
-  /** Confirm dialog para bulk delete. */
+  /** Confirm dialog para bulk delete. Mismo criterio que
+   * `bulkAssignVisible` — lo abre también `onActionDelete`. */
   protected readonly bulkDeleteVisible = signal(false);
 
   /**
@@ -726,24 +556,17 @@ export class CustomersComponent {
     this.selectedRows.set([]);
   }
 
-  protected openBulkAssign(): void {
-    this.bulkAssignSeller.set(null);
-    this.bulkAssignVisible.set(true);
-  }
-
-  protected closeBulkAssign(): void {
-    this.bulkAssignVisible.set(false);
-  }
-
   /**
    * Bulk assign vendedor — actualiza el primary seller (índice 0) de
    * todos los seleccionados al vendedor elegido. Mock backend: mutate
    * in-memory + reload signal. Bigtech (Salesforce mass owner change)
    * haría POST /api/customers/bulk-update con `{ ids, patch }`.
+   *
+   * El seller llega como argumento (`assignConfirmed` del hijo, que
+   * guardea no-null antes de emitir) — el estado del select vive en
+   * `CustomersBulkActionsComponent`.
    */
-  protected applyBulkAssign(): void {
-    const seller = this.bulkAssignSeller();
-    if (!seller) return;
+  protected applyBulkAssign(seller: string): void {
     const ids = new Set(this.selectedRows().map((c) => c.id));
     // Optimistic UI: mutate signal directamente. En producción, POST
     // primero, on success refresh. Patrón optimistic común en bigtech.
@@ -760,15 +583,7 @@ export class CustomersComponent {
     );
     this.api.replaceAll(updated);
     this.clearSelection();
-    this.closeBulkAssign();
-  }
-
-  protected openBulkDelete(): void {
-    this.bulkDeleteVisible.set(true);
-  }
-
-  protected closeBulkDelete(): void {
-    this.bulkDeleteVisible.set(false);
+    this.bulkAssignVisible.set(false);
   }
 
   /**
@@ -808,7 +623,7 @@ export class CustomersComponent {
     this.api.replaceAll(remaining);
     this.lastDeletedCustomers.set(toDelete);
     this.clearSelection();
-    this.closeBulkDelete();
+    this.bulkDeleteVisible.set(false);
 
     // Toast con UNDO action — el toast auto-cierra después de
     // UNDO_WINDOW_MS, momento en el cual el delete se vuelve
@@ -998,6 +813,17 @@ export class CustomersComponent {
     return Math.ceil(Math.max(...amounts) / 1000000) * 1000000;
   });
 
+  /** Fallback del slider de crédito del `p-columnFilter` cuando no hay
+   * filtro aplicado (`value` null). `computed` y no literal inline en
+   * el template: en zoneless, `[ngModel]` exige identidad estable entre
+   * pasadas de CD — un `[0, maxCredit()]` inline aloca un array nuevo
+   * por pasada y el write-back async de NgModel re-agenda ticks sin fin
+   * (loop infinito de CD, sin guard NG0103 en prod). */
+  protected readonly defaultCreditRange = computed<[number, number]>(() => [
+    0,
+    this.maxCredit(),
+  ]);
+
   // Sets cerrados de opciones para filtros — catálogos estáticos
   // movidos a `constants/customers-options.ts` (convención del módulo,
   // mismo criterio que `customers-data.ts`). Expuestos como fields para
@@ -1025,87 +851,16 @@ export class CustomersComponent {
   protected readonly carteraLegend = CARTERA_LEGEND;
   protected readonly discountGroupLegend = DISCOUNT_GROUP_LEGEND;
 
-  /**
-   * Tooltip per-cell — lookup en la legend correspondiente y formateo
-   * "Label — descripción". Hover sobre `[A1]` muestra
-   * "Excelente — Riesgo financiero bajo" instantáneamente, sin abrir
-   * el popover del header.
-   */
-  protected codeTooltip(
-    legend: readonly ColumnHelpEntry[],
-    code: string,
-  ): string {
-    const entry = legend.find((e) => e.code === code);
-    if (!entry) return '';
-    return entry.description
-      ? `${entry.label} — ${entry.description}`
-      : entry.label;
-  }
-
-  /**
-   * Severity del tag de tipo. Empresa → undefined (primary), Persona →
-   * secondary. Mismo patrón que users.ts para Interno/Externo.
-   */
-  protected typeSeverity(type: CustomerType): 'secondary' | undefined {
-    return type === 'Empresa' ? undefined : 'secondary';
-  }
-
-  /**
-   * Severity del tag de clasificación crediticia — color-coded por
-   * rating. A* (excelente) → success, B* (bueno) → info, C* (regular)
-   * → warn, D (malo) → danger. Comunica salud crediticia de un vistazo
-   * sin necesidad de leer el código.
-   */
-  protected classificationSeverity(
-    cls: CreditClassification,
-  ): 'success' | 'info' | 'warn' | 'danger' {
-    if (cls === 'A1' || cls === 'A2') return 'success';
-    if (cls === 'B1' || cls === 'B2') return 'info';
-    if (cls === 'C1' || cls === 'C2') return 'warn';
-    return 'danger';
-  }
-
-  /**
-   * Severity del tag de ciclo de vida comercial:
-   *   - RECURRENTE → success (cliente saludable, compra consistente)
-   *   - INACTIVO → secondary (sin actividad, sin alarma inmediata)
-   *   - PELIGRO FUGA → warn (target proactivo de retención)
-   *   - FUGADO → danger (churn confirmado)
-   */
-  protected lifecycleSeverity(
-    l: CustomerLifecycle,
-  ): 'success' | 'secondary' | 'warn' | 'danger' {
-    if (l === 'RECURRENTE') return 'success';
-    if (l === 'PELIGRO FUGA') return 'warn';
-    if (l === 'FUGADO') return 'danger';
-    return 'secondary';
-  }
-
-  /**
-   * Severity del tag de cartera — lifecycle del cliente:
-   *   - CA Activa → success (paga al día)
-   *   - CN Nueva  → info (alta reciente)
-   *   - CP Prospecto → secondary (pre-venta)
-   *   - CI Inactiva → secondary (sin movimiento, no morosa)
-   *   - CM Morosa → danger (deuda vencida)
-   */
-  protected carteraSeverity(
-    c: Cartera,
-  ): 'success' | 'info' | 'secondary' | 'danger' {
-    if (c === 'CA') return 'success';
-    if (c === 'CN') return 'info';
-    if (c === 'CM') return 'danger';
-    return 'secondary';
-  }
-
-  /** Label legible de cartera (para mostrar en el tag). */
-  protected carteraLabel(c: Cartera): string {
-    if (c === 'CA') return 'Activa';
-    if (c === 'CP') return 'Prospecto';
-    if (c === 'CN') return 'Nueva';
-    if (c === 'CI') return 'Inactiva';
-    return 'Morosa';
-  }
+  // Formatters/severities puros — extraídos a
+  // `utils/customers-format.util.ts` (funciones puras, sin estado).
+  // Re-expuestos como campos para que el template no cambie ni un
+  // carácter respecto de cuando eran métodos.
+  protected readonly codeTooltip = codeTooltip;
+  protected readonly typeSeverity = typeSeverity;
+  protected readonly classificationSeverity = classificationSeverity;
+  protected readonly lifecycleSeverity = lifecycleSeverity;
+  protected readonly carteraSeverity = carteraSeverity;
+  protected readonly carteraLabel = carteraLabel;
 
   /**
    * Passthrough config compartida para `<p-columnFilter>` — ver JSDoc
@@ -1116,41 +871,13 @@ export class CustomersComponent {
   protected readonly skeletonPlaceholders = [0, 1, 2, 3, 4];
 
   /**
-   * Catálogo de columnas hideables. El checkbox de selección, Nombre y
-   * Acciones quedan fuera — son funcionales/identidad y siempre visibles
-   * (patrón Linear / Notion / Airtable: la primary column nunca se oculta).
-   * El orden acá es el mismo que en el thead, así el multiselect lista las
-   * opciones en el mismo eje visual que la tabla.
-   *
-   * Patrón PrimeNG "Column Toggle" oficial: `<p-multiselect>` con el
-   * catálogo + un signal de keys seleccionadas como ngModel. La doc
-   * (primeng.org/table#column-toggle) lo aplica con `*ngFor="let col of
-   * columns"` para tablas homogéneas — acá adoptamos el trigger UI pero
-   * mantenemos `@if (isColumnVisible(key))` por columna porque cada
-   * celda renderiza distinto (tag, formatCredit, tabular-nums, tooltip
-   * per-cell, sortIcon condicional).
+   * Catálogo de columnas hideables — movido a
+   * `constants/customers-columns.ts` (convención del módulo, mismo
+   * criterio que `customers-data.ts`). Copia mutable porque
+   * `<p-multiselect [options]>` tipa `any[]` y un readonly array no
+   * es asignable bajo strictTemplates.
    */
-  protected readonly columnDefs: {
-    key: string;
-    label: string;
-    defaultHidden?: boolean;
-  }[] = [
-    { key: 'rut', label: 'RUT' },
-    { key: 'type', label: 'Tipo' },
-    { key: 'email', label: 'Contacto', defaultHidden: true },
-    { key: 'lifecycle', label: 'Ciclo de vida', defaultHidden: true },
-    { key: 'assignedSellers', label: 'Vendedores asignados' },
-    { key: 'availableCredit', label: 'Crédito disponible' },
-    { key: 'usedCredit', label: 'Crédito utilizado', defaultHidden: true },
-    { key: 'assignedCredit', label: 'Crédito asignado', defaultHidden: true },
-    { key: 'region', label: 'Región', defaultHidden: true },
-    { key: 'city', label: 'Ciudad', defaultHidden: true },
-    { key: 'segmento', label: 'Segmento' },
-    { key: 'creditClassification', label: 'Clasif. crédito' },
-    { key: 'potencial', label: 'Potencial' },
-    { key: 'discountGroup', label: 'Grupo desc.' },
-    { key: 'cartera', label: 'Cartera' },
-  ];
+  protected readonly columnDefs: CustomerColumnDef[] = [...COLUMN_DEFS];
 
   /**
    * Keys de columnas visibles — modelo positivo. Default = columnas
@@ -1234,19 +961,29 @@ export class CustomersComponent {
   //      de PrimeNG Table — evita @ViewChild legacy + null-checking
   //      manual; el signal expone undefined cuando aún no rendereó.
   //   2. Hook (onFilter) emitido por PrimeNG después de cada apply →
-  //      re-derivamos `activeFilters` desde `table.filters` (state
-  //      oficial, single source of truth).
-  //   3. Removal via Table.filter(null, field, matchMode) — API pública
-  //      documentada de PrimeNG; clear all via Table.clear() + manual
-  //      refresh (defensive: algunas versions no emiten onFilter en
-  //      clear programático).
-  //   4. Format polimórfico por matchMode: between (rango CLP), in /
-  //      arrayIntersect (lista ≤2 o "N seleccionados"), contains
-  //      ("texto"). Field-aware: cartera mapea CA → "Activa".
+  //      `filters.refresh()` re-deriva `active`/`values` desde
+  //      `table.filters` (state oficial, single source of truth).
+  //   3. Removal / clear all / format del display viven en
+  //      `CustomersFilterFacade` — ver JSDoc del facade.
 
   protected readonly clientsTable = viewChild(Table);
 
-  protected readonly activeFilters = signal<readonly ActiveFilter[]>([]);
+  /**
+   * Puerto de filtros — único acceso a `Table.filters` para chip bar,
+   * bottom-sheet y saved views. Clase plain instanciada acá (no DI)
+   * porque depende del `viewChild(Table)` del container. Declarado
+   * DESPUÉS de `clientsTable` y `maxCredit` — los field initializers
+   * corren en orden de declaración.
+   */
+  protected readonly filters = new CustomersFilterFacade(
+    this.clientsTable,
+    this.maxCredit,
+  );
+
+  /** Alias del espejo push-based de filtros activos — el template
+   * (chip bar, badge del sheet, saved views) sigue leyendo
+   * `activeFilters()` sin cambios. */
+  protected readonly activeFilters = this.filters.active;
 
   /**
    * Espejo reactivo del sort activo de la tabla. `Table.sortField` /
@@ -1336,36 +1073,20 @@ export class CustomersComponent {
   // ── Mobile filter & sort bottom-sheet ──────────────────────────────
   //
   // En mobile los `<p-columnFilter>` por header son inaccesibles (la
-  // tabla está oculta, el card-list no tiene headers). Reemplazamos
-  // con un `<p-drawer position="bottom">` que expone TODOS los filterables
-  // en un solo surface, plus un dropdown de Sort. Patrón Linear /
-  // Airtable / Notion mobile: filter+sort sheet único, scroll-friendly,
-  // dismiss con tap-outside o swipe-down.
-  //
-  // Apply pattern: realtime — cada cambio en un input dispara
-  // `Table.filter()` inmediatamente (no Apply button). UX preferido en
-  // mobile: feedback visual instantáneo en las cards detrás del drawer
-  // (parcialmente translúcido) deja al user ver el resultado mientras
-  // ajusta. Patrón Stripe/Notion. La alternativa (Apply button + buffer
-  // state) la considero pero overkill para este scope; agregable v3
-  // si la lista de cards crece y filtering en realtime se vuelve laggy.
+  // tabla está oculta, el card-list no tiene headers). El sheet
+  // (`<app-customers-filter-sheet>`, drawer bottom + controls + sort
+  // presets) vive en su propio componente; acá quedan la visibilidad
+  // (la comparten el atajo `f`, el botón del toolbar y la cascada de
+  // `escape`), el sort two-way (lo lee `mobileSourceData`) y el apply
+  // (facade + reset de paginación mobile) — ver JSDoc del hijo para el
+  // rationale del realtime apply sin buffer.
 
   protected readonly filterSheetVisible = signal(false);
 
-  /** Sort options del card-list mobile. Single select compacto: cada
-   * option es `field:dir` para que un solo click aplique ambas. Patrón
-   * Linear/Stripe mobile: presets sort en lugar de field+dir separados
-   * (más compacto, menos taps). */
-  protected readonly mobileSortOptions: { label: string; value: string }[] = [
-    { label: 'Sin orden', value: '' },
-    { label: 'Nombre (A → Z)', value: 'sortKey:1' },
-    { label: 'Nombre (Z → A)', value: 'sortKey:-1' },
-    { label: 'RUT (ascendente)', value: 'rut:1' },
-    { label: 'RUT (descendente)', value: 'rut:-1' },
-    { label: 'Crédito (mayor)', value: 'availableCredit:-1' },
-    { label: 'Crédito (menor)', value: 'availableCredit:1' },
-  ];
-
+  /** Sort preset `field:dir` del card-list mobile — two-way con el
+   * `<app-customers-filter-sheet>` (que es dueño del catálogo de
+   * options); lo lee `mobileSourceData` en el pipeline filter → sort
+   * → paginate. */
   protected readonly mobileSortOption = signal<string>('');
 
   protected openFilterSheet(): void {
@@ -1376,47 +1097,17 @@ export class CustomersComponent {
     this.filterSheetVisible.set(false);
   }
 
-  /** Helper genérico para que el drawer aplique cualquier filter. El
-   * value `null` o array vacío clear el filter (consistente con la
-   * API oficial `Table.filter()`). */
+  /** Handler del `(filterApplied)` del sheet — cualquier filter del
+   * drawer pasa por acá. La normalización (`null` | `[]` | `''` →
+   * clear) vive en el facade; acá solo queda el reset de paginación
+   * mobile. */
   protected applySheetFilter(
     value: unknown,
     field: string,
     matchMode: string,
   ): void {
-    const normalized =
-      value == null ||
-      (Array.isArray(value) && value.length === 0) ||
-      value === ''
-        ? null
-        : value;
-    this.clientsTable()?.filter(normalized, field, matchMode);
+    this.filters.apply(value, field, matchMode);
     this.mobileFirst.set(0);
-  }
-
-  /** Read del valor actual de un filter (para bind ngModel del drawer
-   * a la fuente de verdad — `table.filters`). Si el filter no existe
-   * o está null, devuelve undefined. */
-  protected sheetFilterValue<T>(field: string): T | undefined {
-    const t = this.clientsTable();
-    if (!t) return undefined;
-    const meta = t.filters[field];
-    if (!meta) return undefined;
-    const arr = Array.isArray(meta) ? meta[0] : meta;
-    return arr?.value as T | undefined;
-  }
-
-  /** Rango actual del filter de crédito disponible para el slider del
-   * bottom-sheet, con fallback al rango completo. Tipado acá (los
-   * templates no soportan type arguments genéricos) — evita los
-   * `$any()` que antes casteaban `sheetFilterValue(...)` en el HTML. */
-  protected sheetCreditRange(): [number, number] {
-    return (
-      this.sheetFilterValue<[number, number]>('availableCredit') ?? [
-        0,
-        this.maxCredit(),
-      ]
-    );
   }
 
   // ── Detail drawer (universal mobile + desktop) ─────────────────────
@@ -1456,7 +1147,7 @@ export class CustomersComponent {
   }
 
   protected onTableFilter(event: TableFilterEvent): void {
-    this.refreshActiveFilters();
+    this.filters.refresh();
     // Sync filtered data para mobile card-list. Si filteredValue es
     // undefined o el array completo, dejamos null — mobile cae a
     // tableData() (más eficiente, evita doble referencia al mismo array).
@@ -1479,209 +1170,42 @@ export class CustomersComponent {
   }
 
   /**
-   * Serializa el estado actual de filtros + sort desde `Table.filters`
-   * (state canónico de PrimeNG) y `tableSort` hacia URL queryParams.
-   * Skipea si estamos en fase de hidratación inicial para evitar
-   * feedback loop.
+   * Serializa el estado actual de filtros + sort hacia URL queryParams.
+   * La parte de filtros la arma `filters.snapshotFilters()` (el único
+   * puerto de lectura de `Table.filters` — mismo serializado que usan
+   * las saved views, un solo lugar para la regla de descarte de
+   * vacíos). Skipea si estamos en fase de hidratación inicial para
+   * evitar feedback loop; el guard de tabla no-montada se conserva
+   * (sin tabla NO se emite updateUrl, igual que pre-partición).
    */
   private syncFiltersToUrl(): void {
     if (this.isApplyingFromUrl()) return;
-    const t = this.clientsTable();
-    if (!t) return;
-    const filters: Record<string, unknown> = {};
-    for (const field of Object.keys(t.filters)) {
-      const meta = t.filters[field];
-      const value = Array.isArray(meta) ? meta[0]?.value : meta?.value;
-      if (
-        value != null &&
-        !(Array.isArray(value) && value.length === 0) &&
-        value !== ''
-      ) {
-        filters[field] = value;
-      }
-    }
-    this.urlState.updateUrl({ filters, sort: this.tableSort() });
-  }
-
-  protected removeFilter(filter: ActiveFilter): void {
-    this.clientsTable()?.filter(null, filter.field, filter.matchMode);
+    if (!this.clientsTable()) return;
+    this.urlState.updateUrl({
+      filters: this.filters.snapshotFilters(),
+      sort: this.tableSort(),
+    });
   }
 
   protected clearAllFilters(): void {
-    const t = this.clientsTable();
-    if (!t) return;
     // `Table.clear()` resetea también el sort (sin emitir onSort) —
-    // sincronizamos el espejo reactivo manualmente.
-    t.clear();
+    // el facade limpia filtros + refresh; el espejo reactivo del sort
+    // y el eco mobile se sincronizan acá manualmente.
+    this.filters.clear();
     this.tableSort.set(null);
     this._mobileFilteredData.set(null);
-    this.refreshActiveFilters();
   }
 
-  private refreshActiveFilters(): void {
-    const t = this.clientsTable();
-    if (!t) {
-      this.activeFilters.set([]);
-      return;
-    }
-    const filters = t.filters;
-    const result: ActiveFilter[] = [];
-    for (const field of Object.keys(filters)) {
-      const meta = filters[field];
-      const arr = Array.isArray(meta) ? meta : [meta];
-      for (const m of arr) {
-        const display = this.formatFilterDisplay(field, m.matchMode, m.value);
-        if (display !== null) {
-          result.push({
-            field,
-            label: this.labelForField(field),
-            display,
-            matchMode: m.matchMode ?? 'equals',
-          });
-        }
-      }
-    }
-    this.activeFilters.set(result);
-  }
-
-  /**
-   * Lookup del label legible para un field. Usa `columnDefs` (catálogo
-   * de columnas hideables) y fallback explícito para fixed columns
-   * que no aparecen ahí (Nombre — cuyo field técnico es 'sortKey').
-   */
-  private labelForField(field: string): string {
-    const def = this.columnDefs.find((c) => c.key === field);
-    if (def) return def.label;
-    if (field === 'name' || field === 'sortKey') return 'Nombre';
-    return field;
-  }
-
-  /**
-   * Formato del valor según matchMode. Retorna `null` si el filter
-   * no está activo (value vacío/null) — el caller skipea esos.
-   */
-  private formatFilterDisplay(
-    field: string,
-    matchMode: string | undefined,
-    value: unknown,
-  ): string | null {
-    if (value == null) return null;
-    if (typeof value === 'string' && value.trim() === '') return null;
-    if (Array.isArray(value) && value.length === 0) return null;
-
-    if (matchMode === 'between' && Array.isArray(value)) {
-      const [from, to] = value as [number | null, number | null];
-      if (from == null && to == null) return null;
-      if (this.isCreditField(field)) {
-        return `${this.formatCredit(from ?? 0)} – ${this.formatCredit(to ?? this.maxCredit())}`;
-      }
-      return `${from ?? '—'} – ${to ?? '—'}`;
-    }
-
-    if (matchMode === 'in' || matchMode === ARRAY_INTERSECT_MATCHMODE) {
-      if (!Array.isArray(value)) return null;
-      const labels = value.map((v) => this.displayLabelForValue(field, v));
-      if (labels.length <= 2) return labels.join(', ');
-      return `${labels.length} seleccionados`;
-    }
-
-    if (typeof value === 'string') return `"${value}"`;
-    return String(value);
-  }
-
-  private isCreditField(field: string): boolean {
-    return (
-      field === 'availableCredit' ||
-      field === 'usedCredit' ||
-      field === 'assignedCredit'
-    );
-  }
-
-  /**
-   * Lookup del label de display para un value específico de un field.
-   * Cartera almacena el código (`CA`) pero el chip muestra "Activa".
-   * Otros fields usan el value directo.
-   */
-  private displayLabelForValue(field: string, value: unknown): string {
-    if (field === 'cartera') {
-      return (
-        this.carteraOptions.find((o) => o.value === value)?.label ??
-        String(value)
-      );
-    }
-    return String(value);
-  }
-
-  /**
-   * Formateador de moneda CLP. Instanciado una vez (constructor de
-   * `Intl.NumberFormat` es relativamente caro) y reusado por
-   * `formatCredit` + el filter shell. `maximumFractionDigits: 0`
-   * porque el peso chileno no usa decimales.
-   */
-  private readonly clpFormatter = new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    maximumFractionDigits: 0,
-  });
-
-  protected formatCredit(amount: number): string {
-    return this.clpFormatter.format(amount);
-  }
-
-  /**
-   * Utilization gauge — % de crédito utilizado del asignado.
-   * Mini progress bar inline informa al vendor "qué tan cargado está
-   * el cliente" sin tener que comparar mentalmente 2 montos.
-   *
-   * Patrón Stripe/HubSpot mobile: when financial ratio matters, show
-   * visual gauge inline. 0%=fully available, 100%=maxed out.
-   *
-   * Clamped 0-100 para edge cases (cliente con usedCredit > assigned
-   * en data sucia).
-   */
-  protected creditUtilizationPct(customer: Customer): number {
-    if (customer.assignedCredit <= 0) return 0;
-    const pct = (customer.usedCredit / customer.assignedCredit) * 100;
-    return Math.max(0, Math.min(100, Math.round(pct)));
-  }
-
-  /**
-   * Severity del gauge por threshold de utilization. Driving decisions:
-   *   - <60%: success (sano, espacio para más facturación)
-   *   - 60-85%: warn (atención, considerar bump credit)
-   *   - >85%: danger (cerca del límite, no aprobar más)
-   */
-  protected creditUtilizationSeverity(
-    pct: number,
-  ): 'success' | 'warn' | 'danger' {
-    if (pct < 60) return 'success';
-    if (pct <= 85) return 'warn';
-    return 'danger';
-  }
-
-  /**
-   * Color CSS variable token correspondiente a la severity del gauge.
-   * Usamos `var(--p-{green,orange,red}-500)` para mantener consistency
-   * con los tags PrimeNG (severity success/warn/danger) que usan los
-   * mismos tokens internamente. Lint rule `no-hardcoded-colors` no
-   * permite `bg-green-500` como class, pero los design tokens via
-   * `[style.backgroundColor]` sí porque son CSS vars del theme.
-   */
-  protected creditUtilizationColor(pct: number): string {
-    const sev = this.creditUtilizationSeverity(pct);
-    if (sev === 'success') return 'var(--p-green-500)';
-    if (sev === 'warn') return 'var(--p-orange-500)';
-    return 'var(--p-red-500)';
-  }
-
-  /**
-   * Tooltip del overflow indicator "N más" — lista los nombres después
-   * del primary, separados por coma. Permite peek rápido del equipo
-   * sin abrir el detalle del cliente.
-   */
-  protected additionalSellersTooltip(sellers: readonly string[]): string {
-    return sellers.slice(1).join(', ');
-  }
+  // Formatters de crédito — extraídos a
+  // `utils/customers-format.util.ts` (el `clpFormatter` vive ahí como
+  // const module-level, instanciado una sola vez). Re-expuestos como
+  // campos; `creditUtilizationSeverity` no se re-expone porque ningún
+  // template del container la llama directo (solo la usa
+  // `creditUtilizationColor` dentro del util).
+  protected readonly formatCredit = formatCredit;
+  protected readonly creditUtilizationPct = creditUtilizationPct;
+  protected readonly creditUtilizationColor = creditUtilizationColor;
+  protected readonly additionalSellersTooltip = additionalSellersTooltip;
 
 
   constructor() {
@@ -1721,8 +1245,9 @@ export class CustomersComponent {
 
     // Teardown de timers pendientes. Sin esto, un setTimeout vivo al
     // destruir el componente escribe signals y dispara toasts sobre la
-    // instancia muerta (el onDestroy de initFabScrollBehavior solo
-    // limpia el listener del FAB).
+    // instancia muerta. (El scroll listener del FAB y el reopen timer
+    // del popover de fila tienen su propio teardown en sus hijos —
+    // CustomersFabComponent / CustomersRowActionsComponent.)
     this.destroyRef.onDestroy(() => {
       if (this.pendingUndoTimer !== null) {
         clearTimeout(this.pendingUndoTimer);
@@ -1732,10 +1257,6 @@ export class CustomersComponent {
         clearTimeout(timer);
       }
       this.simulateApiCallTimers.clear();
-      if (this.popoverReopenTimer !== null) {
-        clearTimeout(this.popoverReopenTimer);
-        this.popoverReopenTimer = null;
-      }
     });
 
     // Hidratación URL → state. El effect espera a que `clientsTable()`
@@ -1753,26 +1274,6 @@ export class CustomersComponent {
     });
 
     this.registerKeyboardShortcuts();
-    this.initFabScrollBehavior();
-
-    // Focus programático del input del Cmd+K palette al abrir. Patrón
-    // a11y-correct vs `autofocus` attribute (que rompe screen reader
-    // announcements y crea jumpy initial focus).
-    //
-    // `afterNextRender` reemplaza al `setTimeout(50)` mágico anterior:
-    // Angular garantiza que corre DESPUÉS del próximo render del
-    // browser, sin números arbitrarios. Si el user spamea Cmd+K, cada
-    // toggle re-schedula el callback contra el siguiente frame; nunca
-    // se acumulan timers en memoria. Patrón Angular 17+.
-    effect(() => {
-      if (!this.cmdkVisible()) return;
-      const ref = this.cmdkInputRef();
-      if (!ref) return;
-      afterNextRender(() => ref.nativeElement.focus(), {
-        injector: this.injector,
-      });
-    });
-
   }
 
   /**
@@ -1787,15 +1288,10 @@ export class CustomersComponent {
 
     this.isApplyingFromUrl.set(true);
     try {
-      // Filters
+      // Filters — el facade resuelve el matchMode canónico por field
+      // y aplica cada entrada via `Table.filter()`.
       if (snapshot.filters) {
-        const t = this.clientsTable();
-        if (t) {
-          for (const [field, value] of Object.entries(snapshot.filters)) {
-            const matchMode = this.matchModeForField(field);
-            t.filter(value, field, matchMode);
-          }
-        }
+        this.filters.applyFilters(snapshot.filters);
       }
       // Sort (?sort=field:asc|desc → aplica a la tabla + espejo reactivo)
       if (snapshot.sort) {
@@ -1819,36 +1315,17 @@ export class CustomersComponent {
     }
   }
 
-  /**
-   * Lookup del matchMode canónico por field. Necesario para que
-   * `Table.filter()` aplique el filter al matcher correcto al
-   * hidratar desde URL. Mantenemos esto en un map por simplicidad —
-   * en producción un decorador en columnDefs sería más auto.
-   */
-  private matchModeForField(field: string): string {
-    if (field === 'assignedSellers') return ARRAY_INTERSECT_MATCHMODE;
-    if (
-      field === 'availableCredit' ||
-      field === 'usedCredit' ||
-      field === 'assignedCredit'
-    ) {
-      return 'between';
-    }
-    if (
-      field === 'type' ||
-      field === 'segmento' ||
-      field === 'creditClassification' ||
-      field === 'potencial' ||
-      field === 'cartera' ||
-      field === 'lifecycle' ||
-      field === 'region'
-    ) {
-      return 'in';
-    }
-    return 'contains';
-  }
-
   // ── Saved views integration ────────────────────────────────────────
+
+  /**
+   * Handle del hijo saved-views-bar — el cierre del dialog "Guardar
+   * vista" es async-aware: el hijo emite `saveRequested` SIN cerrar y
+   * el container cierra recién cuando `savedViews.create()` resolvió
+   * (mismo orden que el `await` pre-partición). Mientras persiste, el
+   * modal queda abierto mostrando busy; si falla, queda abierto con el
+   * nombre para reintentar.
+   */
+  private readonly savedViewsBar = viewChild(CustomersSavedViewsBarComponent);
 
   /**
    * Aplica una saved view: limpia state actual, lee el snapshot y
@@ -1865,12 +1342,10 @@ export class CustomersComponent {
       // Clear current filters first
       const t = this.clientsTable();
       if (t) t.clear();
-      // Apply snapshot filters
-      if (t && view.snapshot.filters) {
-        for (const [field, value] of Object.entries(view.snapshot.filters)) {
-          const matchMode = this.matchModeForField(field);
-          t.filter(value, field, matchMode);
-        }
+      // Apply snapshot filters — el facade resuelve matchMode por field
+      // (no-op si la tabla aún no montó, mismo guard que antes).
+      if (view.snapshot.filters) {
+        this.filters.applyFilters(view.snapshot.filters);
       }
       // Apply snapshot sort. `t.clear()` (arriba) ya reseteó el sort;
       // acá restauramos el orden persistido en la view (si tiene) y
@@ -1891,13 +1366,20 @@ export class CustomersComponent {
     }
     this.activeSavedViewId.set(view.id);
     // Refresh URL para reflejar el state aplicado
-    this.refreshActiveFilters();
+    this.filters.refresh();
     this.syncFiltersToUrl();
   }
 
   /**
    * Captura el snapshot actual y lo persiste como nueva saved view.
-   * Pasa por el modal `saveViewVisible` que pide el nombre.
+   * El nombre llega ya trimmeado desde el dialog del hijo
+   * (`saveRequested` de `CustomersSavedViewsBarComponent`); el guard
+   * se conserva por robustez. El dialog se cierra RECIÉN después del
+   * `await` exitoso (paridad con pre-partición): durante los ~180ms de
+   * persistencia el modal muestra `[loading]`/`[disabled]` via
+   * `savedViews.busy()`, y si `create()` lanza (rollback + toast del
+   * service) el cierre nunca corre — el user reintenta sobre el mismo
+   * modal con el nombre intacto.
    */
   protected async saveCurrentAsView(name: string): Promise<void> {
     const trimmed = name.trim();
@@ -1905,54 +1387,27 @@ export class CustomersComponent {
     const snapshot = this.currentSnapshot();
     const view = await this.savedViews.create(trimmed, snapshot);
     this.activeSavedViewId.set(view.id);
-    this.saveViewVisible.set(false);
-    this.saveViewName.set('');
+    this.savedViewsBar()?.closeSaveViewDialog();
   }
 
   /**
    * Compone snapshot serializable del state actual para persistencia.
-   * Lee desde el source-of-truth (Table.filters) en vez de
-   * activeFilters (signal derivado) — más robusto contra divergencias.
+   * La parte de filtros la arma el facade leyendo el source-of-truth
+   * (Table.filters) en vez de `activeFilters` (signal derivado) — más
+   * robusto contra divergencias.
    */
   private currentSnapshot(): CustomersViewSnapshot {
-    const t = this.clientsTable();
-    const filters: Record<string, unknown> = {};
-    if (t) {
-      for (const field of Object.keys(t.filters)) {
-        const meta = t.filters[field];
-        const value = Array.isArray(meta) ? meta[0]?.value : meta?.value;
-        if (
-          value != null &&
-          !(Array.isArray(value) && value.length === 0) &&
-          value !== ''
-        ) {
-          filters[field] = value;
-        }
-      }
-    }
     return {
       // Sort real de la tabla via el espejo reactivo `tableSort` —
       // antes hardcodeaba `null` y `hasUnsavedChanges` era ciego al
       // orden (custom views con sort persistido nunca marcaban drift).
       sort: this.tableSort(),
-      filters,
+      filters: this.filters.snapshotFilters(),
       columns: [...this.selectedColumnKeys()],
       first: this.mobileFirst(),
       rows: this.mobileRows(),
       detailId: this.detailedCustomer()?.id ?? null,
     };
-  }
-
-  protected readonly saveViewVisible = signal(false);
-  protected readonly saveViewName = signal('');
-
-  protected openSaveViewDialog(): void {
-    this.saveViewName.set('');
-    this.saveViewVisible.set(true);
-  }
-
-  protected closeSaveViewDialog(): void {
-    this.saveViewVisible.set(false);
   }
 
   /**
@@ -2018,25 +1473,15 @@ export class CustomersComponent {
     this.customersData.retry();
   }
 
-  /**
-   * Customer "scoped" en el popover de acciones — los handlers del
-   * popover ({@link onActionDetail}, etc.) leen este signal para saber
-   * sobre cuál fila actuar. Patrón canónico para popovers contextuales
-   * (Linear, Notion, Stripe): single popover instance reusable per row.
-   */
-  protected readonly popoverCustomer = signal<Customer | null>(null);
+  /** Handle del popover hijo — `displayPopover` delega en su `open()`
+   * imperativo (el `#op`, el customer scoped y el reopen timer viven
+   * ahora en `CustomersRowActionsComponent`). El elemento está en el
+   * root del template, fuera de todo `@if` → el viewChild queda
+   * resuelto desde el primer render. */
+  private readonly rowActions = viewChild(CustomersRowActionsComponent);
 
-  /** Handle del reopen diferido del popover — cancelado en el
-   * `destroyRef.onDestroy` del constructor (ver shared/utils/popover). */
-  private popoverReopenTimer: ReturnType<typeof setTimeout> | null = null;
-
-  protected displayPopover(
-    e: MouseEvent,
-    op: Popover,
-    customer: Customer,
-  ): void {
-    this.popoverCustomer.set(customer);
-    this.popoverReopenTimer = reopenPopover(e, op);
+  protected displayPopover(e: MouseEvent, customer: Customer): void {
+    this.rowActions()?.open(e, customer);
   }
 
   // ── Row actions (··· popover menu) ─────────────────────────────────
@@ -2049,44 +1494,71 @@ export class CustomersComponent {
   //   5. Duplicar         — clona el customer (timestamp id, " (copia)")
   //   6. Eliminar         — destructive separated by divider
   // Acciones secundarias deferred a v2 (Log call, Convert, Mover, etc).
+  //
+  // Los handlers reciben el customer por parámetro (el scoped state
+  // `popoverCustomer` vive ahora en el hijo, que lo emite junto a la
+  // acción); acá queda la orquestación (drawer + URL, selección +
+  // bulk dialogs, mock API).
 
-  protected onActionDetail(): void {
-    const c = this.popoverCustomer();
-    if (c) this.openDetail(c);
+  /** Despacha la acción elegida en el menú ··· del hijo. */
+  protected onRowAction({
+    action,
+    customer,
+  }: {
+    action: CustomerRowAction;
+    customer: Customer;
+  }): void {
+    switch (action) {
+      case 'detail':
+        this.onActionDetail(customer);
+        break;
+      case 'edit':
+        this.onActionEdit(customer);
+        break;
+      case 'assign':
+        this.onActionAssign(customer);
+        break;
+      case 'email':
+        this.onActionEmail(customer);
+        break;
+      case 'duplicate':
+        this.onActionDuplicate(customer);
+        break;
+      case 'delete':
+        this.onActionDelete(customer);
+        break;
+    }
   }
 
-  protected onActionEdit(): void {
+  protected onActionDetail(c: Customer): void {
+    this.openDetail(c);
+  }
+
+  protected onActionEdit(c: Customer): void {
     // v1: Edit reusa el detail drawer (read-only por ahora). v2 sería
     // edit-mode toggle en el drawer con form inline.
-    const c = this.popoverCustomer();
-    if (c) this.openDetail(c);
+    this.openDetail(c);
   }
 
   /** Asignar vendedor a UN customer — selecciona ese row y reusa el
    * bulk-assign dialog. Pattern single-row-via-bulk simplifica el
    * mantenimiento (1 dialog, 1 mock API call). */
-  protected onActionAssign(): void {
-    const c = this.popoverCustomer();
-    if (c) {
-      this.selectedRows.set([c]);
-      this.openBulkAssign();
-    }
+  protected onActionAssign(c: Customer): void {
+    this.selectedRows.set([c]);
+    this.bulkAssignVisible.set(true);
   }
 
   /** Email — `mailto:` link. Sin guard de SSR porque popover sólo
    * existe browser-side (PrimeNG popover monta en DOM dinámicamente). */
-  protected onActionEmail(): void {
-    const c = this.popoverCustomer();
-    if (c?.email) {
+  protected onActionEmail(c: Customer): void {
+    if (c.email) {
       window.location.href = `mailto:${c.email}`;
     }
   }
 
   /** Duplica el customer — id nuevo (timestamp), name con sufijo
    * "(copia)". Mock backend: prepend al dataset via replaceAll. */
-  protected onActionDuplicate(): void {
-    const c = this.popoverCustomer();
-    if (!c) return;
+  protected onActionDuplicate(c: Customer): void {
     const duplicate: Customer = {
       ...c,
       id: Date.now(),
@@ -2095,12 +1567,9 @@ export class CustomersComponent {
     this.api.replaceAll([duplicate, ...this.tableData()]);
   }
 
-  protected onActionDelete(): void {
-    const c = this.popoverCustomer();
-    if (c) {
-      this.selectedRows.set([c]);
-      this.openBulkDelete();
-    }
+  protected onActionDelete(c: Customer): void {
+    this.selectedRows.set([c]);
+    this.bulkDeleteVisible.set(true);
   }
 
   /**
@@ -2114,62 +1583,6 @@ export class CustomersComponent {
   protected onCreateCustomer(): void {
     // TODO: open create customer dialog
   }
-
-  // ── FAB scroll-aware collapse (Material 3) ────────────────────────
-  //
-  // Patrón Material 3 / Google Tasks/Calendar/Gmail mobile: Extended
-  // FAB **collapses to icon-only** on scroll down (recede para no
-  // ocultar contenido), re-extends on scroll up (forward-affordance).
-  // Detección via scroll listener con threshold 24px delta.
-
-  protected readonly fabExtended = signal(true);
-  private lastScrollY = 0;
-  private fabScrollListener?: () => void;
-
-  /**
-   * Init del scroll listener para FAB collapse. Tear-down vía
-   * destroyRef hook auto-llamado al destruirse el componente.
-   * Threshold de 24px evita flicker en jitter scroll de touch.
-   */
-  private initFabScrollBehavior(): void {
-    if (!this.isBrowser) return;
-    const onScroll = () => {
-      const current = window.scrollY;
-      const delta = current - this.lastScrollY;
-      if (Math.abs(delta) < FAB_SCROLL_THRESHOLD_PX) return; // micro-jitter
-      if (current < FAB_NEAR_TOP_PX) {
-        // Near top — always extended
-        this.fabExtended.set(true);
-      } else if (delta > 0) {
-        // Scrolling down → collapse
-        this.fabExtended.set(false);
-      } else {
-        // Scrolling up → extend
-        this.fabExtended.set(true);
-      }
-      this.lastScrollY = current;
-    };
-    // Find the scrollable container. El layout wrap usa `<main>` con
-    // overflow-y-auto (window scroll no aplica). DOM access via DI'd
-    // `DOCUMENT` token vs `document` global — más testable + SSR-safe
-    // por convención del proyecto. Acoplamiento al layout sigue ahí
-    // (la query asume que existe un `<main>`) pero al menos es
-    // explícito. Migrar a un `ScrollContainerService` requeriría
-    // refactor del layout — fuera de scope.
-    const scrollEl = this.document.querySelector('main');
-    if (scrollEl) {
-      scrollEl.addEventListener('scroll', onScroll, { passive: true });
-      this.fabScrollListener = () =>
-        scrollEl.removeEventListener('scroll', onScroll);
-    } else {
-      window.addEventListener('scroll', onScroll, { passive: true });
-      this.fabScrollListener = () =>
-        window.removeEventListener('scroll', onScroll);
-    }
-    this.destroyRef.onDestroy(() => this.fabScrollListener?.());
-  }
-
-  private readonly destroyRef = inject(DestroyRef);
 
   // ── Keyboard shortcuts + Cmd+K palette + ? help overlay ───────────
   //
@@ -2185,193 +1598,21 @@ export class CustomersComponent {
   // (always-on globally, patrón Linear/Stripe).
 
   protected readonly cmdkVisible = signal(false);
-  protected readonly cmdkQuery = signal('');
   protected readonly helpVisible = signal(false);
 
-  /** Active index dentro de cmdkResults — driven by arrow keys.
-   * Patrón canónico bigtech (Linear/Stripe/Notion Cmd+K): ↑↓ navega,
-   * Enter confirma. Sin esto el palette funciona como search box, no
-   * como command palette.
-   *
-   * `linkedSignal` keyed en `cmdkQuery`: cada cambio del query resetea
-   * el índice a 0 — sino el index puede quedar fuera de bounds tras
-   * filtrar (ej: estaba en index=5, user tipea hasta dejar 2 results).
-   * Mismo patrón que `page` en movies.component; sigue siendo writable
-   * para arrow nav. */
-  protected readonly cmdkActiveIndex = linkedSignal<string, number>({
-    source: this.cmdkQuery,
-    computation: () => 0,
-  });
-
-  private static readonly CMDK_RECENT_KEY = 'customers:cmdk-recent:v1';
-  private static readonly CMDK_RECENT_MAX = 5;
-
-  /** Recent search hits — top customers IDs visitados via Cmd+K.
-   * Surfaced en el palette cuando el query está vacío. Patrón Raycast/
-   * Linear: frecency context replaces "empty state". */
-  protected readonly cmdkRecentIds = signal<readonly number[]>(
-    this.readCmdkRecent(),
-  );
-
-  /** ViewChild reactivo al `<input #cmdkInput>` del command palette.
-   * Usado por effect que focusea el input cuando el dialog abre —
-   * patrón a11y-friendly (no `autofocus` attribute, que la regla
-   * `accessibility-no-positive-tabindex` y mejores prácticas WCAG
-   * desaconsejan por interferir con screen reader announcements). */
-  private readonly cmdkInputRef =
-    viewChild<ElementRef<HTMLInputElement>>('cmdkInput');
-
-  /** Listbox de resultados ref para scroll-into-view del active item. */
-  private readonly cmdkListRef =
-    viewChild<ElementRef<HTMLElement>>('cmdkList');
-
-  /**
-   * Filtered customers para el Cmd+K palette — busca por nombre, RUT,
-   * email. Case-insensitive, substring match con ranking:
-   *   1. Exact match prefix > substring (Linear-style "starts with" boost)
-   *   2. Recent hits first cuando query empty (Raycast frecency)
-   * Top 8 para mantener UI manageable (Linear/Stripe limit similar).
-   */
-  protected readonly cmdkResults = computed<readonly CmdkResultGroup[]>(() => {
-    const q = this.cmdkQuery().toLowerCase().trim();
-    const data = this.tableData();
-    if (!q) {
-      // Empty state — surface recent searches first, then top 5 más
-      // recientes/relevantes del dataset.
-      const recentIds = this.cmdkRecentIds();
-      const recent = recentIds
-        .map((id) => data.find((c) => c.id === id))
-        .filter((c): c is Customer => c != null)
-        .slice(0, 5);
-      const otherCustomers = data.filter((c) => !recentIds.includes(c.id)).slice(0, 8 - recent.length);
-      const groups: CmdkResultGroup[] = [];
-      if (recent.length > 0) {
-        groups.push({ label: 'Recientes', icon: 'fa-clock-rotate-left', items: recent });
-      }
-      if (otherCustomers.length > 0) {
-        groups.push({ label: 'Clientes', icon: 'fa-user', items: otherCustomers });
-      }
-      return groups;
-    }
-
-    const matches = data
-      .filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.rut.toLowerCase().includes(q) ||
-          c.email.toLowerCase().includes(q),
-      )
-      .map((c) => {
-        // Ranking score: 100 si starts-with name, 50 si starts-with rut/email,
-        // 10 si substring (default include). Higher = better.
-        const name = c.name.toLowerCase();
-        const rut = c.rut.toLowerCase();
-        const email = c.email.toLowerCase();
-        let score = 10;
-        if (name.startsWith(q)) score = 100;
-        else if (rut.startsWith(q) || email.startsWith(q)) score = 50;
-        return { customer: c, score };
-      })
-      .sort((a, b) => b.score - a.score)
-      .map((r) => r.customer)
-      .slice(0, 8);
-
-    if (matches.length === 0) return [];
-    return [{ label: 'Clientes', icon: 'fa-user', items: matches }];
-  });
-
-  /** Flat list de items para arrow-key navigation. Combina todos los
-   * grupos en un single linear sequence (matches el visual top-to-bottom
-   * order). Used by `cmdkActiveIndex` para arrow nav + Enter select. */
-  protected readonly cmdkFlatResults = computed<readonly Customer[]>(() =>
-    this.cmdkResults().flatMap((g) => g.items),
-  );
+  /** Handle del palette hijo — `openCmdK` delega en su `open()`
+   * imperativo, que resetea query + índice ANTES de abrir (ese estado
+   * vive ahora en `CustomersCmdkComponent`). El elemento está en el
+   * root del template, fuera de todo `@if` → el viewChild queda
+   * resuelto desde el primer render (los shortcuts corren después). */
+  private readonly cmdkPalette = viewChild(CustomersCmdkComponent);
 
   protected openCmdK(): void {
-    this.cmdkQuery.set('');
-    this.cmdkActiveIndex.set(0);
-    this.cmdkVisible.set(true);
+    this.cmdkPalette()?.open();
   }
 
   protected closeCmdK(): void {
     this.cmdkVisible.set(false);
-  }
-
-  protected selectCmdKResult(customer: Customer): void {
-    this.pushCmdkRecent(customer.id);
-    this.openDetail(customer);
-    this.closeCmdK();
-  }
-
-  /** Arrow key nav handler. ↓ avanza, ↑ retrocede, wraps at edges
-   * (patrón Linear: circular nav vs Stripe: stop at edges — pick
-   * circular for fewer dead-end interactions). */
-  protected onCmdkKeyDown(event: KeyboardEvent): void {
-    const total = this.cmdkFlatResults().length;
-    if (total === 0) return;
-
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      this.cmdkActiveIndex.update((i) => (i + 1) % total);
-      this.scrollCmdkActiveIntoView();
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      this.cmdkActiveIndex.update((i) => (i - 1 + total) % total);
-      this.scrollCmdkActiveIntoView();
-    } else if (event.key === 'Enter') {
-      event.preventDefault();
-      const customer = this.cmdkFlatResults()[this.cmdkActiveIndex()];
-      if (customer) this.selectCmdKResult(customer);
-    }
-  }
-
-  /** Scroll programático al active item — keep it visible mientras
-   * user navega con flechas. Patrón Linear: smooth scroll dentro del
-   * listbox, no afecta el outer scroll. */
-  private scrollCmdkActiveIntoView(): void {
-    if (!this.isBrowser) return;
-    queueMicrotask(() => {
-      const list = this.cmdkListRef()?.nativeElement;
-      if (!list) return;
-      const active = list.querySelector('[data-cmdk-active="true"]');
-      if (active && 'scrollIntoView' in active) {
-        (active as HTMLElement).scrollIntoView({
-          block: 'nearest',
-          behavior: 'smooth',
-        });
-      }
-    });
-  }
-
-  private readCmdkRecent(): readonly number[] {
-    if (!this.isBrowser) return [];
-    try {
-      const raw = localStorage.getItem(CustomersComponent.CMDK_RECENT_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) return [];
-      return parsed.filter((id): id is number => typeof id === 'number');
-    } catch {
-      return [];
-    }
-  }
-
-  private pushCmdkRecent(id: number): void {
-    if (!this.isBrowser) return;
-    const current = this.cmdkRecentIds().filter((x) => x !== id);
-    const updated = [id, ...current].slice(
-      0,
-      CustomersComponent.CMDK_RECENT_MAX,
-    );
-    this.cmdkRecentIds.set(updated);
-    try {
-      localStorage.setItem(
-        CustomersComponent.CMDK_RECENT_KEY,
-        JSON.stringify(updated),
-      );
-    } catch {
-      // ignore
-    }
   }
 
   protected openHelp(): void {
@@ -2381,25 +1622,6 @@ export class CustomersComponent {
   protected closeHelp(): void {
     this.helpVisible.set(false);
   }
-
-  /**
-   * Snapshot del set de shortcuts registrados, agrupados por section
-   * para el ? help overlay. Computed para que el dialog liste los
-   * shortcuts activos en tiempo real.
-   */
-  protected readonly groupedShortcuts = computed(() => {
-    const all = this.keyboardService.registered();
-    const sections = new Map<string, typeof all[number][]>();
-    for (const s of all) {
-      const arr = sections.get(s.section) ?? [];
-      arr.push(s);
-      sections.set(s.section, arr);
-    }
-    return [...sections.entries()].map(([section, shortcuts]) => ({
-      section,
-      shortcuts,
-    }));
-  });
 
   /**
    * Registra todos los shortcuts del módulo. Llamado desde constructor

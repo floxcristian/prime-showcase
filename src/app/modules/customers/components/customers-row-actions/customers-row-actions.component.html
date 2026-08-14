@@ -1,0 +1,96 @@
+<!--
+  Action menu del ··· row button. Patrón Salesforce/HubSpot/Pipedrive:
+  vertical action list con 5-6 actions semánticas + destructive
+  separado por divider. Reemplaza el "Detalles+Eliminar" minimalista
+  por el set canónico bigtech CRM.
+
+  Estructura:
+    - Ver detalle (primary action, abre drawer)
+    - Editar (alias del detalle por ahora — v2: edit-mode toggle)
+    - Asignar vendedor (single-row del bulk action)
+    - Email (mailto:)
+    - Duplicar (clone customer)
+    ─────────────────
+    - Eliminar (destructive, text-danger via tag-like styling)
+-->
+<p-popover #op>
+  <ng-template #content>
+    <div class="flex flex-col gap-0.5 min-w-52" role="menu">
+      <button
+        type="button"
+        role="menuitem"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
+        (click)="op.hide(); emit('detail')"
+      >
+        <i
+          class="fa-sharp fa-regular fa-eye text-muted-color"
+          aria-hidden="true"
+        ></i>
+        <span>Ver detalle</span>
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
+        (click)="op.hide(); emit('edit')"
+      >
+        <i
+          class="fa-sharp fa-regular fa-pen text-muted-color"
+          aria-hidden="true"
+        ></i>
+        <span>Editar</span>
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
+        (click)="op.hide(); emit('assign')"
+      >
+        <i
+          class="fa-sharp fa-regular fa-user-pen text-muted-color"
+          aria-hidden="true"
+        ></i>
+        <span>Asignar vendedor</span>
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
+        (click)="op.hide(); emit('email')"
+      >
+        <i
+          class="fa-sharp fa-regular fa-envelope text-muted-color"
+          aria-hidden="true"
+        ></i>
+        <span>Enviar email</span>
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-color font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
+        (click)="op.hide(); emit('duplicate')"
+      >
+        <i
+          class="fa-sharp fa-regular fa-copy text-muted-color"
+          aria-hidden="true"
+        ></i>
+        <span>Duplicar</span>
+      </button>
+      <hr
+        class="border-t border-surface my-1 -mx-1"
+        role="separator"
+        aria-hidden="true"
+      />
+      <button
+        type="button"
+        role="menuitem"
+        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg font-medium leading-6 cursor-pointer hover:bg-emphasis transition-colors"
+        [style.color]="'var(--p-red-500)'"
+        (click)="op.hide(); emit('delete')"
+      >
+        <i class="fa-sharp fa-regular fa-trash" aria-hidden="true"></i>
+        <span>Eliminar</span>
+      </button>
+    </div>
+  </ng-template>
+</p-popover>

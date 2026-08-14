@@ -1,0 +1,130 @@
+<!--
+  ─── DETAIL DRAWER (universal mobile + desktop) ──────────────────────
+  Right-side drawer con info COMPLETA del cliente — todas las columnas
+  del modelo (no sólo las visibles en la tabla). Surface universal:
+  abierto desde tap card body en mobile, futuro click "Detalles" del
+  ··· menu en desktop. Patrón Linear/HubSpot/Stripe/Salesforce: detail
+  panel single-source, mismo componente cross-viewport.
+
+  Ancho responsive: 100% en mobile (sheet full-width), 480px en desktop
+  (panel side por defecto). Patrón GitHub PR sidebar / Linear issue
+  detail / Stripe customer detail.
+-->
+<p-drawer
+  [visible]="!!customer()"
+  (visibleChange)="$event ? null : closed.emit()"
+  position="right"
+  styleClass="!w-full md:!w-[480px]"
+  [showCloseIcon]="true"
+  [dismissible]="true"
+>
+  <ng-template #header>
+    @if (customer(); as c) {
+      <div class="flex flex-col gap-1 min-w-0 flex-1">
+        <h2 class="text-color font-bold leading-6 truncate">{{ c.name }}</h2>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="tabular-nums text-muted-color text-sm leading-5">{{
+            c.rut
+          }}</span>
+          <p-tag
+            [severity]="typeSeverity(c.type)"
+            [value]="c.type"
+            class="font-medium"
+          />
+        </div>
+      </div>
+    }
+  </ng-template>
+  @if (customer(); as c) {
+    <dl
+      class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 leading-6 pb-6 border-b border-surface mb-6"
+    >
+      <dt class="text-muted-color">Email</dt>
+      <dd class="text-color truncate">{{ c.email }}</dd>
+
+      <dt class="text-muted-color">Vendedores</dt>
+      <dd class="text-color">
+        @if (c.assignedSellers.length > 0) {
+          {{ c.assignedSellers.join(", ") }}
+        } @else {
+          <span class="text-muted-color">—</span>
+        }
+      </dd>
+
+      <dt class="text-muted-color">Crédito disponible</dt>
+      <dd class="tabular-nums text-color">
+        {{ formatCredit(c.availableCredit) }}
+      </dd>
+      <dt class="text-muted-color">Crédito utilizado</dt>
+      <dd class="tabular-nums text-muted-color">
+        {{ formatCredit(c.usedCredit) }}
+      </dd>
+      <dt class="text-muted-color">Crédito asignado</dt>
+      <dd class="tabular-nums text-muted-color">
+        {{ formatCredit(c.assignedCredit) }}
+      </dd>
+
+      <dt class="text-muted-color">Segmento</dt>
+      <dd class="text-color">{{ c.segmento }}</dd>
+
+      <dt class="text-muted-color">Clasif. crédito</dt>
+      <dd>
+        <p-tag
+          [severity]="classificationSeverity(c.creditClassification)"
+          [value]="c.creditClassification"
+          class="font-medium"
+        />
+      </dd>
+
+      <dt class="text-muted-color">Potencial</dt>
+      <dd class="text-color">{{ c.potencial }}</dd>
+
+      <dt class="text-muted-color">Grupo descuento</dt>
+      <dd class="tabular-nums text-color">{{ c.discountGroup }}</dd>
+
+      <dt class="text-muted-color">Cartera</dt>
+      <dd>
+        <p-tag
+          [severity]="carteraSeverity(c.cartera)"
+          [value]="carteraLabel(c.cartera)"
+          class="font-medium"
+        />
+      </dd>
+
+      <dt class="text-muted-color">Ciclo de vida</dt>
+      <dd>
+        <p-tag
+          [severity]="lifecycleSeverity(c.lifecycle)"
+          [value]="c.lifecycle"
+          class="font-medium"
+        />
+      </dd>
+
+      <dt class="text-muted-color">Región</dt>
+      <dd class="text-color">{{ c.region }}</dd>
+      <dt class="text-muted-color">Ciudad</dt>
+      <dd class="text-color">{{ c.city }}</dd>
+    </dl>
+
+    <!-- Acciones: secundarias (Editar, Eliminar). Acción primaria
+         "Detalles" no aparece — el drawer ya ES el detalle. -->
+    <div class="flex items-center gap-2">
+      <p-button
+        label="Editar"
+        icon="fa-sharp fa-regular fa-pen"
+        severity="secondary"
+        outlined
+        class="flex-1"
+        (onClick)="closed.emit()"
+      />
+      <p-button
+        label="Eliminar"
+        icon="fa-sharp fa-regular fa-trash"
+        severity="danger"
+        outlined
+        class="flex-1"
+        (onClick)="closed.emit()"
+      />
+    </div>
+  }
+</p-drawer>

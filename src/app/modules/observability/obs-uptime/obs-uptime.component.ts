@@ -147,6 +147,14 @@ export class ObsUptimeComponent {
   private api = inject(ObservabilityMockService);
   private router = inject(Router);
 
+  /** Fallback del slider de uptime del `p-columnFilter` cuando no hay
+   * filtro aplicado (`value` null). Field readonly y no literal inline
+   * en el template: en zoneless, `[ngModel]` exige identidad estable
+   * entre pasadas de CD — un `[0, 100]` inline aloca un array nuevo por
+   * pasada y el write-back async de NgModel re-agenda ticks sin fin
+   * (loop infinito de CD, sin guard NG0103 en prod). */
+  protected readonly defaultUptimeRange: [number, number] = [0, 100];
+
   /**
    * Resource principal — `trackedResource()` empaqueta el pattern
    * compartido con users / roles / customers: rxResource +

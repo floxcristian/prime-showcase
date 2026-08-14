@@ -1,0 +1,40 @@
+<!--
+  ─── ? KEYBOARD SHORTCUTS HELP OVERLAY ────────────────────────────────
+  Surface canónico bigtech (Linear, Notion, Slack, GitHub, Stripe):
+  presionar `?` abre overlay con TODOS los shortcuts registrados,
+  agrupados por section. UI compact key-binding rows.
+
+  Las kbd visuales matchean el estilo Linear/Notion: small monospace,
+  border subtle, bg neutral. Cross-platform (Mac/Win) via
+  `formatCombo()` del service que mapea cmd→⌘/Ctrl.
+-->
+<p-dialog
+  [(visible)]="visible"
+  header="Atajos de teclado"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '480px', 'max-width': 'calc(100vw - 2rem)' }"
+>
+  <div class="flex flex-col gap-6">
+    @for (group of groupedShortcuts(); track group.section) {
+      <section class="flex flex-col gap-2">
+        <h3 class="text-color font-semibold leading-6">{{ group.section }}</h3>
+        <ul class="flex flex-col gap-2" role="list">
+          @for (s of group.shortcuts; track s.combo) {
+            <li
+              class="flex items-center justify-between gap-3 text-color leading-6"
+            >
+              <span class="flex-1 min-w-0">{{ s.label }}</span>
+              <kbd
+                class="px-2 py-0.5 border border-surface rounded-lg text-sm font-medium tabular-nums leading-5"
+                >{{ keyboardService.formatCombo(s.combo) }}</kbd
+              >
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+</p-dialog>
