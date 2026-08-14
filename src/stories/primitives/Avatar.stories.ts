@@ -3,6 +3,8 @@ import { moduleMetadata } from '@storybook/angular';
 import { Avatar } from 'primeng/avatar';
 import { OverlayBadge } from 'primeng/overlaybadge';
 
+import { demoAsset } from '../../app/shared/constants/demo-assets';
+
 interface AvatarArgs {
   image?: string;
   label?: string;
@@ -45,7 +47,7 @@ type Story = StoryObj<AvatarArgs>;
 
 export const WithImage: Story = {
   args: {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png',
+    image: demoAsset('avatar-primetek.png'),
     shape: 'circle',
     size: 'large',
   },
@@ -62,7 +64,7 @@ export const Initials: Story = {
 
 export const Square: Story = {
   args: {
-    image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png',
+    image: demoAsset('avatar-primetek.png'),
     shape: 'square',
     size: 'large',
   },
@@ -77,10 +79,11 @@ export const StatusBadge: Story = {
     },
   },
   render: () => ({
+    props: { image: demoAsset('avatar-primetek.png') },
     template: `
       <p-overlayBadge severity="success" styleClass="!min-w-0 !w-2.5 !h-2.5">
         <p-avatar
-          image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png"
+          [image]="image"
           shape="circle"
           size="large"
         />

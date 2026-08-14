@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
 import { Avatar } from 'primeng/avatar';
 
+import { demoAsset } from '../../app/shared/constants/demo-assets';
+
 /**
  * La receta de list-item es el patrón más usado de la app (chat list,
  * inbox, panel de customers, notificaciones). Cinco variantes son canónicas
@@ -29,10 +31,11 @@ export const ChatRow: Story = {
     },
   },
   render: () => ({
+    props: { avatar: demoAsset('avatar-primetek.png') },
     template: `
       <div class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-colors border border-surface rounded-lg max-w-md">
         <p-avatar
-          image="https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png"
+          [image]="avatar"
           shape="circle"
           size="large"
         />

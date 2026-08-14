@@ -1,13 +1,9 @@
-<!-- Header — patrón compartido con CRM > Clientes -->
-<div class="flex items-start gap-2 justify-between flex-wrap mb-6">
-  <div class="min-w-0">
-    <h1 class="text-2xl leading-8 text-color font-medium">Inbox</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Tu bandeja de avisos: errores, alertas y deploys de los servicios que
-      seguís, agrupados por urgencia.
-    </div>
-  </div>
-</div>
+<!-- Header — patrón compartido `<app-page-header>` -->
+<app-page-header
+  class="mb-6"
+  title="Inbox"
+  description="Tu bandeja de avisos: errores, alertas y deploys de los servicios que seguís, agrupados por urgencia."
+/>
 
 @if (loading()) {
   <!-- Skeleton: dimensiones alineadas al list item real (icon col + body
@@ -26,14 +22,9 @@
     }
   </div>
 } @else if (loadError()) {
-  <app-empty-state
-    icon="fa-triangle-exclamation"
+  <app-load-error-state
     title="No pudimos cargar tu inbox"
-    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
-    [bordered]="true"
-    actionLabel="Reintentar"
-    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
-    (actionClick)="retry()"
+    (retry)="retry()"
   />
 } @else {
   <p-tabs value="now" [lazy]="true">

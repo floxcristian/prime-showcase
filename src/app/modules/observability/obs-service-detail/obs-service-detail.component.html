@@ -25,14 +25,9 @@
     </div>
   </div>
 } @else if (loadError()) {
-  <app-empty-state
-    icon="fa-triangle-exclamation"
+  <app-load-error-state
     title="No pudimos cargar el servicio"
-    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
-    [bordered]="true"
-    actionLabel="Reintentar"
-    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
-    (actionClick)="retry()"
+    (retry)="retry()"
   />
 } @else if (service(); as svc) {
   <!--

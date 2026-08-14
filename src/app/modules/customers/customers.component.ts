@@ -16,7 +16,6 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 // PrimeNG
@@ -43,10 +42,15 @@ import {
   type ColumnHelpEntry,
 } from '../../shared/components/column-help/column-help.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { LoadErrorStateComponent } from '../../shared/components/load-error-state/load-error-state.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { RefreshToolbarComponent } from '../../shared/components/refresh-toolbar/refresh-toolbar.component';
+import { StaleDataBannerComponent } from '../../shared/components/stale-data-banner/stale-data-banner.component';
 import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
-import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
-import { TimeService } from '../../shared/services/time.service';
+import { COLUMN_FILTER_PT } from '../../shared/tokens/table-tokens';
+import { reopenPopover } from '../../shared/utils/popover';
+import { trackedResource } from '../../shared/utils/tracked-resource';
 import {
   CARTERA_LEGEND,
   CLASSIFICATION_LEGEND,
@@ -101,9 +105,12 @@ const PRIME_MODULES = [
 const LOCAL_COMPONENTS = [
   ColumnHelpComponent,
   EmptyStateComponent,
+  LoadErrorStateComponent,
+  PageHeaderComponent,
+  RefreshToolbarComponent,
+  StaleDataBannerComponent,
   TableFilterShellComponent,
   TooltipDismissOnClickDirective,
-  RelativeTimePipe,
 ];
 
 /**
@@ -143,9 +150,6 @@ const UNDO_WINDOW_MS = 8000;
  * buffer de undo. Evita race "user clickeó undo al milisegundo
  * 7999". */
 const UNDO_GRACE_MS = 100;
-/** Delay artificial cuando se hide-then-show el row-actions popover
- * para que PrimeNG re-attach correctly tras un click rápido. */
-const POPOVER_REOPEN_GUARD_MS = 150;
 /** Threshold del FAB scroll listener — micro-jitter en touch scroll
  * (< 24px) no debe flippear el extended/collapsed state. */
 const FAB_SCROLL_THRESHOLD_PX = 24;
@@ -208,7 +212,6 @@ export class CustomersComponent {
   private readonly urlState = inject(CustomersUrlStateService);
   protected readonly savedViews = inject(CustomersSavedViewsService);
   protected readonly keyboardService = inject(CustomersKeyboardService);
-  private readonly timeService = inject(TimeService);
   private readonly document = inject(DOCUMENT);
   private readonly injector = inject(Injector);
   private readonly platformId = inject(PLATFORM_ID);
@@ -926,24 +929,20 @@ export class CustomersComponent {
     URL.revokeObjectURL(url);
   }
 
-  protected readonly customersResource = rxResource({
-    stream: () => this.api.getCustomers(),
-  });
-  protected readonly loading = computed(() =>
-    this.customersResource.isLoading(),
+  /**
+   * Resource principal — `trackedResource()` empaqueta el pattern
+   * compartido con users / roles / obs-uptime: rxResource +
+   * loading/loadError + copia mutable para p-table (`rows`, expuesta
+   * como `tableData`) + freshness (`lastFetchedAt` + bump del
+   * TimeService) + retry con guard.
+   */
+  private readonly customersData = trackedResource<Customer>(() =>
+    this.api.getCustomers(),
   );
-  protected readonly loadError = computed(() =>
-    this.customersResource.error(),
-  );
-
-  /** Dataset materializado para la tabla. Spread al materializar:
-   * `<p-table [value]>` espera `T[]` mutable (sortea in-place), así que
-   * copiamos el `readonly Customer[]` del resource en un array propio —
-   * elimina el `$any()` del template y aísla la mutación de PrimeNG
-   * del snapshot del service. */
-  protected readonly tableData = computed<Customer[]>(() => [
-    ...(this.customersResource.value() ?? []),
-  ]);
+  protected readonly loading = this.customersData.loading;
+  protected readonly loadError = this.customersData.loadError;
+  protected readonly tableData = this.customersData.rows;
+  protected readonly lastFetchedAt = this.customersData.lastFetchedAt;
 
   /**
    * Conteos derivados para el count pill del header — formato "X de Y
@@ -1102,13 +1101,11 @@ export class CustomersComponent {
     return 'Morosa';
   }
 
-  protected readonly columnFilterPt = {
-    pcFilterClearButton: { root: { class: 'p-button-tonal' } },
-    filterButtonBar: { class: '!justify-end gap-2' },
-  };
-
-  private readonly _lastFetchedAt = signal<string | null>(null);
-  protected readonly lastFetchedAt = this._lastFetchedAt.asReadonly();
+  /**
+   * Passthrough config compartida para `<p-columnFilter>` — ver JSDoc
+   * en `shared/tokens/table-tokens.ts`.
+   */
+  protected readonly columnFilterPt = COLUMN_FILTER_PT;
 
   protected readonly skeletonPlaceholders = [0, 1, 2, 3, 4];
 
@@ -1729,19 +1726,9 @@ export class CustomersComponent {
         clearTimeout(this.simulateApiCallTimer);
         this.simulateApiCallTimer = null;
       }
-    });
-
-    effect(() => {
-      const val = this.customersResource.value();
-      if (val !== undefined && !this.customersResource.isLoading()) {
-        this._lastFetchedAt.set(new Date().toISOString());
-        // Push-update el time-source — sin esto el `relativeTime` pipe
-        // compara este timestamp fresco contra `TimeService.now()` que
-        // tiene el valor del último tick natural (hasta 60s atrás),
-        // produciendo "Actualizado en el futuro" hasta el próximo tick.
-        // Bigtech (GitHub/Linear): toda mutación que genere ts fresco
-        // push-updatea la fuente comparativa.
-        this.timeService.bump();
+      if (this.popoverReopenTimer !== null) {
+        clearTimeout(this.popoverReopenTimer);
+        this.popoverReopenTimer = null;
       }
     });
 
@@ -2022,8 +2009,7 @@ export class CustomersComponent {
   }
 
   protected retry(): void {
-    if (this.customersResource.isLoading()) return;
-    this.customersResource.reload();
+    this.customersData.retry();
   }
 
   /**
@@ -2034,16 +2020,17 @@ export class CustomersComponent {
    */
   protected readonly popoverCustomer = signal<Customer | null>(null);
 
+  /** Handle del reopen diferido del popover — cancelado en el
+   * `destroyRef.onDestroy` del constructor (ver shared/utils/popover). */
+  private popoverReopenTimer: ReturnType<typeof setTimeout> | null = null;
+
   protected displayPopover(
     e: MouseEvent,
     op: Popover,
     customer: Customer,
   ): void {
     this.popoverCustomer.set(customer);
-    op.hide();
-    setTimeout(() => {
-      op.show(e);
-    }, POPOVER_REOPEN_GUARD_MS);
+    this.popoverReopenTimer = reopenPopover(e, op);
   }
 
   // ── Row actions (··· popover menu) ─────────────────────────────────

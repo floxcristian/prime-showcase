@@ -6,6 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import {
   CHANNEL_PREFS_MOCK,
@@ -19,7 +20,7 @@ import type {
 const NG_MODULES = [CommonModule, FormsModule];
 const PRIME_MODULES = [ButtonModule, InputTextModule];
 const PRIME_STANDALONE = [Select, ToggleSwitch];
-const LOCAL_COMPONENTS = [PillComponent];
+const LOCAL_COMPONENTS = [PageHeaderComponent, PillComponent];
 
 /**
  * Preferencias del usuario para notificaciones de observability.

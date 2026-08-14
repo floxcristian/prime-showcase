@@ -1,15 +1,10 @@
-<!-- Header — patrón compartido con CRM > Clientes -->
-<div class="flex items-start gap-2 justify-between flex-wrap mb-6">
-  <div class="min-w-0">
-    <h1 class="text-2xl leading-8 text-color font-medium">
-      Preferencias
-    </h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Configurá qué notificaciones recibís, por qué canal y cuándo. Si
-      activás on-call, recibís todo sin filtros.
-    </div>
-  </div>
-  <div class="flex gap-2 whitespace-nowrap">
+<!-- Header — patrón compartido `<app-page-header>` -->
+<app-page-header
+  class="mb-6"
+  title="Preferencias"
+  description="Configurá qué notificaciones recibís, por qué canal y cuándo. Si activás on-call, recibís todo sin filtros."
+>
+  <div actions class="flex gap-2 whitespace-nowrap">
     <p-button
       label="Restablecer"
       severity="secondary"
@@ -23,7 +18,7 @@
       icon="fa-sharp fa-regular fa-check"
     />
   </div>
-</div>
+</app-page-header>
 
 <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
   <!-- Main: canales / severidad / DND -->

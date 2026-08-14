@@ -1,12 +1,8 @@
-<!-- Header -->
-<div class="flex items-start gap-2 justify-between flex-wrap">
-  <div class="min-w-0">
-    <h1 class="text-2xl leading-8 text-color font-medium">Uptime</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Estado de salud y cuánto tiempo estuvieron disponibles tus
-      servicios en los últimos 30 días.
-    </div>
-  </div>
+<!-- Header — patrón compartido `<app-page-header>` -->
+<app-page-header
+  title="Uptime"
+  description="Estado de salud y cuánto tiempo estuvieron disponibles tus servicios en los últimos 30 días."
+>
   @if (statusPill(); as pill) {
     <!--
       Status pill informativo (no interactivo): elemento estático,
@@ -26,7 +22,7 @@
       <span>{{ pill.label }}</span>
     </div>
   }
-</div>
+</app-page-header>
 
 <!--
   Toolbar — solo info + refresh. Los filtros viven en cada columna
@@ -34,74 +30,25 @@
   al user (¿cuál filter aplica? ¿se sincronizan?). Pattern Linear /
   GitHub: filtros donde se filtran los datos (column header), no
   arriba en una toolbar separada.
+
+  El rationale del refresh button (animate-spin vs [loading],
+  disabled + tooltip tradeoff) vive en el JSDoc de
+  `<app-refresh-toolbar>`.
 -->
 <div
   class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap"
 >
-  <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
-    @if (lastFetchedAt(); as ts) {
-      <span
-        class="text-sm text-muted-color leading-5 hidden lg:inline"
-        aria-live="polite"
-      >
-        Actualizado {{ ts | relativeTime }}
-      </span>
-    }
-    <!--
-      Refresh button — feedback de loading vía icon rotation.
-
-      NO usa [loading] del p-button: PrimeNG swap-ea el icon por un
-      SVG spinner que es casi idéntico al fa-arrows-rotate (ambos
-      círculos con flechas) → durante 1-2 frames de transición se
-      ven los dos overlapped, apariencia de "2 iconos" reportada
-      en QA.
-
-      En su lugar, durante loading rotamos el MISMO icon via
-      animate-spin (Tailwind keyframe linear infinite). El icon
-      fa-arrows-rotate ya semántica "girar/refrescar" → rotarlo
-      comunica "trabajando" sin swap (sin flicker) y sin ocultar
-      la rotación con un spinner ajeno. Patrón Linear / Stripe
-      Dashboard / Vercel para refresh buttons.
-      prefers-reduced-motion neutraliza la animación globalmente
-      (styles.scss).
-
-      [disabled]="loading()" bloquea tap-spam DURANTE el fetch.
-      El tradeoff conocido — disabled aplica pointer-events:none
-      → tooltip "Actualizar" no aparece en hover durante loading —
-      es ACEPTABLE acá porque el spin icon ya es el feedback
-      visual del estado: el user que ve el ícono girando no
-      necesita el tooltip para entender "está actualizando". El
-      tooltip cumple rol discovery (idle, primer hover); el spin
-      cumple rol state (loading). Roles complementarios, no
-      superpuestos.
-
-      retry() además guardea contra reentry como defense-in-depth.
-    -->
-    <p-button
-      [icon]="
-        'fa-sharp fa-regular fa-arrows-rotate' +
-        (loading() ? ' animate-spin' : '')
-      "
-      [disabled]="loading()"
-      outlined
-      severity="secondary"
-      ariaLabel="Actualizar"
-      pTooltip="Actualizar"
-      tooltipPosition="bottom"
-      (onClick)="retry()"
-    />
-  </div>
+  <app-refresh-toolbar
+    [lastFetchedAt]="lastFetchedAt()"
+    [loading]="loading()"
+    (refresh)="retry()"
+  />
 </div>
 
 @if (allRows().length === 0 && loadError()) {
-  <app-empty-state
-    icon="fa-triangle-exclamation"
+  <app-load-error-state
     title="No pudimos cargar los servicios"
-    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
-    [bordered]="true"
-    actionLabel="Reintentar"
-    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
-    (actionClick)="retry()"
+    (retry)="retry()"
   />
 } @else if (allRows().length === 0 && !loading()) {
   <app-empty-state
@@ -126,27 +73,7 @@
     inline porque el [loading] no comunica failure — solo "trabajando".
   -->
   @if (loadError() && allRows().length > 0) {
-    <div
-      class="border border-surface rounded-lg p-3 mb-2 flex items-center gap-3 text-sm"
-      role="alert"
-    >
-      <i
-        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
-        aria-hidden="true"
-      ></i>
-      <span class="flex-1 text-muted-color leading-5">
-        No pudimos refrescar los datos. Estás viendo la última versión
-        disponible.
-      </span>
-      <p-button
-        label="Reintentar"
-        severity="secondary"
-        size="small"
-        [text]="true"
-        icon="fa-sharp fa-regular fa-arrows-rotate"
-        (onClick)="retry()"
-      />
-    </div>
+    <app-stale-data-banner (retry)="retry()" />
   }
 
   @if (allUnknown()) {

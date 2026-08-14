@@ -14,6 +14,7 @@ import { Tag } from 'primeng/tag';
 import { Timeline } from 'primeng/timeline';
 
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadErrorStateComponent } from '../../../shared/components/load-error-state/load-error-state.component';
 import { SeverityChipComponent } from '../../../shared/components/severity-chip/severity-chip.component';
 import { StatusChipComponent } from '../../../shared/components/status-chip/status-chip.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
@@ -25,6 +26,7 @@ const PRIME_MODULES = [ButtonModule];
 const PRIME_STANDALONE = [Skeleton, Tag, Timeline];
 const LOCAL_COMPONENTS = [
   EmptyStateComponent,
+  LoadErrorStateComponent,
   SeverityChipComponent,
   StatusChipComponent,
 ];

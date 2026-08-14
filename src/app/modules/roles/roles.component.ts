@@ -4,11 +4,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -22,10 +21,16 @@ import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 // Local
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { LoadErrorStateComponent } from '../../shared/components/load-error-state/load-error-state.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { RefreshToolbarComponent } from '../../shared/components/refresh-toolbar/refresh-toolbar.component';
+import { StaleDataBannerComponent } from '../../shared/components/stale-data-banner/stale-data-banner.component';
 import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
 import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
-import { TimeService } from '../../shared/services/time.service';
+import { COLUMN_FILTER_PT } from '../../shared/tokens/table-tokens';
+import { reopenPopover } from '../../shared/utils/popover';
+import { trackedResource } from '../../shared/utils/tracked-resource';
 import { RolePermissionsDialogComponent } from './components/role-permissions-dialog/role-permissions-dialog.component';
 import type { Role, RoleStatus, RoleType } from './models/role.interface';
 import { RolesMockService } from './services/roles-mock.service';
@@ -43,6 +48,10 @@ const PRIME_MODULES = [
 ];
 const LOCAL_COMPONENTS = [
   EmptyStateComponent,
+  LoadErrorStateComponent,
+  PageHeaderComponent,
+  RefreshToolbarComponent,
+  StaleDataBannerComponent,
   TableFilterShellComponent,
   TooltipDismissOnClickDirective,
   RelativeTimePipe,
@@ -62,22 +71,21 @@ const LOCAL_COMPONENTS = [
 })
 export class RolesComponent {
   private api = inject(RolesMockService);
-  private timeService = inject(TimeService);
-
-  protected readonly rolesResource = rxResource({
-    stream: () => this.api.getRoles(),
-  });
-  protected readonly loading = computed(() => this.rolesResource.isLoading());
-  protected readonly loadError = computed(() => this.rolesResource.error());
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
-   * Spread → copia mutable `Role[]`: p-table sortea `[value]` in-place,
-   * así que le pasamos una copia (no el array cacheado del resource) y
-   * el template no necesita `$any()` para castear `readonly`.
+   * Resource principal — `trackedResource()` empaqueta el pattern
+   * compartido con users / customers / obs-uptime: rxResource +
+   * loading/loadError + copia mutable para p-table + freshness
+   * (`lastFetchedAt` + bump del TimeService) + retry con guard.
    */
-  protected readonly tableData = computed<Role[]>(() => [
-    ...(this.rolesResource.value() ?? []),
-  ]);
+  private readonly rolesData = trackedResource<Role>(() =>
+    this.api.getRoles(),
+  );
+  protected readonly loading = this.rolesData.loading;
+  protected readonly loadError = this.rolesData.loadError;
+  protected readonly tableData = this.rolesData.rows;
+  protected readonly lastFetchedAt = this.rolesData.lastFetchedAt;
 
   protected readonly typeOptions: RoleType[] = ['Sistema', 'Personalizado'];
 
@@ -86,10 +94,11 @@ export class RolesComponent {
     { label: 'Inactivo', value: 'Inactivo' },
   ];
 
-  protected readonly columnFilterPt = {
-    pcFilterClearButton: { root: { class: 'p-button-tonal' } },
-    filterButtonBar: { class: '!justify-end gap-2' },
-  };
+  /**
+   * Passthrough config compartida para `<p-columnFilter>` — ver JSDoc
+   * en `shared/tokens/table-tokens.ts`.
+   */
+  protected readonly columnFilterPt = COLUMN_FILTER_PT;
 
   /**
    * Métricas para el header — total de roles + count de usuarios
@@ -102,9 +111,6 @@ export class RolesComponent {
   protected readonly totalUsers = computed(() =>
     this.tableData().reduce((sum, r) => sum + r.userCount, 0),
   );
-
-  private readonly _lastFetchedAt = signal<string | null>(null);
-  protected readonly lastFetchedAt = this._lastFetchedAt.asReadonly();
 
   protected readonly skeletonPlaceholders = [0, 1, 2, 3, 4];
 
@@ -119,30 +125,26 @@ export class RolesComponent {
   protected readonly permissionsDialogVisible = signal(false);
 
   constructor() {
-    effect(() => {
-      const val = this.rolesResource.value();
-      if (val !== undefined && !this.rolesResource.isLoading()) {
-        this._lastFetchedAt.set(new Date().toISOString());
-        // Push-update el time-source — sin esto el `relativeTime` pipe
-        // compara este timestamp fresco contra `TimeService.now()` que
-        // tiene el valor del último tick natural (hasta 60s atrás),
-        // produciendo "Actualizado en el futuro" hasta el próximo tick.
-        this.timeService.bump();
+    // Cancela un reopen de popover pendiente si el componente se
+    // destruye dentro de la ventana de 150ms (ver shared/utils/popover).
+    this.destroyRef.onDestroy(() => {
+      if (this.popoverReopenTimer !== null) {
+        clearTimeout(this.popoverReopenTimer);
+        this.popoverReopenTimer = null;
       }
     });
   }
 
   protected retry(): void {
-    if (this.rolesResource.isLoading()) return;
-    this.rolesResource.reload();
+    this.rolesData.retry();
   }
+
+  /** Handle del reopen diferido — cancelado en destroy (constructor). */
+  private popoverReopenTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected displayPopover(e: MouseEvent, op: Popover, role: Role): void {
     this.activeRole.set(role);
-    op.hide();
-    setTimeout(() => {
-      op.show(e);
-    }, 150);
+    this.popoverReopenTimer = reopenPopover(e, op);
   }
 
   protected openPermissionsDialog(op: Popover): void {

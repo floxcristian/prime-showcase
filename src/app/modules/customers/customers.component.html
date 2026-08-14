@@ -1,14 +1,12 @@
-<!-- Header — `p-1` interno (4px) match al idiom de overview/home: el
-     parent layout aplica 8px (p-2) + este +4px da 12px total de
-     breathing top que separa el título del breadcrumb area sin
-     introducir un outer card visible. -->
-<div class="flex items-start gap-2 justify-between flex-wrap p-1">
-  <div class="min-w-0">
-    <h1 class="text-2xl leading-8 text-color font-medium">Clientes</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Gestión de la base de clientes de la compañía
-    </div>
-  </div>
+<!-- Header — patrón compartido `<app-page-header>`. `p-1` interno (4px)
+     match al idiom de overview/home: el parent layout aplica 8px (p-2)
+     + este +4px da 12px total de breathing top que separa el título del
+     breadcrumb area sin introducir un outer card visible. -->
+<app-page-header
+  class="p-1"
+  title="Clientes"
+  description="Gestión de la base de clientes de la compañía"
+>
   <!--
     Header right slot: solo info (count pill). Las acciones (Crear,
     Refresh) viven en el toolbar abajo — patrón Datadog: actions
@@ -29,7 +27,7 @@
       <span>{{ activeCount() }} de {{ totalCount() }} activos</span>
     </div>
   }
-</div>
+</app-page-header>
 
 <!--
   Toolbar — split bigtech (Linear / Notion / Airtable / Stripe / GitHub):
@@ -78,27 +76,11 @@
       ></i>
     </ng-template>
   </p-multiselect>
-  <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
-    @if (lastFetchedAt(); as ts) {
-      <span
-        class="text-sm text-muted-color leading-5 hidden lg:inline"
-        aria-live="polite"
-      >
-        Actualizado {{ ts | relativeTime }}
-      </span>
-    }
-    <p-button
-      [icon]="
-        'fa-sharp fa-regular fa-arrows-rotate' +
-        (loading() ? ' animate-spin' : '')
-      "
-      [disabled]="loading()"
-      styleClass="p-button-tonal"
-      ariaLabel="Actualizar"
-      pTooltip="Actualizar"
-      tooltipPosition="bottom"
-      (onClick)="retry()"
-    />
+  <app-refresh-toolbar
+    [lastFetchedAt]="lastFetchedAt()"
+    [loading]="loading()"
+    (refresh)="retry()"
+  >
     <!--
       Density binary toggle (desktop only) — Compacto ↔ Cómodo en un
       solo click. Patrón Linear/Notion/Vercel: para un toggle de 2
@@ -168,18 +150,13 @@
       2 icon-only tonal, ambos utility) y eleva el CTA Crear a su
       propio surface visual con scale + position anchoring.
     -->
-  </div>
+  </app-refresh-toolbar>
 </div>
 
 @if (tableData().length === 0 && loadError()) {
-  <app-empty-state
-    icon="fa-triangle-exclamation"
+  <app-load-error-state
     title="No pudimos cargar los clientes"
-    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
-    [bordered]="true"
-    actionLabel="Reintentar"
-    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
-    (actionClick)="retry()"
+    (retry)="retry()"
   />
 } @else {
   <!--
@@ -369,27 +346,7 @@
     </div>
   }
   @if (loadError() && tableData().length > 0) {
-    <div
-      class="border border-surface rounded-lg p-3 mb-2 flex items-center gap-3 text-sm"
-      role="alert"
-    >
-      <i
-        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
-        aria-hidden="true"
-      ></i>
-      <span class="flex-1 text-muted-color leading-5">
-        No pudimos refrescar los datos. Estás viendo la última versión
-        disponible.
-      </span>
-      <p-button
-        label="Reintentar"
-        severity="secondary"
-        size="small"
-        [text]="true"
-        icon="fa-sharp fa-regular fa-arrows-rotate"
-        (onClick)="retry()"
-      />
-    </div>
+    <app-stale-data-banner (retry)="retry()" />
   }
   <!--
     Active filters chip bar (Linear/Notion/Stripe/Datadog convergente).

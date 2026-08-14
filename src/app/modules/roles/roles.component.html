@@ -1,12 +1,8 @@
-<!-- Header -->
-<div class="flex items-start gap-2 justify-between flex-wrap">
-  <div class="min-w-0">
-    <h1 class="text-2xl leading-8 text-color font-medium">Roles</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Permisos de acceso por módulo del dashboard. Asigna estos roles a los
-      usuarios para gobernar qué pueden ver y modificar.
-    </div>
-  </div>
+<!-- Header — patrón compartido `<app-page-header>` -->
+<app-page-header
+  title="Roles"
+  description="Permisos de acceso por módulo del dashboard. Asigna estos roles a los usuarios para gobernar qué pueden ver y modificar."
+>
   @if (totalRoles() > 0) {
     <div
       class="hidden lg:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
@@ -22,68 +18,25 @@
       <span>{{ totalRoles() }} roles · {{ totalUsers() }} usuarios</span>
     </div>
   }
-</div>
+</app-page-header>
 
 <!-- Toolbar — refresh + lastFetchedAt -->
 <div class="mt-6 lg:mt-10 mb-4 flex items-center gap-2 lg:gap-3 flex-wrap">
-  <div class="ml-auto flex items-center gap-2 lg:gap-3 shrink-0">
-    @if (lastFetchedAt(); as ts) {
-      <span
-        class="text-sm text-muted-color leading-5 hidden lg:inline"
-        aria-live="polite"
-      >
-        Actualizado {{ ts | relativeTime }}
-      </span>
-    }
-    <p-button
-      [icon]="
-        'fa-sharp fa-regular fa-arrows-rotate' +
-        (loading() ? ' animate-spin' : '')
-      "
-      [disabled]="loading()"
-      outlined
-      severity="secondary"
-      ariaLabel="Actualizar"
-      pTooltip="Actualizar"
-      tooltipPosition="bottom"
-      (onClick)="retry()"
-    />
-  </div>
+  <app-refresh-toolbar
+    [lastFetchedAt]="lastFetchedAt()"
+    [loading]="loading()"
+    (refresh)="retry()"
+  />
 </div>
 
 @if (tableData().length === 0 && loadError()) {
-  <app-empty-state
-    icon="fa-triangle-exclamation"
+  <app-load-error-state
     title="No pudimos cargar los roles"
-    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
-    [bordered]="true"
-    actionLabel="Reintentar"
-    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
-    (actionClick)="retry()"
+    (retry)="retry()"
   />
 } @else {
   @if (loadError() && tableData().length > 0) {
-    <div
-      class="border border-surface rounded-lg p-3 mb-2 flex items-center gap-3 text-sm"
-      role="alert"
-    >
-      <i
-        class="fa-sharp fa-regular fa-triangle-exclamation text-color"
-        aria-hidden="true"
-      ></i>
-      <span class="flex-1 text-muted-color leading-5">
-        No pudimos refrescar los datos. Estás viendo la última versión
-        disponible.
-      </span>
-      <p-button
-        label="Reintentar"
-        severity="secondary"
-        size="small"
-        [text]="true"
-        icon="fa-sharp fa-regular fa-arrows-rotate"
-        (onClick)="retry()"
-      />
-    </div>
+    <app-stale-data-banner (retry)="retry()" />
   }
   <div class="rounded-lg border border-surface w-full overflow-hidden">
     <p-table

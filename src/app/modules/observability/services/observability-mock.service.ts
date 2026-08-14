@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
+import { mockLatency } from '../../../shared/utils/mock-latency';
 import type {
   AlertDetail,
   AlertSummary,
@@ -24,35 +25,27 @@ import { SERVICE_DETAIL_MOCK, SERVICES_MOCK } from '../mocks/services-mock';
  */
 @Injectable({ providedIn: 'root' })
 export class ObservabilityMockService {
-  /**
-   * Simulación de latencia: 800-1800ms aleatorio. Range elegido para
-   * imitar request HTTP real con server processing + DB query (típico
-   * 600-1500ms en producción) en lugar de un response sincrónico que
-   * haría imperceptible cualquier loading state. Permite ver el
-   * skeleton inicial, el loading mask de p-table durante refresh, y
-   * el spinner del refresh button. En producción este service se
-   * reemplaza por httpResource real y este método deja de existir.
-   */
-  private latency = (): number => 800 + Math.floor(Math.random() * 1000);
+  // Latencia simulada compartida (rationale del range 800-1800ms en
+  // `shared/utils/mock-latency.ts`).
 
   getServices(): Observable<readonly ServiceSummary[]> {
-    return of(SERVICES_MOCK).pipe(delay(this.latency()));
+    return of(SERVICES_MOCK).pipe(delay(mockLatency()));
   }
 
   getServiceDetail(id: string): Observable<ServiceDetail | undefined> {
-    return of(SERVICE_DETAIL_MOCK(id)).pipe(delay(this.latency()));
+    return of(SERVICE_DETAIL_MOCK(id)).pipe(delay(mockLatency()));
   }
 
   getAlerts(): Observable<readonly AlertSummary[]> {
-    return of(ALERTS_MOCK).pipe(delay(this.latency()));
+    return of(ALERTS_MOCK).pipe(delay(mockLatency()));
   }
 
   getAlertDetail(id: string): Observable<AlertDetail | undefined> {
-    return of(ALERT_DETAIL_MOCK(id)).pipe(delay(this.latency()));
+    return of(ALERT_DETAIL_MOCK(id)).pipe(delay(mockLatency()));
   }
 
   getInbox(): Observable<readonly InboxItem[]> {
-    return of(INBOX_MOCK).pipe(delay(this.latency()));
+    return of(INBOX_MOCK).pipe(delay(mockLatency()));
   }
 
   getInboxSummary(): Observable<InboxSummary> {
@@ -60,6 +53,6 @@ export class ObservabilityMockService {
       nowCount: INBOX_MOCK.filter((i) => i.bucket === 'now').length,
       todayCount: INBOX_MOCK.filter((i) => i.bucket === 'today').length,
       infoCount: INBOX_MOCK.filter((i) => i.bucket === 'info').length,
-    }).pipe(delay(this.latency()));
+    }).pipe(delay(mockLatency()));
   }
 }

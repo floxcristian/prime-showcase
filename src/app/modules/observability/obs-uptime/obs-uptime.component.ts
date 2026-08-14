@@ -3,11 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
-  signal,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -24,10 +21,14 @@ import {
   HEALTH_LABELS,
   HEALTH_STATES,
 } from '../../../shared/components/health-badge/health-badge.tokens';
+import { LoadErrorStateComponent } from '../../../shared/components/load-error-state/load-error-state.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
+import { RefreshToolbarComponent } from '../../../shared/components/refresh-toolbar/refresh-toolbar.component';
+import { StaleDataBannerComponent } from '../../../shared/components/stale-data-banner/stale-data-banner.component';
 import { TableFilterShellComponent } from '../../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../../shared/directives/tooltip-dismiss-on-click.directive';
-import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
-import { TimeService } from '../../../shared/services/time.service';
+import { COLUMN_FILTER_PT } from '../../../shared/tokens/table-tokens';
+import { trackedResource } from '../../../shared/utils/tracked-resource';
 import { now, seededRandom } from '../mocks/mock-utils';
 import type {
   HealthState,
@@ -127,9 +128,12 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
     TooltipModule,
     EmptyStateComponent,
     HealthBadgeComponent,
+    LoadErrorStateComponent,
+    PageHeaderComponent,
+    RefreshToolbarComponent,
+    StaleDataBannerComponent,
     TableFilterShellComponent,
     TooltipDismissOnClickDirective,
-    RelativeTimePipe,
   ],
   templateUrl: './obs-uptime.component.html',
   styleUrl: './obs-uptime.component.scss',
@@ -142,22 +146,21 @@ const TIME_FMT = new Intl.DateTimeFormat('es-CL', {
 export class ObsUptimeComponent {
   private api = inject(ObservabilityMockService);
   private router = inject(Router);
-  private timeService = inject(TimeService);
-
-  protected readonly servicesResource = rxResource({
-    stream: () => this.api.getServices(),
-  });
-  protected readonly loading = computed(() => this.servicesResource.isLoading());
-  protected readonly loadError = computed(() => this.servicesResource.error());
 
   /**
-   * Timestamp del último fetch exitoso. Permite renderizar "Actualizado
-   * hace X" en la toolbar — feedback de freshness que evita asumir data
-   * stale tras dejar la pestaña abierta. El RelativeTimePipe se invalida
-   * automáticamente por el TimeService global cada 60s.
+   * Resource principal — `trackedResource()` empaqueta el pattern
+   * compartido con users / roles / customers: rxResource +
+   * loading/loadError + freshness (`lastFetchedAt` + bump del
+   * TimeService, consumido por `<app-refresh-toolbar>`) + retry con
+   * guard. Acá no usamos `rows` (la tabla consume `allRows`/`rows`
+   * derivados abajo) sino `value` crudo.
    */
-  private readonly _lastFetchedAt = signal<string | null>(null);
-  protected readonly lastFetchedAt = this._lastFetchedAt.asReadonly();
+  private readonly servicesData = trackedResource<ServiceSummary>(() =>
+    this.api.getServices(),
+  );
+  protected readonly loading = this.servicesData.loading;
+  protected readonly loadError = this.servicesData.loadError;
+  protected readonly lastFetchedAt = this.servicesData.lastFetchedAt;
 
   /**
    * Anclaje temporal UNIFORME para todos los servicios, capturado UNA vez
@@ -198,7 +201,7 @@ export class ObsUptimeComponent {
    * elección desde el computed.
    */
   protected readonly allRows = computed<readonly ServiceUptimeRow[]>(() => {
-    const list = this.servicesResource.value() ?? [];
+    const list = this.servicesData.value() ?? [];
     return list.map((svc) =>
       buildRow(svc, this.anchorTime, this.rowCache, this.segmentCache),
     );
@@ -231,46 +234,17 @@ export class ObsUptimeComponent {
    * Computado desde la data del fetch — refleja teams reales de la sesión.
    */
   protected readonly availableTeams = computed<string[]>(() => {
-    const list = this.servicesResource.value() ?? [];
+    const list = this.servicesData.value() ?? [];
     return Array.from(new Set(list.map((s) => s.team))).sort();
   });
 
   /**
-   * Passthrough config para `<p-columnFilter>` — aplica `.p-button-tonal`
-   * al clear button del filter popup. Patrón Material 3 / Mercado Libre:
-   * cuando hay 2 acciones (Limpiar + Aplicar), la secundaria va con bg
-   * tonal del primary (no outlined neutro), reforzando jerarquía visual
-   * sin gritar como un primary filled.
-   *
-   * **Por qué `root.class` y no solo `class`**: el slot `class` directo
-   * en `ButtonPassThrough` aplica al HOST del `<p-button>` Angular
-   * component, NO al `<button>` interno. La utility `.p-button-tonal`
-   * (definida en `styles.scss`) matchea el `<button>` real — mismo
-   * elemento que recibe la clase cuando se usa el patrón `styleClass`
-   * en los demás módulos. `root.class` apunta al elemento correcto.
-   *
-   * Reusado en los 4 column filters para mantener consistency cross-columna.
+   * Passthrough config compartida para `<p-columnFilter>` — el JSDoc
+   * completo (por qué tonal, por qué `root.class`, por qué
+   * `!justify-end gap-2`) vive en `shared/tokens/table-tokens.ts`.
+   * Reusado en los 4 column filters para consistency cross-columna.
    */
-  protected readonly columnFilterPt = {
-    pcFilterClearButton: { root: { class: 'p-button-tonal' } },
-    /**
-     * Botones agrupados a la derecha (no space-between default de
-     * PrimeNG) con gap-2 (8px) entre ellos. Patrón Linear / Stripe /
-     * GitHub / Notion / Vercel: filter actions como grupo
-     * right-anchored — secondary ("Limpiar") a la izquierda del primary
-     * ("Aplicar"), ambos al borde derecho del popup, con respiración
-     * mínima entre ellos. Comunica "estas son las salidas del dialog"
-     * como unidad, en lugar de presentarlos como alternativas
-     * equivalentes.
-     *
-     * `!justify-end` con `!` modifier de Tailwind para sobreescribir
-     * el `justify-content: space-between` que PrimeNG aplica por
-     * default al `.p-datatable-filter-button-bar`. `gap-2` matchea
-     * el spacing canónico del DS para action button groups (mismo
-     * que customers form actions, preferences toolbar, etc.).
-     */
-    filterButtonBar: { class: '!justify-end gap-2' },
-  };
+  protected readonly columnFilterPt = COLUMN_FILTER_PT;
 
   /**
    * True cuando hay servicios pero ninguno reporta datos. Activa el banner
@@ -329,32 +303,10 @@ export class ObsUptimeComponent {
     };
   });
 
-  constructor() {
-    // Sync `_lastFetchedAt` con cada emisión exitosa del resource. La
-    // condición chequea que haya valor Y que NO esté loading (durante
-    // reload el value previo se mantiene mientras isLoading=true; recién
-    // cuando termina el fetch el timestamp debe moverse).
-    effect(() => {
-      const val = this.servicesResource.value();
-      if (val !== undefined && !this.servicesResource.isLoading()) {
-        this._lastFetchedAt.set(new Date().toISOString());
-        // Push-update el time-source — sin esto el `relativeTime` pipe
-        // compara este timestamp fresco contra `TimeService.now()` que
-        // tiene el valor del último tick natural (hasta 60s atrás),
-        // produciendo "Actualizado en el futuro" hasta el próximo tick.
-        // Mismo patrón que customers.component.ts.
-        this.timeService.bump();
-      }
-    });
-  }
-
   protected retry(): void {
-    // Guard contra reentry: si ya hay fetch en curso, no disparar otro.
-    // El button no usa [loading]/[disabled] (ver comentario en template
-    // sobre por qué — bug visual + tooltip rompido), así que el guard
-    // protege a nivel handler en lugar de a nivel UI.
-    if (this.servicesResource.isLoading()) return;
-    this.servicesResource.reload();
+    // Guard contra reentry incluido en `trackedResource()` — protege a
+    // nivel handler además del [disabled] del refresh button.
+    this.servicesData.retry();
   }
 
   protected viewDetail(serviceId: string): void {

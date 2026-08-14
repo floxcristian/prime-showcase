@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
+import { mockLatency } from '../../../shared/utils/mock-latency';
 import { ROLES_DATA } from '../mocks/roles-data';
 import type { ModulePermission, Role } from '../models/role.interface';
 
@@ -20,8 +21,6 @@ import type { ModulePermission, Role } from '../models/role.interface';
  */
 @Injectable({ providedIn: 'root' })
 export class RolesMockService {
-  private latency = (): number => 800 + Math.floor(Math.random() * 1000);
-
   /**
    * State mutable. structuredClone evita mutar el objeto literal
    * exportado del mock — sin esto, tests u otros imports compartirían
@@ -36,7 +35,7 @@ export class RolesMockService {
    * consistency cross-vista.
    */
   getRoles(): Observable<readonly Role[]> {
-    return of(this.state()).pipe(delay(this.latency()));
+    return of(this.state()).pipe(delay(mockLatency()));
   }
 
   /**

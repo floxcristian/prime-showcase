@@ -17,6 +17,7 @@ import { Timeline } from 'primeng/timeline';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadErrorStateComponent } from '../../../shared/components/load-error-state/load-error-state.component';
 import { HealthBadgeComponent } from '../../../shared/components/health-badge/health-badge.component';
 import { MetricCardComponent } from '../../../shared/components/metric-card/metric-card.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
@@ -29,6 +30,7 @@ const PRIME_MODULES = [ButtonModule, TabsModule, TooltipModule];
 const PRIME_STANDALONE = [Avatar, Skeleton, Timeline];
 const LOCAL_COMPONENTS = [
   EmptyStateComponent,
+  LoadErrorStateComponent,
   HealthBadgeComponent,
   MetricCardComponent,
   PillComponent,

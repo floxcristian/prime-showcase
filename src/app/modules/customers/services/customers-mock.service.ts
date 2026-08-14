@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { concat, delay, Observable, take } from 'rxjs';
 
+import { mockLatency } from '../../../shared/utils/mock-latency';
 import { CUSTOMERS_TABLE_DATA } from '../constants/customers-data';
 import type { Customer } from '../models/customer.interface';
 
@@ -25,23 +26,9 @@ import type { Customer } from '../models/customer.interface';
  */
 @Injectable({ providedIn: 'root' })
 export class CustomersMockService {
-  /**
-   * Latencia mínima/máxima del mock (ms). Mismo rango que el mock de
-   * observability — consistency cross-vista para que el usuario perciba
-   * el showcase pattern uniforme. Permite ver el skeleton inicial, el
-   * loading mask de p-table durante refresh, y el spin del refresh
-   * button. En producción este service se reemplaza por httpResource
-   * real y estas constantes desaparecen.
-   */
-  private static readonly LATENCY_MIN_MS = 800;
-  private static readonly LATENCY_RANGE_MS = 1000;
-
-  private latency(): number {
-    return (
-      CustomersMockService.LATENCY_MIN_MS +
-      Math.floor(Math.random() * CustomersMockService.LATENCY_RANGE_MS)
-    );
-  }
+  // Latencia simulada compartida — mismo rango que el resto de los
+  // mocks (rationale en `shared/utils/mock-latency.ts`), consistency
+  // cross-vista para que el usuario perciba el showcase uniforme.
 
   /** Internal state — start from constant dataset, mutable via bulk
    * action methods. */
@@ -72,7 +59,7 @@ export class CustomersMockService {
    */
   getCustomers(): Observable<readonly Customer[]> {
     return concat(
-      this._data$.pipe(take(1), delay(this.latency())),
+      this._data$.pipe(take(1), delay(mockLatency())),
       this._data$,
     );
   }

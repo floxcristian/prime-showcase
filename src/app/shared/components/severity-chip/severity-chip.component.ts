@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { Tag } from 'primeng/tag';
 
 import type { AlertSeverity } from '../../../modules/observability/models/observability.interface';
+import { ALERT_SEVERITY_LABELS } from './severity-chip.tokens';
 
 /**
  * Chip de severidad para alertas — wrappea `<p-tag>` con severity mapping
@@ -31,12 +32,11 @@ export class SeverityChipComponent {
     return 'info';
   });
 
-  protected readonly label = computed<string>(() => {
-    const v = this.value();
-    if (v === 'critical') return 'Crítico';
-    if (v === 'warn') return 'Advertencia';
-    return 'Info';
-  });
+  // Labels desde el vocabulario compartido (`severity-chip.tokens.ts`) —
+  // mismo record que consume el filtro de severidad de obs-alerts.
+  protected readonly label = computed<string>(
+    () => ALERT_SEVERITY_LABELS[this.value()],
+  );
 
   protected readonly icon = computed<string>(() => {
     const v = this.value();

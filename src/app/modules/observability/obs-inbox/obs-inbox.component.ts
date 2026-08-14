@@ -5,16 +5,18 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Skeleton } from 'primeng/skeleton';
 import { TabsModule } from 'primeng/tabs';
 
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { LoadErrorStateComponent } from '../../../shared/components/load-error-state/load-error-state.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { SeverityChipComponent } from '../../../shared/components/severity-chip/severity-chip.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
+import { trackedResource } from '../../../shared/utils/tracked-resource';
 import type {
   InboxBucket,
   InboxItem,
@@ -27,6 +29,8 @@ const PRIME_MODULES = [ButtonModule, TabsModule];
 const PRIME_STANDALONE = [Skeleton];
 const LOCAL_COMPONENTS = [
   EmptyStateComponent,
+  LoadErrorStateComponent,
+  PageHeaderComponent,
   PillComponent,
   SeverityChipComponent,
 ];
@@ -64,19 +68,20 @@ export class ObsInboxComponent {
   private acks = inject(AcknowledgementsStore);
 
   /**
-   * `rxResource` sobre el stream del inbox. Expone `value/isLoading/error`
-   * de forma reactiva — migración a `httpResource` cuando salga de preview
-   * es 1-line swap. La rama de error renderiza un retry CTA inline.
+   * `trackedResource()` (versión parcial del pattern de users / roles /
+   * customers / obs-uptime): acá consumimos `value/loading/loadError/
+   * retry`; `rows` y `lastFetchedAt` quedan sin uso porque esta vista
+   * agrupa client-side y no muestra freshness en toolbar.
    */
-  protected readonly inboxResource = rxResource({
-    stream: () => this.api.getInbox(),
-  });
-  protected readonly inbox = this.inboxResource.value;
-  protected readonly loading = computed(() => this.inboxResource.isLoading());
-  protected readonly loadError = computed(() => this.inboxResource.error());
+  private readonly inboxData = trackedResource<InboxItem>(() =>
+    this.api.getInbox(),
+  );
+  protected readonly inbox = this.inboxData.value;
+  protected readonly loading = this.inboxData.loading;
+  protected readonly loadError = this.inboxData.loadError;
 
   protected retry(): void {
-    this.inboxResource.reload();
+    this.inboxData.retry();
   }
 
   /** Skeleton rows del loading state — mismo patrón que obs-uptime. */

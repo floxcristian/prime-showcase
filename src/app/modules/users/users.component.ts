@@ -4,11 +4,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
+  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 // PrimeNG
 import { AvatarModule } from 'primeng/avatar';
@@ -24,10 +23,16 @@ import { Tag } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 // Local
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { LoadErrorStateComponent } from '../../shared/components/load-error-state/load-error-state.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { RefreshToolbarComponent } from '../../shared/components/refresh-toolbar/refresh-toolbar.component';
+import { StaleDataBannerComponent } from '../../shared/components/stale-data-banner/stale-data-banner.component';
 import { TableFilterShellComponent } from '../../shared/components/table-filter-shell/table-filter-shell.component';
 import { TooltipDismissOnClickDirective } from '../../shared/directives/tooltip-dismiss-on-click.directive';
 import { RelativeTimePipe } from '../../shared/pipes/relative-time.pipe';
-import { TimeService } from '../../shared/services/time.service';
+import { COLUMN_FILTER_PT } from '../../shared/tokens/table-tokens';
+import { reopenPopover } from '../../shared/utils/popover';
+import { trackedResource } from '../../shared/utils/tracked-resource';
 import { UserApiKeysDialogComponent } from './components/user-api-keys-dialog/user-api-keys-dialog.component';
 import type { User, UserRole, UserStatus, UserType } from './models/user.interface';
 import { UsersMockService } from './services/users-mock.service';
@@ -47,6 +52,10 @@ const PRIME_MODULES = [
 ];
 const LOCAL_COMPONENTS = [
   EmptyStateComponent,
+  LoadErrorStateComponent,
+  PageHeaderComponent,
+  RefreshToolbarComponent,
+  StaleDataBannerComponent,
   TableFilterShellComponent,
   TooltipDismissOnClickDirective,
   RelativeTimePipe,
@@ -66,31 +75,22 @@ const LOCAL_COMPONENTS = [
 })
 export class UsersComponent {
   private api = inject(UsersMockService);
-  private timeService = inject(TimeService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Resource principal — fetch del backend (mock con delay 800-1800ms).
-   * Mismo pattern que customers / obs-uptime: rxResource expone `value`,
-   * `isLoading`, `error`, `reload()`.
+   * `trackedResource()` empaqueta el pattern compartido con roles /
+   * customers / obs-uptime: rxResource + loading/loadError + copia
+   * mutable para p-table + freshness (`lastFetchedAt` + bump del
+   * TimeService) + retry con guard.
    */
-  protected readonly usersResource = rxResource({
-    stream: () => this.api.getUsers(),
-  });
-  protected readonly loading = computed(() => this.usersResource.isLoading());
-  protected readonly loadError = computed(() => this.usersResource.error());
-
-  /**
-   * Rows visibles — derivado del resource. Mientras `value()` es
-   * undefined (initial fetch), retorna array vacío para que el p-table
-   * muestre el `#loadingbody` con skeletons via `[loading]="loading()"`.
-   *
-   * Spread → copia mutable `User[]`: p-table sortea `[value]` in-place,
-   * así que le pasamos una copia (no el array cacheado del resource) y
-   * el template no necesita `$any()` para castear `readonly`.
-   */
-  protected readonly tableData = computed<User[]>(() => [
-    ...(this.usersResource.value() ?? []),
-  ]);
+  private readonly usersData = trackedResource<User>(() =>
+    this.api.getUsers(),
+  );
+  protected readonly loading = this.usersData.loading;
+  protected readonly loadError = this.usersData.loadError;
+  protected readonly tableData = this.usersData.rows;
+  protected readonly lastFetchedAt = this.usersData.lastFetchedAt;
 
   /**
    * Lista deduplicada de organizaciones (departamentos para internos +
@@ -127,24 +127,12 @@ export class UsersComponent {
   ];
 
   /**
-   * Passthrough config para `<p-columnFilter>` — alineado con customers
-   * y obs-uptime. `pcFilterClearButton` aplica `.p-button-tonal`
-   * (Material 3 secondary) y `filterButtonBar` agrupa los botones a
-   * la derecha con gap-2.
+   * Passthrough config compartida para `<p-columnFilter>` — ver JSDoc
+   * en `shared/tokens/table-tokens.ts`.
    */
-  protected readonly columnFilterPt = {
-    pcFilterClearButton: { root: { class: 'p-button-tonal' } },
-    filterButtonBar: { class: '!justify-end gap-2' },
-  };
+  protected readonly columnFilterPt = COLUMN_FILTER_PT;
 
   protected selectedRows = signal<readonly User[]>([]);
-
-  /**
-   * Timestamp del último fetch exitoso — feedback de freshness en la
-   * toolbar. Sincronizado vía `effect()` con cada emisión del resource.
-   */
-  private readonly _lastFetchedAt = signal<string | null>(null);
-  protected readonly lastFetchedAt = this._lastFetchedAt.asReadonly();
 
   /** Placeholder rows para `#loadingbody`. */
   protected readonly skeletonPlaceholders = [0, 1, 2, 3, 4];
@@ -160,22 +148,18 @@ export class UsersComponent {
   protected readonly totalCount = computed(() => this.tableData().length);
 
   constructor() {
-    effect(() => {
-      const val = this.usersResource.value();
-      if (val !== undefined && !this.usersResource.isLoading()) {
-        this._lastFetchedAt.set(new Date().toISOString());
-        // Push-update el time-source — sin esto el `relativeTime` pipe
-        // compara este timestamp fresco contra `TimeService.now()` que
-        // tiene el valor del último tick natural (hasta 60s atrás),
-        // produciendo "Actualizado en el futuro" hasta el próximo tick.
-        this.timeService.bump();
+    // Cancela un reopen de popover pendiente si el componente se
+    // destruye dentro de la ventana de 150ms (ver shared/utils/popover).
+    this.destroyRef.onDestroy(() => {
+      if (this.popoverReopenTimer !== null) {
+        clearTimeout(this.popoverReopenTimer);
+        this.popoverReopenTimer = null;
       }
     });
   }
 
   protected retry(): void {
-    if (this.usersResource.isLoading()) return;
-    this.usersResource.reload();
+    this.usersData.retry();
   }
 
   /**
@@ -217,12 +201,12 @@ export class UsersComponent {
   /** Visibilidad del dialog de API keys — driven by user click. */
   protected readonly apiKeysDialogVisible = signal(false);
 
+  /** Handle del reopen diferido — cancelado en destroy (constructor). */
+  private popoverReopenTimer: ReturnType<typeof setTimeout> | null = null;
+
   protected displayPopover(e: MouseEvent, op: Popover, user: User): void {
     this.activeUser.set(user);
-    op.hide();
-    setTimeout(() => {
-      op.show(e);
-    }, 150);
+    this.popoverReopenTimer = reopenPopover(e, op);
   }
 
   /**

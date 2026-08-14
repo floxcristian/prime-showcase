@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
+import { mockLatency } from '../../../shared/utils/mock-latency';
 import { USER_API_KEYS } from '../mocks/api-keys-data';
 import type {
   ApiKey,
@@ -25,7 +26,8 @@ import type {
  */
 @Injectable({ providedIn: 'root' })
 export class ApiKeysMockService {
-  private latency = (): number => 400 + Math.floor(Math.random() * 400);
+  /** Latencia más corta que el default (400-800ms) — operación liviana. */
+  private latency = (): number => mockLatency(400, 400);
 
   /**
    * Estado mutable. Inicializado deep-clonado del mock para no mutar el

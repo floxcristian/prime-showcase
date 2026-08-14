@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { Tag } from 'primeng/tag';
 
 import type { AlertStatus } from '../../../modules/observability/models/observability.interface';
+import { ALERT_STATUS_LABELS } from './status-chip.tokens';
 
 /**
  * Chip semántico para status de alerta. Mismo contrato que SeverityChip:
@@ -39,13 +40,11 @@ export class StatusChipComponent {
     return 'secondary';
   });
 
-  protected readonly label = computed<string>(() => {
-    const s = this.value();
-    if (s === 'firing') return 'Activa';
-    if (s === 'acknowledged') return 'Acusada';
-    if (s === 'resolved') return 'Resuelta';
-    return 'Silenciada';
-  });
+  // Labels desde el vocabulario compartido (`status-chip.tokens.ts`) —
+  // mismo record que consume el filtro de estado de obs-alerts.
+  protected readonly label = computed<string>(
+    () => ALERT_STATUS_LABELS[this.value()],
+  );
 
   protected readonly icon = computed<string>(() => {
     const s = this.value();

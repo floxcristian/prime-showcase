@@ -9,6 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
 import { minutesAgo, seededRandom } from '../mocks/mock-utils';
@@ -82,6 +83,7 @@ const TITLES = [
     ButtonModule,
     TableModule,
     EmptyStateComponent,
+    PageHeaderComponent,
     PillComponent,
     RelativeTimePipe,
   ],
@@ -91,18 +93,13 @@ const TITLES = [
       'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden border border-surface rounded-2xl p-6',
   },
   template: `
-    <!-- Header — patrón compartido con CRM > Clientes -->
-    <div class="flex items-start gap-2 justify-between flex-wrap mb-6">
-      <div class="min-w-0">
-        <h1 class="text-2xl leading-8 text-color font-medium">
-          Historial de notificaciones
-        </h1>
-        <div class="mt-1 leading-6 text-muted-color">
-          Lo que te llegó por cada canal en los últimos 30 días. Útil para
-          verificar entregas o entender por qué falló una.
-        </div>
-      </div>
-      <div class="flex gap-2 whitespace-nowrap">
+    <!-- Header — patrón compartido \`<app-page-header>\` -->
+    <app-page-header
+      class="mb-6"
+      title="Historial de notificaciones"
+      description="Lo que te llegó por cada canal en los últimos 30 días. Útil para verificar entregas o entender por qué falló una."
+    >
+      <div actions class="flex gap-2 whitespace-nowrap">
         <p-button
           label="Enviar prueba"
           severity="secondary"
@@ -110,7 +107,7 @@ const TITLES = [
           icon="fa-sharp fa-regular fa-paper-plane"
         />
       </div>
-    </div>
+    </app-page-header>
 
     <!-- Filtro por canal: chips toggle (active = filled, inactive = outlined) -->
     <div class="border border-surface rounded-lg p-4 mb-6">

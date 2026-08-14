@@ -1,17 +1,14 @@
-<!-- Header — patrón compartido con CRM > Clientes -->
-<div class="flex items-start gap-2 justify-between flex-wrap mb-6">
-  <div class="min-w-0">
-    <h1 class="text-2xl leading-8 text-color font-medium">Servicios</h1>
-    <div class="mt-1 leading-6 text-muted-color">
-      Listado de los servicios que monitorea tu equipo. Hacé click en uno
-      para ver salud, errores recientes y deploys.
-    </div>
-    <div class="mt-2 text-sm text-muted-color leading-5">
-      <span class="text-color font-semibold">{{ resultCount() }}</span>
-      servicios visibles
-    </div>
+<!-- Header — patrón compartido `<app-page-header>` -->
+<app-page-header
+  class="mb-6"
+  title="Servicios"
+  description="Listado de los servicios que monitorea tu equipo. Hacé click en uno para ver salud, errores recientes y deploys."
+>
+  <div meta class="mt-2 text-sm text-muted-color leading-5">
+    <span class="text-color font-semibold">{{ resultCount() }}</span>
+    servicios visibles
   </div>
-  <div class="flex gap-2 whitespace-nowrap">
+  <div actions class="flex gap-2 whitespace-nowrap">
     <p-button
       label="Nuevo servicio"
       icon="fa-sharp fa-regular fa-plus"
@@ -19,7 +16,7 @@
       [outlined]="true"
     />
   </div>
-</div>
+</app-page-header>
 
 <!-- Filtros -->
 <div class="border border-surface rounded-lg p-4 mb-6 flex flex-col gap-3">
@@ -105,14 +102,9 @@
     }
   </div>
 } @else if (loadError()) {
-  <app-empty-state
-    icon="fa-triangle-exclamation"
+  <app-load-error-state
     title="No pudimos cargar los servicios"
-    description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
-    [bordered]="true"
-    actionLabel="Reintentar"
-    actionIcon="fa-sharp fa-regular fa-arrows-rotate"
-    (actionClick)="retry()"
+    (retry)="retry()"
   />
 } @else if (filteredServices().length === 0) {
   <app-empty-state

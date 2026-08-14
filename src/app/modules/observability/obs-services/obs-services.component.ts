@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +17,6 @@ import { SelectButton } from 'primeng/selectbutton';
 import { Skeleton } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { ToggleSwitch } from 'primeng/toggleswitch';
-import { debounceTime } from 'rxjs';
 
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { HealthBadgeComponent } from '../../../shared/components/health-badge/health-badge.component';
@@ -26,8 +24,12 @@ import {
   HEALTH_LABELS,
   HEALTH_STATES,
 } from '../../../shared/components/health-badge/health-badge.tokens';
+import { LoadErrorStateComponent } from '../../../shared/components/load-error-state/load-error-state.component';
+import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { PillComponent } from '../../../shared/components/pill/pill.component';
 import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
+import { debouncedSearch } from '../../../shared/utils/debounced-search';
+import { trackedResource } from '../../../shared/utils/tracked-resource';
 import type {
   HealthState,
   ServiceSummary,
@@ -48,6 +50,8 @@ const PRIME_STANDALONE = [
 const LOCAL_COMPONENTS = [
   EmptyStateComponent,
   HealthBadgeComponent,
+  LoadErrorStateComponent,
+  PageHeaderComponent,
   PillComponent,
 ];
 const LOCAL_PIPES = [RelativeTimePipe];
@@ -79,33 +83,37 @@ export class ObsServicesComponent {
   private api = inject(ObservabilityMockService);
 
   /**
-   * `rxResource` expone `value/isLoading/error` de forma reactiva. Permite
-   * renderizar la rama de error con retry CTA — algo que `toSignal` sin
-   * wrap no ofrece (y obligaba a swallow silencioso del error).
+   * `trackedResource()` (versión parcial del pattern de users / roles /
+   * customers / obs-uptime): acá consumimos `value/loading/loadError/
+   * retry`; `rows` y `lastFetchedAt` quedan sin uso porque esta vista
+   * filtra client-side y no muestra freshness en toolbar.
    */
-  protected readonly servicesResource = rxResource({
-    stream: () => this.api.getServices(),
-  });
-  protected readonly services = this.servicesResource.value;
-  protected readonly loading = computed(() => this.servicesResource.isLoading());
-  protected readonly loadError = computed(() => this.servicesResource.error());
+  private readonly servicesData = trackedResource<ServiceSummary>(() =>
+    this.api.getServices(),
+  );
+  protected readonly services = this.servicesData.value;
+  protected readonly loading = this.servicesData.loading;
+  protected readonly loadError = this.servicesData.loadError;
 
   protected retry(): void {
-    this.servicesResource.reload();
+    this.servicesData.retry();
   }
 
   // ─── Filters ────────────────────────────────────────────────────────────
+  //
+  // NOTA de triage: el panel de filtros (search + multiselects + toggle
+  // + "Limpiar") se repite casi idéntico en obs-alerts. NO se extrajo
+  // como componente compartido — 2 copias con projection pesada no lo
+  // justifican aún. Si aparece una tercera vista con el mismo panel,
+  // extraer entonces.
   /**
-   * `searchInput` es el valor inmediato bindeado al `<input>` (feedback
-   * instantáneo al typing). `searchTerm` es la versión debounceada que
-   * consume `filteredServices` — evita re-filtrar en cada keystroke sobre
-   * listas grandes. Patrón Algolia/Linear: typing local, query debounced.
+   * `input` (inmediato, bindeado al `<input>`) / `term` (debounced
+   * 200ms, consumido por `filteredServices`) — ver
+   * `shared/utils/debounced-search.ts`.
    */
-  protected readonly searchInput = signal<string>('');
-  protected readonly searchTerm = toSignal(
-    toObservable(this.searchInput).pipe(debounceTime(200)),
-    { initialValue: '' },
-  );
+  private readonly search = debouncedSearch();
+  protected readonly searchInput = this.search.input;
+  protected readonly searchTerm = this.search.term;
   // Arrays mutables porque PrimeNG p-multiselect ngModel les hace push/pop
   // directo. Los `.includes()` siguen funcionando igual.
   protected readonly selectedTeams = signal<string[]>([]);
