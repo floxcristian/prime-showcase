@@ -810,6 +810,22 @@
           Iniciando sesión, por favor espera.
         }
       </div>
+
+      <!-- Cross-link a registro (RFC-003 D2): puerta de entrada al signup
+           del SaaS social, bajo el botón de login. `routerLink` exento de
+           anchor-link-classes; replicamos el set visual de links del flujo
+           de auth + hit area 44px via negative margins (patrón Uber). -->
+      <div class="self-center text-center">
+        <p class="text-muted-color font-normal leading-6">
+          ¿No tenés cuenta?
+          <a
+            routerLink="/signup"
+            class="font-medium text-primary hover:text-primary-emphasis underline leading-6 cursor-pointer transition-colors duration-150 select-none inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
+          >
+            Creá tu cuenta
+          </a>
+        </p>
+      </div>
     </form>
     </div>
 

@@ -1,0 +1,315 @@
+<!-- Panel de marketing (solo desktop). Reusa la receta visual del aside de
+     login — feature tiles con icono duotone en box de 48px — pero estático
+     (sin marquee: el scss del signup permanece vacío por convención RFC-003
+     D2, y los keyframes del login viven en su scss local). Fondo bg-primary
+     token-based en vez del svg del login por la misma razón.
+     Los iconos `fa-sharp-duotone` llevan `text-2xl` en el MISMO elemento —
+     criterio de `showcase/no-duotone-inline-icon` (tamaño ≥24px). -->
+<aside
+  class="hidden lg:flex flex-col w-3/5 xl:w-7/12 bg-primary text-primary-contrast relative overflow-hidden"
+  aria-label="Beneficios de la suite social"
+>
+  <!-- Cabecera: logo oficial sobre el fondo primary del aside. -->
+  <div class="px-6 pt-5 pb-4 flex items-center shrink-0">
+    <img
+      src="implementos-logo.svg"
+      alt="Implementos"
+      width="131"
+      height="44"
+      class="h-12 w-auto"
+    />
+  </div>
+
+  <!-- Pitch: headline + 4 bullets de SIGNUP_BENEFITS (RFC-003 D2). -->
+  <div class="flex-1 flex flex-col justify-center px-6 pb-5 overflow-y-auto">
+    <div class="w-full max-w-md mx-auto flex flex-col gap-6">
+      <div class="flex flex-col gap-2">
+        <h2 class="text-3xl font-bold leading-normal">
+          Tu marca, todas las redes.
+        </h2>
+        <p class="leading-6 opacity-70">
+          Analítica, contenido con IA y calendario para Instagram, Facebook y
+          TikTok — con tus propias credenciales.
+        </p>
+      </div>
+
+      <ul class="flex flex-col gap-4">
+        @for (benefit of benefits; track benefit.title) {
+          <li
+            class="bg-primary-contrast/10 border border-primary-contrast/20 rounded-2xl p-4 flex items-center gap-4"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-primary-contrast/10 border border-primary-contrast/20 flex items-center justify-center shrink-0"
+            >
+              <i [class]="benefit.icon" class="text-2xl" aria-hidden="true"></i>
+            </div>
+            <div>
+              <div class="text-base font-semibold leading-6">
+                {{ benefit.title }}
+              </div>
+              <div class="leading-6 opacity-70">{{ benefit.description }}</div>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</aside>
+
+<!-- Panel del formulario. En desktop `lg:justify-center` centra el grupo
+     verticalmente; `overflow-y-auto` permite scroll si el viewport es más
+     bajo que el form (4 campos > login). En mobile fluye top-aligned como
+     una landing, con banner de identidad arriba (versión plana bg-primary
+     del hero curvo del login — la curva requiere scss y acá queda vacío). -->
+<main
+  id="main-content"
+  class="flex-1 flex flex-col items-center lg:justify-center relative overflow-y-auto"
+  aria-label="Formulario de registro"
+>
+  <div
+    class="lg:hidden w-full h-48 shrink-0 bg-primary flex items-center justify-center"
+  >
+    <img
+      src="implementos-logo.svg"
+      alt="Implementos"
+      width="131"
+      height="44"
+      class="h-20 w-auto"
+    />
+  </div>
+
+  <div class="w-full max-w-md px-6 py-8 flex flex-col gap-8">
+    <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-1">
+        <h1 class="text-3xl font-bold leading-normal text-color">
+          Creá tu cuenta
+        </h1>
+        <!-- Subtítulo quiet bajo el hero title — mismo patrón que login. -->
+        <p class="text-muted-color font-normal leading-6">
+          Registrá tu marca y conectá tus redes en minutos.
+        </p>
+      </div>
+
+      <!-- Formulario -->
+      <form
+        #signupForm="ngForm"
+        (ngSubmit)="onSubmit()"
+        class="flex flex-col gap-4"
+        novalidate
+        [attr.aria-busy]="submitting()"
+      >
+        <!-- Marca -->
+        <!-- Estructura calcada del bloque email del login: div externo sin
+             flex + inner gap-2 + slot de error con altura reservada
+             (min-h-6) para cero CLS al validar. -->
+        <div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="signup-brand"
+              class="text-color font-semibold leading-6"
+            >
+              Nombre de tu marca
+            </label>
+            <input
+              id="signup-brand"
+              name="brandName"
+              type="text"
+              enterkeyhint="next"
+              pInputText
+              class="w-full"
+              autocomplete="organization"
+              aria-required="true"
+              [invalid]="brandInvalid()"
+              [attr.aria-describedby]="
+                brandInvalid() ? 'signup-brand-error' : null
+              "
+              [ngModel]="brandName()"
+              (ngModelChange)="brandName.set($event)"
+              (blur)="markBrandTouched()"
+              required
+            />
+          </div>
+          <div class="min-h-6 mt-1">
+            @if (brandInvalid()) {
+              <p-message
+                id="signup-brand-error"
+                severity="error"
+                variant="simple"
+                size="small"
+                icon="fa-sharp fa-solid fa-circle-exclamation"
+              >
+                Este campo es requerido.
+              </p-message>
+            }
+          </div>
+        </div>
+
+        <!-- Correo -->
+        <div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="signup-email"
+              class="text-color font-semibold leading-6"
+            >
+              Correo electrónico
+            </label>
+            <input
+              id="signup-email"
+              name="email"
+              type="email"
+              inputmode="email"
+              enterkeyhint="next"
+              pInputText
+              class="w-full"
+              autocomplete="email"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              aria-required="true"
+              [invalid]="emailInvalid()"
+              [attr.aria-describedby]="
+                emailInvalid() ? 'signup-email-error' : null
+              "
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              (blur)="markEmailTouched()"
+              required
+            />
+          </div>
+          <div class="min-h-6 mt-1">
+            @if (emailInvalid()) {
+              <p-message
+                id="signup-email-error"
+                severity="error"
+                variant="simple"
+                size="small"
+                icon="fa-sharp fa-solid fa-circle-exclamation"
+              >
+                {{ emailErrorMessage() }}
+              </p-message>
+            }
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <!-- [feedback]=true (a diferencia del login): en registro el
+             indicador de fuerza SÍ aporta (RFC-003 D2). Labels del panel
+             en es-CL — los defaults de PrimeNG i18n vienen en inglés. -->
+        <div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="signup-password"
+              class="text-color font-semibold leading-6"
+            >
+              Contraseña
+            </label>
+            <p-password
+              inputId="signup-password"
+              name="password"
+              [feedback]="true"
+              [toggleMask]="true"
+              [fluid]="true"
+              promptLabel="Ingresá una contraseña"
+              weakLabel="Débil"
+              mediumLabel="Media"
+              strongLabel="Fuerte"
+              [ngModel]="password()"
+              (ngModelChange)="password.set($event)"
+              (onBlur)="markPasswordTouched()"
+              [invalid]="passwordInvalid()"
+              [attr.aria-describedby]="
+                passwordInvalid() ? 'signup-password-error' : null
+              "
+              autocomplete="new-password"
+            />
+          </div>
+          <div class="min-h-6 mt-1">
+            @if (passwordInvalid()) {
+              <p-message
+                id="signup-password-error"
+                severity="error"
+                variant="simple"
+                size="small"
+                icon="fa-sharp fa-solid fa-circle-exclamation"
+              >
+                {{ passwordErrorMessage() }}
+              </p-message>
+            }
+          </div>
+        </div>
+
+        <!-- Términos y condiciones -->
+        <!-- Label de checkbox: font-normal, NO semibold — vive al lado del
+             control como body text que describe la acción (rama
+             checkbox/radio de showcase/label-requires-semibold). -->
+        <div>
+          <div class="flex items-center gap-2">
+            <p-checkbox
+              inputId="signup-terms"
+              name="acceptTerms"
+              [binary]="true"
+              [invalid]="termsInvalid()"
+              [ngModel]="acceptTerms()"
+              (ngModelChange)="acceptTerms.set($event); markTermsTouched()"
+            />
+            <label
+              for="signup-terms"
+              class="text-color font-normal leading-6 hover:text-color-emphasis cursor-pointer select-none transition-colors"
+            >
+              Acepto los términos y condiciones
+            </label>
+          </div>
+          <div class="min-h-6 mt-1">
+            @if (termsInvalid()) {
+              <p-message
+                id="signup-terms-error"
+                severity="error"
+                variant="simple"
+                size="small"
+                icon="fa-sharp fa-solid fa-circle-exclamation"
+              >
+                Necesitás aceptar los términos para continuar.
+              </p-message>
+            }
+          </div>
+        </div>
+
+        <!-- Submit: label constante — PrimeNG intercambia el ícono por el
+             spinner con [loading]=true, sin reflow del texto. -->
+        <p-button
+          type="submit"
+          label="Crear cuenta"
+          [loading]="submitting()"
+          styleClass="w-full"
+        />
+
+        <!-- Estado en vivo para lectores de pantalla -->
+        <div
+          class="sr-only"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          @if (submitting()) {
+            Creando tu cuenta, por favor espera.
+          }
+        </div>
+
+        <!-- Cross-link inverso hacia /login (RFC-003 D2). `routerLink`
+             exento de anchor-link-classes; replicamos el set visual de
+             links del flujo de auth + hit area 44px via negative margins. -->
+        <div class="self-center text-center">
+          <p class="text-muted-color font-normal leading-6">
+            ¿Ya tenés cuenta?
+            <a
+              routerLink="/login"
+              class="font-medium text-primary hover:text-primary-emphasis underline leading-6 cursor-pointer transition-colors duration-150 select-none inline-flex items-center min-h-11 px-2 -mx-2 py-2 -my-2"
+            >
+              Iniciá sesión
+            </a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
