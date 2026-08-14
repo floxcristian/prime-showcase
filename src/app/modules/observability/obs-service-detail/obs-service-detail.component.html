@@ -121,7 +121,7 @@
     <div class="xl:col-span-8 border border-surface rounded-2xl">
       <p-tabs
         [value]="activeTab()"
-        (valueChange)="activeTab.set($any($event))"
+        (valueChange)="setActiveTab($event)"
         [lazy]="true"
       >
         <p-tablist>
@@ -288,7 +288,7 @@
 
         <p-tabpanel value="deploys">
           <div class="p-4">
-            <p-timeline [value]="$any(svc.deploys)" align="left" class="!m-0">
+            <p-timeline [value]="deploysTimeline()" align="left" class="!m-0">
               <ng-template let-deploy #content>
                 <div class="flex flex-col pb-4">
                   <div class="flex items-center gap-2">

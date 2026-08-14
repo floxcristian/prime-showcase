@@ -13,6 +13,10 @@ import { LoadErrorStateComponent } from '../../app/shared/components/load-error-
  * Para reload fallido con data stale visible usar
  * `Primitives/Stale Data Banner`.
  *
+ * Usa la variante `size="compact"` del empty state (título a 16px):
+ * vive en celdas y contenedores densos `max-w-sm` — con la escala hero
+ * el título de error competía con el `h1` de la página.
+ *
  * Consumido por las 9 vistas de lista/detalle con fetch (users, roles,
  * customers y todo observability).
  */

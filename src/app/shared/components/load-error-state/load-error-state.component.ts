@@ -22,6 +22,11 @@ import { EmptyStateComponent } from '../empty-state/empty-state.component';
  * Aplica al caso "falló el fetch y NO hay data previa que mostrar".
  * Para reload fallido con data stale visible usar
  * `<app-stale-data-banner>`.
+ *
+ * Usa `size="compact"` del `<app-empty-state>`: este componente vive en
+ * celdas y contenedores densos (`max-w-sm`) de 9 vistas — con la escala
+ * hero (`text-2xl`) el título de error quedaba del mismo tamaño que el
+ * `h1` de la página (jerarquía invertida).
  */
 @Component({
   selector: 'app-load-error-state',
@@ -33,6 +38,7 @@ import { EmptyStateComponent } from '../empty-state/empty-state.component';
       [title]="title()"
       description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
       [bordered]="true"
+      size="compact"
       actionLabel="Reintentar"
       actionIcon="fa-sharp fa-regular fa-arrows-rotate"
       (actionClick)="retry.emit()"

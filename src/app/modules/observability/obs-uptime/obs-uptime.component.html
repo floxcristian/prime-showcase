@@ -1,6 +1,6 @@
 <!-- Header — patrón compartido `<app-page-header>` -->
 <app-page-header
-  title="Uptime"
+  heading="Uptime"
   description="Estado de salud y cuánto tiempo estuvieron disponibles tus servicios en los últimos 30 días."
 >
   @if (statusPill(); as pill) {
@@ -134,7 +134,7 @@
     class="rounded-lg border border-surface w-full overflow-hidden"
   >
       <p-table
-        [value]="$any(rows())"
+        [value]="rows()"
         [loading]="loading()"
         [paginator]="true"
         [rows]="10"

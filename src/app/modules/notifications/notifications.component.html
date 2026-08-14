@@ -19,9 +19,13 @@
             <a
               [routerLink]="n.url"
               [attr.aria-label]="n.read ? n.title : n.title + ' (sin leer)'"
-              [ngClass]="{ 'bg-primary-100 dark:bg-primary-900': !n.read }"
+              [ngClass]="{ 'bg-primary-50 dark:bg-primary-950': !n.read }"
               class="flex items-start gap-3 p-4 hover:bg-emphasis cursor-pointer transition-colors"
             >
+              <!-- Fondo unread un paso MÁS claro (50/950) que el chip
+                   circular del ícono (100/900) — si coinciden, el chip
+                   desaparece en filas sin leer. -->
+
               <div
                 class="w-10 h-10 shrink-0 rounded-lg bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary"
                 aria-hidden="true"

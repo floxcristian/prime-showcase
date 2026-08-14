@@ -530,16 +530,17 @@ export class CustomersComponent {
     // antes era 5% always-on y los showcases se sentían flaky sin
     // razón obvia para el viewer.
     //
-    // Handle tracked en `simulateApiCallTimer` para poder cancelarlo
-    // en el onDestroy del componente — sin teardown, el callback
-    // dispara sobre una instancia destruida (escribe signals + toast
-    // muerto). Un commit rápido consecutivo cancela al anterior
-    // (last-write-wins, mismo criterio que `pendingUndoTimer`).
-    if (this.simulateApiCallTimer !== null) {
-      clearTimeout(this.simulateApiCallTimer);
-    }
-    this.simulateApiCallTimer = setTimeout(() => {
-      this.simulateApiCallTimer = null;
+    // Handles tracked en `simulateApiCallTimers` (Set) para poder
+    // cancelarlos en el onDestroy del componente — sin teardown, el
+    // callback dispara sobre una instancia destruida (escribe signals +
+    // toast muerto). A diferencia de `pendingUndoTimer` (last-write-wins
+    // por diseño: solo importa el último undo), acá CADA commit es un
+    // roundtrip independiente: cancelar el anterior descartaría su toast
+    // y — con `?chaos=on` — su ROLLBACK, persistiendo estado erróneo.
+    // Por eso cada timeout vive hasta dispararse; solo el onDestroy los
+    // limpia en bloque.
+    const timer = setTimeout(() => {
+      this.simulateApiCallTimers.delete(timer);
       const failed = this.chaosEnabled && Math.random() < CHAOS_FAILURE_RATE;
       if (failed) {
         this.api.replaceAll(previousState);
@@ -559,11 +560,16 @@ export class CustomersComponent {
         });
       }
     }, OPTIMISTIC_COMMIT_DELAY_MS);
+    this.simulateApiCallTimers.add(timer);
   }
 
-  /** Handle del setTimeout de `simulateApiCall` — tracked para poder
-   * cancelarlo al destruir el componente (ver teardown en constructor). */
-  private simulateApiCallTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Handles de los setTimeout de `simulateApiCall` — cada commit tiene
+   * su propio roundtrip pendiente (NO last-write-wins: cancelar uno
+   * perdería su toast/rollback). Se limpian todos juntos únicamente en
+   * el `destroyRef.onDestroy` (ver teardown en constructor). */
+  private readonly simulateApiCallTimers = new Set<
+    ReturnType<typeof setTimeout>
+  >();
 
   // ── Density toggle (Compact/Normal/Comfortable) ────────────────────
   //
@@ -1722,10 +1728,10 @@ export class CustomersComponent {
         clearTimeout(this.pendingUndoTimer);
         this.pendingUndoTimer = null;
       }
-      if (this.simulateApiCallTimer !== null) {
-        clearTimeout(this.simulateApiCallTimer);
-        this.simulateApiCallTimer = null;
+      for (const timer of this.simulateApiCallTimers) {
+        clearTimeout(timer);
       }
+      this.simulateApiCallTimers.clear();
       if (this.popoverReopenTimer !== null) {
         clearTimeout(this.popoverReopenTimer);
         this.popoverReopenTimer = null;

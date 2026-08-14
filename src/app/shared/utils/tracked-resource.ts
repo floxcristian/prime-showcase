@@ -20,7 +20,11 @@ export interface TrackedResource<T> {
    * Copia mutable `T[]` del valor (`[]` mientras no hay datos).
    * `<p-table [value]>` sortea in-place, así que se le pasa una copia
    * (no el array cacheado del resource) y el template no necesita
-   * `$any()` para castear `readonly`.
+   * `$any()` para castear `readonly`. Ojo: la garantía "sin `$any()`"
+   * solo se sostiene si los consumers que derivan sus propias filas
+   * desde `value` (en vez de usar este `rows`) también tipan su
+   * computed como `T[]` mutable y devuelven copia fresca — ver `rows`
+   * de obs-uptime.
    */
   readonly rows: Signal<T[]>;
   readonly loading: Signal<boolean>;

@@ -68,10 +68,13 @@ export default defineConfig({
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    // NOTE: the canonical 1440×900 viewport lives INSIDE each project,
-    // AFTER the `...devices['Desktop Chrome']` spread — the device preset
-    // carries its own viewport (1280×720) which would silently override a
-    // top-level `use.viewport` here.
+    // NOTE: the effective viewport is the Desktop Chrome preset's
+    // 1280×720 — no project overrides it. The committed storybook
+    // baselines (`tests/visual/__screenshots__/storybook.spec.ts/**`)
+    // were captured at that size and DEPEND on it; changing the preset
+    // or adding a `viewport` override invalidates them all.
+    // (`golden-paths.spec.ts` is immune — it calls `setViewportSize`
+    // explicitly per test.)
     // Honor reduced-motion always — visual baselines must not include
     // mid-animation frames.
     reducedMotion: 'reduce',
@@ -87,20 +90,15 @@ export default defineConfig({
     {
       name: 'visual',
       testMatch: /visual\/.*\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        // Must come AFTER the device spread: Desktop Chrome ships 1280×720
-        // and would otherwise win. 1440×900 is the canonical baseline size.
-        viewport: { width: 1440, height: 900 },
-      },
+      // No viewport override: the Desktop Chrome preset's 1280×720 is the
+      // canonical baseline size — the committed storybook baselines were
+      // generated at it (see the NOTE in `use` above).
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'a11y',
       testMatch: /a11y\/.*\.spec\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1440, height: 900 },
-      },
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
   webServer: process.env.E2E_BASE_URL

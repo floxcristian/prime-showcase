@@ -73,7 +73,7 @@
               <div class="leading-6 font-medium text-color py-1 px-2">Registro de llamadas</div>
               <p-button
                 icon="fa-sharp fa-regular fa-download text-sm"
-                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
+                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-70 transition-opacity"
                 severity="secondary"
                 text
                 ariaLabel="Descargar registro de llamadas"
@@ -114,7 +114,7 @@
               <div class="leading-6 font-medium text-color py-1 px-2">Registro de correos</div>
               <p-button
                 icon="fa-sharp fa-regular fa-download text-sm"
-                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity"
+                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-70 transition-opacity"
                 severity="secondary"
                 text
                 ariaLabel="Descargar registro de correos"
@@ -151,7 +151,7 @@
               <div class="leading-6 font-medium text-color py-1 px-2">Notas de reunión</div>
               <p-button
                 icon="fa-sharp fa-regular fa-download text-sm"
-                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-75 transition-opacity leading-none"
+                styleClass="w-8 h-8 !border-surface !bg-surface-0 dark:!bg-surface-900 hover:opacity-70 transition-opacity leading-none"
                 severity="secondary"
                 text
                 ariaLabel="Descargar notas de reunión"
@@ -201,7 +201,7 @@
               >
                 @for (pref of data.prefs; track pref.title) {
                   <div class="flex items-center gap-2">
-                    <i class="text-lg text-color" [class]="pref.icon" aria-hidden="true"></i>
+                    <i class="text-color" [class]="pref.icon" aria-hidden="true"></i>
                     <div class="font-medium text-color flex-1">{{ pref.title }}</div>
                     <p-toggleswitch
                       [ngModel]="pref.checked"
@@ -279,10 +279,10 @@
               <div
                 class="flex-1 flex items-center gap-2 justify-center mt-2 p-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface"
               >
-                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">$</div>
-                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">272</div>
-                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">123</div>
-                <div class="font-semibold text-lg leading-none text-color border border-surface py-3.5 px-2 rounded-lg">000</div>
+                <div class="font-semibold leading-none text-color border border-surface py-3.5 px-2 rounded-lg">$</div>
+                <div class="font-semibold leading-none text-color border border-surface py-3.5 px-2 rounded-lg">272</div>
+                <div class="font-semibold leading-none text-color border border-surface py-3.5 px-2 rounded-lg">123</div>
+                <div class="font-semibold leading-none text-color border border-surface py-3.5 px-2 rounded-lg">000</div>
               </div>
             </div>
             @if (c?.productUsage; as productUsage) {

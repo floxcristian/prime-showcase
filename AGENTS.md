@@ -199,7 +199,7 @@ Ver [`DESIGN.md`](./DESIGN.md) sección "Do's and Don'ts" — todo lo relativo a
 - No usar constructor para DI. Preferir `inject()`.
 - No crear servicios con estado que deberían ser signals en el componente.
 - No usar RxJS para estado de UI local. Preferir signals.
-- No usar pipes en templates (`| date`, `| number`). Formatear datos en el componente (.ts).
+- No usar pipes de FORMATEO en templates (`| date`, `| number`, `| currency`). Formatear datos en el componente (.ts) con `Intl`. Excepción sancionada: `| relativeTime` — centraliza la reactividad del tick de `TimeService` (irreplicable con un computed por componente sin N suscripciones).
 
 ### Charts
 - No usar colores hex en datasets de charts. Siempre CSS variables del tema.

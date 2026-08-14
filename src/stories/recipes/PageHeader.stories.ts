@@ -26,7 +26,7 @@ import { PageHeaderComponent } from '../../app/shared/components/page-header/pag
  */
 
 interface PageHeaderArgs {
-  title: string;
+  heading: string;
   description: string;
 }
 
@@ -39,7 +39,11 @@ const meta: Meta<PageHeaderArgs> = {
     }),
   ],
   argTypes: {
-    title: { control: 'text', description: 'Título — renderizado como `h1`.' },
+    heading: {
+      control: 'text',
+      description:
+        'Título — renderizado como `h1`. Se llama `heading` (no `title`) para no colisionar con el atributo global HTML `title` (tooltip nativo).',
+    },
     description: {
       control: 'text',
       description: 'Subtítulo descriptivo (opcional).',
@@ -58,13 +62,13 @@ export const Standard: Story = {
     },
   },
   args: {
-    title: 'Clientes',
+    heading: 'Clientes',
     description: 'Gestión de la base de clientes de la compañía',
   },
   render: (args) => ({
     props: args,
     template: `
-      <app-page-header [title]="title" [description]="description" />
+      <app-page-header [heading]="heading" [description]="description" />
     `,
   }),
 };
@@ -77,10 +81,10 @@ export const TitleOnly: Story = {
       },
     },
   },
-  args: { title: 'Configuración', description: '' },
+  args: { heading: 'Configuración', description: '' },
   render: (args) => ({
     props: args,
-    template: `<app-page-header [title]="title" />`,
+    template: `<app-page-header [heading]="heading" />`,
   }),
 };
 
@@ -95,14 +99,14 @@ export const WithActions: Story = {
     },
   },
   args: {
-    title: 'Preferencias',
+    heading: 'Preferencias',
     description:
       'Configurá qué notificaciones recibís, por qué canal y cuándo.',
   },
   render: (args) => ({
     props: args,
     template: `
-      <app-page-header [title]="title" [description]="description">
+      <app-page-header [heading]="heading" [description]="description">
         <div actions class="flex gap-2 whitespace-nowrap">
           <p-button
             label="Restablecer"
@@ -131,13 +135,13 @@ export const WithCountPill: Story = {
     },
   },
   args: {
-    title: 'Clientes',
+    heading: 'Clientes',
     description: 'Gestión de la base de clientes de la compañía',
   },
   render: (args) => ({
     props: args,
     template: `
-      <app-page-header [title]="title" [description]="description">
+      <app-page-header [heading]="heading" [description]="description">
         <div
           class="hidden lg:inline-flex items-center gap-2 px-4 py-1 rounded-lg border border-surface text-color font-medium leading-6"
           role="status"
@@ -162,13 +166,13 @@ export const WithMetaLine: Story = {
     },
   },
   args: {
-    title: 'Servicios',
+    heading: 'Servicios',
     description: 'Listado de los servicios que monitorea tu equipo.',
   },
   render: (args) => ({
     props: args,
     template: `
-      <app-page-header class="mb-6" [title]="title" [description]="description">
+      <app-page-header class="mb-6" [heading]="heading" [description]="description">
         <div meta class="mt-2 text-sm text-muted-color leading-5">
           <span class="text-color font-semibold">12</span>
           servicios visibles

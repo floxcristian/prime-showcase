@@ -20,6 +20,15 @@ import { ButtonModule } from 'primeng/button';
  *
  * Pattern bigtech: una sola primitive para cualquier "no hay data /
  * algo salió mal", evita el drift visual entre vistas.
+ *
+ * Escala del título (`size`):
+ *   - `default` — `text-2xl font-medium leading-8`, la receta hero de
+ *     empty states (listas vacías top-level, drop zones).
+ *   - `compact` — `text-color font-medium leading-6` (16px), para
+ *     contextos densos: celdas, contenedores `max-w-sm`, error states
+ *     dentro de cards. A escala hero el título competiría con el `h1`
+ *     de la página (jerarquía invertida). `<app-load-error-state>` usa
+ *     esta variante.
  */
 @Component({
   selector: 'app-empty-state',
@@ -32,7 +41,7 @@ import { ButtonModule } from 'primeng/button';
       >
         <i [class]="iconClass()" aria-hidden="true"></i>
         <div class="flex flex-col gap-1 max-w-sm">
-          <h3 class="text-color text-2xl font-medium leading-8">{{ title() }}</h3>
+          <h3 [class]="titleClass()">{{ title() }}</h3>
           @if (description()) {
             <p class="text-muted-color leading-6">{{ description() }}</p>
           }
@@ -64,6 +73,14 @@ export class EmptyStateComponent {
    */
   readonly bordered = input<boolean>(false);
 
+  /**
+   * Escala del título. `default` = receta hero (`text-2xl`); `compact` =
+   * 16px para contextos densos (celdas, `max-w-sm`, error states dentro
+   * de cards) donde la escala hero invertiría la jerarquía vs el `h1`
+   * de la página. Ver JSDoc de la clase.
+   */
+  readonly size = input<'default' | 'compact'>('default');
+
   /** Si presente, renderiza un CTA `<p-button>` que emite `actionClick`. */
   readonly actionLabel = input<string>('');
   readonly actionIcon = input<string>('');
@@ -75,5 +92,11 @@ export class EmptyStateComponent {
 
   protected readonly wrapperClass = computed(() =>
     this.bordered() ? 'border border-surface rounded-2xl' : '',
+  );
+
+  protected readonly titleClass = computed(() =>
+    this.size() === 'compact'
+      ? 'text-color font-medium leading-6'
+      : 'text-color text-2xl font-medium leading-8',
   );
 }

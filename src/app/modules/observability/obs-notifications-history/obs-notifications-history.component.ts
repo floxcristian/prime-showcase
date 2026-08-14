@@ -96,7 +96,7 @@ const TITLES = [
     <!-- Header — patrón compartido \`<app-page-header>\` -->
     <app-page-header
       class="mb-6"
-      title="Historial de notificaciones"
+      heading="Historial de notificaciones"
       description="Lo que te llegó por cada canal en los últimos 30 días. Útil para verificar entregas o entender por qué falló una."
     >
       <div actions class="flex gap-2 whitespace-nowrap">
@@ -157,7 +157,7 @@ const TITLES = [
       />
     } @else {
       <p-table
-        [value]="$any(filtered())"
+        [value]="filtered()"
         [paginator]="true"
         [rows]="20"
         [rowsPerPageOptions]="[20, 50, 100]"
@@ -234,9 +234,14 @@ export class ObsNotificationsHistoryComponent {
   protected readonly entries = signal<readonly NotifEntry[]>(buildHistory(40));
   protected readonly channelFilter = signal<NotifChannel | 'all'>('all');
 
-  protected readonly filtered = computed<readonly NotifEntry[]>(() => {
+  /**
+   * Tipado mutable y SIEMPRE copia fresca (incluso en el caso `all`):
+   * `<p-table [value]>` sortea in-place, y el tipo mutable evita el
+   * `$any()` en el template.
+   */
+  protected readonly filtered = computed<NotifEntry[]>(() => {
     const f = this.channelFilter();
-    if (f === 'all') return this.entries();
+    if (f === 'all') return [...this.entries()];
     return this.entries().filter((e) => e.channel === f);
   });
 

@@ -26,6 +26,24 @@ export const minutesAgo = (n: number): string =>
   new Date(now() - n * 60 * 1000).toISOString();
 
 /**
+ * Instante de referencia capturado al import de este módulo — el mismo
+ * instante (± microsegundos: los mocks importan este archivo y evalúan
+ * sus consts inmediatamente después) en que `SERVICES_MOCK` /
+ * `ALERTS_MOCK` congelan sus timestamps vía `minutesAgo()`.
+ *
+ * Usar como ancla temporal en vistas que correlacionan timestamps
+ * propios con los de esos mocks (ej: el segment grid de obs-uptime).
+ * Un `now()` capturado por instancia deriva respecto de los mocks
+ * congelados durante sesiones largas — los incidentes "migran" frente a
+ * la columna "Última alerta".
+ *
+ * Deuda documentada: en SSR los mocks top-level se congelan igual al
+ * boot del server; frescura per-request requeriría mocks factory (no
+ * consts). Mientras los mocks sean consts, la ancla coherente es esta.
+ */
+export const MOCK_EPOCH: number = now();
+
+/**
  * PRNG seedeado con string — produce números deterministas para un id dado.
  * Usado en mocks de detail para que `commitSha`/`sparkline` sean estables
  * por servicio aunque la llamada a `getServiceDetail(id)` vuelva a correr.

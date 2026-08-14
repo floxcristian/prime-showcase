@@ -161,7 +161,7 @@
       <!-- Timeline de historia -->
       <div class="border border-surface rounded-2xl p-6">
         <h3 class="text-color font-semibold leading-6 mb-4">Historial</h3>
-        <p-timeline [value]="$any(a.history)" align="left" class="!m-0">
+        <p-timeline [value]="historyTimeline()" align="left" class="!m-0">
           <ng-template let-entry #content>
             <div class="flex flex-col pb-3">
               <div class="flex items-center gap-2">

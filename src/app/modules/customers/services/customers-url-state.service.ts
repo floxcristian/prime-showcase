@@ -126,13 +126,29 @@ export class CustomersUrlStateService {
    * Sincroniza el snapshot dado a queryParams. `queryParamsHandling:
    * "merge"` preserva params no-customer (ej. del breadcrumb), pero
    * los pasamos a null explícitamente cuando borramos un filter para
-   * evitar URL stale.
+   * evitar URL stale: iterar SOLO las keys presentes en
+   * `snapshot.filters` no basta — un filter recién quitado ya no
+   * aparece en el objeto, `merge` lo preservaría en la URL, y el
+   * próximo deep-link/refresh lo re-aplicaría (aplicar filtro →
+   * quitarlo → la URL NO debe conservar `f.campo`). Por eso, cuando el
+   * snapshot trae `filters`, leemos del route snapshot las keys `f.*`
+   * existentes y mandamos `null` explícito para las que desaparecieron.
    */
   updateUrl(snapshot: Partial<CustomersViewSnapshot>): void {
     const queryParams: Params = {};
 
     // Filters → f.{field}=tag:encoded
     if (snapshot.filters) {
+      // Limpieza real de filters removidos: null explícito para cada
+      // `f.*` presente en la URL actual pero ausente del snapshot.
+      const currentParams = this.route.snapshot.queryParams;
+      for (const key of Object.keys(currentParams)) {
+        if (!key.startsWith(QP_FILTERS_PREFIX)) continue;
+        const field = key.slice(QP_FILTERS_PREFIX.length);
+        if (!(field in snapshot.filters)) {
+          queryParams[key] = null;
+        }
+      }
       for (const [field, value] of Object.entries(snapshot.filters)) {
         const key = QP_FILTERS_PREFIX + field;
         queryParams[key] = this.encodeFilterValue(value);

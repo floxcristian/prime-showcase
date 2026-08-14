@@ -37,7 +37,8 @@ const LOCAL_COMPONENTS = [
 ];
 const LOCAL_PIPES = [RelativeTimePipe];
 
-type DetailTab = 'health' | 'errors' | 'performance' | 'deploys';
+const DETAIL_TABS = ['health', 'errors', 'performance', 'deploys'] as const;
+type DetailTab = (typeof DETAIL_TABS)[number];
 
 @Component({
   selector: 'app-obs-service-detail',
@@ -85,6 +86,29 @@ export class ObsServiceDetailComponent {
   }
 
   protected readonly activeTab = signal<DetailTab>('health');
+
+  /**
+   * Handler tipado del `(valueChange)` de `<p-tabs>` — PrimeNG emite
+   * `string | number | undefined`, pero los `<p-tab value>` de este
+   * template son exclusivamente `DetailTab`. El narrowing con guard vive
+   * acá (TS chequeado) en vez de un `$any()` en el template.
+   */
+  protected setActiveTab(value: string | number | undefined): void {
+    if (
+      typeof value === 'string' &&
+      (DETAIL_TABS as readonly string[]).includes(value)
+    ) {
+      this.activeTab.set(value as DetailTab);
+    }
+  }
+
+  /**
+   * Copia mutable de `deploys` para `<p-timeline [value]>` (tipado como
+   * array mutable) — el spread en TS evita el `$any()` del template.
+   */
+  protected readonly deploysTimeline = computed(() => [
+    ...(this.service()?.deploys ?? []),
+  ]);
 
   /** Skeleton cards del loading state — mismo patrón que obs-uptime. */
   protected readonly skeletonPlaceholders = [0, 1, 2, 3];

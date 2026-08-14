@@ -65,6 +65,14 @@ export class ObsAlertDetailComponent {
   protected readonly loadError = computed(() => this.alertResource.error());
 
   /**
+   * Copia mutable de `history` para `<p-timeline [value]>` (tipado como
+   * array mutable) — el spread en TS evita el `$any()` del template.
+   */
+  protected readonly historyTimeline = computed(() => [
+    ...(this.alert()?.history ?? []),
+  ]);
+
+  /**
    * Acked derivado del store global — persiste al navegar away+back dentro
    * de la sesión. Antes era un `signal<boolean>` local que se perdía al
    * desmontar el componente, lo que contradecía el UX compromisivo del ack.

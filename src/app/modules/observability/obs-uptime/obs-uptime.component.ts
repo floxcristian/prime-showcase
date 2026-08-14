@@ -29,7 +29,7 @@ import { TableFilterShellComponent } from '../../../shared/components/table-filt
 import { TooltipDismissOnClickDirective } from '../../../shared/directives/tooltip-dismiss-on-click.directive';
 import { COLUMN_FILTER_PT } from '../../../shared/tokens/table-tokens';
 import { trackedResource } from '../../../shared/utils/tracked-resource';
-import { now, seededRandom } from '../mocks/mock-utils';
+import { MOCK_EPOCH, seededRandom } from '../mocks/mock-utils';
 import type {
   HealthState,
   ServiceSummary,
@@ -163,25 +163,28 @@ export class ObsUptimeComponent {
   protected readonly lastFetchedAt = this.servicesData.lastFetchedAt;
 
   /**
-   * Anclaje temporal UNIFORME para todos los servicios, capturado UNA vez
-   * por instancia del componente — todos los bars comparten el mismo
-   * "hoy" como punto de anclaje del último segmento.
+   * Anclaje temporal UNIFORME para todos los servicios — todos los bars
+   * comparten el mismo "hoy" como punto de anclaje del último segmento.
    *
    * **Bug que resuelve (alineación)**: una versión previa usaba
    * `lastDeployAt` per-service como ancla → cada bar tenía un "hoy"
    * distinto y los segmentos no se alineaban temporalmente entre
    * servicios.
    *
-   * **Bug que resuelve (SSR)**: otra versión usaba una constante de
-   * módulo capturada al import — en SSR eso congelaba el "hoy" al boot
-   * del server para todos los requests siguientes. Como campo de
-   * instancia, cada render (request en server, navegación en cliente)
-   * ancla a su propio presente.
+   * **Bug que resuelve (deriva vs mocks)**: otra versión capturaba
+   * `now()` por instancia del componente — pero los mocks
+   * (`SERVICES_MOCK`/`ALERTS_MOCK`) congelan sus timestamps al import
+   * del módulo. En sesiones largas el ancla per-instancia derivaba
+   * respecto de esos timestamps y los segmentos de incidente migraban
+   * frente a la columna "Última alerta". `MOCK_EPOCH` es el mismo
+   * instante en que los mocks se construyeron → coherencia garantizada.
    *
-   * En producción real el ancla vendría del request del backend (server
-   * clock) para evitar clock skew client-side; acá vive en el mock.
+   * Honestidad SSR: esto NO da frescura per-request — los mocks siguen
+   * congelados al boot del server, y el ancla con ellos. Frescura real
+   * requeriría mocks factory (deuda documentada en `mock-utils.ts`).
+   * En producción el ancla vendría del backend (server clock).
    */
-  private readonly anchorTime = now();
+  private readonly anchorTime = MOCK_EPOCH;
 
   /**
    * Caches de memoización de filas/segmentos — CAMPOS DE INSTANCIA, no
@@ -214,8 +217,12 @@ export class ObsUptimeComponent {
    * user no ha clickeado todavía ninguna columna. Filtros son
    * responsabilidad de `<p-columnFilter>` por columna — PrimeNG filtra
    * el array internamente, no necesita lógica acá.
+   *
+   * Tipado mutable (`ServiceUptimeRow[]`, ya es una copia fresca por
+   * el spread): `<p-table [value]>` sortea in-place, y el tipo mutable
+   * evita el `$any()` en el template.
    */
-  protected readonly rows = computed<readonly ServiceUptimeRow[]>(() =>
+  protected readonly rows = computed<ServiceUptimeRow[]>(() =>
     [...this.allRows()].sort((a, b) => a.severityRank - b.severityRank),
   );
 
@@ -477,7 +484,9 @@ function makeSegment(state: HealthState, at: number): UptimeSegment {
  */
 function segmentColor(state: HealthState): string {
   if (state === 'ok') return 'var(--p-green-500)';
-  if (state === 'warn') return 'var(--p-yellow-500)';
+  // Orange (no yellow) para warn — mismo color semántico de warning que
+  // el pill del header; yellow está reservado al ícono BTC (ver DS).
+  if (state === 'warn') return 'var(--p-orange-500)';
   if (state === 'critical') return 'var(--p-red-500)';
   return 'var(--p-surface-400)';
 }

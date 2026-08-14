@@ -22,7 +22,10 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     >
       <ng-content select="[leading]"></ng-content>
     </div>
-    <h1 class="text-surface-0 text-lg font-bold leading-7">{{ title() }}</h1>
+    <!-- 16px default + font-bold (misma receta que el header de overlays
+         del toolbar principal) — text-lg (18px) no existe en la escala
+         tipográfica del DS. -->
+    <h1 class="text-surface-0 font-bold leading-6">{{ title() }}</h1>
     <!-- Trailing slot (default). empty:hidden — cuando el consumer no proyecta
          un action, el wrapper pasa a :empty (ng-content vacío no crea element
          children) y se colapsa. Evita un hit-target fantasma a la derecha del

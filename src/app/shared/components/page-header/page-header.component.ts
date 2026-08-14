@@ -23,13 +23,19 @@ import {
  *
  * Márgenes contextuales (`mb-6`, `p-1`) se agregan vía `class` en el
  * call site — Angular los mergea con la host class del componente.
+ *
+ * El input del título se llama `heading` (NO `title`) a propósito:
+ * `title` es un atributo global de HTML, y los call sites lo pasan como
+ * atributo estático (`heading="Clientes"`). Con un input llamado
+ * `title`, Ivy escribe el atributo al DOM del host y el browser muestra
+ * un tooltip nativo al hoverear el header (verificado en SSR).
  */
 @Component({
   selector: 'app-page-header',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-w-0">
-      <h1 class="text-2xl leading-8 text-color font-medium">{{ title() }}</h1>
+      <h1 class="text-2xl leading-8 text-color font-medium">{{ heading() }}</h1>
       @if (description()) {
         <div class="mt-1 leading-6 text-muted-color">{{ description() }}</div>
       }
@@ -43,8 +49,9 @@ import {
   },
 })
 export class PageHeaderComponent {
-  /** Título de la página — se renderiza como `h1`. */
-  readonly title = input.required<string>();
+  /** Título de la página — se renderiza como `h1`. Ver JSDoc de la
+   * clase para el porqué del nombre (`heading`, no `title`). */
+  readonly heading = input.required<string>();
   /** Subtítulo descriptivo. Omitir para headers de título solo. */
   readonly description = input<string>();
 }

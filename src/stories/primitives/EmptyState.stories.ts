@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
 import { Button } from 'primeng/button';
 
+import { EmptyStateComponent } from '../../app/shared/components/empty-state/empty-state.component';
+
 /**
  * Patrón de empty state (la receta vive en `.claude/rules/ux-patterns.md`).
  *
@@ -10,12 +12,18 @@ import { Button } from 'primeng/button';
  *
  * Centrado vía el flex container padre. La misma forma se usa para
  * tiles de onboarding, drop zones de file upload, y zero-results post-filtrado.
+ *
+ * El componente compartido `<app-empty-state>` implementa la receta con
+ * dos escalas de título (`size`): `default` (hero, `text-2xl`) y
+ * `compact` (16px, para contextos densos donde la escala hero
+ * invertiría la jerarquía vs el `h1` de la página). Ver las stories
+ * `ComponentDefault` / `ComponentCompact`.
  */
 
 const meta: Meta = {
   title: 'Primitives/Empty State',
   tags: ['autodocs'],
-  decorators: [moduleMetadata({ imports: [Button] })],
+  decorators: [moduleMetadata({ imports: [Button, EmptyStateComponent] })],
 };
 export default meta;
 type Story = StoryObj;
@@ -84,6 +92,57 @@ export const ErrorState: Story = {
           <p-button label="Reintentar" outlined />
         </div>
       </div>
+    `,
+  }),
+};
+
+export const ComponentDefault: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'El componente real `<app-empty-state>` con `size="default"` — ' +
+          'título hero `text-2xl font-medium leading-8`. Para listas ' +
+          'vacías top-level y drop zones.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <app-empty-state
+        icon="fa-inbox"
+        title="Sin correos en tu bandeja"
+        description="Cuando recibas un correo, aparecerá aquí."
+        [bordered]="true"
+      />
+    `,
+  }),
+};
+
+export const ComponentCompact: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`size="compact"` — título a 16px (`font-medium leading-6`) para ' +
+          'contextos densos: celdas, contenedores `max-w-sm`, error states ' +
+          'dentro de cards. A escala hero el título quedaría del mismo ' +
+          'tamaño que el `h1` de la página (jerarquía invertida). ' +
+          '`<app-load-error-state>` usa esta variante.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <app-empty-state
+        icon="fa-triangle-exclamation"
+        title="No pudimos cargar los datos"
+        description="Hubo un problema al obtener los datos. Reintentalo en unos segundos."
+        [bordered]="true"
+        size="compact"
+        actionLabel="Reintentar"
+        actionIcon="fa-sharp fa-regular fa-arrows-rotate"
+      />
     `,
   }),
 };

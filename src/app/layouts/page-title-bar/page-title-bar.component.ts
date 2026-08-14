@@ -20,12 +20,11 @@ import {
 @Component({
   selector: 'app-page-title-bar',
   template: `
-    <!-- h1 a text-lg (18px) font-semibold: tamaño compacto apto para la banda
-         sticky h-12 pero leíble como page-title (no body-text en bold como
-         antes, que era 16px/font-bold — mismo weight/size que una frase
-         normal del contenido). Patrón GitHub / Linear / Vercel para sticky
-         page headers compactos. -->
-    <h1 class="text-color text-lg font-semibold leading-7">{{ title() }}</h1>
+    <!-- h1 a 16px default + font-semibold: la escala tipográfica del DS no
+         incluye text-lg (18px). El semibold (receta "nav item activo") lo
+         diferencia del body font-medium sin salirse de la banda sticky
+         h-12 compacta. -->
+    <h1 class="text-color font-semibold leading-6">{{ title() }}</h1>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
