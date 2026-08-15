@@ -23,7 +23,12 @@
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
   -->
-  <meta name="theme-color" content="#0074c2">
+  <!-- Azul base Implementos (PANTONE 300 U) = primary.500 de src/app/app.preset.ts.
+       Es un hex literal porque el <head> se sirve antes de que exista cualquier
+       CSS var, así que no puede referenciar el token. Para que no se desincronice
+       en silencio, `npm run design-tokens:brand` verifica que este valor siga
+       siendo primary.500 en cada corrida de lint. -->
+  <meta name="theme-color" content="#006db6">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script>
     // Pre-hydration theme bootstrap: runs before any CSS paints to prevent

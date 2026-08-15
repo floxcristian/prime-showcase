@@ -140,22 +140,65 @@ function ensureDir(filePath) {
  * group 1 = the current value, with the SAME formatting the surgical
  * patcher will use to rewrite (quotes, key style, etc.).
  */
+/**
+ * Builds drift checks for one literal palette block in the front matter.
+ *
+ * **Why the regex is anchored to the palette key**
+ *
+ * The obvious pattern — `/(\s+)"500":\s*"([^"]+)"/` — matches the FIRST
+ * `"500"` anywhere in DESIGN.md. That was harmless while `colors.primary`
+ * was the only hex palette in the document. It stops being harmless the
+ * moment a second one exists: every `accent` check would silently validate
+ * against `primary`'s block instead, and both would report "in sync" while
+ * the accent ramp rotted.
+ *
+ * So each shade's regex starts at its own `  <key>:` line and walks forward
+ * non-greedily to the first matching shade. `accent`'s `"500"` can only
+ * resolve inside `accent:`.
+ *
+ * Capture contract shared with the rest of `buildDesignChecks`:
+ *   group 1 = everything up to and including the `"<shade>": ` lead-in
+ *   group 2 = the current value (what `runDesignDrift` compares)
+ *
+ * @param {string} yamlKey  key under `colors:` (2-space indent)
+ * @param {Record<string, unknown>} palette
+ * @param {string[]} shades
+ */
+function paletteBlockChecks(yamlKey, palette, shades) {
+  const checks = [];
+  for (const shade of shades) {
+    const expected = palette?.[shade] ?? palette?.[Number(shade)];
+    if (typeof expected !== 'string') continue;
+    checks.push({
+      label: `colors.${yamlKey}."${shade}"`,
+      regex: new RegExp(
+        `(\\n  ${yamlKey}:\\n(?:[^\\n]*\\n)*?\\s+"${shade}":\\s*)"([^"]+)"`,
+      ),
+      expected,
+      replace: (_match, lead) => `${lead}"${expected}"`,
+    });
+  }
+  return checks;
+}
+
+const RAMP_SHADES = ['50','100','200','300','400','500','600','700','800','900','950'];
+
 function buildDesignChecks(preset) {
   const checks = [];
 
-  // 1. Primary palette — 11 literal hex values inside `colors.primary:`.
-  const primary = preset.semantic?.primary ?? {};
-  for (const shade of ['50','100','200','300','400','500','600','700','800','900','950']) {
-    const expected = primary[shade] ?? primary[Number(shade)];
-    if (typeof expected !== 'string') continue;
-    checks.push({
-      label: `colors.primary."${shade}"`,
-      // Match e.g.  `    "50": "#eff8ff"`
-      regex: new RegExp(`(\\s+)"${shade}":\\s*"([^"]+)"`),
-      expected,
-      replace: (match, indent) => `${indent}"${shade}": "${expected}"`,
-    });
-  }
+  // 1. Brand palettes — literal hex, one block each under `colors:`.
+  //    primary = PANTONE 300 U · accent = PANTONE 334 U ·
+  //    surface = PANTONE Cool Gray 10 C (one ramp, shared by both modes,
+  //    so the front matter documents it once).
+  checks.push(...paletteBlockChecks('primary', preset.semantic?.primary ?? {}, RAMP_SHADES));
+  checks.push(...paletteBlockChecks('accent', preset.semantic?.accent ?? {}, RAMP_SHADES));
+  checks.push(
+    ...paletteBlockChecks(
+      'surface',
+      preset.semantic?.colorScheme?.light?.surface ?? {},
+      ['0', ...RAMP_SHADES],
+    ),
+  );
 
   // 2. Reference strings — `textMutedColor.light/dark`, `focusRingShadow`.
   const muted = preset.semantic?.colorScheme;

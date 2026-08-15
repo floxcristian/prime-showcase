@@ -22,16 +22,26 @@
   manages `.p-dark` on `<html>` via addon-themes; we propagate it to body so
   the surface read matches production (which sets surface-0/950 at the
   layout level).
+
+  The literal fallbacks are the Implementos corporate neutral (PANTONE Cool
+  Gray 10 C, one single ramp for light and dark) — they only paint in the
+  frames before PrimeNG injects its `--p-*` variables, which is exactly why
+  they must belong to the same grey family. They used to be zinc, so first
+  paint flashed a warmer grey than the one the theme then settled on.
 -->
 <style>
   html,
   body {
+    /* surface.0 · surface.900 — the text fallback errs one step darker than
+       the runtime `text.color` (surface.700): a value that shows for a frame
+       should never land lighter than the token it stands in for. */
     background-color: var(--p-surface-0, #ffffff);
-    color: var(--p-text-color, #18181b);
+    color: var(--p-text-color, #151619);
     margin: 0;
   }
   html.p-dark,
   html.p-dark body {
-    background-color: var(--p-surface-950, #09090b);
+    /* surface.950 */
+    background-color: var(--p-surface-950, #07080a);
   }
 </style>

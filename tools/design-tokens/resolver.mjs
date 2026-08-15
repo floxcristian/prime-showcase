@@ -164,11 +164,20 @@ export function resolveValue(value, preset, mode, depth = 0) {
  *   - 'composite'     → composite string (e.g. shadow) under `semantic`
  */
 export const EXPORTED_TOKENS = /** @type {const} */ ({
-  // Brand palette (literal hex in our preset)
+  // Brand palette (literal hex in our preset) — PANTONE 300 U anchored.
   primary: { kind: 'palette', path: ['semantic', 'primary'] },
 
-  // Surface palette per mode (Aura defaults: light=slate, dark=zinc;
-  // shade 0 hard-coded to white in both)
+  // Accent palette — PANTONE 334 U. Not a PrimeNG semantic key: we declare
+  // it ourselves, the theme engine emits it as `--p-accent-*` like any other
+  // semantic branch, and `styles.scss` maps it into Tailwind's `@theme`.
+  // Exported so external consumers (Figma plugin, mobile) get the brand's
+  // second color instead of having to eyedrop it out of the logo.
+  accent: { kind: 'palette', path: ['semantic', 'accent'] },
+
+  // Surface palette per mode. Both modes now resolve to the SAME
+  // Implementos neutral (PANTONE Cool Gray 10 C anchored) — the brand
+  // declares one gray. Previously these were Aura's undeclared defaults:
+  // slate in light, zinc in dark.
   surface: { kind: 'paletteByMode', path: ['surface'] },
 
   // Project semantic overrides — resolved per mode

@@ -26,12 +26,23 @@
 // Accesibilidad: `prefers-reduced-motion: reduce` desactiva el movimiento —
 // WCAG 2.3.3 (animaciones de desplazamiento continuo > 5s deben poder pausarse).
 
-// Background del aside marketing: SVG radial/tornado en azules (#005DB9 → #0089D6)
-// reemplaza el `bg-primary` verde. El svg ya trae su propio rect fill de 2000x1500
-// → con `cover` + `center` cubre cualquier ratio del panel sin huecos. La regla
-// "no arbitrary bg values" de CLAUDE.md aplica a color (`bg-[#hex]`); para
-// `background-image: url(...)` no hay utility Tailwind equivalente, así que
-// vive aquí como clase semantica. Mismo waiver que los keyframes del marquee.
+// Background del aside marketing: SVG radial/tornado (public/images/tornado.svg)
+// en tres azules que NO son arbitrarios — son shades exactos del ramp primary
+// derivado del brand book:
+//   #004678 = primary.700 → fondo base del rect + cierre de ambos gradientes
+//   #005996 = primary.600 → arranque del gradiente lineal
+//   #006db6 = primary.500 → arranque del radial (PANTONE 300 U, el azul base
+//                            de la marca; el pico luminoso del tornado ES el
+//                            color corporativo, no una aproximación)
+// Retonar el asset contra el ramp es lo que evita que la identidad del panel
+// derive del resto del producto: si la rampa se mueve, el svg queda visible-
+// mente desalineado y se nota, en vez de "casi igual" para siempre.
+//
+// El svg ya trae su propio rect fill de 2000x1500 → con `cover` + `center`
+// cubre cualquier ratio del panel sin huecos. La regla "no arbitrary bg values"
+// de CLAUDE.md aplica a color (`bg-[#hex]`); para `background-image: url(...)`
+// no hay utility Tailwind equivalente, así que vive aquí como clase semantica.
+// Mismo waiver que los keyframes del marquee.
 .login-aside-bg {
   background-image: url('/images/tornado.svg');
   background-size: cover;

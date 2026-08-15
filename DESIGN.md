@@ -12,32 +12,77 @@ description: >
 
 # ─── Atmosphere ─────────────────────────────────────────────────────────
 # Calm density. ERP en español, sesiones de 8h, usuarios 25–60+.
-# 16px base → legibilidad gana a densidad. Single-hue 204° primary
-# (Pantone "Implementos blue") — lectura instantánea de marca sin pintar
-# todo de azul. Sin sombras: la elevación se construye con borde +
-# superficie. Motion casi ausente: animar solo color/opacidad/transform,
-# nunca layout. Vocabulario alineado con SAP Fiori 3+, ServiceNow,
-# Oracle Redwood — no con Linear/Stripe/Vercel (consumer-tech, target
-# distinto).
+# 16px base → legibilidad gana a densidad. Paleta de marca de tres colores
+# (azul base PANTONE 300 U, verde acento PANTONE 334 U, gris neutro Cool
+# Gray 10 C), cada uno con su ramp derivado en OKLCH desde el Pantone
+# exacto. El azul manda; el verde es acento puntual — el brand book lista
+# "verde dominante" como error explícito. Sin sombras: la elevación se
+# construye con borde + superficie. Motion casi ausente: animar solo
+# color/opacidad/transform, nunca layout. Vocabulario alineado con SAP
+# Fiori 3+, ServiceNow, Oracle Redwood — no con Linear/Stripe/Vercel
+# (consumer-tech, target distinto).
 
 colors:
-  # Primary palette — literal hex, single-hue 204°, generated from
-  # the brand logo (#006DB6). Synced from src/app/app.config.ts by
-  # tools/design-tokens/sync.mjs; do not hand-edit.
+  # ── Paleta primaria Implementos (brand book 2026, cap. 03) ───────────
+  # Los cuatro colores declarados: azul base, verde acento, gris neutro,
+  # blanco. Cada ramp se DERIVA de su ancla Pantone en OKLCH; el shade
+  # 500 reproduce el Pantone byte a byte.
+  #
+  # Generado desde src/app/app.preset.ts por tools/design-tokens/sync.mjs
+  # — no editar a mano. La derivación misma la verifica
+  # tools/design-tokens/brand.mjs (parte de `npm run lint`): si alguien
+  # retoca un shade, CI lo dice.
+  #
+  # Azul base — PANTONE 300 U. Hue OKLCH 248.2° constante en los 11 shades.
   primary:
-    "50": "#eff8ff"
-    "100": "#daeffc"
-    "200": "#b2ddf9"
-    "300": "#74c3f3"
-    "400": "#27a0f1"
-    "500": "#0074c2"
-    "600": "#005c99"
-    "700": "#004a7a"
-    "800": "#00375c"
-    "900": "#002842"
-    "950": "#001829"
+    "50": "#f0f7ff"
+    "100": "#d9ecff"
+    "200": "#b1d8ff"
+    "300": "#7abbf8"
+    "400": "#4496de"
+    "500": "#006db6"
+    "600": "#005996"
+    "700": "#004678"
+    "800": "#00355d"
+    "900": "#002646"
+    "950": "#001831"
+  # Verde acento — PANTONE 334 U. ACENTO, NUNCA DOMINANTE: el manual
+  # lista "uso del verde como dominante en vez de acento" como error.
+  # No está mapeado a la severity `success` de PrimeNG a propósito —
+  # ver la sección "Azul base / verde acento" más abajo.
+  # accent.500 mide 3.8:1 sobre blanco → relleno/gráfico sí, texto no.
+  # Para texto usar accent.600 (5.5:1 AA) o accent.700 (7.9:1 AAA).
+  accent:
+    "50": "#ebfbf6"
+    "100": "#d4f4ec"
+    "200": "#afe6d9"
+    "300": "#7fd1bf"
+    "400": "#49b5a1"
+    "500": "#00937f"
+    "600": "#007666"
+    "700": "#005c4f"
+    "800": "#00443a"
+    "900": "#003028"
+    "950": "#001d17"
+  # Gris neutro — PANTONE Cool Gray 10 C. UN SOLO ramp para light y dark:
+  # la marca declara un gris. Reemplaza los defaults de Aura que veníamos
+  # heredando sin declarar (slate en light, zinc en dark), que además
+  # cambiaban de temperatura al togglear el tema.
+  surface:
+    "0": "#ffffff"
+    "50": "#f9fafb"
+    "100": "#f2f3f6"
+    "200": "#e2e4e7"
+    "300": "#ced0d4"
+    "400": "#97999d"
+    "500": "#636569"
+    "600": "#484a4e"
+    "700": "#37393d"
+    "800": "#232427"
+    "900": "#151619"
+    "950": "#07080a"
   # Project-specific overrides on top of Aura defaults. Each entry
-  # is checked for drift against app.config.ts.
+  # is checked for drift against app.preset.ts.
   semantic:
     textMutedColor:
       light: "{surface.600}"   # AA-bumped from Aura default surface.500
@@ -46,11 +91,16 @@ colors:
   # Semantic exceptions: nominal colors with FIXED meaning. Never used
   # as general UI palette — only in indicators where the color carries
   # information (status, brand, alert family).
+  #
+  # OJO con `green`: es el verde FUNCIONAL de Aura (bueno/activo/up), no
+  # el verde de marca. Son cosas distintas y deben seguir siéndolo — si
+  # el verde de marca se usara para "éxito", aparecería en cada toast y
+  # cada badge, que es justo el "verde dominante" que el manual prohíbe.
   exceptions:
     violet: { fg: violet-950, bg: violet-100 }   # tags, categorías
     orange: { fg: orange-950, bg: orange-100 }   # warnings, alertas
     yellow: yellow-500                            # BTC icon
-    green: green-500                              # online / active dot
+    green: green-500                              # online / active dot — NO es el verde de marca
 
 typography:
   fontFamily: "Inter, system-ui, sans-serif"
@@ -143,12 +193,31 @@ accessibility:
     largeText: "WCAG 2.1 AA (3:1)"
     nonText: "WCAG 2.1 AA (3:1) — focus rings, icon buttons, dividers"
     aspirational: "WCAG 2.1 AAA where reachable without dimming UX"
+  # RECOMPUTADOS, no medidos a mano. `npm run design-tokens:brand` los
+  # deriva del preset en cada corrida de lint y falla si alguno cae bajo su
+  # piso. Antes eran números tipeados una vez, y tres ya estaban podridos.
+  # Ver la tabla completa con `npm run design-tokens:brand:report`.
   verifiedPairs:
-    primary500_on_surface0: "4.9:1 AA"
-    primary400_on_surface950: "7.0:1 AAA"
-    primary700_on_surface0: "10.5:1 AAA"
-    mutedText_light: "5.9:1 AA on surface.0; 5.0:1 AA on surface.200 hover"
-    mutedText_dark: "6.5:1 AAA on surface.950"
+    primary500_on_surface0: "5.4:1 AA"
+    primary600_on_surface0: "7.3:1 AAA"
+    primary700_on_surface0: "9.7:1 AAA"
+    primary400_on_surface950: "6.3:1 AA"
+    primary700_on_primary100: "8.0:1 AAA"          # variante tonal
+    text_light: "11.5:1 AAA on surface.0"
+    text_dark: "20.0:1 AAA on surface.950"
+    mutedText_light: "8.8:1 AAA on surface.0; 6.9:1 AA on surface.200 hover"
+    mutedText_dark: "12.9:1 AAA on surface.950; 7.4:1 AAA on surface.700 hover"
+    accent500_on_surface0: "3.8:1 — SOLO relleno/gráfico/borde, NUNCA texto"
+    accent600_on_surface0: "5.5:1 AA"              # mínimo para texto
+    accent700_on_surface0: "7.9:1 AAA"
+    accent400_on_surface950: "8.0:1 AAA"           # texto acento en dark
+  # Deuda conocida, medida en cada corrida y reportada como `info`: el halo
+  # de foco (primary.200 sobre surface.0) da 1.4:1. NO es una regresión — el
+  # halo anterior medía exactamente lo mismo — ni incumple AA: WCAG 2.1 §2.4.7
+  # solo exige que el foco se vea. El piso de 3:1 es §2.4.11 (Focus Appearance),
+  # AAA en WCAG 2.2. Subirlo implica repensar el halo estilo Lara entero.
+  knownGaps:
+    focusRingHalo: "1.4:1 — preexistente, no gated. Ver app.preset.ts §focusRing."
   focusRing:
     style: halo
     width: 0.2rem
@@ -224,6 +293,48 @@ Las reglas se enforcen en cinco capas, de más fuerte a más débil:
 
 # Colors
 
+## La paleta de marca
+
+El brand book 2026 declara **cuatro** colores en "PALETA DE COLOR PRIMARIA", y ninguno más:
+
+| Rol | Pantone | Hex | Token | De qué se encarga |
+|---|---|---|---|---|
+| Azul base | 300 U | `#006DB6` | `primary.500` | Acento primario. Acciones, links, nav activo, charts, foco. |
+| Verde acento | 334 U | `#00937F` | `accent.500` | Acento puntual de marca. **Nunca dominante.** |
+| Gris neutro | Cool Gray 10 C | `#636569` | `surface.500` | Todas las superficies, bordes y texto secundario. |
+| Blanco | — | `#FFFFFF` | `surface.0` | Fondo base. |
+
+Cada ramp de 11 pasos se **deriva** de su ancla en OKLCH, no se elige a ojo: hue constante, curva de lightness perceptualmente pareja y una envolvente de croma que se afloja hacia los extremos. El shade 500 reproduce su Pantone **byte a byte** — `bg-primary` no es "un azul parecido al de la marca", es el azul de la marca.
+
+Nada de esto se sostiene por disciplina: `npm run design-tokens:brand` (dentro de `npm run lint`) re-deriva los tres ramps desde los Pantone y falla si algún shade fue retocado a mano. Para ver la paleta y la matriz de contraste completas: `npm run design-tokens:brand:report`.
+
+### Azul base / verde acento
+
+La regla que más fácil se rompe, porque romperla se siente bien:
+
+> **El azul manda. El verde puntúa.**
+
+El manual lo dice dos veces, y las dos como error a evitar: *"uso del verde como dominante en vez de acento"* (cap. 05) y *"uso excesivo de verde (debe ser acento)"* (cap. 07). En una UI eso se traduce en tres reglas operativas:
+
+1. **El verde de marca NO es el verde de "éxito".** Son dos conceptos distintos que comparten familia cromática. `p-tag severity="success"`, los toasts de confirmación y los dots de "activo/online" siguen usando el verde funcional de Aura (`{green.*}`, documentado abajo en Excepciones). Si mapeáramos la severity `success` al verde de marca, el verde aparecería en cada confirmación de cada formulario — exactamente el "verde dominante" que el manual prohíbe. Lo que hace de marca a un color es su escasez.
+2. **El acento se usa siempre con shade explícito.** No existe un `bg-accent` pelado, a propósito: `accent.500` mide 3.8:1 sobre blanco, debajo del 4.5:1 que WCAG AA pide para texto normal, así que un `bg-accent` con label encima fallaría a11y sin que nada avisara. Elegí el shade:
+
+   | Uso | Clase | Contraste |
+   |---|---|---|
+   | Relleno, gráfico, borde | `bg-accent-500` / `border-accent-500` | 3.8:1 — apto para componentes de UI (piso 3:1) |
+   | Texto sobre claro | `text-accent-600` | 5.5:1 AA |
+   | Texto sobre claro, énfasis | `text-accent-700` | 7.9:1 AAA |
+   | Texto sobre oscuro | `dark:text-accent-400` | 8.0:1 AAA |
+   | Fondo sutil | `bg-accent-50` / `bg-accent-100` | — |
+
+3. **Ante la duda, es azul.** El verde se gana su lugar; el azul es el default. Si no podés explicar por qué ese elemento en particular es verde, es azul.
+
+### El neutro es un color de marca, no un default
+
+`surface.*` es PANTONE Cool Gray 10 C, no la familia `slate` de Tailwind. Un solo ramp para light y dark — la marca declara **un** gris, así que una superficie gris ya no cambia de temperatura al togglear el tema (antes light corría `slate`, hue 257° con croma ~0.04, y dark corría `zinc`, hue 286°: dos familias distintas, ninguna declarada, ambas heredadas de Aura por omisión).
+
+En la práctica no cambia nada de cómo se escribe la UI: se siguen usando los mismos `bg-surface-*` / `text-muted-color` de siempre. Cambia de qué gris están hechos.
+
 ## Principio: solo design tokens
 
 **Nunca** usar colores Tailwind genéricos (`text-gray-500`, `bg-blue-100`, `text-slate-700`) ni hex/rgb hardcodeados. Solo tokens semánticos del tema Aura:
@@ -238,6 +349,8 @@ TEXTO
   text-primary-emphasis               → Hover de text-primary
   text-primary-contrast               → Texto sobre fondo primary
   text-surface-0 / text-surface-950   → Texto invertido (dark/light mode)
+  text-accent-600 / text-accent-700   → Texto en verde acento (ver §Azul base / verde acento)
+  dark:text-accent-400                → Ídem en dark
 
 FONDO
   bg-surface-0                        → Fondo base claro
@@ -248,13 +361,18 @@ FONDO
   bg-emphasis                         → Hover de elementos interactivos
   bg-primary                          → Acento primario
   bg-primary-100                      → Fondo sutil (avatar iniciales)
+  bg-accent-500                       → Relleno en verde acento (NO lleva texto encima)
+  bg-accent-50 / bg-accent-100        → Fondo sutil en verde acento
   bg-transparent                      → Sin fondo
 
 BORDES
   border-surface                      → Borde estándar (cards, divisores)
   border-primary                      → Borde de acento (raro)
+  border-accent-500                   → Borde en verde acento (raro)
   border-black/10 dark:border-white/20 → Solo layout principal (main.component)
 ```
+
+⚠️ **No existe `bg-accent` / `text-accent` sin shade** — el acento se pide siempre explícito. El porqué está en §Azul base / verde acento.
 
 ⚠️ **`border-surface` vs `surface-200` no son iguales:**
 - `border-surface` / `divide-surface` → borde **fuerte** (cards, panels) — usa `--p-surface-border-color`
@@ -274,7 +392,9 @@ Colores con nombre solo para **indicadores semánticos con significado fijo** (n
 | `bg-violet-100`, `text-violet-950` | Tags, badges, categorías |
 | `bg-orange-100`, `text-orange-950` | Alertas, warnings, categorías |
 | `text-yellow-500` | Ícono de criptomoneda BTC |
-| `text-green-500` | Indicador activo/online (dot icons) |
+| `text-green-500` | Indicador activo/online (dot icons) — **verde funcional, NO el verde de marca** |
+
+⚠️ **`text-green-500` y `text-accent-*` no son lo mismo y no deben converger.** El primero es semántica ("esto está bien / activo / arriba") y viene de la primitiva `green` de Aura; el segundo es marca (PANTONE 334 U). Que se parezcan es una coincidencia cromática, no un motivo para unificarlos: si el verde de marca pasara a significar "éxito", aparecería en cada toast y cada badge de la app, que es justo el uso dominante que el brand book prohíbe. Ver §Azul base / verde acento.
 
 ## Dark mode
 

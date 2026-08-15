@@ -13,35 +13,54 @@ Cada color de la app viene de una de tres capas, en orden de preferencia:
    (light) / `surface.300` (dark). Validados con drift detection contra `DESIGN.md`
    por `tools/design-tokens/sync.mjs` en cada `npm run lint`.
 3. **Excepciones semánticas** — colores nombrados de Tailwind con significado FIJO:
-   `green-500` (dot online / activo), `yellow-500` (BTC), `violet-100` /
-   `orange-100` (status badges). Nunca se usan como paleta general de UI.
+   `green-500` (dot online / activo — verde **funcional**, no el verde de marca;
+   ver §Paleta accent), `yellow-500` (BTC), `violet-100` / `orange-100`
+   (status badges). Nunca se usan como paleta general de UI.
 
-## Paleta primary
+Las tres rampas de marca (`primary`, `accent`, `surface`) se **derivan** de un
+ancla Pantone del brand book Implementos 2026, en OKLCH. El shade `500` de cada
+una reproduce su Pantone byte a byte; el resto sale de una curva de lightness
+más una envolvente de croma, no de valores elegidos a mano. La derivación la
+verifica `npm run design-tokens:brand` dentro de `npm run lint`; para imprimir
+las rampas esperadas y la matriz de contrastes,
+`npm run design-tokens:brand:report`.
 
-Single-hue 204° (Pantone "Implementos blue"). Derivada del logo de marca
-`public/implementos-logo.svg` (`#006DB6`). Toda la rampa comparte H=204, con
-S=100% excepto `.400` (88%, bajado para suavizar el azul eléctrico en dark) y
-las tintas naturales `.50`–`.300`.
+## Paleta primary — azul base (PANTONE 300 U)
+
+Ancla `#006DB6`, primer color de la paleta primaria del brand book. El shade
+`500` **es** el Pantone, no una aproximación "en familia del logo": antes valía
+`#0074C2` — mismo hue, elegido por parecido contra el SVG del logo en vez de
+contra el color declarado. La corrección lo aterriza en el Pantone y, de yapa,
+sube el contraste sobre blanco de 4.9 a 5.4:1.
+
+Hue OKLCH **248.2° constante** en los 11 shades (equivale a 204° en HSL). La
+derivación va en OKLCH porque un paso constante de L es un paso constante de
+lightness *percibida* — en HSL no lo es, y por eso los ramps armados a mano se
+sienten desparejos justo en los shades medios. **No hay excepción de saturación
+en `.400`** ni en ningún otro shade: la rampa entera sale de la misma curva de
+lightness con una envolvente de croma (máximo al centro, cayendo hacia los
+extremos para que las tintas no se ensucien y los oscuros no se sobresaturen).
 
 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
   {[
-    { shade: '50', hex: '#eff8ff' },
-    { shade: '100', hex: '#daeffc' },
-    { shade: '200', hex: '#b2ddf9' },
-    { shade: '300', hex: '#74c3f3' },
-    { shade: '400', hex: '#27a0f1' },
-    { shade: '500', hex: '#0074c2' },
-    { shade: '600', hex: '#005c99' },
-    { shade: '700', hex: '#004a7a' },
-    { shade: '800', hex: '#00375c' },
-    { shade: '900', hex: '#002842' },
-    { shade: '950', hex: '#001829' },
+    { shade: '50', hex: '#f0f7ff' },
+    { shade: '100', hex: '#d9ecff' },
+    { shade: '200', hex: '#b1d8ff' },
+    { shade: '300', hex: '#7abbf8' },
+    { shade: '400', hex: '#4496de' },
+    { shade: '500', hex: '#006db6' },
+    { shade: '600', hex: '#005996' },
+    { shade: '700', hex: '#004678' },
+    { shade: '800', hex: '#00355d' },
+    { shade: '900', hex: '#002646' },
+    { shade: '950', hex: '#001831' },
   ].map(({ shade, hex }) => (
-    <div key={shade} style={{ borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #e4e4e7' }}>
+    <div key={shade} style={{ borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #e2e4e7' }}>
       <div style={{ background: hex, height: '4rem' }} />
       <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem' }}>
         <div style={{ fontWeight: 600 }}>primary.{shade}</div>
-        <div style={{ fontFamily: 'monospace', color: '#52525b' }}>{hex}</div>
+        <div style={{ fontFamily: 'monospace', color: '#484a4e' }}>{hex}</div>
+        {shade === '500' && <div style={{ color: '#484a4e' }}>PANTONE 300 U</div>}
       </div>
     </div>
   ))}
@@ -49,17 +68,152 @@ las tintas naturales `.50`–`.300`.
 
 ### Contraste verificado
 
+Los números ya no se afirman: los **computa** `npm run design-tokens:brand`
+desde `app.preset.ts` en cada `npm run lint`. Si alguien mueve un shade y un par
+cae por debajo de AA, CI falla antes que el review.
+
 | Par | Contraste | Nivel |
 |---|---:|---|
-| `primary.500` sobre `surface.0` | 4.9:1 | WCAG 2.1 AA |
-| `primary.400` sobre `surface.950` (dark) | 7.0:1 | AAA |
-| `primary.700` sobre `surface.0` (active) | 10.5:1 | AAA |
+| `primary.500` sobre `surface.0` | 5.4:1 | WCAG 2.1 AA |
+| `primary.600` sobre `surface.0` (hover de link) | 7.3:1 | AAA |
+| `primary.700` sobre `surface.0` (active) | 9.7:1 | AAA |
+| `primary.400` sobre `surface.950` (dark) | 6.3:1 | AA |
+| `primary.700` sobre `primary.100` (variante tonal) | 8.0:1 | AAA |
+
+## Paleta accent — verde acento (PANTONE 334 U)
+
+Ancla `#00937F`, segundo color de la paleta primaria. Hasta ahora vivía
+**únicamente** dentro del SVG del logo: no estaba en el preset, ni en
+`design-tokens/tokens.json`, ni en `DESIGN.md`, ni acá. Un color de marca que el
+design system no sabía nombrar — y lo que no se puede nombrar se termina
+pegando como hex.
+
+**Es acento, nunca dominante.** El brand book lo dice dos veces, y las dos como
+ERROR a evitar: "uso del verde como dominante en vez de acento" (cap. 05,
+errores comunes) y "uso excesivo de verde (debe ser acento)" (cap. 07,
+señalética). De ahí dos decisiones que no son cosméticas:
+
+1. **El verde de marca NO está mapeado a la severity `success` de PrimeNG.** Si
+   lo estuviera, aparecería en cada toast, tag y badge de éxito de la app —
+   exactamente el verde dominante que el manual prohíbe. El verde funcional
+   ("bueno / activo / up") sigue siendo `{green.*}` de Aura. Son dos conceptos
+   distintos —marca vs. semántica de estado— y deben seguir siéndolo.
+2. **Siempre con shade explícito**: `bg-accent-500`, `text-accent-700`. **No
+   existe un `bg-accent` pelado**, y es a propósito: `accent.500` mide 3.8:1
+   sobre blanco, así que un `bg-accent` con un label encima fallaría a11y en
+   silencio. Obligar el shade obliga la decisión.
+
+Las utilities (`bg-accent-*`, `text-accent-*`, `border-accent-*`) existen vía
+`src/tailwind-brand.css`, que mapea `--p-accent-*` → `--color-accent-*` con
+`@theme inline`. `tailwindcss-primeui` solo conoce `primary` y `surface`; sin
+ese puente `bg-accent-500` no generaría nada — peor que un error, una clase que
+se escribe, pasa el lint y no pinta.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+  {[
+    { shade: '50', hex: '#ebfbf6' },
+    { shade: '100', hex: '#d4f4ec' },
+    { shade: '200', hex: '#afe6d9' },
+    { shade: '300', hex: '#7fd1bf' },
+    { shade: '400', hex: '#49b5a1' },
+    { shade: '500', hex: '#00937f' },
+    { shade: '600', hex: '#007666' },
+    { shade: '700', hex: '#005c4f' },
+    { shade: '800', hex: '#00443a' },
+    { shade: '900', hex: '#003028' },
+    { shade: '950', hex: '#001d17' },
+  ].map(({ shade, hex }) => (
+    <div key={shade} style={{ borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #e2e4e7' }}>
+      <div style={{ background: hex, height: '4rem' }} />
+      <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem' }}>
+        <div style={{ fontWeight: 600 }}>accent.{shade}</div>
+        <div style={{ fontFamily: 'monospace', color: '#484a4e' }}>{hex}</div>
+        {shade === '500' && <div style={{ color: '#484a4e' }}>PANTONE 334 U · no apto texto</div>}
+      </div>
+    </div>
+  ))}
+</div>
+
+### Contraste verificado — el `500` no es para texto
+
+| Par | Contraste | Uso |
+|---|---:|---|
+| `accent.500` sobre `surface.0` | 3.8:1 | ❌ texto — solo relleno / gráfico / borde |
+| `accent.600` sobre `surface.0` | 5.5:1 | AA — mínimo para texto sobre claro |
+| `accent.700` sobre `surface.0` | 7.9:1 | AAA |
+| `accent.400` sobre `surface.950` | 8.0:1 | AAA — texto acento en dark |
+
+Es una propiedad del Pantone, no de la derivación: `#00937F` no llega a 4.5:1
+contra blanco por más que la rampa esté bien construida. Por eso la rampa se
+extiende hasta el `950` — para tener dónde ir cuando el acento tiene que
+leerse, no solo pintar.
+
+## Paleta surface — gris neutro (PANTONE Cool Gray 10 C)
+
+Ancla `#636569`, tercer color de la paleta primaria; el blanco `surface.0` es el
+cuarto. **Un solo ramp compartido por light y dark.**
+
+Antes no había declaración: se heredaban los defaults de Aura, que corre `slate`
+en light y `zinc` en dark. Eso no era una decisión, era un default — y traía dos
+problemas. Uno de marca: slate tira azul (hue OKLCH 257, C≈0.04) mientras Cool
+Gray 10 C es casi acromático (C≈0.007), así que el gris del producto no era el
+gris de Implementos. Y uno de coherencia: light y dark corrían familias
+distintas, así que una superficie gris **cambiaba de temperatura** al togglear
+el tema. La marca declara UN gris; el design system ahora también.
+
+La curva de luminancia reproduce la de slate/zinc casi punto por punto (medida,
+no inventada — ver `NEUTRAL_L_TARGETS` en `tools/design-tokens/color.mjs`). Solo
+cambian hue y croma. Por eso el ritmo visual y los ratios de contraste quedaron
+intactos: es un recolor de marca, no un rediseño de superficies.
+
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+  {[
+    { shade: '0', hex: '#ffffff' },
+    { shade: '50', hex: '#f9fafb' },
+    { shade: '100', hex: '#f2f3f6' },
+    { shade: '200', hex: '#e2e4e7' },
+    { shade: '300', hex: '#ced0d4' },
+    { shade: '400', hex: '#97999d' },
+    { shade: '500', hex: '#636569' },
+    { shade: '600', hex: '#484a4e' },
+    { shade: '700', hex: '#37393d' },
+    { shade: '800', hex: '#232427' },
+    { shade: '900', hex: '#151619' },
+    { shade: '950', hex: '#07080a' },
+  ].map(({ shade, hex }) => (
+    <div key={shade} style={{ borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #e2e4e7' }}>
+      <div style={{ background: hex, height: '4rem' }} />
+      <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem' }}>
+        <div style={{ fontWeight: 600 }}>surface.{shade}</div>
+        <div style={{ fontFamily: 'monospace', color: '#484a4e' }}>{hex}</div>
+        {shade === '500' && <div style={{ color: '#484a4e' }}>PANTONE Cool Gray 10 C</div>}
+      </div>
+    </div>
+  ))}
+</div>
+
+### Contraste verificado
+
+`text-color` y `text-muted-color` son overrides del proyecto sobre este mismo
+ramp (`surface.700` / `surface.600` en light, `surface.0` / `surface.300` en
+dark), así que su contraste se lee acá y no en una tabla aparte.
+
+| Par | Contraste | Nivel |
+|---|---:|---|
+| `text-color` light (`surface.700`) sobre `surface.0` | 11.5:1 | AAA |
+| `text-muted-color` light (`surface.600`) sobre `surface.0` | 8.8:1 | AAA |
+| `text-muted-color` light (`surface.600`) sobre `surface.200` (hover) | 6.9:1 | AA |
+| `text-color` dark (`surface.0`) sobre `surface.950` | 20.0:1 | AAA |
+| `text-muted-color` dark (`surface.300`) sobre `surface.950` | 12.9:1 | AAA |
 
 ## Colores prohibidos
 
 - ❌ Colores genéricos de Tailwind: `text-gray-500`, `bg-blue-100`, `text-slate-700`, etc.
 - ❌ Literales hex / rgb: `#fff`, `rgb(0, 0, 0)` — excepto dentro de datasets de Chart.js
   donde la legend se construye fuera de la cascade de Angular.
+- ❌ El hex de marca pegado a mano (`#006DB6`, `#00937F`, `#636569`). El Pantone vive
+  en `app.preset.ts` y llega a la UI como token; un literal se queda atrás en la
+  próxima corrección de paleta, que es justamente lo que acaba de pasar.
 - ❌ Strings `var(--p-…)` en componentes TypeScript que no estén leyendo CSS en runtime.
 
 Enforcement vía:
@@ -67,5 +221,7 @@ Enforcement vía:
 - `showcase/no-hardcoded-colors` — bloquea genéricos / hex.
 - `showcase/no-missing-dark-pair` — cada `bg-surface-*` necesita un `dark:bg-surface-*`.
 - `tools/design-tokens/sync.mjs` — protege `DESIGN.md` contra drift vs el preset.
+- `npm run design-tokens:brand` — re-deriva las tres rampas desde sus anclas Pantone y
+  recomputa los contrastes de esta página. Corre dentro de `npm run lint`.
 
 Ver `Primitives/Button` y `Primitives/Tag` para uso de tokens en contexto de componente.

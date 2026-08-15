@@ -11,6 +11,13 @@
 @import './tailwind-variants.css';
 
 /*
+ * Puente Tailwind ↔ verde acento de marca (`--p-accent-*` → `bg-accent-500`,
+ * `text-accent-700`, …). Mismo motivo de extensión `.css` que el import de
+ * arriba. Ver el propio archivo para por qué no existe un `bg-accent` pelado.
+ */
+@import './tailwind-brand.css';
+
+/*
  * Inter Variable — fuente principal del showcase oficial de PrimeNG (y de Linear,
  * Vercel, Retool, Rippling). Self-hosted via @fontsource-variable/inter para evitar
  * dependencia de Google Fonts CDN (privacy + offline). El axis `wght` variable cubre
@@ -55,7 +62,7 @@ html {
  * respectivamente, el contraste queda en 4.07:1, apenas bajo AA normal
  * (4.5:1). Lighthouse lo flaggeó en el p-selectbutton del dashboard
  * (Semanal/Mensual/Anual). Subimos a surface.600 / surface.300 — mismo
- * shift que `text.muted.color` en app.config.ts para mantener jerarquía
+ * shift que `text.muted.color` en app.preset.ts para mantener jerarquía
  * visual consistente. El token es específico de togglebutton y no hereda
  * de text.muted, por eso el override vive aquí como CSS global y no en el
  * preset (que no expone `components.togglebutton.color` en el API de
@@ -97,7 +104,7 @@ html.overlay-open {
 }
 
 /*
- * Focus ring global — consume los tokens del preset (app.config.ts → semantic.focusRing).
+ * Focus ring global — consume los tokens del preset (app.preset.ts → semantic.focusRing).
  * Para cambiar color/width/offset/shadow editar el preset, no este archivo.
  * Ref: CLAUDE.md §Transiciones, ADR-001 §5 + §9
  */
@@ -407,9 +414,22 @@ input:-webkit-autofill:focus-visible {
 @mixin tonal-variant {
   background: var(--p-primary-100) !important;
   // Color foreground: primary-700 (no primary-color/500) para satisfacer
-  // WCAG AA contrast ratio 4.5:1 sobre primary-100. Verificado por axe:
-  // primary-color (#0074c2) sobre primary-100 (#daeffc) daba 4.14:1
-  // (insuficiente para texto small <14pt). primary-700 sube a ~6:1.
+  // WCAG AA contrast ratio 4.5:1 sobre primary-100.
+  //
+  // Con la rampa anterior el par primary-500 / primary-100 daba 4.14:1 —
+  // insuficiente para texto normal, y ese era el argumento original para
+  // bajar a 700. Con la rampa derivada del brand book (primary anclado a
+  // PANTONE 300 U, #006db6) ese mismo par sube a 4.5:1: ya no falla, pero
+  // queda clavado en el umbral, sin margen para el redondeo de un futuro
+  // reajuste de la rampa. El par que efectivamente se usa acá,
+  // primary-700 (#004678) sobre primary-100 (#d9ecff), da 8.0:1 → AAA.
+  //
+  // O sea: la conclusion no cambia (seguimos en 700), cambia el margen,
+  // que ahora es holgado en vez de justo. El 8.0:1 no es un numero
+  // afirmado a mano — lo recomputa `npm run design-tokens:brand` (corre
+  // dentro de `npm run lint`) como el par "variante tonal", asi que si
+  // alguien mueve la rampa el check falla antes que axe.
+  //
   // Material 3 "on-secondary-container" sigue el mismo principio —
   // foreground oscuro sobre container tinted-light, no primary-base.
   color: var(--p-primary-700) !important;

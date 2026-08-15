@@ -18,6 +18,46 @@
 import Aura from '@primeuix/themes/aura';
 import { definePreset } from '@primeuix/themes';
 
+/**
+ * Neutro corporativo Implementos — anclado en PANTONE Cool Gray 10 C
+ * (`#636569`, shade 500), el tercer color de la paleta primaria del brand
+ * book 2026.
+ *
+ * Reemplaza los dos ramps que veniamos heredando de Aura sin declararlos:
+ * `slate` en light y `zinc` en dark. Eso no era una decision, era un default
+ * — y traia dos problemas. Uno de marca: el gris del producto no era el gris
+ * de Implementos (slate tira azul, hue OKLCH 257 con C≈0.04; Cool Gray 10 C
+ * es casi acromatico, C≈0.007). Y uno de coherencia: light y dark corrian
+ * familias distintas, asi que una superficie gris cambiaba de temperatura al
+ * togglear el tema.
+ *
+ * Un solo ramp para ambos modos. La marca declara UN gris.
+ *
+ * La curva de luminancia reproduce la de slate/zinc casi punto por punto
+ * (medida, no inventada — ver `NEUTRAL_L_TARGETS` en tools/design-tokens/
+ * color.mjs). Solo cambian hue y croma. Eso mantiene intactos el ritmo
+ * visual y los ratios de contraste: es un recolor de marca, no un rediseño
+ * de superficies.
+ *
+ * Derivado en OKLCH — un paso constante de L es un paso constante de
+ * lightness percibida, cosa que HSL no garantiza. Regenerable con
+ * `node tools/design-tokens/derive-brand-ramps.mjs`.
+ */
+const IMPLEMENTOS_NEUTRAL = {
+  0: '#ffffff', //  blanco — cuarto color de la paleta primaria
+  50: '#f9fafb',
+  100: '#f2f3f6',
+  200: '#e2e4e7',
+  300: '#ced0d4',
+  400: '#97999d',
+  500: '#636569', //  ← PANTONE Cool Gray 10 C, exacto
+  600: '#484a4e',
+  700: '#37393d',
+  800: '#232427',
+  900: '#151619',
+  950: '#07080a',
+} as const;
+
 // Desactiva las transiciones internas de PrimeNG (button, input, select, etc.).
 // Razon: en navegacion client-side entre rutas, los componentes PrimeNG nuevos inyectan
 // sus estilos via JS (UseStyle) despues de montarse. Durante ese gap de 1-2 frames,
@@ -57,55 +97,90 @@ export const AppPreset = definePreset(Aura, {
   },
   semantic: {
     transitionDuration: '0s',
-    // Palette primary: single-hue 204° end-to-end, en familia del logo
-    // oficial (public/implementos-logo.svg, #006DB6). Patron SaaS big
-    // tech — GitHub Primer blue, Tailwind sky — un unico hue a lo largo
-    // de todo el ramp. Sin tilts intermedios: coherencia matematica que
-    // un senior reconoce en review.
+    // Azul base Implementos — PANTONE 300 U, `#006DB6`.
     //
-    // Anchors:
-    //   500 = #0074C2 (HSL 204° 100% 38%) — light-mode primary. AA-high
-    //                   4.9:1 sobre surface.0 (rango Apple #007AFF 4.5:1,
-    //                   GitHub Primer #0969DA 5.2:1, Stripe 4.6:1 —
-    //                   estandar real de la industria, AAA es solo para
-    //                   GitHub en ciertos casos). Mismo hue que el logo
-    //                   → lectura "azul Implementos" sin copiar el hex.
-    //   400 = #27A0F1 (HSL 204° 88% 55%) — dark-mode primary. Saturacion
-    //                   bajada a 88% (vs 100% del resto) para suavizar
-    //                   el "Facebook-blue electrico" que al L=55% S=100%
-    //                   quema retinas sobre surface.950. Contraste con
-    //                   surface.950: 7.0:1 AAA.
-    //   600 = #005C99 — hover del 500 (L=30%, paso visible -8%).
-    //   700-950 → navies progresivos mismo hue, S=100%, L escalonada.
+    // Declarado en "PALETA DE COLOR PRIMARIA" del brand book 2026 y
+    // corroborado por el propio PDF: las muestras pintadas de esa pagina
+    // y el artwork del logo de todo el capitulo 02 usan exactamente ese
+    // hex. Es el color, no una aproximacion — por eso el shade 500 lo
+    // reproduce byte a byte en vez de re-derivarlo.
     //
-    // Derivacion: hue=204° constante en TODA la escala. S=100% excepto
-    // .400 (88%) y .50-300 (naturalmente bajos por tint). L curve
-    // 97→93→84→70→55→38→30→24→18→13→8. Sin hue tilts, sin hacks.
+    // Antes el 500 era `#0074C2`: mismo hue, elegido "en familia del
+    // logo" pero sin ser el color de marca. La correccion lo aterriza en
+    // el Pantone declarado y, de yapa, sube el contraste (4.9 → 5.4:1).
     //
-    // Contraste verificado:
-    //   - primary.500 sobre surface.0 (#fff): 4.9:1 (WCAG AA)
-    //   - primary.400 sobre surface.950 (#09090b): 7.0:1 (WCAG AAA)
-    //   - primary.700 (active) sobre surface.0: 10.5:1 (WCAG AAA)
+    // Derivacion en OKLCH, hue constante 248.2° (= 204° en HSL) en los 11
+    // shades. Un paso constante de L en OKLCH es un paso constante de
+    // lightness PERCIBIDA; en HSL no lo es, y por eso los ramps hechos a
+    // mano en HSL se sienten desparejos justo en los shades medios.
+    // Regenerable: `node tools/design-tokens/derive-brand-ramps.mjs`.
     //
-    // Cambio propaga a todos los componentes que consumen --p-primary-*
-    // (bg-primary, text-primary, focus ring, charts, tags, buttons,
-    // links, y tiles del aside con bg-primary-700/800/900). Cero updates
-    // manuales en templates.
+    // Contraste verificado por CI (`npm run design-tokens:contrast`, que
+    // recomputa la tabla desde este archivo — ya no son numeros a mano):
+    //   - primary.500 sobre surface.0:   5.4:1  AA
+    //   - primary.600 sobre surface.0:   7.3:1  AAA  (hover de link)
+    //   - primary.700 sobre surface.0:   9.7:1  AAA  (active)
+    //   - primary.400 sobre surface.950: 6.3:1  AA   (primary en dark)
+    //
+    // Cambio propaga a todo lo que consume --p-primary-* (bg-primary,
+    // text-primary, focus ring, charts, tags, buttons, links, tiles del
+    // aside). Cero updates manuales en templates.
     primary: {
-      50: '#eff8ff',
-      100: '#daeffc',
-      200: '#b2ddf9',
-      300: '#74c3f3',
-      400: '#27a0f1',
-      500: '#0074c2',
-      600: '#005c99',
-      700: '#004a7a',
-      800: '#00375c',
-      900: '#002842',
-      950: '#001829',
+      50: '#f0f7ff',
+      100: '#d9ecff',
+      200: '#b1d8ff',
+      300: '#7abbf8',
+      400: '#4496de',
+      500: '#006db6', //  ← PANTONE 300 U, exacto
+      600: '#005996',
+      700: '#004678',
+      800: '#00355d',
+      900: '#002646',
+      950: '#001831',
+    },
+    // Verde acento Implementos — PANTONE 334 U, `#00937F`.
+    //
+    // Segundo color de la paleta primaria. Hasta ahora existia UNICAMENTE
+    // dentro del SVG del logo: ni en el preset, ni en tokens.json, ni en
+    // DESIGN.md, ni en Storybook. Un color de marca que el design system
+    // no sabia nombrar.
+    //
+    // **Es acento, no dominante.** El brand book lo dice dos veces y en
+    // ambos casos como ERROR a evitar: "uso del verde como dominante en
+    // vez de acento" (cap. 05, errores comunes) y "uso excesivo de verde
+    // (debe ser acento)" (cap. 07, señaletica). De ahi dos decisiones:
+    //
+    //   1. NO se remapea la severity `success` de PrimeNG. Si lo
+    //      hicieramos, el verde de marca aparecería en cada toast, tag y
+    //      badge de exito — exactamente el "verde dominante" que el
+    //      manual prohibe. El verde funcional "bueno/activo/up" sigue
+    //      siendo `{green.*}` de Aura, que es semantica, no marca.
+    //   2. Se declara el ramp completo (para que el sistema pueda
+    //      expresarlo) pero sin uso forzado en UI. Ver DESIGN.md
+    //      §"Azul base / verde acento" para cuando corresponde.
+    //
+    // Nota de accesibilidad — el 500 NO es apto para texto:
+    //   - accent.500 sobre surface.0: 3.8:1 → solo relleno/grafico/borde
+    //   - accent.600 sobre surface.0: 5.5:1 → AA, minimo para texto
+    //   - accent.700 sobre surface.0: 7.9:1 → AAA
+    // Es una propiedad del Pantone, no del ramp: `#00937F` simplemente no
+    // llega a 4.5:1 contra blanco. Por eso el ramp llega hasta el 950.
+    accent: {
+      50: '#ebfbf6',
+      100: '#d4f4ec',
+      200: '#afe6d9',
+      300: '#7fd1bf',
+      400: '#49b5a1',
+      500: '#00937f', //  ← PANTONE 334 U, exacto
+      600: '#007666',
+      700: '#005c4f',
+      800: '#00443a',
+      900: '#003028',
+      950: '#001d17',
     },
     colorScheme: {
       light: {
+        surface: IMPLEMENTOS_NEUTRAL,
         formField: { invalidBorderColor: '{rose.500}' },
         // Hover por default (bg-emphasis) en Aura es surface.100 — casi
         // invisible sobre blanco y completamente invisible sobre columnas
@@ -113,21 +188,25 @@ export const AppPreset = definePreset(Aura, {
         // el feedback sea perceptible en CUALQUIER superficie. Patron Linear/
         // Stripe: hover visible pero no agresivo.
         content: { hoverBackground: '{surface.200}' },
-        // text.muted.color default de Aura = surface.500 (#71717a). Sobre
-        // bg-surface-200 (breadcrumb + p-selectbutton label) da 4.07:1 —
-        // por debajo de WCAG 2.1 AA (4.5:1 para texto normal, confirmado
-        // via Lighthouse a11y audit 2026-04-23). Bajamos un step a
-        // surface.600 (#52525b) → 5.9:1 AA+; sigue leyéndose "muted"
-        // (menos énfasis que text-color) sin quebrar la jerarquía.
+        // text.muted.color default de Aura = surface.500. Sobre
+        // bg-surface-200 (breadcrumb + p-selectbutton label) quedaba en
+        // 4.07:1 — por debajo de WCAG 2.1 AA (4.5:1 para texto normal,
+        // confirmado via Lighthouse a11y audit 2026-04-23). Bajamos un
+        // step a surface.600 (#484a4e con el neutro corporativo) → 8.8:1
+        // sobre surface.0 y 6.9:1 sobre surface.200; sigue leyendose
+        // "muted" (menos enfasis que text-color, que es surface.700 a
+        // 11.5:1) sin quebrar la jerarquia.
         text: { muted: { color: '{surface.600}' } },
       },
       dark: {
+        surface: IMPLEMENTOS_NEUTRAL,
         formField: { invalidBorderColor: '{rose.400}' },
         content: { hoverBackground: '{surface.700}' },
-        // Dark mode equivalente: default surface.400 (#a1a1aa) sobre
-        // bg-surface-700 da ~4.0:1. Subimos a surface.300 (#d4d4d8) →
-        // 6.5:1 AAA. El bump brightens muted en dark pero se mantiene
-        // visualmente distinto de text-color (surface.0/50 puro blanco).
+        // Dark mode equivalente: default surface.400 sobre bg-surface-700
+        // da ~4.0:1. Subimos a surface.300 (#ced0d4) → 12.9:1 sobre
+        // surface.950 y 7.4:1 sobre surface.700. El bump brightens muted
+        // en dark pero se mantiene visualmente distinto de text-color
+        // (surface.0 puro blanco, 20.0:1).
         text: { muted: { color: '{surface.300}' } },
       },
     },

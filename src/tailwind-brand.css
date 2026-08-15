@@ -1,0 +1,57 @@
+/*
+ * Puente Tailwind ↔ tokens de marca — escrito en plain CSS por la misma
+ * razón que `tailwind-variants.css`: Sass no debe parsear esto. Importado
+ * desde `styles.scss`, que al ver la extensión `.css` emite un `@import`
+ * pass-through y deja que Tailwind lo procese en su turno de PostCSS.
+ *
+ * ─────────────────────── Qué resuelve ─────────────────────────────────
+ *
+ * `tailwindcss-primeui` publica un `@theme inline` que mapea los tokens de
+ * PrimeNG a utilities de Tailwind — pero solo los que conoce: `primary` y
+ * `surface` (ver node_modules/tailwindcss-primeui/v4/theme/colors.css).
+ *
+ * El verde acento de Implementos (PANTONE 334 U) lo declaramos nosotros en
+ * `app.preset.ts` bajo `semantic.accent`. El motor de temas de PrimeNG lo
+ * emite como `--p-accent-*` igual que cualquier otra rama semántica, pero
+ * el plugin no lo conoce, así que sin este archivo `bg-accent-500` no
+ * generaría NADA. Peor que un error: una clase que se escribe, pasa el
+ * lint y no pinta.
+ *
+ * `inline` (y no `@theme` a secas) para que la utility emita el `var(--p-…)`
+ * directo en vez de crear una variable intermedia — mismo comportamiento
+ * que el plugin, así el acento y el primary se resuelven igual y siguen
+ * el dark mode por la misma cascada.
+ *
+ * ──────────────── Por qué NO hay un `--color-accent` pelado ────────────
+ *
+ * `bg-primary` existe porque Aura define un token semántico
+ * `primary.color` que cambia por modo (500 en light, 400 en dark). Podríamos
+ * inventar el equivalente para el acento — y sería una trampa:
+ * `accent.500` es el Pantone exacto y mide **3.8:1 sobre blanco**, por
+ * debajo del 4.5:1 que WCAG AA pide para texto normal. Un `bg-accent` con
+ * label encima fallaría a11y sin que nada avise.
+ *
+ * Así que el acento se usa SIEMPRE con shade explícito. Obliga a elegir:
+ *
+ *   relleno / gráfico / borde   → accent-500  (el Pantone; 3:1, apto UI)
+ *   texto sobre claro           → accent-600  (5.5:1 AA) o accent-700 (7.9:1 AAA)
+ *   texto sobre oscuro          → accent-400  (8.0:1 AAA sobre surface-950)
+ *   fondos sutiles              → accent-50 / accent-100
+ *
+ * Y encaja con lo que manda el brand book: el verde es acento, no
+ * dominante. Cada uso debería ser una decisión, no un default.
+ * Ver DESIGN.md §"Azul base / verde acento".
+ */
+@theme inline {
+  --color-accent-50: var(--p-accent-50);
+  --color-accent-100: var(--p-accent-100);
+  --color-accent-200: var(--p-accent-200);
+  --color-accent-300: var(--p-accent-300);
+  --color-accent-400: var(--p-accent-400);
+  --color-accent-500: var(--p-accent-500);
+  --color-accent-600: var(--p-accent-600);
+  --color-accent-700: var(--p-accent-700);
+  --color-accent-800: var(--p-accent-800);
+  --color-accent-900: var(--p-accent-900);
+  --color-accent-950: var(--p-accent-950);
+}
