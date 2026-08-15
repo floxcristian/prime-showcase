@@ -23,6 +23,10 @@
  * `guestOnly` marks routes served OUTSIDE the authed layout: they must be
  * visited WITHOUT the auth cookie (an authed session gets redirected away
  * from them by `guestGuard`).
+ *
+ * `seedSocialStorage` marks routes captured con el estado del cliente ya
+ * configurado: el contexto se crea con `storageState.origins` alimentado
+ * desde `tests/fixtures/social-seed.ts` (RFC-001 D7.1).
  */
 
 export interface RouteFixture {
@@ -39,10 +43,30 @@ export interface RouteFixture {
    * el loading state a mitad de camino, no determinista por el jitter.
    */
   readonly waitForData?: boolean;
+  /**
+   * Pre-seed del estado del cliente (RFC-001 D7.1). Cuando es `true`, el
+   * spec crea el contexto de Playwright con `storageState.origins`
+   * pre-poblando el localStorage del origin con las keys versionadas de
+   * RFC-003 D6.1 (`social:*:v1::<TEST_EMAIL>`) ANTES de la primera
+   * navegación — **cero cambios a la app**: la página lee su configuración
+   * como si el cliente ya hubiera completado el onboarding (registro →
+   * keys válidas → 3 redes conectadas → checklist descartado).
+   *
+   * La data del seed vive en `tests/fixtures/social-seed.ts`
+   * (`buildSocialSeedOrigin`), construida con las factories puras de
+   * `src/app/modules/social/mocks/` y con timestamps relativos al momento
+   * de setup (RFC-001 D7.2).
+   *
+   * Sin el flag la ruta captura el **default vacío**: el gating de
+   * onboarding (sin cuentas conectadas → `<app-empty-state>` con CTA a
+   * `/social/connections`), que es la captura correcta del pitch "cero
+   * cuentas hardcodeadas".
+   */
+  readonly seedSocialStorage?: boolean;
 }
 
 /**
- * Todas las rutas navegables de `src/app/app.routes.ts` — 19 entradas.
+ * Todas las rutas navegables de `src/app/app.routes.ts` — 29 entradas.
  * Fuente única: `GOLDEN_ROUTES` y `A11Y_ROUTES` son alias de esta lista.
  */
 const ALL_ROUTES: readonly RouteFixture[] = [
@@ -76,6 +100,30 @@ const ALL_ROUTES: readonly RouteFixture[] = [
   { path: '/observability/uptime', name: 'obs-uptime', waitForData: true },
   { path: '/observability/preferences', name: 'obs-preferences' },
   { path: '/observability/notifications-history', name: 'obs-notifications-history' },
+  // Social — 9 rutas + signup. Mocks con timestamps RELATIVOS a now()
+  // y PRNG seedeado (patrón observability/mocks/mock-utils): strings de
+  // | relativeTime y series estables run-a-run. Las 7 páginas de datos
+  // se capturan DOS veces: onboarding vacío y poblada (seedSocialStorage).
+  //
+  // Wave A entra SOLO con las entries vacías (los shells de B/C no tienen
+  // datos que poblar: capturar un shell seeded no aporta). Las entries
+  // `-seeded` — mismo `path`, `name` con sufijo `-seeded`,
+  // `seedSocialStorage: true` — llegan en el PR de Wave B/C que reemplaza
+  // el cuerpo de cada shell, junto con sus baselines (RFC-001 D7,
+  // "Secuenciamiento").
+  { path: '/social/overview', name: 'social-overview', waitForData: true },
+  { path: '/social/analytics', name: 'social-analytics', waitForData: true },
+  { path: '/social/insights', name: 'social-insights', waitForData: true },
+  { path: '/social/competitors', name: 'social-competitors', waitForData: true },
+  { path: '/social/trends', name: 'social-trends', waitForData: true },
+  { path: '/social/planner', name: 'social-planner', waitForData: true },
+  { path: '/social/studio', name: 'social-studio', waitForData: true },
+  // Connections/providers: SOLO estado vacío = onboarding determinista
+  // (localStorage limpio) tras fetch con mockLatency → esperar a que los
+  // skeletons desaparezcan igual que el resto.
+  { path: '/social/connections', name: 'social-connections', waitForData: true },
+  { path: '/social/providers', name: 'social-providers', waitForData: true },
+  { path: '/signup', name: 'signup', guestOnly: true },
 ];
 
 /**

@@ -1,0 +1,167 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="!busy()"
+  [closeOnEscape]="!busy()"
+  [dismissableMask]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '34rem', maxWidth: '95vw' }"
+>
+  <ng-template #header>
+    <div class="min-w-0">
+      <h2 class="text-xl font-medium leading-7 text-color">Agregar API key</h2>
+      @if (descriptor(); as provider) {
+        <div class="mt-1 text-xs text-muted-color leading-4">
+          {{ provider.name }} · {{ provider.vendor }}
+        </div>
+      }
+    </div>
+  </ng-template>
+
+  @if (step() === "form") {
+    <div class="flex flex-col gap-4">
+      <p class="text-color leading-6">
+        La key se guarda enmascarada: mostramos el valor completo una sola vez,
+        al crearla. Verificála después para poder habilitar el proveedor.
+      </p>
+
+      <!-- Etiqueta (opcional) — marcamos lo opcional, no lo requerido
+           (patrón GOV.UK/Polaris, `ux-patterns.md`). -->
+      <div>
+        <div class="flex flex-col gap-2">
+          <label for="api-key-label" class="text-color font-semibold leading-6">
+            Etiqueta (opcional)
+          </label>
+          <input
+            pInputText
+            id="api-key-label"
+            name="apiKeyLabel"
+            type="text"
+            class="w-full"
+            maxlength="48"
+            placeholder="Producción, Cuenta agencia…"
+            [ngModel]="label()"
+            (ngModelChange)="label.set($event)"
+          />
+        </div>
+        <div class="mt-1 text-xs text-muted-color leading-4">
+          Ayuda a identificar de dónde salió la credencial cuando hay varias.
+        </div>
+      </div>
+
+      <!-- Key. El placeholder es el `keyFormatHint` del catálogo y la
+           validación usa su `keyPattern` — un solo dato, cero drift. -->
+      <div>
+        <div class="flex flex-col gap-2">
+          <label for="api-key-value" class="text-color font-semibold leading-6">
+            API key
+          </label>
+          <input
+            pInputText
+            id="api-key-value"
+            name="apiKeyValue"
+            type="text"
+            class="w-full font-mono"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            aria-required="true"
+            [placeholder]="descriptor()?.keyFormatHint ?? ''"
+            [invalid]="keyInvalid()"
+            [attr.aria-describedby]="
+              keyInvalid() ? 'api-key-value-error' : 'api-key-value-hint'
+            "
+            [ngModel]="keyValue()"
+            (ngModelChange)="keyValue.set($event)"
+            (blur)="markKeyTouched()"
+          />
+        </div>
+        <!-- Altura reservada: el mensaje aparece/desaparece sin CLS.
+             `<p-message>` ya emite role="alert" + aria-live en su host. -->
+        <div class="min-h-6 mt-1">
+          @if (keyInvalid()) {
+            <p-message
+              id="api-key-value-error"
+              severity="error"
+              variant="simple"
+              size="small"
+              icon="fa-sharp fa-solid fa-circle-exclamation"
+            >
+              {{ keyErrorMessage() }}
+            </p-message>
+          } @else {
+            <span
+              id="api-key-value-hint"
+              class="text-xs text-muted-color leading-4"
+            >
+              Validamos solo el formato — la autenticidad se comprueba al
+              verificar.
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-4">
+      <p-message
+        severity="warn"
+        icon="fa-sharp fa-solid fa-triangle-exclamation"
+      >
+        Guardá esta key ahora: por seguridad no la vamos a volver a mostrar.
+      </p-message>
+
+      <div>
+        <label class="text-color font-semibold leading-6" for="api-key-secret">
+          API key
+        </label>
+        <div class="mt-2 flex items-stretch gap-2">
+          <code
+            id="api-key-secret"
+            class="flex-1 min-w-0 font-mono text-xs leading-4 text-color bg-surface-100 dark:bg-surface-800 px-3 py-2 rounded-lg break-all select-all"
+          >
+            {{ plaintext() }}
+          </code>
+          <p-button
+            [label]="copied() ? 'Copiado' : 'Copiar'"
+            [icon]="
+              copied()
+                ? 'fa-sharp fa-regular fa-check'
+                : 'fa-sharp fa-regular fa-copy'
+            "
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="copyPlaintext()"
+          />
+        </div>
+      </div>
+
+      <div class="text-xs text-muted-color leading-4">
+        La key queda como «Sin verificar». Verificála desde la card del
+        proveedor para poder habilitarlo.
+      </div>
+    </div>
+  }
+
+  <ng-template #footer>
+    @if (step() === "form") {
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="busy()"
+        (onClick)="cancel()"
+      />
+      <p-button
+        label="Agregar key"
+        icon="fa-sharp fa-regular fa-key"
+        [loading]="busy()"
+        [disabled]="!shapeOk() || busy()"
+        (onClick)="submit()"
+      />
+    } @else {
+      <p-button label="Listo" (onClick)="cancel()" />
+    }
+  </ng-template>
+</p-dialog>
